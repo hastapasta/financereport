@@ -1,5 +1,5 @@
 <html>
-	<body>
+
 
 <?php
 
@@ -8,19 +8,14 @@ $parse_external_url = 1;
 //$url_val = 'http://bloomberg.econoday.com/byshoweventfull.asp?fid=441986&cust=bloomberg&year=2010#top';
 //$url_val = 'http://www.bls.gov/lau/home.htm';
 $url_val = $_COOKIE['web_page'];
-$table_coord = 4;
-$row_coord = 2;
-$cell_coord = 5;
-$begin_string = "<strong>";
-$end_string = "&#160;K</strong>";
 //$extract_value = '444';
 /*end input values */
 
+$frame = $_GET['frame'];
 $seek_offset = $_GET['offset'];
-echo "<BR>processing offset :".$seek_offset."<BR>";
 
 function get_data($url)
-{
+	{
   $ch = curl_init();
   $timeout = 5;
   curl_setopt($ch,CURLOPT_URL,$url);
@@ -29,9 +24,18 @@ function get_data($url)
   $data = curl_exec($ch);
   curl_close($ch);
   return $data;
-}
+	}
 
-$html = "<html></html>";
+
+
+function parse_table_structure($bDisplay)
+{
+	
+	
+
+	global $url_val, $parse_external_url, $seek_offset;
+	
+	$html = "<html></html>";
 
 if ($parse_external_url == true)
 {
@@ -42,11 +46,7 @@ else
 	$returned_content=$html;
 }
 
-/*
-	Count the number of open table tags prior to the offset location
-*/
-///<([^<]*444[^>]*)>/i
-$open_table_regex="/<table[^>]*>/i";
+	$open_table_regex="/<table[^>]*>/i";
 $close_table_regex="/<\/table[^>]*>/i";
 $done = false;
 $count = 0;
@@ -214,7 +214,56 @@ else
 {
 	echo "<BR>Issue with processing open and close div tags.<BR>";
 }
+	
+
 }
+}
+
+if ($frame == 'parent')
+{
+?>
+
+<frameset cols="50%,*">
+ 	<frame src="http://win-d2sjsg6emdd/dev/regex_table_structure.php?offset=<?php	echo $seek_offset;?>&frame=display" name=table_structure_display>
+  <frame src="http://win-d2sjsg6emdd/dev/regex_table_structure.php?offset=<?php	echo $seek_offset;?>&frame=form" name=table_structure_form>
+<!--  <frame src=<?=$PHP_SELF?>?frame=whc_left#here name=whc_left>
+  <frame src=<?=$PHP_SELF?>?frame=whc_right name=whc_right> -->
+ </frameset>
+ <frame src=<?=$PHP_SELF?>?frame=whc_bottom name=whc_bottom>
+</frameset>
+
+<?php
+
+
+
+}
+else if ($frame == 'display')
+{
+echo "	<body> ";
+echo "<BR>processing offset :".$seek_offset."<BR>";
+
+parse_table_structure(true);
+
+
+
+
+
+/*
+	Count the number of open table tags prior to the offset location
+*/
+///<([^<]*444[^>]*)>/i
+
+}
+else if ($frame == 'form')
+{
+	echo "	<body> ";
+	
+echo "PLACEHOLDER";	
+	
+	
+}
+	
+	
 
 
 
