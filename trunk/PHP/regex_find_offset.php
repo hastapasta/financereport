@@ -107,7 +107,7 @@ while (!$done)
 		echo "<PRE>";
 		echo  htmlspecialchars(print_r($matches,true));
 		echo "</PRE>";
-		echo "<A HREF=\"regex_table_structure.php?offset=".$offset."\">Display Table Structure @ Offset ".$offset."</A><BR>";
+		echo "<A HREF=\"regex_table_structure.php?offset=".$offset."&frame=parent\">Display Table Structure @ Offset ".$offset."</A><BR>";
 		//display string plus amount in $chars_before_after characters before and after
 		$begin = $offset - $chars_before_after;
 		$length = strlen($matches[0][0]) + (2*$chars_before_after);
