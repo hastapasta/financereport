@@ -1,3 +1,9 @@
+<SCRIPT LANGUAGE="JavaScript">
+function UpdateField(index) {
+form=document.InsertDataSet;
+form.data_set_input.value = form.data_set.options[index].text
+}
+</SCRIPT>
 <html>
 
 
@@ -10,6 +16,10 @@ $parse_external_url = 1;
 $url_val = $_COOKIE['web_page'];
 //$extract_value = '444';
 /*end input values */
+$global_table_count=0;
+$global_row_count=0;
+$global_cell_count=0;
+$global_div_count=0;
 
 $frame = $_GET['frame'];
 $seek_offset = $_GET['offset'];
@@ -30,10 +40,20 @@ function get_data($url)
 
 function parse_table_structure($bDisplay)
 {
+	global $url_val, $parse_external_url, $seek_offset;
+	global $global_table_count,$global_row_count,$global_cell_count,$global_div_count;
+	
+	function custom_echo($bDisplay,$string)
+	{
+		
+		if ($bDisplay == true)
+			echo $string;
+	}
+			
 	
 	
 
-	global $url_val, $parse_external_url, $seek_offset;
+	
 	
 	$html = "<html></html>";
 
@@ -63,7 +83,8 @@ while (!$done)
 			
 			$offset = $matches[0][1]+1;
 			$previous_offset = $offset;
-			echo "<BR>location: ".$offset;
+			//echo "<BR>location: ".$offset;
+			custom_echo($bDisplay,"<BR>location: ".$offset);
 			$count++;
 		}
 		else
@@ -75,7 +96,9 @@ while (!$done)
 	}
 }
 
-echo "<BR>There are ".$count." open table tags preceeding offset ".$seek_offset.".<BR>";
+custom_echo($bDisplay,"<BR>There are ".$count." open table tags preceeding offset ".$seek_offset.".<BR>");
+$global_table_count = $count;
+//echo "<BR>There are ".$count." open table tags preceeding offset ".$seek_offset.".<BR>";
 
 if ($count != 0)
 {
@@ -97,7 +120,8 @@ if ($count != 0)
 				
 				$offset = $matches[0][1]+1;
 				$previous_offset = $offset;
-				echo "<BR>location: ".$offset;
+				//echo "<BR>location: ".$offset;
+				custom_echo($bDisplay,"<BR>location: ".$offset);
 				$count++;
 			}
 			else
@@ -109,7 +133,9 @@ if ($count != 0)
 		}
 	}
 
-	echo "<BR>There are ".$count." open tr tags between offset ".$save_offset." and ".$seek_offset.".<BR>";
+	//echo "<BR>There are ".$count." open tr tags between offset ".$save_offset." and ".$seek_offset.".<BR>";
+	custom_echo($bDisplay,"<BR>There are ".$count." open tr tags between offset ".$save_offset." and ".$seek_offset.".<BR>");
+	$global_row_count = $count;
 }
 
 if ($count != 0)
@@ -132,7 +158,8 @@ if ($count != 0)
 				
 				$offset = $matches[0][1]+1;
 				$previous_offset = $offset;
-				echo "<BR>location: ".$offset;
+				//echo "<BR>location: ".$offset;
+				custom_echo($bDisplay,"<BR>location: ".$offse);
 				$count++;
 			}
 			else
@@ -144,7 +171,9 @@ if ($count != 0)
 		}
 	}
 
-	echo "<BR>There are ".$count." open td tags preceeding offset ".$save_offset." and ".$seek_offset.".<BR>";
+	//echo "<BR>There are ".$count." open td tags preceeding offset ".$save_offset." and ".$seek_offset.".<BR>";
+	custom_echo($bDisplay,"<BR>There are ".$count." open td tags preceeding offset ".$save_offset." and ".$seek_offset.".<BR>");
+	$global_cell_count = $count;
 }
 
 $close_td_regex = "%</td>(?i)%";
@@ -152,8 +181,10 @@ if (preg_match($close_td_regex, $returned_content, $matches, PREG_OFFSET_CAPTURE
 {
 	$end = $matches[0][1]+1;
 	$length = $end - $offset;
-	echo "<BR>Contents of last td open and close tags:<BR>";
-	echo "<BR>".htmlspecialchars(substr($returned_content, $offset - 1, $length + 5))."<BR>";
+	//echo "<BR>Contents of last td open and close tags:<BR>";
+	//echo "<BR>".htmlspecialchars(substr($returned_content, $offset - 1, $length + 5))."<BR>";
+	custom_echo($bDisplay,"<BR>Contents of last td open and close tags:<BR>");
+	custom_echo($bDisplay,"<BR>".htmlspecialchars(substr($returned_content, $offset - 1, $length + 5))."<BR>");
 	
 }
 else
@@ -180,7 +211,8 @@ if ($count != 0)
 				
 				$offset = $matches[0][1]+1;
 				$previous_offset = $offset;
-				echo "<BR>location: ".$offset;
+				//echo "<BR>location: ".$offset;
+				custom_echo($bDisplay,"<BR>location: ".$offset);
 				$count++;
 			}
 			else
@@ -192,7 +224,9 @@ if ($count != 0)
 		}
 	}
 
-	echo "<BR>There are ".$count." open div tags preceeding offset ".$save_offset." and ".$seek_offset.".<BR>";
+	//echo "<BR>There are ".$count." open div tags preceeding offset ".$save_offset." and ".$seek_offset.".<BR>";
+	custom_echo($bDisplay,"<BR>There are ".$count." open div tags preceeding offset ".$save_offset." and ".$seek_offset.".<BR>");
+	$global_div_count=$count;
 	
 }
 
@@ -206,8 +240,10 @@ if (preg_match($close_div_regex, $returned_content, $matches, PREG_OFFSET_CAPTUR
 {
 	$end = $matches[0][1]+1;
 	$length = $end - $offset;
-	echo "<BR>Contents of last div open and close tags:<BR>";
-	echo "<BR>".htmlspecialchars(substr($returned_content, $offset - 1, $length + 6))."<BR>";
+	//echo "<BR>Contents of last div open and close tags:<BR>";
+	//echo "<BR>".htmlspecialchars(substr($returned_content, $offset - 1, $length + 6))."<BR>";
+	custom_echo($bDisplay,"<BR>Contents of last div open and close tags:<BR>");
+	custom_echo($bDisplay,"<BR>".htmlspecialchars(substr($returned_content, $offset - 1, $length + 6))."<BR>");
 	
 }
 else
@@ -229,9 +265,7 @@ if ($frame == 'parent')
 <!--  <frame src=<?=$PHP_SELF?>?frame=whc_left#here name=whc_left>
   <frame src=<?=$PHP_SELF?>?frame=whc_right name=whc_right> -->
  </frameset>
- <frame src=<?=$PHP_SELF?>?frame=whc_bottom name=whc_bottom>
-</frameset>
-
+ 
 <?php
 
 
@@ -258,9 +292,48 @@ else if ($frame == 'form')
 {
 	echo "	<body> ";
 	
-echo "PLACEHOLDER";	
+	parse_table_structure(false);
+	mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
+	mysql_select_db("mydb") or die(mysql_error());
+	?>
 	
+<form name="InsertDataSet" action="InsertDataSet.php" method=POST > 
+					<table>
+						<tr><td>
+							<!-- <select name="data_set" onchange="alert(this.value);" onchange="UpdateField(this.selectedIndex);"> -->
+							<select name="data_set" onchange="UpdateField(this.selectedIndex);">
+								<?php
+									$query2 = "select distinct Data_Set from extract_info";
+				
+									$result2 = mysql_query($query2) or die("Failed Query of " . $query2);
+									
+									for ($j=0;$j<mysql_num_rows($result2);$j++)
+									{
+										$row2 = mysql_fetch_array($result2);
+										echo "<option value=\"".$row2[Data_Set]."\">".$row2[Data_Set]."</option>";
+									}
+								
+								?>
+								<option value="custom_eps_chart">Custom EPS Chart</option>
+								
+							</select>
+							</td></tr>
+							<tr><td>Data Set: </td><td><input type="text" name="data_set_input" size=30 maxlength="30"</td></tr>
+<?php
+
+echo "<tr><td>Table Count: </td><td><input type=\"text\" name=\"tables\" size=5 maxlength=\"5\" value=\"".$global_table_count."\"</td></tr>";
+echo "<tr><td>Row Count: </td><td><input type=\"text\" name=\"cells\" size=5 maxlength=\"5\" value=\"".$global_row_count."\"</td></tr>";
+echo "<tr><td>Cell Count: </td><td><input type=\"text\" name=\"rows\" size=5 maxlength=\"5\" value=\"".$global_cell_count."\"</td></tr>";
+echo "<tr><td>Div Count: </td><td><input type=\"text\" name=\"divs\" size=5 maxlength=\"5\" value=\"".$global_div_count."\"</td></tr>";
+?>
+							<tr><td>Initial Before Unique Code: </td><td><input type="text" name="initial_before" size=30 maxlength="30"</td></tr>
+							<tr><td>Before Unique Code: </td><td><input type="text" name="before" size=30 maxlength="30"</td></tr>
+							<tr><td>After Unique Code: </td><td><input type="text" name="after" size=30 maxlength="30"</td></tr>
+							<tr><td><input type="submit" value="Submit" name="submit_msg" ></td></tr>
+					</table>
+				</form>
 	
+<?php
 }
 	
 	
