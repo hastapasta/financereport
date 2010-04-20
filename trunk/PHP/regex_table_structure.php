@@ -300,6 +300,7 @@ else if ($frame == 'form')
 	
 		
 	echo "	<body> ";
+	echo "NOTE: Commas and ".htmlspecialchars("&nbsp;")." are replaced before inserting into the db.<BR>";
 	
 	parse_table_structure(false);
 	
