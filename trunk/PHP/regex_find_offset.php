@@ -1,6 +1,6 @@
 <html>
 	<body>
-Note: -For now you need to manually preceed any forward slashes (/) with back slashes (\).<BR>
+Note: -For now you need to manually preceed any special characters (e.g. forward slashes (/), decimal points (.), etc.) with back slashes (\).<BR>
 	
 <?php
 
