@@ -429,6 +429,54 @@ form=document.InsertDataSet;
 	else
 		echo "form.tables.value='".$row1[Table_Count]."';";
 		
+	if (isset($_POST['ck_rows']))
+  {
+  	echo "form.ck_rows.checked=true;";
+		echo "form.rows.value = '".$_POST[rows]."';";
+	}
+	else
+		echo "form.rows.value='".$row1[Row_Count]."';";
+		
+	if (isset($_POST['ck_cells']))
+  {
+  	echo "form.ck_cells.checked=true;";
+		echo "form.cells.value = '".$_POST[cells]."';";
+	}
+	else
+		echo "form.cells.value='".$row1[Cell_Count]."';";
+		
+	if (isset($_POST['ck_divs']))
+  {
+  	echo "form.ck_divs.checked=true;";
+		echo "form.divs.value = '".$_POST[divs]."';";
+	}
+	else
+		echo "form.divs.value='".$row1[Div_Count]."';";
+		
+	if (isset($_POST['ck_initial_before']))
+  {
+  	echo "form.ck_initial_before.checked=true;";
+		echo "form.initial_before.value = '".$_POST[initial_before]."';";
+	}
+	else
+		echo "form.initial_before.value='".$row1[Initial_Bef_Unique_Code]."';";
+		
+	if (isset($_POST['ck_before']))
+  {
+  	echo "form.ck_before.checked=true;";
+		echo "form.before.value = '".$_POST[before]."';";
+	}
+	else
+		echo "form.before.value='".$row1[Before_Unique_Code]."';";
+		
+	if (isset($_POST['ck_after']))
+  {
+  	echo "form.ck_after.checked=true;";
+		echo "form.after.value = '".$_POST[after]."';";
+	}
+	else
+		echo "form.after.value='".$row1[After_Unique_Code]."';";
+		
 		
 ?>
 
