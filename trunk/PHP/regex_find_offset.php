@@ -89,6 +89,17 @@ else
 	$returned_content=$html;
 }
 
+?>
+<table id="myTable">
+<tr>
+<td></td>
+</tr>
+<tr><td><BR><a href="show_raw_html.php">View Raw HTML</A><BR></td></tr>
+</table>
+
+
+<?php
+
 wl('test');
 
 $done = false;
@@ -98,11 +109,13 @@ $extract_value_regex = "/".$extract_value."/i";
 //$extract_value_regex = "/<([^<]*".$extract_value."[^>]*)>(?i)/";
 
 echo "<BR>regex:<BR>".$extract_value_regex."<BR>";
+$count = 0;
 while (!$done)
 {
 	//if (preg_match("/<([^<]*444[^>]*)>/i", $returned_content, $matches, PREG_OFFSET_CAPTURE, $offset))
 	if (preg_match($extract_value_regex, $returned_content, $matches, PREG_OFFSET_CAPTURE, $offset))
 	{
+		$count++;
 		$offset = $matches[0][1] + 1;
 		echo "<PRE>";
 		echo  htmlspecialchars(print_r($matches,true));
@@ -149,4 +162,20 @@ echo '<td><input type="text" name="web_page" value="'. $url_val . '" size=100 ma
 			</form>
 			
 </body>
+
+<SCRIPT LANGUAGE="JavaScript">
+function changeContent(){
+    var x=document.getElementById('myTable').rows;
+    var y=x[0].cells;
+    
+<?PHP
+
+   echo "y[0].innerHTML=\"OCCURENCES FOUND: ".$count."\"";
+    
+?>
+}
+changeContent();
+</SCRIPT>
+
+
 </html>	
