@@ -318,17 +318,19 @@ else if ($frame == 'form')
 								
 							</select>
 							</td></tr>
-							<tr><td>Data Set: </td><td><input type="text" name="data_set_input" size=30 maxlength="30"</td></tr>
+							<tr><td>Data Set: </td><td><input type="text" name="data_set_input" size=30 maxlength="30"></td></tr>
 <?php
 
-echo "<tr><td>Table Count: </td><td><input type=\"text\" name=\"tables\" size=5 maxlength=\"5\" value=\"".$global_table_count."\"</td></tr>";
-echo "<tr><td>Row Count: </td><td><input type=\"text\" name=\"cells\" size=5 maxlength=\"5\" value=\"".$global_row_count."\"</td></tr>";
-echo "<tr><td>Cell Count: </td><td><input type=\"text\" name=\"rows\" size=5 maxlength=\"5\" value=\"".$global_cell_count."\"</td></tr>";
-echo "<tr><td>Div Count: </td><td><input type=\"text\" name=\"divs\" size=5 maxlength=\"5\" value=\"".$global_div_count."\"</td></tr>";
+echo "<tr><td>Static URL: </td><td><input type=\"text\" name=\"static_url\" size=30 maxlength=\"200\" value=\"".$url_val."\"></td></tr>";
+echo "<tr><td>Dynamic URL: </td><td><input type=\"text\" name=\"dynamic_url\" size=30 maxlength=\"200\" ></td></tr>";
+echo "<tr><td>Table Count: </td><td><input type=\"text\" name=\"tables\" size=5 maxlength=\"5\" value=\"".$global_table_count."\"></td></tr>";
+echo "<tr><td>Row Count: </td><td><input type=\"text\" name=\"cells\" size=5 maxlength=\"5\" value=\"".$global_row_count."\"></td></tr>";
+echo "<tr><td>Cell Count: </td><td><input type=\"text\" name=\"rows\" size=5 maxlength=\"5\" value=\"".$global_cell_count."\"></td></tr>";
+echo "<tr><td>Div Count: </td><td><input type=\"text\" name=\"divs\" size=5 maxlength=\"5\" value=\"".$global_div_count."\"></td></tr>";
 ?>
-							<tr><td>Initial Before Unique Code: </td><td><input type="text" name="initial_before" size=30 maxlength="30"</td></tr>
-							<tr><td>Before Unique Code: </td><td><input type="text" name="before" size=30 maxlength="30"</td></tr>
-							<tr><td>After Unique Code: </td><td><input type="text" name="after" size=30 maxlength="30"</td></tr>
+							<tr><td>Initial Before Unique Code: </td><td><input type="text" name="initial_before" size=30 maxlength="30"></td></tr>
+							<tr><td>Before Unique Code: </td><td><input type="text" name="before" size=30 maxlength="30"></td></tr>
+							<tr><td>After Unique Code: </td><td><input type="text" name="after" size=30 maxlength="30"></td></tr>
 							<tr><td><input type="submit" value="Submit" name="submit_msg" ></td></tr>
 					</table>
 				</form>
