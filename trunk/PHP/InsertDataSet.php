@@ -15,15 +15,15 @@
 	$before_code = $_POST['before'];
 	$after_code = $_POST['after'];
 	
-	$insert = "INSERT INTO extract_info (Data_Set, Table_Count, Row_Count, Cell_Count, Div_Count, Initial_Bef_Unique_Code, Before_Unique_Code, After_Unique_Code, url_static, url_dynamic) VALUES ('" . $data_set_input . "', '" . $table_count . "', '" . $cell_count."', '".$row_count."', '".$div_count."', '".$initial_before_code."', '".$before_code."', '".$after_code."', '".$url_static."', '".$url_dynamic."'";
+	$insert = "INSERT INTO extract_info (Data_Set, Table_Count, Row_Count, Cell_Count, Div_Count, Initial_Bef_Unique_Code, Before_Unique_Code, After_Unique_Code, url_static, url_dynamic) VALUES ('" . $data_set_input . "', '" . $table_count . "', '" . $cell_count."', '".$row_count."', '".$div_count."', '".$initial_before_code."', '".$before_code."', '".$after_code."', '".$url_static."', '".$url_dynamic."')";
 	
-	echo "<BR>".$insert."<BR>";
+	echo "<BR>".htmlspecialchars($insert)."<BR>";
 	
 	if (mysql_query($insert))
   		echo "<BR><BR>Value inserted in db.<BR>";  			
   	else
   	 die(mysql_error());
-  	}
+  	
 	
 	
 	?>
