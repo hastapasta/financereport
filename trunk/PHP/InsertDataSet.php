@@ -1,24 +1,34 @@
 <HTML>
+	<BODY>
 	<?php
 	mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
 	mysql_select_db("mydb") or die(mysql_error());
 	
 	$data_set_input = $_POST['data_set_input'];
+	$url_static = $_POST['static_url'];
+	$url_dynamic = $_POST['dynamic_url'];
 	$table_count = $_POST['tables'];
-	$cell_count = $_POST['cell'];
-	$row_count = $_POST['row'];
-	$div_count = $_POST['div'];
+	$cell_count = $_POST['cells'];
+	$row_count = $_POST['rows'];
+	$div_count = $_POST['divs'];
 	$initial_before_code = $_POST['initial_before'];
 	$before_code = $_POST['before'];
 	$after_code = $_POST['after'];
 	
+	$insert = "INSERT INTO extract_info (Data_Set, Table_Count, Row_Count, Cell_Count, Div_Count, Initial_Bef_Unique_Code, Before_Unique_Code, After_Unique_Code, url_static, url_dynamic) VALUES ('" . $data_set_input . "', '" . $table_count . "', '" . $cell_count."', '".$row_count."', '".$div_count."', '".$initial_before_code."', '".$before_code."', '".$after_code."', '".$url_static."', '".$url_dynamic."'";
 	
+	echo "<BR>".$insert."<BR>";
+	
+	if (mysql_query($insert))
+  		echo "<BR><BR>Value inserted in db.<BR>";  			
+  	else
+  	 die(mysql_error());
+  	}
 	
 	
 	?>
 	
-	<BODY>
-		PLACEHOLDER
+
 	</BODY>
 </HTML>
 
