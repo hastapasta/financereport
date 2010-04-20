@@ -1,13 +1,17 @@
 <SCRIPT LANGUAGE="JavaScript">
-function UpdateField(index) {
-form=document.InsertDataSet;
-form.data_set_input.value = form.data_set.options[index].text
-}
+//function UpdateField(index) {
+//form=document.InsertDataSet;
+//form.data_set_input.value = form.data_set.options[index].text
+//}
 </SCRIPT>
 <html>
 
 
 <?php
+
+/* 4/18/2010 - I'd like to add a "preserve value" check box column for each field in the form section. 
+								Then when you select a field from the data_set drop down box, those fields which aren't
+								checked will be overwritten with the existing value from the data base. */
 
 /* input values */
 $parse_external_url = 1;
@@ -290,16 +294,22 @@ parse_table_structure(true);
 }
 else if ($frame == 'form')
 {
+	mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
+	mysql_select_db("mydb") or die(mysql_error());
+	
+	
+		
 	echo "	<body> ";
 	
 	parse_table_structure(false);
-	mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
-	mysql_select_db("mydb") or die(mysql_error());
+	
 	?>
 	
-<form name="InsertDataSet" action="InsertDataSet.php" method=POST > 
+<!--<form name="UpdateValues" action="regex_table_structure.php?offset=<?php	echo $seek_offset;?>&frame=form" method=POST > -->
+
+<form name="InsertDataSet" action="InsertDataSet.php" method=POST > 	
 					<table>
-						<tr><td>
+						<tr><td></td><td>
 							<!-- <select name="data_set" onchange="alert(this.value);" onchange="UpdateField(this.selectedIndex);"> -->
 							<select name="data_set" onchange="UpdateField(this.selectedIndex);">
 								<?php
@@ -314,28 +324,122 @@ else if ($frame == 'form')
 									}
 								
 								?>
-								<option value="custom_eps_chart">Custom EPS Chart</option>
+								<!-- <option value="custom_eps_chart">Custom EPS Chart</option> -->
 								
-							</select>
-							</td></tr>
-							<tr><td>Data Set: </td><td><input type="text" name="data_set_input" size=30 maxlength="30"></td></tr>
+							</select>	</td>
+						<td>
+							<input type="submit" value="Update Values" name="submit_update" 
+							onclick="InsertDataSet.action='regex_table_structure.php?offset=<?php	echo $seek_offset;?>&frame=form'; return true" >
+						</td>
+							</tr>
+						</table>
+					
+							
+							<table>
+							<tr><td>Preserve<br>Value</td></tr>
+							<tr><td><input type="checkbox" name="ck_data_set_input" /></td>
+								<td>Data Set: </td><td><input type="text" name="data_set_input" size=30 maxlength="30"></td></tr>
 <?php
 
-echo "<tr><td>Static URL: </td><td><input type=\"text\" name=\"static_url\" size=30 maxlength=\"200\" value=\"".$url_val."\"></td></tr>";
-echo "<tr><td>Dynamic URL: </td><td><input type=\"text\" name=\"dynamic_url\" size=30 maxlength=\"200\" ></td></tr>";
-echo "<tr><td>Table Count: </td><td><input type=\"text\" name=\"tables\" size=5 maxlength=\"5\" value=\"".$global_table_count."\"></td></tr>";
-echo "<tr><td>Row Count: </td><td><input type=\"text\" name=\"cells\" size=5 maxlength=\"5\" value=\"".$global_row_count."\"></td></tr>";
-echo "<tr><td>Cell Count: </td><td><input type=\"text\" name=\"rows\" size=5 maxlength=\"5\" value=\"".$global_cell_count."\"></td></tr>";
-echo "<tr><td>Div Count: </td><td><input type=\"text\" name=\"divs\" size=5 maxlength=\"5\" value=\"".$global_div_count."\"></td></tr>";
+echo "<tr><td><input type=\"checkbox\" name=\"ck_static_url\" /></td>";
+echo "<td>Static URL: </td><td><input type=\"text\" name=\"static_url\" size=30 maxlength=\"200\" value=\"".$url_val."\"></td></tr>";
+
+echo "<tr><td><input type=\"checkbox\" name=\"ck_dynamic_url\" /></td>";
+echo "<td>Dynamic URL: </td><td><input type=\"text\" name=\"dynamic_url\" size=30 maxlength=\"200\" ></td></tr>";
+
+echo "<tr><td><input type=\"checkbox\" name=\"ck_tables\" /></td>";
+echo "<td>Table Count: </td><td><input type=\"text\" name=\"tables\" size=5 maxlength=\"5\" value=\"".$global_table_count."\"></td></tr>";
+
+echo "<tr><td><input type=\"checkbox\" name=\"ck_rows\" /></td>";
+echo "<td>Row Count: </td><td><input type=\"text\" name=\"cells\" size=5 maxlength=\"5\" value=\"".$global_row_count."\"></td></tr>";
+
+echo "<tr><td><input type=\"checkbox\" name=\"ck_cells\" /></td>";
+echo "<td>Cell Count: </td><td><input type=\"text\" name=\"rows\" size=5 maxlength=\"5\" value=\"".$global_cell_count."\"></td></tr>";
+
+echo "<tr><td><input type=\"checkbox\" name=\"ck_divs\" /></td>";
+echo "<td>Div Count: </td><td><input type=\"text\" name=\"divs\" size=5 maxlength=\"5\" value=\"".$global_div_count."\"></td></tr>";
 ?>
-							<tr><td>Initial Before Unique Code: </td><td><input type="text" name="initial_before" size=30 maxlength="30"></td></tr>
-							<tr><td>Before Unique Code: </td><td><input type="text" name="before" size=30 maxlength="30"></td></tr>
-							<tr><td>After Unique Code: </td><td><input type="text" name="after" size=30 maxlength="30"></td></tr>
+							<tr><td><input type="checkbox" name="ck_initial_before" /></td>
+								<td>Initial Before Unique Code: </td><td><input type="text" name="initial_before" size=30 maxlength="30"></td></tr>
+							<tr><td><input type="checkbox" name="ck_before" /></td>
+								<td>Before Unique Code: </td><td><input type="text" name="before" size=30 maxlength="30"></td></tr>
+							<tr><td><input type="checkbox" name="ck_after" /></td>
+								<td>After Unique Code: </td><td><input type="text" name="after" size=30 maxlength="30"></td></tr>
 							<tr><td><input type="submit" value="Submit" name="submit_msg" ></td></tr>
 					</table>
 				</form>
 	
 <?php
+
+if(isset($_POST['submit_update'])) 
+	{
+		/* A data set was selected so the form fields need to be populated with existing values from the database. */
+		$populate_ds_values = true;
+		$data_set_input = $_POST['data_set_input'];
+		$url_static = $_POST['static_url'];
+		$url_dynamic = $_POST['dynamic_url'];
+		$table_count = $_POST['tables'];
+		$cell_count = $_POST['cells'];
+		$row_count = $_POST['rows'];
+		$div_count = $_POST['divs'];
+		$initial_before_code = $_POST['initial_before'];
+		$before_code = $_POST['before'];
+		$after_code = $_POST['after'];
+		$query1 = "select * from extract_info where data_set='".$_POST['data_set']."'";
+		$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
+		//should only return one row since there is a database constraint on unique data sets.
+		$row1 = mysql_fetch_array($result1);
+		$data_set_input = $row1[data_set];
+?>
+
+<SCRIPT LANGUAGE="JavaScript">
+
+form=document.InsertDataSet;
+
+<?php
+  if (isset($_POST['ck_data_set_input']))
+  {
+  	echo "form.ck_data_set_input.checked=true;";
+		echo "form.data_set_input.value = '".$_POST[data_set_input]."';";
+	}
+	else
+		echo "form.data_set_input.value='".$_POST['data_set']."';";
+		
+	if (isset($_POST['ck_static_url']))
+  {
+  	echo "form.ck_static_url.checked=true;";
+		echo "form.static_url.value = '".$_POST[static_url]."';";
+	}
+	else
+		echo "form.static_url.value='".$row1[url_static]."';";
+		
+	if (isset($_POST['ck_dynamic_url']))
+  {
+  	echo "form.ck_dynamic_url.checked=true;";
+		echo "form.dynamic_url.value = '".$_POST[dynamic_url]."';";
+	}
+	else
+		echo "form.dynamic_url.value='".$row1[url_dynamic]."';";
+		
+	if (isset($_POST['ck_tables']))
+  {
+  	echo "form.ck_tables.checked=true;";
+		echo "form.tables.value = '".$_POST[tables]."';";
+	}
+	else
+		echo "form.tables.value='".$row1[Table_Count]."';";
+		
+		
+?>
+
+</SCRIPT>
+
+<?php
+		
+		
+		
+	}
+	
 }
 	
 	
