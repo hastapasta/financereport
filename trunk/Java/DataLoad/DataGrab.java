@@ -6,6 +6,7 @@ import java.sql.*;
 import java.net.*;
 import java.io.*;
 import java.util.regex.*;
+import java.util.ArrayList;
 
 class DataGrab
 {
@@ -254,20 +255,7 @@ public String get_value(String local_data_set)
   boolean bRet = stmt.execute(query);*/
   
   
-  
-  
-  
-  
-		
-	
-	
-
-  
- 
-  	
-  	
-  
-  
+    
   
                
     
@@ -292,6 +280,45 @@ public String get_value(String local_data_set)
 
 }
 
+public ArrayList<String> get_list_dataset_run_once()
+{
+	ArrayList<String> tmpAL = new ArrayList<String>();
+	Connection con = null;
+	int count=0;
+	try
+	{
+	con = db_connect();
+	String query = "select data_set from schedule where run_once=1";
+	Statement stmt = con.createStatement();
+	ResultSet rs = stmt.executeQuery(query);
+	
+	
+	while(rs.next())
+	{
+	
+		tmpAL.add(rs.getString("Data_Set"));
+		count++;
+			
+		
+	}
+	con.close();
+	}
+	catch (SQLException sqle)
+	{
+		System.out.println("problem with retrieving data sets from schedule table");
+		sqle.printStackTrace();
+	}
+
+		
+
+	System.out.println("Processing " + count + " data sets.");
+	return(tmpAL);
+
+	
+	
+	
+}
+
 
 
 public void grab_dow_data_set()
@@ -299,24 +326,25 @@ public void grab_dow_data_set()
 	try
 	{
 	//String[] data_sets = {"yahoo_q109_income", "yahoo_q209_income", "yahoo_q309_income", "yahoo_q409_income"};
-	String[] data_sets = {"yahoo_nextQ_income_est"};
+	//String[] data_sets = {""};
 	Connection con = db_connect();
-	for (int i=0;i<4;i++)
-	{
-		String strCurDataSet = data_sets[i];
-		
-	//loop through quarters
 	
-	//loop through dow stocks
+	
+	ArrayList<String> data_sets = get_list_dataset_run_once();
+
+	
+	for (int i=0;i<data_sets.size();i++)
+	{
 		
+		String strCurDataSet = data_sets.get(i);
+		System.out.println("PROCESSING DATA SET " + strCurDataSet);
+		String query = "select * from dow";
+		Statement stmt = con.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+			
+		String strCurTicker, fullUrl;
+		String strDataValue;
 		
-			
-			String query = "select * from dow";
-			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
-			
-			String strCurTicker, fullUrl;
-			String strDataValue;
 			
 			while(rs.next())
 			{
