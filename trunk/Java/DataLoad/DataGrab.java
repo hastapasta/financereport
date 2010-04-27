@@ -8,6 +8,7 @@ import java.io.*;
 import java.util.regex.*;
 import java.util.ArrayList;
 
+
 class DataGrab
 {
 	
@@ -15,11 +16,12 @@ class DataGrab
 	
 public String get_value(String local_data_set)
 {
+	ProcessingFunctions.preProcessing(local_data_set);
 	String strDataValue="";
 	try
 	{
 	//run sql to get info about the data_set
-	Connection con = db_connect();
+	Connection con = UtilityFunctions.db_connect();
 	
 	String query = "select * from extract_info where Data_Set='" + local_data_set + "'";
 	
@@ -287,7 +289,7 @@ public ArrayList<String> get_list_dataset_run_once()
 	int count=0;
 	try
 	{
-	con = db_connect();
+	con = UtilityFunctions.db_connect();
 	String query = "select data_set from schedule where run_once=1";
 	Statement stmt = con.createStatement();
 	ResultSet rs = stmt.executeQuery(query);
@@ -327,7 +329,7 @@ public void grab_dow_data_set()
 	{
 	//String[] data_sets = {"yahoo_q109_income", "yahoo_q209_income", "yahoo_q309_income", "yahoo_q409_income"};
 	//String[] data_sets = {""};
-	Connection con = db_connect();
+	Connection con = UtilityFunctions.db_connect();
 	
 	
 	ArrayList<String> data_sets = get_list_dataset_run_once();
@@ -392,24 +394,7 @@ public void grab_dow_data_set()
 	}
 	}
 	
-	public Connection db_connect()
-	{
-		try
-		{
-			Class.forName("com.mysql.jdbc.Driver");
-			String url = "jdbc:mysql://localhost:3306/mydb";
-			return(DriverManager.getConnection(url,"root", "madmax1."));
-			
-		}
-		catch (Exception e)
-	{
-		e.printStackTrace();
-		return(null);
-		
-	}
-		
-		
-	}
+
 	
 	
 }
