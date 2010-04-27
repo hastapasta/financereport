@@ -342,40 +342,37 @@ public void grab_dow_data_set()
 		Statement stmt = con.createStatement();
 		ResultSet rs = stmt.executeQuery(query);
 			
-		String strCurTicker, fullUrl;
-		String strDataValue;
+		String strCurTicker="";
+		String fullUrl;
+		String strDataValue="";
 		
 			
 			while(rs.next())
 			{
-				strCurTicker = rs.getString("ticker");
 				try
 				{
+				strCurTicker = rs.getString("ticker");
+				
 					query = "update extract_info set url_dynamic='" + strCurTicker + "' where Data_Set='" + strCurDataSet + "'";
 					stmt = con.createStatement();
 					boolean bRet = stmt.execute(query);
-				}
-				catch (SQLException sqle)
-				{
-					System.out.println("problem with update sql statement");
-					sqle.printStackTrace();
-					
-				}
+				
+			
 				System.out.println(query);
 				
 				System.out.println("Calling get value.");
 				strDataValue = get_value(strCurDataSet);
-				try
-				{
-					query = "INSERT INTO fact_data (data_set,value,quarter,ticker,date_collected) VALUES ('" + strCurDataSet + "','" + 
+		
+					query = "INSERT INTO fact_data_stage (data_set,value,quarter,ticker,date_collected) VALUES ('" + strCurDataSet + "','" + 
 					strDataValue + "','" + Integer.toString(40+i) + "','" + strCurTicker + "',NOW())";
  	  			System.out.println(query);
   	 			stmt = con.createStatement();
-  				boolean bRet = stmt.execute(query);
+  				bRet = stmt.execute(query);
   			}
   			catch (SQLException sqle)
   			{
   				System.out.println("problem with insert sql statement");
+  				System.err.println("Processing of data_set " + strCurDataSet + " with ticker " + strCurTicker + " FAILED ");
   				sqle.printStackTrace();
   			}
   				
