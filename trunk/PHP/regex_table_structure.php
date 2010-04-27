@@ -352,10 +352,10 @@ echo "<tr><td><input type=\"checkbox\" name=\"ck_tables\" /></td>";
 echo "<td>Table Count: </td><td><input type=\"text\" name=\"tables\" size=5 maxlength=\"5\" value=\"".$global_table_count."\"></td></tr>";
 
 echo "<tr><td><input type=\"checkbox\" name=\"ck_rows\" /></td>";
-echo "<td>Row Count: </td><td><input type=\"text\" name=\"cells\" size=5 maxlength=\"5\" value=\"".$global_row_count."\"></td></tr>";
+echo "<td>Row Count: </td><td><input type=\"text\" name=\"rows\" size=5 maxlength=\"5\" value=\"".$global_row_count."\"></td></tr>";
 
 echo "<tr><td><input type=\"checkbox\" name=\"ck_cells\" /></td>";
-echo "<td>Cell Count: </td><td><input type=\"text\" name=\"rows\" size=5 maxlength=\"5\" value=\"".$global_cell_count."\"></td></tr>";
+echo "<td>Cell Count: </td><td><input type=\"text\" name=\"cells\" size=5 maxlength=\"5\" value=\"".$global_cell_count."\"></td></tr>";
 
 echo "<tr><td><input type=\"checkbox\" name=\"ck_divs\" /></td>";
 echo "<td>Div Count: </td><td><input type=\"text\" name=\"divs\" size=5 maxlength=\"5\" value=\"".$global_div_count."\"></td></tr>";
