@@ -278,7 +278,7 @@ public String get_value(String local_data_set)
     }//end catch
     finally
     {
-    	return(strDataValue);
+    	return(ProcessingFunctions.postProcessing(local_data_set,strDataValue));
     }
 
 
@@ -357,6 +357,10 @@ public void grab_dow_data_set()
 				try
 				{
 				strCurTicker = rs.getString("ticker");
+				
+				/*Active only to debug individual tickers */
+				/*if (strCurTicker.compareTo("BA") != 0)
+					continue;*/
 				
 					query = "update extract_info set url_dynamic='" + strCurTicker + "' where Data_Set='" + strCurDataSet + "'";
 					stmt = con.createStatement();
