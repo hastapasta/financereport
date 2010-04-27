@@ -22,6 +22,29 @@ class UtilityFunctions
 		return(null);
 		
 	}
+	
+		
+		
+	}
+	
+	public static ResultSet db_run_query(String query)
+	{
+		Connection con=null;
+		ResultSet rs =null;
+		try
+		{
+			con = db_connect();
+			Statement stmt = con.createStatement();
+			rs = stmt.executeQuery(query);
+		}
+		catch (SQLException sqle)
+		{
+			System.out.println("SQL statement failed: " + query);
+			sqle.printStackTrace();
+		}
+		return(rs);
+		/* Not going to worry about closing the connection, we'll let it be garbage collected.*/
+		
 		
 		
 	}
