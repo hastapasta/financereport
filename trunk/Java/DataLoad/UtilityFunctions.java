@@ -27,6 +27,28 @@ class UtilityFunctions
 		
 	}
 	
+	public static void db_update_query(String strUpdateStmt)
+	{
+		Connection con=null;
+		ResultSet rs =null;
+
+		try
+		{
+			con = db_connect();
+			Statement stmt = con.createStatement();
+			stmt.execute(strUpdateStmt);
+		}
+		catch (SQLException sqle)
+		{
+			System.out.println("SQL statement failed: " + strUpdateStmt);
+			sqle.printStackTrace();
+		}
+		
+		
+		
+		
+	}
+	
 	public static ResultSet db_run_query(String query)
 	{
 		Connection con=null;
