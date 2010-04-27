@@ -28,7 +28,7 @@ public String get_value(String local_data_set)
 	System.out.println(query);
 	
   Statement stmt = con.createStatement();
-  ResultSet rs = stmt.executeQuery(query);
+  ResultSet rs = UtilityFunctions.db_run_query(query);
   
   rs.next();
   
@@ -228,20 +228,24 @@ public String get_value(String local_data_set)
   
   strDataValue = returned_content.substring(nBeginOffset,nEndOffset);
   
+  System.out.println ("Raw Data Value: " + strDataValue);
+  
   strDataValue = strDataValue.replace(",","");
   
   strDataValue = strDataValue.replace("&nbsp;","");
   
-  System.out.println("checking for negative data value");
-  System.out.println(strDataValue.substring(0,1));
- if (strDataValue.substring(0,1).compareTo("(") == 0)
- {
+  if (strDataValue.compareTo("") != 0)
+  {
+  	System.out.println("checking for negative data value");
+  	System.out.println(strDataValue.substring(0,1));
+  	if (strDataValue.substring(0,1).compareTo("(") == 0)
+ 		{
  	
- 	 strDataValue = strDataValue.replace("(","");
- 	 strDataValue = "-" + strDataValue.replace(")","");
- }
+ 			strDataValue = strDataValue.replace("(","");
+ 	 		strDataValue = "-" + strDataValue.replace(")","");
+ 		}
  	 
- 	 
+ 	}
   
   System.out.println("Data Value: " + strDataValue);
   
@@ -285,25 +289,24 @@ public String get_value(String local_data_set)
 public ArrayList<String> get_list_dataset_run_once()
 {
 	ArrayList<String> tmpAL = new ArrayList<String>();
-	Connection con = null;
+	
 	int count=0;
 	try
 	{
-	con = UtilityFunctions.db_connect();
-	String query = "select data_set from schedule where run_once=1";
-	Statement stmt = con.createStatement();
-	ResultSet rs = stmt.executeQuery(query);
-	
-	
-	while(rs.next())
-	{
-	
-		tmpAL.add(rs.getString("Data_Set"));
-		count++;
-			
+
+		String query = "select data_set from schedule where run_once=1";
+		ResultSet rs = UtilityFunctions.db_run_query(query);
 		
-	}
-	con.close();
+		
+		while(rs.next())
+		{
+		
+			tmpAL.add(rs.getString("Data_Set"));
+			count++;
+				
+			
+		}
+
 	}
 	catch (SQLException sqle)
 	{
@@ -342,7 +345,7 @@ public void grab_dow_data_set()
 		System.out.println("PROCESSING DATA SET " + strCurDataSet);
 		String query = "select * from dow";
 		Statement stmt = con.createStatement();
-		ResultSet rs = stmt.executeQuery(query);
+		ResultSet rs = UtilityFunctions.db_run_query(query);
 			
 		String strCurTicker="";
 		String fullUrl;
