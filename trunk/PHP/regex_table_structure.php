@@ -328,8 +328,9 @@ else if ($frame == 'form')
 								<!-- <option value="custom_eps_chart">Custom EPS Chart</option> -->
 								
 							</select>	</td>
+							<!-- have to change the insertdata action afterwards since the url requires parameters -->
 						<td>
-							<input type="submit" value="Update Values" name="submit_update" 
+							<input type="submit" value="Refresh Fields" name="submit_update" 
 							onclick="InsertDataSet.action='regex_table_structure.php?offset=<?php	echo $seek_offset;?>&frame=form'; return true" >
 						</td>
 							</tr>
