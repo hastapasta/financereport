@@ -10,9 +10,10 @@ class ProcessingFunctions
 	static String strTemp1, strTemp2, strTemp3;
 	
 
-public static void preProcessing(String strDataSet)
+public static boolean preProcessing(String strDataSet)
 {
-
+	  /* For the return value, return false if the attempt to grab the value should be skipped. */
+	  
 		ProcessingFunctions pf = new ProcessingFunctions();
 		String query = "select pre_process_func_name from extract_info where Data_Set='" + strDataSet + "'";
 		ResultSet rs = UtilityFunctions.db_run_query(query);
@@ -28,7 +29,7 @@ public static void preProcessing(String strDataSet)
 			if (strFunctionName == null)
 			{
 				System.out.println("No pre process function, exiting...");
-				return;
+				return(true);
 			}
 			strStaticDataSet = "";
 			strStaticDataValue = "";
@@ -38,13 +39,15 @@ public static void preProcessing(String strDataSet)
 			strStaticDataSet = strDataSet;
 			System.err.println(strFunctionName);
 			Method m = pf.getClass().getMethod(strFunctionName,new Class[] {});
-			m.invoke(pf, new Object[] {});
+			return((Boolean)m.invoke(pf, new Object[] {}));
 		}
 		catch (Exception tmpE)
 		{
 			System.err.println("preProcessing method call failed");
 			tmpE.printStackTrace();
 		}
+		
+		return (false);
 	
 
 
@@ -89,7 +92,7 @@ public static String postProcessing(String strDataSet,String strDataValue)
 }
 
 
-public static void preNasdaqEPS()
+public static boolean preNasdaqEPS()
 {
 	try
 	{
@@ -103,9 +106,14 @@ public static void preNasdaqEPS()
 		UtilityFunctions.db_update_query(query);
 		String strCurValue = DataGrab.get_value("nasdaq_current_fiscal_year");
 		System.err.println("Nasdaq_current_fiscal_year: " + strCurValue);
+		int nDataSetYear = Integer.parseInt(tmpStaticDataSet.substring(9,11));
 		
+		if 	((strCurValue.compareTo("2009") == 0) && (nDataSetYear == 10))
+		/* Data not available yet...return false (skip) */
+			return false;
+	
 		
-		if (strCurValue.compareTo("2010") == 0)
+		if ((strCurValue.compareTo("2010") == 0) && (nDataSetYear != 10))
 		{
 			//need to shift things over one.
 			query = "select Cell_Count,url_static from extract_info where Data_Set='" + tmpStaticDataSet + "'";
@@ -116,7 +124,7 @@ public static void preNasdaqEPS()
 			strTemp2 = String.valueOf(nCellCount);
 			strTemp1 = (String)rs.getString("url_static");
 			
-			if ((tmpStaticDataSet.substring(10,11)).compareTo("7")==0)
+			if (nDataSetYear == 7)
 			{
 				query = "update extract_info set url_static='http://fundamentals.nasdaq.com/redpage.asp?page=2&selected=', Cell_Count=2 where Data_Set='" + tmpStaticDataSet + "'";
 			}
@@ -129,6 +137,8 @@ public static void preNasdaqEPS()
 			
 		}
 		
+		return(true);
+		
 		
 		
 	}
@@ -136,6 +146,7 @@ public static void preNasdaqEPS()
 	{
 		System.err.println("preNasdaqEPS2 failed...");
 		sqle.printStackTrace();
+		return(false);
 	}
 	
 }
@@ -263,6 +274,8 @@ public static void preNasdaqEPS2()
 public static void postNasdaqEPS()
 {
 	System.out.println("Inside postNasdaqEPS...");
+	
+	strStaticDataValue = strStaticDataValue.replace("(m)","");
 	
 	//restore URL static
 	if (strTemp1.compareTo("") != 0)
