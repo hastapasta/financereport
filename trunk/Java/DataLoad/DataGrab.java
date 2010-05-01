@@ -14,9 +14,11 @@ class DataGrab
 	
 	
 	
-public String get_value(String local_data_set)
+public static String get_value(String local_data_set)
 {
-	ProcessingFunctions.preProcessing(local_data_set);
+	if (ProcessingFunctions.preProcessing(local_data_set) != true)
+		return("");
+		
 	String strDataValue="";
 	try
 	{
@@ -213,11 +215,11 @@ public String get_value(String local_data_set)
   
   matcher.find(nCurOffset);
   
-  int nBeginOffset = matcher.start() + strBeforeUniqueCode.length();
+  int nBeginOffset = matcher.end();
   System.out.println("begin offset: " + nBeginOffset);
   
   pattern = Pattern.compile(strAfterUniqueCodeRegex);
-  System.out.println("after strafteruniquecoderegex compile");
+  System.out.println("after strAfterUniqueCodeRegex compile");
   
   matcher = pattern.matcher(returned_content);
   
@@ -247,7 +249,7 @@ public String get_value(String local_data_set)
  	 
  	}
   
-  System.out.println("Data Value: " + strDataValue);
+  
   
   //remove commas
   
@@ -278,7 +280,9 @@ public String get_value(String local_data_set)
     }//end catch
     finally
     {
-    	return(ProcessingFunctions.postProcessing(local_data_set,strDataValue));
+    	strDataValue = ProcessingFunctions.postProcessing(local_data_set,strDataValue);
+    	System.out.println("Data Value: " + strDataValue);
+    	return(strDataValue);
     }
 
 
@@ -343,7 +347,7 @@ public void grab_dow_data_set()
 		
 		String strCurDataSet = data_sets.get(i);
 		System.out.println("PROCESSING DATA SET " + strCurDataSet);
-		String query = "select * from dow";
+		String query = "select * from company where in_dow=1";
 		Statement stmt = con.createStatement();
 		ResultSet rs = UtilityFunctions.db_run_query(query);
 			
@@ -359,7 +363,7 @@ public void grab_dow_data_set()
 				strCurTicker = rs.getString("ticker");
 				
 				/*Active only to debug individual tickers */
-				/*if (strCurTicker.compareTo("BA") != 0)
+				/*if (strCurTicker.compareTo("WMT") != 0)
 					continue;*/
 				
 					query = "update extract_info set url_dynamic='" + strCurTicker + "' where Data_Set='" + strCurDataSet + "'";
@@ -374,6 +378,9 @@ public void grab_dow_data_set()
 		
 					query = "INSERT INTO fact_data_stage (data_set,value,quarter,ticker,date_collected) VALUES ('" + strCurDataSet + "','" + 
 					strDataValue + "','" + Integer.toString(40+i) + "','" + strCurTicker + "',NOW())";
+					
+					/* Use the following update statement for populating fiscal_calendar_begin */
+					/*query = "UPDATE company set begin_fiscal_calendar='" + strDataValue + "' where ticker='" + strCurTicker + "'";*/
  	  			System.out.println(query);
   	 			stmt = con.createStatement();
   				bRet = stmt.execute(query);
@@ -400,6 +407,9 @@ public void grab_dow_data_set()
 		e.printStackTrace();
 	}
 	}
+	
+	
+
 	
 
 	
