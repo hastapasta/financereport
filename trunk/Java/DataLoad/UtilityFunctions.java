@@ -1,6 +1,10 @@
 package com.roeschter.jsl;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 
 class UtilityFunctions
@@ -66,6 +70,46 @@ class UtilityFunctions
 		}
 		return(rs);
 		/* Not going to worry about closing the connection, we'll let it be garbage collected.*/
+		
+		
+		
+	}
+	
+	public static void createCSV(ArrayList<String[]> tabledata,String filename,boolean append)
+	{
+		try
+		{
+			BufferedWriter writer = new BufferedWriter(new FileWriter(filename,append));
+			String strLine="";
+			String[] rowdata;
+	
+	    for (int x=0;x<tabledata.size();x++)
+	    {
+	    	rowdata = tabledata.get(x);
+	    	strLine="";
+				for (int y=0;y<rowdata.length;y++)
+				{
+					if (y !=0)
+						strLine = strLine +",";
+						
+		    	strLine = strLine + "\"" + rowdata[y] + "\"";
+		    	   
+		    }
+		    writer.write(strLine);
+		    writer.newLine();
+	     
+	    }
+	
+	
+	    writer.close();  // Close to unlock and flush to disk.
+	  }
+	  catch (IOException ioe)
+	  {
+	  	System.err.println("Problem writing CSV file");
+	  	ioe.printStackTrace();
+	  }
+
+		
 		
 		
 		
