@@ -2,6 +2,7 @@ package com.roeschter.jsl;
 
 import java.sql.*;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 class ProcessingFunctions
 {
@@ -444,6 +445,86 @@ public static void postNasdaqFiscalYear()
 	
 	
 	
+}
+
+public static ArrayList<String[]> processTable(ArrayList<String[]> tabledata,String strDataSet)
+{
+	String[] rowdata,newrow;
+	String curCell, strMonth;
+	String strTicker;
+	int nQuarter=0;
+	int nYear;
+	try
+	{
+		String query = "select url_dynamic from extract_table where Data_Set='" + strDataSet + "'";
+		ResultSet rs = UtilityFunctions.db_run_query(query);
+		rs.next();
+		strTicker = rs.getString("url_dynamic");
+		
+		
+		for (int x=0;x<tabledata.size();x++)
+		{
+			rowdata = tabledata.get(x);
+			newrow = new String[rowdata.length + 1];
+			newrow[0] = strTicker;
+			for (int y=0;y<rowdata.length;y++)
+			{
+				curCell = rowdata[y];
+				curCell = curCell.replace(",","");
+	  		curCell = curCell.replace("&nbsp;","");
+	 
+	  		if (y==0)
+	  		//covert month/year to data set
+	  		{
+	  			strMonth = curCell.substring(0,3);
+	  			if ((strMonth.compareTo("Feb") == 0) ||
+	  			(strMonth.compareTo("Mar") == 0) ||
+	  			(strMonth.compareTo("Apr") == 0))
+	  			{
+	  				nQuarter = 1;
+	  			}
+	  			else if ((strMonth.compareTo("May") == 0) ||
+	  			(strMonth.compareTo("Jun") == 0) ||
+	  			(strMonth.compareTo("Jul") == 0))
+	  			{
+	  				nQuarter = 2;
+	  			}
+	  			else if ((strMonth.compareTo("Aug") == 0) ||
+	  			(strMonth.compareTo("Sep") == 0) ||
+	  			(strMonth.compareTo("Oct") == 0))
+	  			{
+	  				nQuarter = 3;
+	  			}
+	  			else if ((strMonth.compareTo("Nov") == 0) ||
+	  			(strMonth.compareTo("Dec") == 0) ||
+	  			(strMonth.compareTo("Jan") == 0))
+	  			{
+	  				nQuarter = 4;
+	  			}
+	  			else
+	  			{
+	  				System.err.println("Quarter not identified.");
+	  			}
+	  			nYear = Integer.parseInt(curCell.substring(5,7));
+	  			rowdata[y] = "nasdaq_q" + nQuarter + "" + nYear + "_eps_est";
+	  				
+	  		}
+	  		newrow[y+1] = rowdata[y];
+	  		
+	  		
+	  		
+	  		
+	  		
+			}
+			tabledata.set(x,newrow);
+		}
+	}
+	catch (SQLException sqle)
+	{
+		System.out.println("Problem processing table data");
+		sqle.printStackTrace();
+	}
+	return(tabledata);
 }
 		
 
