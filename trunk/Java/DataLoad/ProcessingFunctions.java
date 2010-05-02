@@ -26,7 +26,7 @@ public static boolean preProcessing(String strDataSet)
 			String strFunctionName = rs.getString("pre_process_func_name");
 			
 			System.out.println("Pre Process Func Name: " + strFunctionName);
-			if (strFunctionName == null)
+			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
 			{
 				System.out.println("No pre process function, exiting...");
 				return(true);
@@ -69,7 +69,7 @@ public static String postProcessing(String strDataSet,String strDataValue)
 			String strFunctionName = rs.getString("post_process_func_name");
 			
 			System.out.println("Post Process Func Name: " + strFunctionName);
-			if (strFunctionName == null)
+			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
 			{
 				System.out.println("No post process function, exiting...");
 				return(strDataValue);
@@ -89,6 +89,129 @@ public static String postProcessing(String strDataSet,String strDataValue)
 
 
 
+}
+
+public static boolean preNasdaqEPSEst()
+{
+	/*
+		I'm going to store the estimated values as the adjusted quarter values whereas the
+		actual eps values are stored unadjusted (hence the adjusting is done in the query for 
+		the actual values)
+	*/
+	//initialize the row value
+	String query; 
+	
+	
+	boolean done = false;
+	boolean bSuccess = false;
+	//loop through doing a data grab of all the dates
+	// when the correct data is found then do the actual data grab for the value
+	int nDataSetYear = Integer.parseInt(strStaticDataSet.substring(9,11));
+	int nDataSetQuarter = Integer.parseInt(strStaticDataSet.substring(8,9));
+	System.out.println("DataSetYear: " + nDataSetYear + " DataSetQuarter: " + nDataSetQuarter);
+	int curRowCount=4;
+	String ticker;
+	try
+	{
+		query = "select url_dynamic from extract_info where data_set='" + strStaticDataSet + "'";
+		ResultSet rs = UtilityFunctions.db_run_query(query);
+		rs.next();
+		ticker = rs.getString("url_dynamic");
+		System.err.println("Processing ticker: " + ticker);
+		
+	}
+	catch(SQLException sqle)
+	{
+		System.err.println("Problem running query in prenasdaqEPSEst");
+		sqle.printStackTrace();
+		return(false);
+	}
+	
+	while (!done)
+	{
+		System.out.println("Row Count: " + curRowCount);
+		query = "update extract_info set Row_Count=" + curRowCount + ",url_dynamic='" + ticker + "' where data_set='nasdaq_eps_est_quarter'";
+		UtilityFunctions.db_update_query(query);
+		String curValue = DataGrab.get_value("nasdaq_eps_est_quarter");
+		if (curValue.length() < 7)
+		//string returned too short
+			break;
+		int nDataValueYear = Integer.parseInt(curValue.substring(5,7));
+		System.out.println("DatValueYear: " + nDataValueYear );
+		if (nDataValueYear != nDataSetYear)
+		{
+			curRowCount++;
+			continue;
+		}
+		String nDataValueMonth = curValue.substring(0,3);
+		System.out.println("DataValueMonth: " + nDataValueMonth);
+		System.out.println("DatValueYear: " + nDataValueYear + " DataValueMonth: " + nDataValueMonth);
+		
+		if ((nDataValueMonth.compareTo("Nov") == 0) || 
+		(nDataValueMonth.compareTo("Dec") == 0) || 
+		(nDataValueMonth.compareTo("Jan") == 0))
+		{
+			if (nDataSetQuarter == 4)
+			{
+				bSuccess = true;
+				break;
+			}
+
+		}
+		else if ((nDataValueMonth.compareTo("Aug") == 0) || 
+		(nDataValueMonth.compareTo("Sep") == 0) || 
+		(nDataValueMonth.compareTo("Oct") == 0))
+		{
+			if (nDataSetQuarter == 3)
+			{
+				bSuccess = true;
+				break;
+			}
+
+		}
+		else if ((nDataValueMonth.compareTo("May") == 0) || 
+		(nDataValueMonth.compareTo("Jun") == 0) || 
+		(nDataValueMonth.compareTo("Jul") == 0))
+		{
+			if (nDataSetQuarter == 2)
+			{
+				bSuccess = true;
+				break;
+			}
+		
+		}
+		else if ((nDataValueMonth.compareTo("Feb") == 0) || 
+		(nDataValueMonth.compareTo("Mar") == 0) || 
+		(nDataValueMonth.compareTo("Apr") == 0))
+		{
+			if (nDataSetQuarter == 1)
+			{
+				bSuccess = true;
+				break;
+			}
+
+		}
+		// or if a blank (or some incorrect value) is returned then the end was reached without
+		//finding the correct date
+		else
+			done = true;
+			
+			
+		curRowCount++;
+		
+		
+	}
+	if (bSuccess == true)
+	{
+		query = "update extract_info set Row_Count=" + curRowCount + " where data_set='" + strStaticDataSet + "'";
+		UtilityFunctions.db_update_query(query);
+		return(true);
+	}
+	else
+		return(false);
+		
+	
+	
 }
 
 
