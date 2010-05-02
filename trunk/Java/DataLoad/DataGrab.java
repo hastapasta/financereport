@@ -12,6 +12,86 @@ import java.util.ArrayList;
 class DataGrab
 {
 	
+static String returned_content;
+
+static int regexSeekLoop(String regex, int nCount, int nCurOffset) throws TagNotFoundException
+{
+		//nCurOffset = regexSeekLoop("(?i)(<TABLE[^>]*>)",returned_content,tables);
+	//String strOpenTableRegex = "(?i)(<TABLE[^>]*>)";
+	//String strOpenTableRegex = "START NEW";
+	
+	Pattern pattern = Pattern.compile(regex);
+	
+	Matcher matcher = pattern.matcher(returned_content);
+	
+	
+	for (int i=0;i<nCount;i++)
+	{
+		
+		
+		if (matcher.find(nCurOffset) == false)
+		//Did not find regex
+		{
+			System.out.println("Regex search exceeded.");
+			throw new TagNotFoundException();
+		}
+		
+		nCurOffset = matcher.start() + 1;
+		
+		System.out.println("regex iteration " + i + ", offset: " + nCurOffset);
+		
+	}
+	return(nCurOffset);
+}
+
+static String regexSnipValue(String strBeforeUniqueCodeRegex, String strAfterUniqueCodeRegex, int nCurOffset) throws CustomEmptyStringException
+{
+  String strDataValue="";
+  //try
+ // {
+	  System.out.println(strBeforeUniqueCodeRegex);
+	  
+	  Pattern pattern = Pattern.compile(strBeforeUniqueCodeRegex);
+	  System.out.println("after strbeforeuniquecoderegex compile");
+	  
+	  Matcher matcher = pattern.matcher(returned_content);
+	  
+	  System.out.println("Current offset before final data extraction: " + nCurOffset);
+	  
+	  matcher.find(nCurOffset);
+	  
+	  int nBeginOffset = matcher.end();
+	  System.out.println("begin offset: " + nBeginOffset);
+	  
+	  pattern = Pattern.compile(strAfterUniqueCodeRegex);
+	  System.out.println("after strAfterUniqueCodeRegex compile");
+	  
+	  matcher = pattern.matcher(returned_content);
+	  
+	  matcher.find(nCurOffset);
+	  
+	  int nEndOffset = matcher.start();
+	  System.out.println("end offset: " + nEndOffset);
+	  
+	  if (nEndOffset <= nBeginOffset)
+	  {
+	  	System.out.println("EndOffset is < BeginOffset");
+	  	throw new CustomEmptyStringException();
+	  }
+	  strDataValue = returned_content.substring(nBeginOffset,nEndOffset);
+	  
+	  System.out.println ("Raw Data Value: " + strDataValue);
+	/*}
+	catch (IOException ioe)
+	{
+		Sy
+	}*/
+  
+  return(strDataValue);
+	
+	
+}
+	
 	
 	
 public static String get_value(String local_data_set)
@@ -26,13 +106,13 @@ public static String get_value(String local_data_set)
 			throw new CustomEmptyStringException();
 		}
 	//run sql to get info about the data_set
-	Connection con = UtilityFunctions.db_connect();
+	//Connection con = UtilityFunctions.db_connect();
 	
 	String query = "select * from extract_info where Data_Set='" + local_data_set + "'";
 	
 	System.out.println(query);
 	
-  Statement stmt = con.createStatement();
+  //Statement stmt = con.createStatement();
   ResultSet rs = UtilityFunctions.db_run_query(query);
   
   rs.next();
@@ -66,7 +146,7 @@ public static String get_value(String local_data_set)
 				new InputStreamReader(
 				urlStatic.openStream()));
 				
-	 String returned_content = "";
+	 returned_content = "";
 	 String curLine = "";
 	 int nTmp;
 
@@ -118,108 +198,16 @@ public static String get_value(String local_data_set)
 	*/
 	
 	System.out.println("Before table searches.");
-	
-	String strOpenTableRegex = "(?i)(<TABLE[^>]*>)";
-	//String strOpenTableRegex = "START NEW";
-	
-	pattern = Pattern.compile(strOpenTableRegex);
-	
-	matcher = pattern.matcher(returned_content);
-	
-	
-	for (int i=0;i<tables;i++)
-	{
-		
-		
-		if (matcher.find(nCurOffset) == false)
-		//Did not find table tag
-		{
-			System.out.println("Table tag search exceeded.");
-			throw new Exception();
-		}
-		
-		nCurOffset = matcher.start() + 1;
-		
-		System.out.println("table row tag iteration " + i + ", offset: " + nCurOffset);
-		
-	}
+	nCurOffset = regexSeekLoop("(?i)(<TABLE[^>]*>)",tables,nCurOffset);	
 	
 	System.out.println("Before table row searches.");
+	nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",rows,nCurOffset);
 
+	System.out.println("Before table cell searches.");
+	nCurOffset = regexSeekLoop("(?i)(<td[^>]*>)",cells,nCurOffset);
 	
-	pattern = Pattern.compile("(?i)(<tr[^>]*>)");
-	
-	matcher = pattern.matcher(returned_content);
-	
-	
-	//System.out.println(returned_content.substring(nCurOffset, nCurOffset+500));
-	
-	
-	
-	for (int i=0;i<rows;i++)
-	{
-		
-		
-		if (matcher.find(nCurOffset) == false)
-		//Did not find row tag
-		{
-			System.out.println("Row tag search exceeded.");
-			throw new Exception();
-		}
-		
-		nCurOffset = matcher.start() + 1;
-		
-		System.out.println("table row tag iteration " + i + ", offset: " + nCurOffset);
-		
-	}
-	
-	pattern = Pattern.compile("(?i)(<td[^>]*>)");
-	
-	matcher = pattern.matcher(returned_content);
-	
-	//matcher = pattern.matcher(returned_content);
-	
-	System.out.println("Cell count: " + cells);
-	
-	for (int i=0;i<cells;i++)
-	{
-		
-		
-		if (matcher.find(nCurOffset) == false)
-		//Did not find cell tag
-		{
-			System.out.println("Cell tag search exceeded.");
-			throw new Exception();
-		}
-		
-		nCurOffset = matcher.start() + 1;
-		
-		System.out.println("table cell tag iteration " + i + ", offset: " + nCurOffset);
-		
-	}
-	
-	pattern = Pattern.compile("(?i)(<div[^>]*>)");
-  
-  matcher = pattern.matcher(returned_content);
-  
-  System.out.println("Div count" + divs);
-  
-  for (int i=0;i<divs;i++)
-	{
-		
-		
-		if (matcher.find(nCurOffset) == false)
-		//Did not find div tag
-		{
-			System.out.println("Div tag search exceeded.");
-			throw new Exception();
-		}
-		
-		nCurOffset = matcher.start() + 1;
-		
-		System.out.println("div tag iteration " + i + ", offset: " + nCurOffset);
-		
-	}
+	System.out.println("Before div searches");
+	nCurOffset = regexSeekLoop("(?i)(<div[^>]*>)",divs,nCurOffset);
 	
 	
 	String strBeforeUniqueCode = rs.getString("Before_Unique_Code");
@@ -227,7 +215,9 @@ public static String get_value(String local_data_set)
   String strAfterUniqueCode = rs.getString("After_Unique_Code");
   String strAfterUniqueCodeRegex = "(?i)(" + strAfterUniqueCode + ")";
   
-  System.out.println(strBeforeUniqueCodeRegex);
+  strDataValue = regexSnipValue(strBeforeUniqueCodeRegex,strAfterUniqueCodeRegex,nCurOffset);
+  
+  /*System.out.println(strBeforeUniqueCodeRegex);
   
   pattern = Pattern.compile(strBeforeUniqueCodeRegex);
   System.out.println("after strbeforeuniquecoderegex compile");
@@ -258,7 +248,7 @@ public static String get_value(String local_data_set)
   }
   strDataValue = returned_content.substring(nBeginOffset,nEndOffset);
   
-  System.out.println ("Raw Data Value: " + strDataValue);
+  System.out.println ("Raw Data Value: " + strDataValue);*/
   
   strDataValue = strDataValue.replace(",","");
   
@@ -295,7 +285,7 @@ public static String get_value(String local_data_set)
   
                
     
-  con.close();
+  //con.close();
     
   }catch (IllegalStateException ise)
   {
@@ -305,6 +295,10 @@ public static String get_value(String local_data_set)
   catch (CustomEmptyStringException cese)
   {
   	System.out.println("CustomEmptyStringException thrown");
+  }
+  catch (TagNotFoundException tnfe)
+  {
+  	System.out.println("TagNotFoundException thrown");
   }
   catch( Exception e )
   {
@@ -320,6 +314,125 @@ public static String get_value(String local_data_set)
 
 
 
+}
+
+public ArrayList<String[]> get_table(String strTableSet)
+{
+	//retrieve the table data_set
+	ArrayList<String[]> tabledata = new ArrayList<String[]>();
+	try
+	{
+		String query = "select * from extract_table where data_set='" + strTableSet + "'";
+		ResultSet rs = UtilityFunctions.db_run_query(query);
+		rs.next();
+		
+  	
+		
+	
+		//read in the url
+		String strUrlStatic;
+	  
+	  strUrlStatic = rs.getString("url_static");
+	  
+	  if (rs.getString("url_dynamic") != "")
+	  	strUrlStatic = strUrlStatic + rs.getString("url_dynamic");
+	  	
+	  System.out.println("Retrieving URL: " + strUrlStatic);
+	  
+	  URL urlStatic = new URL(strUrlStatic);
+	  
+	  BufferedReader in = new BufferedReader(
+					new InputStreamReader(
+					urlStatic.openStream()));
+					
+		int nTmp;			
+		int nCurOffset = 0;
+		returned_content="";
+		
+		while ((nTmp = in.read()) != -1)
+			returned_content = returned_content + (char)nTmp;
+		
+	
+		in.close();
+		
+		System.out.println("Done reading url contents");
+	  	
+		
+		//seek to the top corner of the table
+		System.out.println("Before table searches.");
+		
+		nCurOffset = regexSeekLoop("(?i)(<TABLE[^>]*>)",rs.getInt("table_count"),nCurOffset);
+		
+		nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",rs.getInt("top_corner_row"),nCurOffset);
+		
+		/*String tmp = returned_content.substring(nCurOffset -200, nCurOffset +200);
+		
+		System.err.println(tmp);*/
+		
+		
+		
+	
+
+	
+		//iterate over rows, iterate over columns, writing values out to a csv file
+		boolean done = false;
+		int nNumOfColumns = rs.getInt("number_of_columns");
+		
+		
+		String[] rowdata; 
+		
+		
+		String strBeforeUniqueCodeRegex, strAfterUniqueCodeRegex, strDataValue;
+		
+		while (!done)
+		{
+			rowdata = new String[nNumOfColumns];
+			
+			for(int i=0;i< nNumOfColumns;i++)
+			{
+				
+				nCurOffset = regexSeekLoop("(?i)(<td[^>]*>)",rs.getInt("Column" + (i+1)),nCurOffset);
+				
+				//String strBeforeUniqueCode = rs.getString("bef_code_col" + (i+1));
+				strBeforeUniqueCodeRegex = "(?i)(" + rs.getString("bef_code_col" + (i+1)) + ")";
+			  //String strAfterUniqueCode = rs.getString("aft_code_col" + (i+1));
+			  strAfterUniqueCodeRegex = "(?i)(" + rs.getString("aft_code_col" + (i+1)) + ")";
+	  
+			  strDataValue = regexSnipValue(strBeforeUniqueCodeRegex,strAfterUniqueCodeRegex,nCurOffset);
+			  
+			  rowdata[i] = strDataValue;
+				
+				
+			}
+			
+			tabledata.add(rowdata);
+			nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",1,nCurOffset);
+			
+		}
+	//import the csv file in using load file
+	}
+	catch (SQLException sqle)
+	{
+		System.err.println("Problem with query");
+		sqle.printStackTrace();
+	}
+	catch (TagNotFoundException tnfe)
+	{
+		System.out.println("TagNotFoundException thrown");
+	}
+	catch (CustomEmptyStringException cese)
+	{
+		System.out.println("CustomEmptyStringException thrown");
+	}
+	catch (IOException ioe)
+	{
+		System.err.println("Problem with io");
+		ioe.printStackTrace();		
+	}
+	finally
+	{
+		return(tabledata);
+	}
 }
 
 public ArrayList<String> get_list_dataset_run_once()
@@ -386,43 +499,70 @@ public void grab_dow_data_set()
 		String strCurTicker="";
 		String fullUrl;
 		String strDataValue="";
+		int count=0;
 		
 			
 			while(rs.next())
 			{
 				try
 				{
-				strCurTicker = rs.getString("ticker");
-				
-				/*Active only to debug individual tickers */
-				/*if (strCurTicker.compareTo("AA") != 0)
-					continue;*/
-				
-					query = "update extract_info set url_dynamic='" + strCurTicker + "' where Data_Set='" + strCurDataSet + "'";
-					stmt = con.createStatement();
-					boolean bRet = stmt.execute(query);
-				
-			
-				System.out.println(query);
-				
-				System.out.println("Calling get value.");
-				strDataValue = get_value(strCurDataSet);
-				
-				if (strDataValue.compareTo("") == 0)
-				{
-					System.out.println("Returned empty value '', skipping ");
-					continue;
-				}
-		
-					query = "INSERT INTO fact_data_stage (data_set,value,quarter,ticker,date_collected) VALUES ('" + strCurDataSet + "','" + 
-					strDataValue + "','" + Integer.toString(40+i) + "','" + strCurTicker + "',NOW())";
+					strCurTicker = rs.getString("ticker");
 					
-					/* Use the following update statement for populating fiscal_calendar_begin */
-					/*query = "UPDATE company set begin_fiscal_calendar='" + strDataValue + "' where ticker='" + strCurTicker + "'";*/
- 	  			System.out.println(query);
-  	 			stmt = con.createStatement();
-  				bRet = stmt.execute(query);
-  			}
+					/*Active only to debug individual tickers */
+					
+					/*if (strCurTicker.compareTo("AA") != 0)
+						continue;*/
+					
+				
+				
+					if ((strCurDataSet.substring(0,5)).compareTo("table") == 0)
+					{
+						query = "update extract_table set url_dynamic='" + strCurTicker + "' where data_set='" + strCurDataSet + "'";
+						stmt = con.createStatement();
+						boolean bRet = stmt.execute(query);
+						ArrayList<String[]> tabledata = get_table(strCurDataSet);
+						tabledata = ProcessingFunctions.processTable(tabledata,strCurDataSet);
+						
+						UtilityFunctions.createCSV(tabledata,"fact_data_stage.csv",(count==0?false:true));
+						String[] rowdata;
+						for (int x=0;x<tabledata.size();x++)
+						{
+							rowdata = tabledata.get(x);
+							for (int y=0;y<rowdata.length;y++)
+							{
+								System.out.print(rowdata[y]+"     ");
+							}
+							System.out.println("");
+						}
+					}
+					else
+					{
+						query = "update extract_info set url_dynamic='" + strCurTicker + "' where Data_Set='" + strCurDataSet + "'";
+						stmt = con.createStatement();
+						boolean bRet = stmt.execute(query);
+					
+				
+						System.out.println(query);
+					
+						System.out.println("Calling get value.");
+						strDataValue = get_value(strCurDataSet);
+						
+						if (strDataValue.compareTo("") == 0)
+						{
+							System.out.println("Returned empty value '', skipping ");
+							continue;
+						}
+				
+							query = "INSERT INTO fact_data_stage (data_set,value,quarter,ticker,date_collected) VALUES ('" + strCurDataSet + "','" + 
+							strDataValue + "','" + Integer.toString(40+i) + "','" + strCurTicker + "',NOW())";
+							
+							/* Use the following update statement for populating fiscal_calendar_begin */
+							/*query = "UPDATE company set begin_fiscal_calendar='" + strDataValue + "' where ticker='" + strCurTicker + "'";*/
+		 	  			System.out.println(query);
+		  	 			stmt = con.createStatement();
+		  				bRet = stmt.execute(query);
+	  			}
+	  		}
   			catch (SQLException sqle)
   			{
   				System.out.println("problem with insert sql statement");
@@ -431,7 +571,7 @@ public void grab_dow_data_set()
   			}
   				
 				
-				
+				count++;	
 			}
 	//read list of dow stocks
 			
@@ -445,6 +585,8 @@ public void grab_dow_data_set()
 		e.printStackTrace();
 	}
 }
+
+
 	
 	
 
@@ -467,6 +609,16 @@ class CustomEmptyStringException extends Exception
 		//	super(); 
 	}
 }	
+
+class TagNotFoundException extends Exception
+{
+	void TagNoutFoundException()
+	{
+		
+	}
+	
+	
+}
 	
 	
 	
