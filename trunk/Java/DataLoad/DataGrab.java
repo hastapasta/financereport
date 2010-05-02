@@ -16,12 +16,15 @@ class DataGrab
 	
 public static String get_value(String local_data_set)
 {
-	if (ProcessingFunctions.preProcessing(local_data_set) != true)
-		return("");
-		
 	String strDataValue="";
+			
+	
 	try
 	{
+		if (ProcessingFunctions.preProcessing(local_data_set) != true)
+		{
+			throw new CustomEmptyStringException();
+		}
 	//run sql to get info about the data_set
 	Connection con = UtilityFunctions.db_connect();
 	
@@ -128,7 +131,12 @@ public static String get_value(String local_data_set)
 	{
 		
 		
-		matcher.find(nCurOffset);
+		if (matcher.find(nCurOffset) == false)
+		//Did not find table tag
+		{
+			System.out.println("Table tag search exceeded.");
+			throw new Exception();
+		}
 		
 		nCurOffset = matcher.start() + 1;
 		
@@ -152,7 +160,12 @@ public static String get_value(String local_data_set)
 	{
 		
 		
-		matcher.find(nCurOffset);
+		if (matcher.find(nCurOffset) == false)
+		//Did not find row tag
+		{
+			System.out.println("Row tag search exceeded.");
+			throw new Exception();
+		}
 		
 		nCurOffset = matcher.start() + 1;
 		
@@ -172,7 +185,12 @@ public static String get_value(String local_data_set)
 	{
 		
 		
-		matcher.find(nCurOffset);
+		if (matcher.find(nCurOffset) == false)
+		//Did not find cell tag
+		{
+			System.out.println("Cell tag search exceeded.");
+			throw new Exception();
+		}
 		
 		nCurOffset = matcher.start() + 1;
 		
@@ -190,7 +208,12 @@ public static String get_value(String local_data_set)
 	{
 		
 		
-		matcher.find(nCurOffset);
+		if (matcher.find(nCurOffset) == false)
+		//Did not find div tag
+		{
+			System.out.println("Div tag search exceeded.");
+			throw new Exception();
+		}
 		
 		nCurOffset = matcher.start() + 1;
 		
@@ -228,6 +251,11 @@ public static String get_value(String local_data_set)
   int nEndOffset = matcher.start();
   System.out.println("end offset: " + nEndOffset);
   
+  if (nEndOffset <= nBeginOffset)
+  {
+  	System.out.println("EndOffset is < BeginOffset");
+  	throw new CustomEmptyStringException();
+  }
   strDataValue = returned_content.substring(nBeginOffset,nEndOffset);
   
   System.out.println ("Raw Data Value: " + strDataValue);
@@ -274,16 +302,20 @@ public static String get_value(String local_data_set)
   	System.out.println("No regex match");
   	ise.printStackTrace();
   }
-  	
-    catch( Exception e ) {
+  catch (CustomEmptyStringException cese)
+  {
+  	System.out.println("CustomEmptyStringException thrown");
+  }
+  catch( Exception e )
+  {
       e.printStackTrace();
-    }//end catch
-    finally
-    {
-    	strDataValue = ProcessingFunctions.postProcessing(local_data_set,strDataValue);
-    	System.out.println("Data Value: " + strDataValue);
-    	return(strDataValue);
-    }
+  }
+  finally
+  {
+   	strDataValue = ProcessingFunctions.postProcessing(local_data_set,strDataValue);
+   	System.out.println("Data Value: " + strDataValue);
+   	return(strDataValue);
+  }
 
 
 
@@ -347,7 +379,7 @@ public void grab_dow_data_set()
 		
 		String strCurDataSet = data_sets.get(i);
 		System.out.println("PROCESSING DATA SET " + strCurDataSet);
-		String query = "select * from company where in_dow=1";
+		String query = "select * from company where in_dow=1 order by ticker";
 		Statement stmt = con.createStatement();
 		ResultSet rs = UtilityFunctions.db_run_query(query);
 			
@@ -363,7 +395,7 @@ public void grab_dow_data_set()
 				strCurTicker = rs.getString("ticker");
 				
 				/*Active only to debug individual tickers */
-				/*if (strCurTicker.compareTo("WMT") != 0)
+				/*if (strCurTicker.compareTo("AA") != 0)
 					continue;*/
 				
 					query = "update extract_info set url_dynamic='" + strCurTicker + "' where Data_Set='" + strCurDataSet + "'";
@@ -375,6 +407,12 @@ public void grab_dow_data_set()
 				
 				System.out.println("Calling get value.");
 				strDataValue = get_value(strCurDataSet);
+				
+				if (strDataValue.compareTo("") == 0)
+				{
+					System.out.println("Returned empty value '', skipping ");
+					continue;
+				}
 		
 					query = "INSERT INTO fact_data_stage (data_set,value,quarter,ticker,date_collected) VALUES ('" + strCurDataSet + "','" + 
 					strDataValue + "','" + Integer.toString(40+i) + "','" + strCurTicker + "',NOW())";
@@ -406,31 +444,32 @@ public void grab_dow_data_set()
 	{
 		e.printStackTrace();
 	}
-	}
-	
-	
-
-	
-
-	
-	
 }
 	
 	
+
+}
+
+	
+	
+
+	
+
+	
+	
+
+
+class CustomEmptyStringException extends Exception
+{
+
+	void CustomEmptyStringException()
+	{
+		//	super(); 
+	}
+}	
+	
 	
 	
 	
 
 
-/*
-$open_table_regex="/<table[^>]*>/i";
-  $previous_offset = 0;
-  
-  for ($i=0;$i<$tables;$i++)
-  {
-  	preg_match($open_table_regex, $returned_content, $matches, PREG_OFFSET_CAPTURE, $current_offset);
-  	$current_offset = $matches[0][1] + 1;
-  	echo "<BR>table tag iteration " . $i . ",offset: " . $current_offset;
-  	
-  }
-*/
