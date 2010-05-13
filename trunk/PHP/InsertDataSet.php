@@ -14,8 +14,10 @@
 	$initial_before_code = $_POST['initial_before'];
 	$before_code = $_POST['before'];
 	$after_code = $_POST['after'];
+	$pre_func = $_POST['pre_func'];
+	$post_func = $_POST['post_func'];
 	
-	$insert = "INSERT INTO extract_info (Data_Set, Table_Count, Row_Count, Cell_Count, Div_Count, Initial_Bef_Unique_Code, Before_Unique_Code, After_Unique_Code, url_static, url_dynamic) VALUES ('" . $data_set_input . "', '" . $table_count . "', '" . $cell_count."', '".$row_count."', '".$div_count."', '".$initial_before_code."', '".$before_code."', '".$after_code."', '".$url_static."', '".$url_dynamic."')";
+	$insert = "INSERT INTO extract_info (Data_Set, Table_Count, Row_Count, Cell_Count, Div_Count, Initial_Bef_Unique_Code, Before_Unique_Code, After_Unique_Code, url_static, url_dynamic, pre_process_func_name, post_process_func_name) VALUES ('" . $data_set_input . "', '" . $table_count . "', '" . $row_count."', '".$cell_count."', '".$div_count."', '".$initial_before_code."', '".$before_code."', '".$after_code."', '".$url_static."', '".$url_dynamic."','".$pre_func."','".$post_func."')";
 	
 	echo "<BR>".htmlspecialchars($insert)."<BR>";
 	
