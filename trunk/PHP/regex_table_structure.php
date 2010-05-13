@@ -367,7 +367,12 @@ echo "<td>Div Count: </td><td><input type=\"text\" name=\"divs\" size=5 maxlengt
 								<td>Before Unique Code: </td><td><input type="text" name="before" size=30 maxlength="30"></td></tr>
 							<tr><td><input type="checkbox" name="ck_after" /></td>
 								<td>After Unique Code: </td><td><input type="text" name="after" size=30 maxlength="30"></td></tr>
+										<tr><td><input type="checkbox" name="ck_pre_func" /></td>
+								<td>Pre processing function: </td><td><input type="text" name="pre_func" size=30 maxlength="30"></td></tr>
+										<tr><td><input type="checkbox" name="ck_post_func" /></td>
+								<td>Post processing function: </td><td><input type="text" name="post_func" size=30 maxlength="30"></td></tr>
 							<tr><td><input type="submit" value="Submit" name="submit_msg" ></td></tr>
+						
 					</table>
 				</form>
 	
@@ -378,7 +383,7 @@ if(isset($_POST['submit_update']))
 		/* A data set was selected so the form fields need to be populated with existing values from the database. */
 		$populate_ds_values = true;
 		$data_set_input = $_POST['data_set_input'];
-		$url_static = $_POST['static_url'];
+		/*$url_static = $_POST['static_url'];
 		$url_dynamic = $_POST['dynamic_url'];
 		$table_count = $_POST['tables'];
 		$cell_count = $_POST['cells'];
@@ -387,6 +392,8 @@ if(isset($_POST['submit_update']))
 		$initial_before_code = $_POST['initial_before'];
 		$before_code = $_POST['before'];
 		$after_code = $_POST['after'];
+		$pre_func = $_POST['pre_func']
+		$post_func = $_POST['post_func']*/
 		$query1 = "select * from extract_info where data_set='".$_POST['data_set']."'";
 		$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 		//should only return one row since there is a database constraint on unique data sets.
@@ -478,6 +485,22 @@ form=document.InsertDataSet;
 	}
 	else
 		echo "form.after.value='".$row1[After_Unique_Code]."';";
+		
+	if (isset($_POST['ck_pre_func']))
+  {
+  	echo "form.ck_pre_func.checked=true;";
+		echo "form.pre_func.value = '".$_POST[pre_func]."';";
+	}
+	else
+		echo "form.pre_func.value='".$row1[pre_process_func_name]."';";
+		
+	if (isset($_POST['ck_post_func']))
+  {
+  	echo "form.ck_post_func.checked=true;";
+		echo "form.post_func.value = '".$_POST[post_func]."';";
+	}
+	else
+		echo "form.post_func.value='".$row1[post_process_func_name]."';";
 		
 		
 ?>
