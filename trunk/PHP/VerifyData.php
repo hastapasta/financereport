@@ -27,11 +27,11 @@ else if ($frame == 'internaldata')
 		mysql_select_db("mydb") or die(mysql_error());
 		$selected_data_set = $_POST['data_set'];
 		
-		$query1 = //"select data_set,ticker,value,static_url from fact_data_stage,extract_info where fact_data_stage.data_set=extract_info.Data_Set AND data_set='".$selected_data_set."'";
-		"SELECT fact_data_stage.data_set, ticker, value, url_static
-		FROM fact_data_stage, extract_info
-		WHERE fact_data_stage.data_set = extract_info.Data_Set
-		AND fact_data_stage.data_set = '".$selected_data_set."'";
+		$query1 = //"select data_set,ticker,value,static_url from view_fact_data,extract_info where view_fact_data.data_set=extract_info.Data_Set AND data_set='".$selected_data_set."'";
+		"SELECT view_fact_data.data_set, ticker, value, url_static
+		FROM view_fact_data, extract_info
+		WHERE view_fact_data.data_set = extract_info.Data_Set
+		AND view_fact_data.data_set = '".$selected_data_set."'";
 
 		$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 		
@@ -54,7 +54,7 @@ else if ($frame == 'internaldata')
 
 ?>
 </table>
-THIS IS THE INTERNAL DATA FRAME
+
 
 <?php
 
@@ -80,7 +80,7 @@ else if ($frame == 'form')
 							<!-- <select name="data_set" onchange="alert(this.value);" onchange="UpdateField(this.selectedIndex);"> -->
 							<select name="data_set">
 								<?php
-									$query2 = "select distinct Data_Set from extract_info";
+									$query2 = "select distinct Data_Set from extract_info order by Data_Set";
 				
 									$result2 = mysql_query($query2) or die("Failed Query of " . $query2);
 									
