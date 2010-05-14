@@ -1,23 +1,55 @@
-<%@ page import="java.sql.*,com.roeschter.jsl.UtilityFunctions" %>
+<%@ page import="java.sql.*,java.io.*,com.roeschter.jsl.UtilityFunctions" %>
+<head>
+<script type="text/javascript">
+function loadXMLDoc()
+{
+
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
+    }
+  }
+xmlhttp.open("GET","ajax_info.txt",true);
+xmlhttp.send();
+
+}
+</script>
+</head> 
 <HTML>
-<!--
- Licensed to the Apache Software Foundation (ASF) under one or more
-  contributor license agreements.  See the NOTICE file distributed with
-  this work for additional information regarding copyright ownership.
-  The ASF licenses this file to You under the Apache License, Version 2.0
-  (the "License"); you may not use this file except in compliance with
-  the License.  You may obtain a copy of the License at
+	
+	
 
-      http://www.apache.org/licenses/LICENSE-2.0
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
--->
+<% 
+String test = "";
+class PrintStream
+{
+	String test;
 
-<% String strFrame = request.getParameter("frame"); 
+	void println(String x)
+	{
+		test = test + x;
+	}
+	
+		
+
+
+}
+
+
+
+
+String strFrame = request.getParameter("frame"); 
 if (strFrame.compareTo("parent") == 0)
 {
  %>
@@ -41,21 +73,54 @@ else if (strFrame.compareTo("panel") == 0)
 <BODY bgcolor="white">
 
 
-<FORM TYPE=POST ACTION=check.jsp?frame=form>
-<BR>
-<font size=5 color="red">
-Check all Favorite fruits: <br>
+<form name="SelectFactData" action="controlpanel.jsp?frame=stdout" method=POST target=stdout> 	
+					<table>
+						<tr><td>
+							<!-- <select name="data_set" onchange="alert(this.value);" onchange="UpdateField(this.selectedIndex);"> -->
+							<select name="data_set" multiple size=20>
+								<%
+								  String path = request.getRealPath(request.getServletPath());
+								  String reverseString = ((new StringBuffer(path)).reverse()).toString();
+								  reverseString = reverseString.substring(reverseString.indexOf("\\"),reverseString.length());
+								  path = ((new StringBuffer(reverseString)).reverse()).toString();
+								   
+									UtilityFunctions uf = new UtilityFunctions("mydb","root","madmax1.",path + "\\stdout.log",path + "\\stderr.log");
+									String query = "select Data_Set,run_once from schedule order by run_once DESC,Data_Set";
+					
+									ResultSet rs = uf.db_run_query(query);
+									String row;
+									String selected = "";
+								
+									
+									while(rs.next())
+									{
+										
+										if (rs.getInt("run_once") != 0)
+										{
+											selected = "selected";
+										}
+										else
+										{
+											selected = "";
+										}
+										
+										row = rs.getString("Data_Set");
+										out.println("<option value=\"" + row + "\" " + selected + " >" + row + "</option>");
+									}
+								
+								%>
+							</select>
+						</td>
+						<td>
+							<input type="submit" value="Submit" name="submit_internal">
+						</td></tr>
+							</table>
+							
+</form>
 
-<input TYPE=checkbox name=fruit VALUE=apples> Apples <BR>
-<input TYPE=checkbox name=fruit VALUE=grapes> Grapes <BR>
-<input TYPE=checkbox name=fruit VALUE=oranges> Oranges <BR>
-<input TYPE=checkbox name=fruit VALUE=melons> Melons <BR>
+<div id="myDiv"><h2>Let AJAX change this text</h2></div>
+<button type="button" onclick="loadXMLDoc()">Change Content</button>
 
-
-<br> <INPUT TYPE=submit name=submit Value="Submit">
-
-</font>
-</FORM>
 </BODY>
 
 <%
@@ -63,6 +128,32 @@ Check all Favorite fruits: <br>
 }
 else if (strFrame.compareTo("stdout") == 0)
 {
+
+
+
+	if (request.getParameter("submit_internal") != null)
+	{
+		
+	
+	
+%>
+	<textarea name="stdoutlog" cols="40" rows="5">
+<%
+		String nTmp;
+		BufferedReader in = new BufferedReader(new FileReader("stdout.log"));
+		
+		
+
+		while ((nTmp = in.readLine()) != null)
+			out.println(nTmp);
+	%>
+</textarea>
+<%
+	
+	}
+	
+	
+	
 %>
 
 This is the stdout frame.
