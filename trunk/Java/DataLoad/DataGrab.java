@@ -1,4 +1,4 @@
-/*CAREFUL with using a data extraction pattern that matches the last searched table,row,cell,div pattern. */
+/*CAREFUL with using a final data extraction pattern that matches the last searched table,row,cell,div pattern. */
 
 package com.roeschter.jsl;
 
@@ -9,10 +9,11 @@ import java.util.regex.*;
 import java.util.ArrayList;
 
 
-class DataGrab
+public class DataGrab
 {
 	
 static String returned_content;
+static UtilityFunctions uf;
 
 static int regexSeekLoop(String regex, int nCount, int nCurOffset) throws TagNotFoundException
 {
@@ -32,13 +33,13 @@ static int regexSeekLoop(String regex, int nCount, int nCurOffset) throws TagNot
 		if (matcher.find(nCurOffset) == false)
 		//Did not find regex
 		{
-			System.out.println("Regex search exceeded.");
+			uf.stdoutwriter.writeln("Regex search exceeded.");
 			throw new TagNotFoundException();
 		}
 		
 		nCurOffset = matcher.start() + 1;
 		
-		System.out.println("regex iteration " + i + ", offset: " + nCurOffset);
+		uf.stdoutwriter.writeln("regex iteration " + i + ", offset: " + nCurOffset);
 		
 	}
 	return(nCurOffset);
@@ -49,38 +50,38 @@ static String regexSnipValue(String strBeforeUniqueCodeRegex, String strAfterUni
   String strDataValue="";
   //try
  // {
-	  System.out.println(strBeforeUniqueCodeRegex);
+	  uf.stdoutwriter.writeln(strBeforeUniqueCodeRegex);
 	  
 	  Pattern pattern = Pattern.compile(strBeforeUniqueCodeRegex);
-	  System.out.println("after strbeforeuniquecoderegex compile");
+	  uf.stdoutwriter.writeln("after strbeforeuniquecoderegex compile");
 	  
 	  Matcher matcher = pattern.matcher(returned_content);
 	  
-	  System.out.println("Current offset before final data extraction: " + nCurOffset);
+	  uf.stdoutwriter.writeln("Current offset before final data extraction: " + nCurOffset);
 	  
 	  matcher.find(nCurOffset);
 	  
 	  int nBeginOffset = matcher.end();
-	  System.out.println("begin offset: " + nBeginOffset);
+	  uf.stdoutwriter.writeln("begin offset: " + nBeginOffset);
 	  
 	  pattern = Pattern.compile(strAfterUniqueCodeRegex);
-	  System.out.println("after strAfterUniqueCodeRegex compile");
+	  uf.stdoutwriter.writeln("after strAfterUniqueCodeRegex compile");
 	  
 	  matcher = pattern.matcher(returned_content);
 	  
 	  matcher.find(nCurOffset);
 	  
 	  int nEndOffset = matcher.start();
-	  System.out.println("end offset: " + nEndOffset);
+	  uf.stdoutwriter.writeln("end offset: " + nEndOffset);
 	  
 	  if (nEndOffset <= nBeginOffset)
 	  {
-	  	System.out.println("EndOffset is < BeginOffset");
+	  	uf.stdoutwriter.writeln("EndOffset is < BeginOffset");
 	  	throw new CustomEmptyStringException();
 	  }
 	  strDataValue = returned_content.substring(nBeginOffset,nEndOffset);
 	  
-	  System.out.println ("Raw Data Value: " + strDataValue);
+	  uf.stdoutwriter.writeln ("Raw Data Value: " + strDataValue);
 	/*}
 	catch (IOException ioe)
 	{
@@ -101,7 +102,7 @@ public static String get_value(String local_data_set)
 	
 	try
 	{
-		if (ProcessingFunctions.preProcessing(local_data_set) != true)
+		if (ProcessingFunctions.preProcessing(local_data_set,DataGrab.uf) != true)
 		{
 			throw new CustomEmptyStringException();
 		}
@@ -110,10 +111,10 @@ public static String get_value(String local_data_set)
 	
 	String query = "select * from extract_info where Data_Set='" + local_data_set + "'";
 	
-	System.out.println(query);
+	uf.stdoutwriter.writeln(query);
 	
   //Statement stmt = con.createStatement();
-  ResultSet rs = UtilityFunctions.db_run_query(query);
+  ResultSet rs = uf.db_run_query(query);
   
   rs.next();
   
@@ -132,7 +133,7 @@ public static String get_value(String local_data_set)
   	
   //strUrlStatic = "http://localhost/tabletest.html";
   	
-  System.out.println("Retrieving URL: " + strUrlStatic);
+  uf.stdoutwriter.writeln("Retrieving URL: " + strUrlStatic);
   
  
   	
@@ -161,9 +162,9 @@ public static String get_value(String local_data_set)
 
 	in.close();
 	
-	System.out.println("Done reading url contents");
+	uf.stdoutwriter.writeln("Done reading url contents");
 	
-	//System.out.println(returned_content);
+	//uf.stdoutwriter.writeln(returned_content);
 	
 	/*
 		Initial regex search.
@@ -176,7 +177,7 @@ public static String get_value(String local_data_set)
 	{
 		String strInitialOpenUniqueRegex = "(?i)(" + strInitialOpenUniqueCode + ")";
 		
-		System.out.println("Initial Open Regex: " + strInitialOpenUniqueRegex);
+		uf.stdoutwriter.writeln("Initial Open Regex: " + strInitialOpenUniqueRegex);
 		
 		pattern = Pattern.compile(strInitialOpenUniqueRegex);
 		
@@ -187,7 +188,7 @@ public static String get_value(String local_data_set)
 		//nCurOffset = matcher.end();
 		nCurOffset = matcher.start();
 		
-		System.out.println("Offset after initial regex search: " + nCurOffset);
+		uf.stdoutwriter.writeln("Offset after initial regex search: " + nCurOffset);
 				
 	}
 	
@@ -197,16 +198,16 @@ public static String get_value(String local_data_set)
 		End initial regex search.
 	*/
 	
-	System.out.println("Before table searches.");
+	uf.stdoutwriter.writeln("Before table searches.");
 	nCurOffset = regexSeekLoop("(?i)(<TABLE[^>]*>)",tables,nCurOffset);	
 	
-	System.out.println("Before table row searches.");
+	uf.stdoutwriter.writeln("Before table row searches.");
 	nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",rows,nCurOffset);
 
-	System.out.println("Before table cell searches.");
+	uf.stdoutwriter.writeln("Before table cell searches.");
 	nCurOffset = regexSeekLoop("(?i)(<td[^>]*>)",cells,nCurOffset);
 	
-	System.out.println("Before div searches");
+	uf.stdoutwriter.writeln("Before div searches");
 	nCurOffset = regexSeekLoop("(?i)(<div[^>]*>)",divs,nCurOffset);
 	
 	
@@ -217,38 +218,38 @@ public static String get_value(String local_data_set)
   
   strDataValue = regexSnipValue(strBeforeUniqueCodeRegex,strAfterUniqueCodeRegex,nCurOffset);
   
-  /*System.out.println(strBeforeUniqueCodeRegex);
+  /*uf.stdoutwriter.writeln(strBeforeUniqueCodeRegex);
   
   pattern = Pattern.compile(strBeforeUniqueCodeRegex);
-  System.out.println("after strbeforeuniquecoderegex compile");
+  uf.stdoutwriter.writeln("after strbeforeuniquecoderegex compile");
   
   matcher = pattern.matcher(returned_content);
   
-  System.out.println("Current offset before final data extraction: " + nCurOffset);
+  uf.stdoutwriter.writeln("Current offset before final data extraction: " + nCurOffset);
   
   matcher.find(nCurOffset);
   
   int nBeginOffset = matcher.end();
-  System.out.println("begin offset: " + nBeginOffset);
+  uf.stdoutwriter.writeln("begin offset: " + nBeginOffset);
   
   pattern = Pattern.compile(strAfterUniqueCodeRegex);
-  System.out.println("after strAfterUniqueCodeRegex compile");
+  uf.stdoutwriter.writeln("after strAfterUniqueCodeRegex compile");
   
   matcher = pattern.matcher(returned_content);
   
   matcher.find(nCurOffset);
   
   int nEndOffset = matcher.start();
-  System.out.println("end offset: " + nEndOffset);
+  uf.stdoutwriter.writeln("end offset: " + nEndOffset);
   
   if (nEndOffset <= nBeginOffset)
   {
-  	System.out.println("EndOffset is < BeginOffset");
+  	uf.stdoutwriter.writeln("EndOffset is < BeginOffset");
   	throw new CustomEmptyStringException();
   }
   strDataValue = returned_content.substring(nBeginOffset,nEndOffset);
   
-  System.out.println ("Raw Data Value: " + strDataValue);*/
+  uf.stdoutwriter.writeln ("Raw Data Value: " + strDataValue);*/
   
   strDataValue = strDataValue.replace(",","");
   
@@ -256,8 +257,8 @@ public static String get_value(String local_data_set)
   
   if (strDataValue.compareTo("") != 0)
   {
-  	System.out.println("checking for negative data value");
-  	System.out.println(strDataValue.substring(0,1));
+  	uf.stdoutwriter.writeln("checking for negative data value");
+  	uf.stdoutwriter.writeln(strDataValue.substring(0,1));
   	if (strDataValue.substring(0,1).compareTo("(") == 0)
  		{
  	
@@ -275,7 +276,7 @@ public static String get_value(String local_data_set)
   
   /*query = "INSERT INTO fact_data (data_set,value,date_collected) VALUES ('" + local_data_set + "','" + strDataValue + "',NOW())";
   
-  System.out.println(query);
+  uf.stdoutwriter.writeln(query);
   
   stmt = con.createStatement();
   boolean bRet = stmt.execute(query);*/
@@ -289,25 +290,27 @@ public static String get_value(String local_data_set)
     
   }catch (IllegalStateException ise)
   {
-  	System.out.println("No regex match");
-  	ise.printStackTrace();
+  	uf.stderrwriter.writeln("No regex match");
+  	uf.stderrwriter.writeln(ise);
   }
   catch (CustomEmptyStringException cese)
   {
-  	System.out.println("CustomEmptyStringException thrown");
+  	uf.stderrwriter.writeln("CustomEmptyStringException thrown");
+  	uf.stderrwriter.writeln(cese);
   }
   catch (TagNotFoundException tnfe)
   {
-  	System.out.println("TagNotFoundException thrown");
+  	uf.stderrwriter.writeln("TagNotFoundException thrown");
+  	uf.stderrwriter.writeln(tnfe);
   }
   catch( Exception e )
   {
-      e.printStackTrace();
+      uf.stderrwriter.writeln(e);
   }
   finally
   {
    	strDataValue = ProcessingFunctions.postProcessing(local_data_set,strDataValue);
-   	System.out.println("Data Value: " + strDataValue);
+   	uf.stdoutwriter.writeln("Data Value: " + strDataValue);
    	return(strDataValue);
   }
 
@@ -323,7 +326,7 @@ public ArrayList<String[]> get_table(String strTableSet)
 	try
 	{
 		String query = "select * from extract_table where data_set='" + strTableSet + "'";
-		ResultSet rs = UtilityFunctions.db_run_query(query);
+		ResultSet rs = uf.db_run_query(query);
 		rs.next();
 		
   	
@@ -337,7 +340,7 @@ public ArrayList<String[]> get_table(String strTableSet)
 	  if (rs.getString("url_dynamic") != "")
 	  	strUrlStatic = strUrlStatic + rs.getString("url_dynamic");
 	  	
-	  System.out.println("Retrieving URL: " + strUrlStatic);
+	  uf.stdoutwriter.writeln("Retrieving URL: " + strUrlStatic);
 	  
 	  URL urlStatic = new URL(strUrlStatic);
 	  
@@ -355,19 +358,18 @@ public ArrayList<String[]> get_table(String strTableSet)
 	
 		in.close();
 		
-		System.out.println("Done reading url contents");
-	  	
+		uf.stdoutwriter.writeln("Done reading url contents");
 		
 		//seek to the top corner of the table
-		System.out.println("Before table searches.");
+		uf.stdoutwriter.writeln("Before table searches.");
 		
 		nCurOffset = regexSeekLoop("(?i)(<TABLE[^>]*>)",rs.getInt("table_count"),nCurOffset);
 		
 		nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",rs.getInt("top_corner_row"),nCurOffset);
+
+		int nEndTableOffset = regexSeekLoop("(?i)(</TABLE>)",1,nCurOffset);
 		
-		/*String tmp = returned_content.substring(nCurOffset -200, nCurOffset +200);
-		
-		System.err.println(tmp);*/
+
 		
 		
 		
@@ -380,17 +382,21 @@ public ArrayList<String[]> get_table(String strTableSet)
 		
 		
 		String[] rowdata; 
+		int nRowCount=0;
 		
 		
 		String strBeforeUniqueCodeRegex, strAfterUniqueCodeRegex, strDataValue;
 		
 		while (!done)
 		{
+			uf.stdoutwriter.writeln("row: " + nRowCount);
 			rowdata = new String[nNumOfColumns];
 			
 			for(int i=0;i< nNumOfColumns;i++)
 			{
 				
+
+				uf.stdoutwriter.writeln("Column: " + i);
 				nCurOffset = regexSeekLoop("(?i)(<td[^>]*>)",rs.getInt("Column" + (i+1)),nCurOffset);
 				
 				//String strBeforeUniqueCode = rs.getString("bef_code_col" + (i+1));
@@ -406,28 +412,33 @@ public ArrayList<String[]> get_table(String strTableSet)
 			}
 			
 			tabledata.add(rowdata);
+			
 			nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",1,nCurOffset);
+			if (nEndTableOffset < nCurOffset)
+				break;
+			nRowCount++;
 			
 		}
 	//import the csv file in using load file
 	}
 	catch (SQLException sqle)
 	{
-		System.err.println("Problem with query");
-		sqle.printStackTrace();
+		uf.stderrwriter.writeln("Problem with query");
+		uf.stderrwriter.writeln(sqle);
 	}
 	catch (TagNotFoundException tnfe)
 	{
-		System.out.println("TagNotFoundException thrown");
+		uf.stdoutwriter.writeln("TagNotFoundException thrown");
 	}
 	catch (CustomEmptyStringException cese)
 	{
-		System.out.println("CustomEmptyStringException thrown");
+		uf.stderrwriter.writeln("CustomEmptyStringException thrown");
+		uf.stderrwriter.writeln(cese);
 	}
 	catch (IOException ioe)
 	{
-		System.err.println("Problem with io");
-		ioe.printStackTrace();		
+		uf.stderrwriter.writeln("Problem with io");
+		uf.stderrwriter.writeln(ioe);	
 	}
 	finally
 	{
@@ -444,7 +455,7 @@ public ArrayList<String> get_list_dataset_run_once()
 	{
 
 		String query = "select data_set from schedule where run_once=1";
-		ResultSet rs = UtilityFunctions.db_run_query(query);
+		ResultSet rs = uf.db_run_query(query);
 		
 		
 		while(rs.next())
@@ -459,13 +470,13 @@ public ArrayList<String> get_list_dataset_run_once()
 	}
 	catch (SQLException sqle)
 	{
-		System.out.println("problem with retrieving data sets from schedule table");
-		sqle.printStackTrace();
+		uf.stdoutwriter.writeln("problem with retrieving data sets from schedule table");
+		uf.stderrwriter.writeln(sqle);
 	}
 
 		
 
-	System.out.println("Processing " + count + " data sets.");
+	uf.stdoutwriter.writeln("Processing " + count + " data sets.");
 	return(tmpAL);
 
 	
@@ -477,11 +488,13 @@ public ArrayList<String> get_list_dataset_run_once()
 
 public void grab_dow_data_set()
 {
+	uf = new UtilityFunctions("mydb","root","madmax1.","stdout.log","stderr.log");
+	uf.stdoutwriter.writeln("Here ZZ");	
 	try
 	{
 	//String[] data_sets = {"yahoo_q109_income", "yahoo_q209_income", "yahoo_q309_income", "yahoo_q409_income"};
 	//String[] data_sets = {""};
-	Connection con = UtilityFunctions.db_connect();
+	
 	
 	
 	ArrayList<String> data_sets = get_list_dataset_run_once();
@@ -491,10 +504,10 @@ public void grab_dow_data_set()
 	{
 		
 		String strCurDataSet = data_sets.get(i);
-		System.out.println("PROCESSING DATA SET " + strCurDataSet);
+		uf.stdoutwriter.writeln("PROCESSING DATA SET " + strCurDataSet);
 		String query = "select * from company where in_dow=1 order by ticker";
-		Statement stmt = con.createStatement();
-		ResultSet rs = UtilityFunctions.db_run_query(query);
+	
+		ResultSet rs = uf.db_run_query(query);
 			
 		String strCurTicker="";
 		String fullUrl;
@@ -510,7 +523,7 @@ public void grab_dow_data_set()
 					
 					/*Active only to debug individual tickers */
 					
-					/*if (strCurTicker.compareTo("AA") != 0)
+					/*if (strCurTicker.compareTo("T") != 0)
 						continue;*/
 					
 				
@@ -518,12 +531,31 @@ public void grab_dow_data_set()
 					if ((strCurDataSet.substring(0,5)).compareTo("table") == 0)
 					{
 						query = "update extract_table set url_dynamic='" + strCurTicker + "' where data_set='" + strCurDataSet + "'";
-						stmt = con.createStatement();
-						boolean bRet = stmt.execute(query);
+						uf.stderrwriter.writeln(query);
+						uf.db_update_query(query);
 						ArrayList<String[]> tabledata = get_table(strCurDataSet);
-						tabledata = ProcessingFunctions.processTable(tabledata,strCurDataSet);
+						tabledata = ProcessingFunctions.processNasdaqEPSEstTable(tabledata,strCurDataSet,uf);
 						
-						UtilityFunctions.createCSV(tabledata,"fact_data_stage.csv",(count==0?false:true));
+						String[] tmpArray = {"ticker,date_collected,data_set,value"};
+						
+						uf.stdoutwriter.writeln("Here AA1");
+						System.out.println(uf);
+						
+						try
+						{
+							uf.importTableIntoDB(tabledata,tmpArray,"fact_data_stage");
+						}
+						catch (Exception e)
+						{
+							uf.stdoutwriter.writeln("test");
+						}
+						
+						uf.stdoutwriter.writeln("Here AA2");
+						
+						//UtilityFunctions.createCSV(tabledata,"fact_data_stage.csv",(count==0?false:true));
+						
+						//UtilityFunctions.loadCSV("fact_data_stage.csv");
+						
 						String[] rowdata;
 						for (int x=0;x<tabledata.size();x++)
 						{
@@ -532,24 +564,23 @@ public void grab_dow_data_set()
 							{
 								System.out.print(rowdata[y]+"     ");
 							}
-							System.out.println("");
+							uf.stdoutwriter.writeln("");
 						}
 					}
 					else
 					{
 						query = "update extract_info set url_dynamic='" + strCurTicker + "' where Data_Set='" + strCurDataSet + "'";
-						stmt = con.createStatement();
-						boolean bRet = stmt.execute(query);
+						uf.db_update_query(query);
 					
 				
-						System.out.println(query);
+						uf.stdoutwriter.writeln(query);
 					
-						System.out.println("Calling get value.");
+						uf.stdoutwriter.writeln("Calling get value.");
 						strDataValue = get_value(strCurDataSet);
 						
 						if (strDataValue.compareTo("") == 0)
 						{
-							System.out.println("Returned empty value '', skipping ");
+							uf.stdoutwriter.writeln("Returned empty value '', skipping ");
 							continue;
 						}
 				
@@ -558,16 +589,15 @@ public void grab_dow_data_set()
 							
 							/* Use the following update statement for populating fiscal_calendar_begin */
 							/*query = "UPDATE company set begin_fiscal_calendar='" + strDataValue + "' where ticker='" + strCurTicker + "'";*/
-		 	  			System.out.println(query);
-		  	 			stmt = con.createStatement();
-		  				bRet = stmt.execute(query);
+		 	  			uf.stdoutwriter.writeln(query);
+		  	 			uf.db_update_query(query);
 	  			}
 	  		}
   			catch (SQLException sqle)
   			{
-  				System.out.println("problem with insert sql statement");
-  				System.err.println("Processing of data_set " + strCurDataSet + " with ticker " + strCurTicker + " FAILED ");
-  				sqle.printStackTrace();
+  				uf.stderrwriter.writeln("problem with insert sql statement");
+  				uf.stderrwriter.writeln("Processing of data_set " + strCurDataSet + " with ticker " + strCurTicker + " FAILED ");
+  				uf.stderrwriter.writeln(sqle);
   			}
   				
 				
@@ -578,11 +608,13 @@ public void grab_dow_data_set()
 	//replace url with dow quote
 	//call data grab function
 		}
-		con.close();
+
 	}
 	catch (Exception e)
 	{
-		e.printStackTrace();
+		System.out.println(uf);
+		uf.stderrwriter.writeln("Exception in grab_dow_data_set");
+		uf.stderrwriter.writeln(e);
 	}
 }
 
