@@ -8,10 +8,17 @@ import java.util.regex.*;
 
 
 
+
+
+
 public class UtilityFunctions
 {
 	
 	public Connection con;
+	static public boolean bCalledByJsp;
+	String strCapturedOutput;
+	static CustomBufferedWriter stdoutwriter;
+
 	
 	public Connection getConnection()
 	{
@@ -19,29 +26,34 @@ public class UtilityFunctions
 		
 	}
 	
+	
+		
+		
+	
+	
+	
 
 		
 	
-	public UtilityFunctions(String strDatabase, String strUser, String strPass) throws Exception
+	public UtilityFunctions(String strDatabase, String strUser, String strPass, String strStdoutFile)
 	{
 	
 		//try
 		//{
+		try
+		{
 			Class.forName("com.mysql.jdbc.Driver");
 			String url = "jdbc:mysql://localhost:3306/" + strDatabase;
 			this.con = DriverManager.getConnection(url,strUser, strPass);
-			
-			//String url = "jdbc:mysql://localhost:3306/mydb";
-			
-			//System.err.println("Successfully created connection.");
-			
-		/*}
+			//this.bCalledByJsp = bCalled;
+			this.stdoutwriter = new CustomBufferedWriter(new FileWriter(strStdoutFile));
+		}
 		catch (Exception e)
 		{
+			System.out.println("UtilityFunctions constructor failed.");
 			e.printStackTrace();
-		
-		}*/
-		
+		}
+			
 		
 		
 		
@@ -50,19 +62,23 @@ public class UtilityFunctions
 	public void db_update_query(String strUpdateStmt) throws SQLException
 	{
 
-		ResultSet rs =null;
-
-		try
-		{
 	
+
+		//try
+		//{
+			stdoutwriter.writeln("Executing SQL: " + strUpdateStmt);
+			stdoutwriter.writeln(strUpdateStmt);
 			Statement stmt = con.createStatement();
 			stmt.execute(strUpdateStmt);
-		}
+			
+		/*}
 		catch (SQLException sqle)
 		{
-			System.out.println("SQL statement failed: " + strUpdateStmt);
-			sqle.printStackTrace();
-		}
+			stdoutwriter.writeln("1 SQL statement failed: " + strUpdateStmt);
+			stdoutwriter.writeln(sqle);
+	
+			
+		}*/
 		
 		
 		
@@ -77,16 +93,21 @@ public class UtilityFunctions
 		ResultSet rs =null;
 		//try
 		//{
+
+			stdoutwriter.writeln("Executing query: " + query);
 			Statement stmt = this.con.createStatement();
+			stdoutwriter.writeln(query);
 			rs = stmt.executeQuery(query);
+
 	
-		//}
-		//catch (SQLException sqle)
-		//{
-			//System.out.println("SQL statement failed: " + query);
-			//sqle.printStackTrace();
+		/*}
+		catch (SQLException sqle)
+		{
+			stdoutwriter.writeln("About to throw SQLExcpetion");
+			throw sqle;
 		
-		//}
+		}*/
+		
 		return(rs);
 		/* Not going to worry about closing the connection, we'll let it be garbage collected.*/
 		
@@ -116,23 +137,26 @@ public class UtilityFunctions
 		{
 			ResultSet rsColumns = null;
 	    DatabaseMetaData meta = con.getMetaData();
+
 		
-			System.out.println("here");
+	
 			int nCount=0;
 			for (int j=0;j<columnnames.length;j++)
 			{	
-				System.out.println("here2 " + j);
+	
 			  rsColumns = meta.getColumns(null, null, tablename, null);
+
 			  nCount=0;
 	    	while (rsColumns.next())
 				{
-					/*System.out.println("here3");
-					System.out.println(rsColumns.getString("COLUMN_NAME"));
-					System.out.println(rsColumns.getString("TYPE_NAME"));*/
 		
+					/*System.out.println(rsColumns.getString("COLUMN_NAME"));
+					System.out.println(rsColumns.getString("TYPE_NAME"));*/
+					stdoutwriter.writeln(columnnames[j]);
 					if (columnnames[j].compareTo(rsColumns.getString("COLUMN_NAME")) == 0)
 					{
 						datatypes[j] = rsColumns.getString("TYPE_NAME");
+						stdoutwriter.writeln(datatypes[j]);
 						break;
 					}
 					nCount++;
@@ -141,11 +165,10 @@ public class UtilityFunctions
 		}
 		catch (SQLException sqle)
 		{
-			System.err.println("Problem retrieving column data types");
-			sqle.printStackTrace();
+			stdoutwriter.writeln("Problem retrieving column data types");
+			stdoutwriter.writeln(sqle);
 		}
-		
-	
+		stdoutwriter.writeln("Finished retrieving column data types");
 		String strColumns;
 	
 		int nInsertCount=0;
@@ -161,33 +184,30 @@ public class UtilityFunctions
 			values ="";
 			strColumns="";
 			
-			for (int y=0;y<rowdata.length;y++)
+			for (int y=0;y<rowdata.length;y=y+2)
 			{
+				
 				if (y!=0)
 				{
 					values = values + ",";
 					strColumns = strColumns + ",";
 				}
-				
-					
-					
-				//if (rowdata[y].compareTo("VARCHAR") == 0)
-			
+
 				//System.out.println("{" + rowdata[y] + "} " + rowdata[y].length() + " " + datatypes[y]);
-				if (datatypes[y].compareTo("VARCHAR") == 0)
+				if (rowdata[y].compareTo("VARCHAR") == 0)
 				{
-					values = values + "'" + rowdata[y].replace("'","\\'") + "'";
+					values = values + "'" + rowdata[y+1].replace("'","\\'") + "'";
 				}
-				else if (((datatypes[y].compareTo("INT") == 0) || (datatypes[y].compareTo("BIGINT") == 0)) && ((rowdata[y].length() == 0)))
+				else if (((rowdata[y].compareTo("INT") == 0) || (rowdata[y].compareTo("BIGINT") == 0)) && ((rowdata[y+1].length() == 0)))
 				{
 
 					values = values + "'0'";
 				}
 				else
-					values = values + rowdata[y];	
+					values = values + rowdata[y+1];	
 				
 					
-				strColumns = strColumns + columnnames[y];
+				strColumns = strColumns + columnnames[y/2];
 
 				
 			}
@@ -200,12 +220,12 @@ public class UtilityFunctions
 			}
 			catch (SQLException sqle)
 			{
-				System.err.println("SQLException failed at row " + (x+1) + " " + query);
-				sqle.printStackTrace();
+				stdoutwriter.writeln("SQLException failed at row " + (x+1) + " " + query);
+				stdoutwriter.writeln(sqle);
 			}
 		
 		}
-		System.out.println(nInsertCount + " records inserted in db.");
+		stdoutwriter.writeln(nInsertCount + " records inserted in db.");
 	}
 	
 	public static void createCSV(ArrayList<String[]> tabledata,String filename,boolean append)
@@ -238,8 +258,8 @@ public class UtilityFunctions
 	  }
 	  catch (IOException ioe)
 	  {
-	  	System.err.println("Problem writing CSV file");
-	  	ioe.printStackTrace();
+	  	stdoutwriter.writeln("Problem writing CSV file");
+	  	stdoutwriter.writeln(ioe);
 	  }
 		
 	}
@@ -249,7 +269,7 @@ public class UtilityFunctions
 	{
 	
 		filename = filename.replace("\\","\\\\");
-		System.out.println(filename);
+	
 		String query = "LOAD DATA INFILE '" + filename + "' REPLACE INTO TABLE 'fact_data_stage' FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n'('ticker','data_set','value')";
 		//db_update_query(query);
 
@@ -309,7 +329,7 @@ public class UtilityFunctions
 								((bEncloseBefore != true) && (bEncloseAfter == true)))
 						/* there's an issue with the formatting where there's only one enclosure character*/
 						{
-							System.out.println("Problem with enclosure characters @ line " + nLineCount);
+							stdoutwriter.writeln("Problem with enclosure characters @ line " + nLineCount);
 							return(null);
 						}
 						if ((bEncloseBefore == true) && (bEncloseAfter == true))
@@ -330,25 +350,25 @@ public class UtilityFunctions
 				{
 					strArray[i] = rowarraylist.get(i);
 					if (i==0)
-						System.out.print(strArray[i]);
+						stdoutwriter.writeln(strArray[i]);
 					else
-						System.out.print("," + strArray[i]);
+						stdoutwriter.writeln("," + strArray[i]);
 				}
-				System.out.println("");
+				stdoutwriter.writeln("");
 				
 				arraylist.add(strArray);
 							
 				nLineCount++;	
 			}
-			System.out.println(nLineCount + " lines processed.");
+			stdoutwriter.writeln(nLineCount + " lines processed.");
 			return(arraylist);
 			
 		} 
 		catch (Exception e)
 		{
-			System.err.println("Problem reading CSV @ line " + nLineCount);
-			System.err.println(nTmp);
-			e.printStackTrace();
+			stdoutwriter.writeln("Problem reading CSV @ line " + nLineCount);
+			stdoutwriter.writeln(nTmp);
+			stdoutwriter.writeln(e);
 			return(null);
 		}
 	}
@@ -382,7 +402,7 @@ public class UtilityFunctions
 			{
 				strNewLine = "";
 				matcher = pattern.matcher(strCurLine);
-				System.out.println(strCurLine);
+				stdoutwriter.writeln(strCurLine);
 				nOpenEnclosure = 0;
 				nCloseEnclosure = 0;
 				nCurOffset=0;
@@ -402,7 +422,7 @@ public class UtilityFunctions
 					//search for ending enclosure
 					if (matcher.find(nCurOffset) == false)
 					{
-						System.out.println("Invalid syntax for enclosure characters at line " + nLineCount);
+						stdoutwriter.writeln("Invalid syntax for enclosure characters at line " + nLineCount);
 						break;
 					}
 					else
@@ -423,7 +443,7 @@ public class UtilityFunctions
 				
 				out.write(strNewLine);
 				out.newLine();
-				System.out.println(strNewLine);
+				stdoutwriter.writeln(strNewLine);
 				nLineCount++;	
 			}
 			out.close();
@@ -432,8 +452,8 @@ public class UtilityFunctions
 		}
 		catch(Exception e)
 		{
-			System.err.println("Problem Scrubbing csv file");
-			e.printStackTrace();
+			stdoutwriter.writeln("Problem Scrubbing csv file");
+			stdoutwriter.writeln(e);
 		}
 
 		
