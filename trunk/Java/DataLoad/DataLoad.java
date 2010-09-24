@@ -45,9 +45,13 @@ class DataLoad extends Thread implements Stopable
   	
   	boolean repeat=false;
   	System.out.println("in run 1");
-  	DataGrab DG = new DataGrab();
-  	//DG.get_value("Initial_UE_Claims");
-  	DG.grab_dow_data_set();
+  	DataGrab DG = new DataGrab(new UtilityFunctions("mydb","root","madmax1.","stdout.log"));
+ 
+  	DG.startThread();
+  	
+  	/*String userDir = System.getProperty("user.dir");
+		System.out.println(userDir + "\\fact_data_stage.csv");
+  	UtilityFunctions.loadCSV(userDir + "\\fact_data_stage.csv");*/
     
     if (repeat == true)
     {
