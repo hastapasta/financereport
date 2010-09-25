@@ -15,8 +15,10 @@
 <A HREF="http://win-d2sjsg6emdd/phpjobscheduler/pjsfiles/index.php">pjsfiles/index.php</A><BR>
 <A HREF="http://win-d2sjsg6emdd/phpjobscheduler/pjsfiles/phpjobscheduler.php">fire php jobs</A><BR>
 <BR>
-<A HREF="http://localhost/examples/jsp/checkbox/check.jsp?frame=parent">Control Panel</A><BR>
-<A HREF="http://localhost/examples/jsp/checkbox/check.html">Checkbox jsp sample</A><BR>
+<A HREF="http://win-d2sjsg6emdd/examples/jsp/checkbox/controlpanel.jsp?frame=parent">Control Panel</A><BR>
+<A HREF="http://win-d2sjsg6emdd/examples/jsp/checkbox/check.html">Checkbox jsp sample</A><BR>
+<BR>
+<A HREF="http://win-d2sjsg6emdd:8080/manager/html">Tomcat Manager</A><BR>
 
 
 
