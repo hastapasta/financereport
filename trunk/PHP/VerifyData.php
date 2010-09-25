@@ -80,14 +80,14 @@ else if ($frame == 'form')
 							<!-- <select name="data_set" onchange="alert(this.value);" onchange="UpdateField(this.selectedIndex);"> -->
 							<select name="data_set">
 								<?php
-									$query2 = "select distinct Data_Set from extract_info order by Data_Set";
+									$query2 = "select distinct data_set from view_fact_data order by data_set";
 				
 									$result2 = mysql_query($query2) or die("Failed Query of " . $query2);
 									
 									for ($j=0;$j<mysql_num_rows($result2);$j++)
 									{
 										$row2 = mysql_fetch_array($result2);
-										echo "<option value=\"".$row2[Data_Set]."\">".$row2[Data_Set]."</option>";
+										echo "<option value=\"".$row2[data_set]."\">".$row2[data_set]."</option>";
 									}
 								
 								?>
