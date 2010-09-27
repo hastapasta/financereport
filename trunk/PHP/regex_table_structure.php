@@ -300,7 +300,9 @@ else if ($frame == 'form')
 	
 		
 	echo "	<body> ";
-	echo "NOTE: Commas and ".htmlspecialchars("&nbsp;")." are replaced before inserting into the db.<BR>";
+	echo "NOTES: Commas and ".htmlspecialchars("&nbsp;")." are replaced before inserting into the db.<BR>";
+	echo "Preserve value means that the existing database value won't be overwritten.<BR>";
+	echo "Initial begin search is done before any table tag searches.<BR>";
 	
 	parse_table_structure(false);
 	
