@@ -36,7 +36,7 @@ public class UtilityFunctions
 
 		
 	
-	public UtilityFunctions(String strDatabase, String strUser, String strPass, String strStdoutFile)
+	public UtilityFunctions(String strDatabase, String strUser, String strPass, String strFullLog, String strErrorLog, String strSQLLog)
 	{
 	
 		//try
@@ -47,9 +47,8 @@ public class UtilityFunctions
 			String url = "jdbc:mysql://localhost:3306/" + strDatabase;
 			this.con = DriverManager.getConnection(url,strUser, strPass);
 			//this.bCalledByJsp = bCalled;
-			this.stdoutwriter = new CustomBufferedWriter(new FileWriter(strStdoutFile));
-			
-		
+			UtilityFunctions.stdoutwriter = new CustomBufferedWriter(strFullLog, strErrorLog, strSQLLog, true, true);
+	
 
 		}
 		catch (Exception e)
@@ -70,8 +69,8 @@ public class UtilityFunctions
 
 		//try
 		//{
-			stdoutwriter.writeln("Executing SQL: " + strUpdateStmt);
-			stdoutwriter.writeln(strUpdateStmt);
+			stdoutwriter.writeln("Executing SQL: " + strUpdateStmt,Logs.SQL);
+			stdoutwriter.writeln(strUpdateStmt,Logs.SQL);
 			Statement stmt = con.createStatement();
 			stmt.execute(strUpdateStmt);
 			
@@ -89,6 +88,8 @@ public class UtilityFunctions
 		
 	}
 	
+
+	
 	
 	
 	public ResultSet db_run_query(String query) throws SQLException
@@ -98,9 +99,9 @@ public class UtilityFunctions
 		//try
 		//{
 
-			stdoutwriter.writeln("Executing query: " + query);
+			stdoutwriter.writeln("Executing query: " + query, Logs.SQL);
 			Statement stmt = this.con.createStatement();
-			stdoutwriter.writeln(query);
+			stdoutwriter.writeln(query, Logs.SQL);
 			rs = stmt.executeQuery(query);
 
 	
@@ -155,11 +156,11 @@ public class UtilityFunctions
 		
 					/*System.out.println(rsColumns.getString("COLUMN_NAME"));
 					System.out.println(rsColumns.getString("TYPE_NAME"));*/
-					stdoutwriter.writeln(columnnames[j]);
+					stdoutwriter.writeln(columnnames[j],Logs.STATUS2);
 					if (columnnames[j].compareTo(rsColumns.getString("COLUMN_NAME")) == 0)
 					{
 						datatypes[j] = rsColumns.getString("TYPE_NAME");
-						stdoutwriter.writeln(datatypes[j]);
+						stdoutwriter.writeln(datatypes[j],Logs.STATUS2);
 						break;
 					}
 					nCount++;
@@ -168,10 +169,10 @@ public class UtilityFunctions
 		}
 		catch (SQLException sqle)
 		{
-			stdoutwriter.writeln("Problem retrieving column data types");
+			stdoutwriter.writeln("Problem retrieving column data types",Logs.ERROR);
 			stdoutwriter.writeln(sqle);
 		}
-		stdoutwriter.writeln("Finished retrieving column data types");
+		stdoutwriter.writeln("Finished retrieving column data types",Logs.STATUS2);
 		String strColumns;
 	
 		int nInsertCount=0;
@@ -223,12 +224,12 @@ public class UtilityFunctions
 			}
 			catch (SQLException sqle)
 			{
-				stdoutwriter.writeln("SQLException failed at row " + (x+1) + " " + query);
+				stdoutwriter.writeln("SQLException failed at row " + (x+1) + " " + query,Logs.ERROR);
 				stdoutwriter.writeln(sqle);
 			}
 		
 		}
-		stdoutwriter.writeln(nInsertCount + " records inserted in db.");
+		stdoutwriter.writeln(nInsertCount + " records inserted in db.",Logs.STATUS2);
 	}
 	
 	public static void createCSV(ArrayList<String[]> tabledata,String filename,boolean append)
@@ -261,7 +262,7 @@ public class UtilityFunctions
 	  }
 	  catch (IOException ioe)
 	  {
-	  	stdoutwriter.writeln("Problem writing CSV file");
+	  	stdoutwriter.writeln("Problem writing CSV file",Logs.ERROR);
 	  	stdoutwriter.writeln(ioe);
 	  }
 		
@@ -332,7 +333,7 @@ public class UtilityFunctions
 								((bEncloseBefore != true) && (bEncloseAfter == true)))
 						/* there's an issue with the formatting where there's only one enclosure character*/
 						{
-							stdoutwriter.writeln("Problem with enclosure characters @ line " + nLineCount);
+							stdoutwriter.writeln("Problem with enclosure characters @ line " + nLineCount,Logs.ERROR);
 							return(null);
 						}
 						if ((bEncloseBefore == true) && (bEncloseAfter == true))
@@ -353,24 +354,23 @@ public class UtilityFunctions
 				{
 					strArray[i] = rowarraylist.get(i);
 					if (i==0)
-						stdoutwriter.writeln(strArray[i]);
+						stdoutwriter.writeln(strArray[i],Logs.STATUS2);
 					else
-						stdoutwriter.writeln("," + strArray[i]);
+						stdoutwriter.writeln("," + strArray[i],Logs.STATUS2);
 				}
-				stdoutwriter.writeln("");
+
 				
 				arraylist.add(strArray);
 							
 				nLineCount++;	
 			}
-			stdoutwriter.writeln(nLineCount + " lines processed.");
+			stdoutwriter.writeln(nLineCount + " lines processed.",Logs.STATUS2);
 			return(arraylist);
 			
 		} 
 		catch (Exception e)
 		{
-			stdoutwriter.writeln("Problem reading CSV @ line " + nLineCount);
-			stdoutwriter.writeln(nTmp);
+			stdoutwriter.writeln("Problem reading CSV @ line " + nLineCount,Logs.ERROR);
 			stdoutwriter.writeln(e);
 			return(null);
 		}
@@ -401,7 +401,7 @@ public class UtilityFunctions
 		}
 		catch (SQLException sqle)
 		{
-			UtilityFunctions.stdoutwriter.writeln("Problem adjusting quarter value");
+			UtilityFunctions.stdoutwriter.writeln("Problem adjusting quarter value",Logs.ERROR);
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 			
 		}
@@ -443,7 +443,7 @@ public class UtilityFunctions
 			{
 				strNewLine = "";
 				matcher = pattern.matcher(strCurLine);
-				stdoutwriter.writeln(strCurLine);
+				stdoutwriter.writeln(strCurLine,Logs.STATUS2);
 				nOpenEnclosure = 0;
 				nCloseEnclosure = 0;
 				nCurOffset=0;
@@ -463,7 +463,7 @@ public class UtilityFunctions
 					//search for ending enclosure
 					if (matcher.find(nCurOffset) == false)
 					{
-						stdoutwriter.writeln("Invalid syntax for enclosure characters at line " + nLineCount);
+						stdoutwriter.writeln("Invalid syntax for enclosure characters at line " + nLineCount,Logs.ERROR);
 						break;
 					}
 					else
@@ -484,7 +484,7 @@ public class UtilityFunctions
 				
 				out.write(strNewLine);
 				out.newLine();
-				stdoutwriter.writeln(strNewLine);
+				stdoutwriter.writeln(strNewLine,Logs.STATUS2);
 				nLineCount++;	
 			}
 			out.close();
@@ -493,7 +493,7 @@ public class UtilityFunctions
 		}
 		catch(Exception e)
 		{
-			stdoutwriter.writeln("Problem Scrubbing csv file");
+			stdoutwriter.writeln("Problem Scrubbing csv file",Logs.ERROR);
 			stdoutwriter.writeln(e);
 		}
 

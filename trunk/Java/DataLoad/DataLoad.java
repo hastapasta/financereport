@@ -15,6 +15,7 @@ class DataLoad extends Thread implements Stopable
     * The server cocket which accepts connections
   */
   ServerSocket ss;
+  static boolean pause=false;
                                                                  
   /**                                           
     * Here the telnet server implements the Stopable interface
@@ -36,6 +37,11 @@ class DataLoad extends Thread implements Stopable
   {
     return 0;
   }                                     
+  
+  public void destroy()
+  {
+	  System.out.println("terminating");
+  }
 
   /**
     * Open server socket and wait for incoming connections
@@ -43,9 +49,8 @@ class DataLoad extends Thread implements Stopable
   public void run()
   {	
   	
-  	boolean repeat=false;
   	System.out.println("in run 1");
-  	DataGrab DG = new DataGrab(new UtilityFunctions("mydb","root","madmax1.","stdout.log"));
+  	DataGrab DG = new DataGrab(new UtilityFunctions("mydb","root","madmax1.","full.log","error.log","sql.log"));
  
   	DG.startThread();
   	
@@ -53,7 +58,7 @@ class DataLoad extends Thread implements Stopable
 		System.out.println(userDir + "\\fact_data_stage.csv");
   	UtilityFunctions.loadCSV(userDir + "\\fact_data_stage.csv");*/
     
-    if (repeat == true)
+    if (pause != true)
     {
     	while(1 != 2)
     	{    	

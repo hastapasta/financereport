@@ -45,8 +45,8 @@ boolean bContinue;
 	 	{
 	 		if (bContinue == false)
 	 			return;
-	 		uf.stdoutwriter.writeln("=========================================================");
-	 		uf.stdoutwriter.writeln("INITIATING THREAD");
+	 		uf.stdoutwriter.writeln("=========================================================",Logs.STATUS1);
+	 		uf.stdoutwriter.writeln("INITIATING THREAD",Logs.STATUS1);
 	 		grab_data_set();
 			clear_run_once();
 	 		sleep(60000);
@@ -54,7 +54,8 @@ boolean bContinue;
 	 	}
 	 	catch (InterruptedException ie)
 	 	{
-	 		uf.stdoutwriter.writeln("InterruptedException thrown");
+	 		uf.stdoutwriter.writeln("InterruptedException thrown",Logs.ERROR);
+	 		UtilityFunctions.stdoutwriter.writeln(ie);
 	 		stopThread();
 	 		
 	 	}
@@ -81,13 +82,13 @@ int regexSeekLoop(String regex, int nCount, int nCurOffset) throws TagNotFoundEx
 		if (matcher.find(nCurOffset) == false)
 		//Did not find regex
 		{
-			uf.stdoutwriter.writeln("Regex search exceeded.");
+			uf.stdoutwriter.writeln("Regex search exceeded.",Logs.ERROR);
 			throw new TagNotFoundException();
 		}
 		
 		nCurOffset = matcher.start() + 1;
 		
-		uf.stdoutwriter.writeln("regex iteration " + i + ", offset: " + nCurOffset);
+		uf.stdoutwriter.writeln("regex iteration " + i + ", offset: " + nCurOffset,Logs.STATUS2);
 		
 	}
 	return(nCurOffset);
@@ -98,39 +99,39 @@ String regexSnipValue(String strBeforeUniqueCodeRegex, String strAfterUniqueCode
   String strDataValue="";
   //try
  // {
-	  uf.stdoutwriter.writeln(strBeforeUniqueCodeRegex);
+	  uf.stdoutwriter.writeln(strBeforeUniqueCodeRegex,Logs.STATUS2);
 	  
 	  Pattern pattern = Pattern.compile(strBeforeUniqueCodeRegex);
-	  uf.stdoutwriter.writeln("after strbeforeuniquecoderegex compile");
+	  uf.stdoutwriter.writeln("after strbeforeuniquecoderegex compile", Logs.STATUS2);
 	  
 	  Matcher matcher = pattern.matcher(returned_content);
 	  
-	  uf.stdoutwriter.writeln("Current offset before final data extraction: " + nCurOffset);
+	  uf.stdoutwriter.writeln("Current offset before final data extraction: " + nCurOffset,Logs.STATUS2);
 	  
 	  matcher.find(nCurOffset);
 	  
 	  int nBeginOffset = matcher.end();
-	  uf.stdoutwriter.writeln("begin offset: " + nBeginOffset);
+	  uf.stdoutwriter.writeln("begin offset: " + nBeginOffset,Logs.STATUS2);
 	  
 	  pattern = Pattern.compile(strAfterUniqueCodeRegex);
-	  uf.stdoutwriter.writeln("after strAfterUniqueCodeRegex compile");
+	  uf.stdoutwriter.writeln("after strAfterUniqueCodeRegex compile",Logs.STATUS2);
 	  
 	  matcher = pattern.matcher(returned_content);
 	  
 	  matcher.find(nBeginOffset);
 	  
 	  int nEndOffset = matcher.start();
-	  uf.stdoutwriter.writeln("end offset: " + nEndOffset);
+	  uf.stdoutwriter.writeln("end offset: " + nEndOffset,Logs.STATUS2);
 	  
 	  if (nEndOffset <= nBeginOffset)
 	  {
 		/* If we get here, skip processing this table cell but continue processing the rest of the table.*/
-	  	uf.stdoutwriter.writeln("EndOffset is < BeginOffset");
+	  	uf.stdoutwriter.writeln("EndOffset is < BeginOffset",Logs.STATUS2);
 	  	throw new CustomRegexException();
 	  }
 	  strDataValue = returned_content.substring(nBeginOffset,nEndOffset);
 	  
-	  uf.stdoutwriter.writeln ("Raw Data Value: " + strDataValue);
+	  uf.stdoutwriter.writeln ("Raw Data Value: " + strDataValue,Logs.STATUS2);
 	/*}
 	catch (IOException ioe)
 	{
@@ -153,7 +154,7 @@ public void clear_run_once()
 	{
 		//OFP 9/26/2010 - Need to put in a pause mechanism for when running under the jsp pages.
 		//DataLoad.setPause();
-		uf.stdoutwriter.writeln("Problem clearing run_once flag");
+		uf.stdoutwriter.writeln("Problem clearing run_once flag",Logs.ERROR);
 		uf.stdoutwriter.writeln(sqle);
 		
 	}
@@ -175,8 +176,6 @@ public String get_value(String local_data_set)
 	
 	String query = "select * from extract_info where Data_Set='" + local_data_set + "'";
 	
-	uf.stdoutwriter.writeln(query);
-	
   //Statement stmt = con.createStatement();
   ResultSet rs = uf.db_run_query(query);
   
@@ -197,7 +196,7 @@ public String get_value(String local_data_set)
   	
   //strUrlStatic = "http://localhost/tabletest.html";
   	
-  uf.stdoutwriter.writeln("Retrieving URL: " + strUrlStatic);
+  uf.stdoutwriter.writeln("Retrieving URL: " + strUrlStatic,Logs.STATUS2);
   
  
   	
@@ -226,7 +225,7 @@ public String get_value(String local_data_set)
 
 	in.close();
 	
-	uf.stdoutwriter.writeln("Done reading url contents");
+	uf.stdoutwriter.writeln("Done reading url contents",Logs.STATUS2);
 	
 	//uf.stdoutwriter.writeln(returned_content);
 	
@@ -241,7 +240,7 @@ public String get_value(String local_data_set)
 	{
 		String strInitialOpenUniqueRegex = "(?i)(" + strInitialOpenUniqueCode + ")";
 		
-		uf.stdoutwriter.writeln("Initial Open Regex: " + strInitialOpenUniqueRegex);
+		uf.stdoutwriter.writeln("Initial Open Regex: " + strInitialOpenUniqueRegex,Logs.STATUS2);
 		
 		pattern = Pattern.compile(strInitialOpenUniqueRegex);
 		
@@ -252,7 +251,7 @@ public String get_value(String local_data_set)
 		//nCurOffset = matcher.end();
 		nCurOffset = matcher.start();
 		
-		uf.stdoutwriter.writeln("Offset after initial regex search: " + nCurOffset);
+		uf.stdoutwriter.writeln("Offset after initial regex search: " + nCurOffset,Logs.STATUS2);
 				
 	}
 	
@@ -262,16 +261,16 @@ public String get_value(String local_data_set)
 		End initial regex search.
 	*/
 	
-	uf.stdoutwriter.writeln("Before table searches.");
+	uf.stdoutwriter.writeln("Before table searches.",Logs.STATUS2);
 	nCurOffset = regexSeekLoop("(?i)(<TABLE[^>]*>)",tables,nCurOffset);	
 	
-	uf.stdoutwriter.writeln("Before table row searches.");
+	uf.stdoutwriter.writeln("Before table row searches.",Logs.STATUS2);
 	nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",rows,nCurOffset);
 
-	uf.stdoutwriter.writeln("Before table cell searches.");
+	uf.stdoutwriter.writeln("Before table cell searches.",Logs.STATUS2);
 	nCurOffset = regexSeekLoop("(?i)(<td[^>]*>)",cells,nCurOffset);
 	
-	uf.stdoutwriter.writeln("Before div searches");
+	uf.stdoutwriter.writeln("Before div searches",Logs.STATUS2);
 	nCurOffset = regexSeekLoop("(?i)(<div[^>]*>)",divs,nCurOffset);
 	
 	
@@ -289,8 +288,8 @@ public String get_value(String local_data_set)
   
   if (strDataValue.compareTo("") != 0)
   {
-  	UtilityFunctions.stdoutwriter.writeln("checking for negative data value");
-  	UtilityFunctions.stdoutwriter.writeln(strDataValue.substring(0,1));
+  	UtilityFunctions.stdoutwriter.writeln("checking for negative data value",Logs.STATUS2);
+  	UtilityFunctions.stdoutwriter.writeln(strDataValue.substring(0,1),Logs.STATUS2);
   	if (strDataValue.substring(0,1).compareTo("(") == 0)
  		{
  	
@@ -322,17 +321,17 @@ public String get_value(String local_data_set)
     
   }catch (IllegalStateException ise)
   {
-  	uf.stdoutwriter.writeln("No regex match");
+  	uf.stdoutwriter.writeln("No regex match",Logs.ERROR);
   	uf.stdoutwriter.writeln(ise);
   }
   catch (CustomEmptyStringException cese)
   {
-  	uf.stdoutwriter.writeln("CustomEmptyStringException thrown");
+  	uf.stdoutwriter.writeln("CustomEmptyStringException thrown",Logs.ERROR);
   	uf.stdoutwriter.writeln(cese);
   }
   catch (TagNotFoundException tnfe)
   {
-  	uf.stdoutwriter.writeln("TagNotFoundException thrown");
+  	uf.stdoutwriter.writeln("TagNotFoundException thrown",Logs.ERROR);
   	uf.stdoutwriter.writeln(tnfe);
   }
   catch( Exception e )
@@ -342,7 +341,7 @@ public String get_value(String local_data_set)
   finally
   {
    	strDataValue = pf.postProcessing(local_data_set,strDataValue);
-   	uf.stdoutwriter.writeln("Data Value: " + strDataValue);
+   	uf.stdoutwriter.writeln("Data Value: " + strDataValue,Logs.STATUS2);
    	return(strDataValue);
   }
 
@@ -419,7 +418,7 @@ public ArrayList<String[]> get_table(String strTableSet)
 	  if (rs.getString("url_dynamic") != "")
 	  	strUrlStatic = strUrlStatic + rs.getString("url_dynamic");
 	  	
-	  uf.stdoutwriter.writeln("Retrieving URL: " + strUrlStatic);
+	  uf.stdoutwriter.writeln("Retrieving URL: " + strUrlStatic,Logs.STATUS2);
 	  
 	  URL urlStatic = new URL(strUrlStatic);
 	  
@@ -437,10 +436,10 @@ public ArrayList<String[]> get_table(String strTableSet)
 	
 		in.close();
 		
-		uf.stdoutwriter.writeln("Done reading url contents");
+		uf.stdoutwriter.writeln("Done reading url contents",Logs.STATUS2);
 		
 		//seek to the top corner of the table
-		uf.stdoutwriter.writeln("Before table searches.");
+		uf.stdoutwriter.writeln("Before table searches.",Logs.STATUS2);
 		
 		nCurOffset = regexSeekLoop("(?i)(<TABLE[^>]*>)",rs.getInt("table_count"),nCurOffset);
 		
@@ -468,14 +467,14 @@ public ArrayList<String[]> get_table(String strTableSet)
 		
 		while (!done)
 		{
-			uf.stdoutwriter.writeln("row: " + nRowCount);
+			uf.stdoutwriter.writeln("row: " + nRowCount,Logs.STATUS2);
 			rowdata = new String[nNumOfColumns];
 			
 			for(int i=0;i< nNumOfColumns;i++)
 			{
 				
 
-				uf.stdoutwriter.writeln("Column: " + i);
+				uf.stdoutwriter.writeln("Column: " + i,Logs.STATUS2);
 				nCurOffset = regexSeekLoop("(?i)(<td[^>]*>)",rs.getInt("Column" + (i+1)),nCurOffset);
 				
 				//String strBeforeUniqueCode = rs.getString("bef_code_col" + (i+1));
@@ -485,11 +484,15 @@ public ArrayList<String[]> get_table(String strTableSet)
 			  try
 			  {
 				  strDataValue = regexSnipValue(strBeforeUniqueCodeRegex,strAfterUniqueCodeRegex,nCurOffset);
-				  rowdata[i] = strDataValue;
+				  
+				  /*
+				   * Going to strip out &nbsp; for all data streams, let's see if this is a problem.
+				   */
+				  rowdata[i] = strDataValue.replace("&nbsp;","");
 			  }
 			  catch (CustomRegexException cre)
 			  {
-				  uf.stdoutwriter.writeln("Empty cell in table in url stream. Voiding cell.");
+				  uf.stdoutwriter.writeln("Empty cell in table in url stream. Voiding cell.",Logs.STATUS2);
 				  rowdata[i] = "void";
 			  }
 			  
@@ -512,12 +515,13 @@ public ArrayList<String[]> get_table(String strTableSet)
 	}
 	catch (SQLException sqle)
 	{
-		uf.stdoutwriter.writeln("Problem with query");
+		uf.stdoutwriter.writeln("Problem with query",Logs.ERROR);
 		uf.stdoutwriter.writeln(sqle);
 	}
 	catch (TagNotFoundException tnfe)
 	{
-		uf.stdoutwriter.writeln("TagNotFoundException thrown");
+		uf.stdoutwriter.writeln("TagNotFoundException thrown",Logs.ERROR);
+		uf.stdoutwriter.writeln(tnfe);
 	}
 	/*catch (CustomEmptyStringException cese)
 	{
@@ -526,7 +530,7 @@ public ArrayList<String[]> get_table(String strTableSet)
 	}*/
 	catch (IOException ioe)
 	{
-		uf.stdoutwriter.writeln("Problem with io");
+		uf.stdoutwriter.writeln("Problem with io",Logs.ERROR);
 		uf.stdoutwriter.writeln(ioe);	
 	}
 	finally
@@ -561,13 +565,13 @@ public ArrayList<String> get_list_dataset_run_once()
 	}
 	catch (SQLException sqle)
 	{
-		uf.stdoutwriter.writeln("problem with retrieving data sets from schedule table");
+		uf.stdoutwriter.writeln("problem with retrieving data sets from schedule table",Logs.ERROR);
 		uf.stdoutwriter.writeln(sqle);
 	}
 
 		
 
-	uf.stdoutwriter.writeln("Processing " + count + " data sets.");
+	uf.stdoutwriter.writeln("Processing " + count + " data sets.",Logs.STATUS1);
 	return(tmpAL);
 }
 
@@ -589,7 +593,7 @@ public void grab_data_set()
 	{
 		
 		String strCurDataSet = data_sets.get(i);
-		uf.stdoutwriter.writeln("PROCESSING DATA SET " + strCurDataSet);
+		uf.stdoutwriter.writeln("PROCESSING DATA SET " + strCurDataSet,Logs.STATUS1);
 		String query = "select companygroup from schedule where data_set='" + strCurDataSet + "'";
 		ResultSet rs = uf.db_run_query(query);
 		rs.next();
@@ -617,7 +621,6 @@ public void grab_data_set()
 					{
 						System.out.print(rowdata[y]+"     ");
 					}
-					uf.stdoutwriter.writeln("");
 				}
 			}
 			/*
@@ -649,6 +652,8 @@ public void grab_data_set()
 				{
 					strCurTicker = rs.getString("ticker");
 					
+					uf.stdoutwriter.writeln("Processing ticker: " + strCurTicker,Logs.STATUS1);
+					
 					/*Active only to debug individual tickers */
 					
 					/*if (strCurTicker.compareTo("T") != 0)
@@ -663,14 +668,9 @@ public void grab_data_set()
 						ArrayList<String[]> tabledata = get_table_with_headers(strCurDataSet,strCurTicker);
 					 
 						ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
+										
 					
-						
-						
-						System.out.println(uf);
-						
-						
-					
-							uf.importTableIntoDB(tabledata2,"fact_data_stage");
+						uf.importTableIntoDB(tabledata2,"fact_data_stage");
 						
 					
 					
@@ -684,14 +684,15 @@ public void grab_data_set()
 							rowdata = tabledata.get(x);
 							for (int y=0;y<rowdata.length;y++)
 							{
-								System.out.print(rowdata[y]+"     ");
+								uf.stdoutwriter.writeln(rowdata[y]+"     ",Logs.STATUS2);
+								//System.out.print(rowdata[y]+"     ");
 							}
-							uf.stdoutwriter.writeln("");
+
 						}
 						}
 						catch (Exception e)
 						{
-							uf.stdoutwriter.writeln("Processing table for ticker " + strCurTicker + " failed, skipping");
+							uf.stdoutwriter.writeln("Processing table for ticker " + strCurTicker + " failed, skipping",Logs.ERROR);
 							uf.stdoutwriter.writeln(e);
 						}
 				
@@ -701,15 +702,12 @@ public void grab_data_set()
 						query = "update extract_info set url_dynamic='" + strCurTicker + "' where Data_Set='" + strCurDataSet + "'";
 						uf.db_update_query(query);
 					
-				
-						uf.stdoutwriter.writeln(query);
-					
-						uf.stdoutwriter.writeln("Calling get value.");
+						uf.stdoutwriter.writeln("Calling get value.",Logs.STATUS2);
 						strDataValue = get_value(strCurDataSet);
 						
 						if (strDataValue.compareTo("") == 0)
 						{
-							uf.stdoutwriter.writeln("Returned empty value '', skipping ");
+							uf.stdoutwriter.writeln("Returned empty value '', skipping ",Logs.STATUS2);
 							continue;
 						}
 						
@@ -727,16 +725,13 @@ public void grab_data_set()
 							strDataValue + "','" + Integer.toString(nAdjQuarter) + "','" + strCurTicker + "',NOW())";
 						}
 						
-							
-						
-		 	  			uf.stdoutwriter.writeln(query);
 		  	 			uf.db_update_query(query);
 	  			}
 	  		}
   			catch (SQLException sqle)
   			{
-  				uf.stdoutwriter.writeln("problem with sql statement in grab_data_set");
-  				uf.stdoutwriter.writeln("Processing of data_set " + strCurDataSet + " with ticker " + strCurTicker + " FAILED ");
+  				uf.stdoutwriter.writeln("problem with sql statement in grab_data_set",Logs.ERROR);
+  				uf.stdoutwriter.writeln("Processing of data_set " + strCurDataSet + " with ticker " + strCurTicker + " FAILED ",Logs.ERROR);
   				uf.stdoutwriter.writeln(sqle);
   			}
   				
@@ -749,7 +744,7 @@ public void grab_data_set()
 	}
 	catch (Exception e)
 	{
-		uf.stdoutwriter.writeln("Exception in grab_data_set");
+		uf.stdoutwriter.writeln("Exception in grab_data_set",Logs.ERROR);
 		uf.stdoutwriter.writeln(e);
 	}
 }
