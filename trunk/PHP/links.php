@@ -8,6 +8,7 @@
 <A HREF="http://win-d2sjsg6emdd/dev/InitialLoad.php">Initial Load</A><BR>
 <A HREF="http://win-d2sjsg6emdd/dev/DisplayDataSet.php">Display Data Set</A><BR>
 <A HREF="http://win-d2sjsg6emdd/dev/VerifyData.php?frame=parent">Verify Data</A><BR>
+<A HREF="http://win-d2sjsg6emdd/dev/toggleview.php">Toggle fact view</A><BR>
 <BR>
 <A HREF="http://win-d2sjsg6emdd/phpmyadmin">phpmyadmin</A><BR>
 <BR>
