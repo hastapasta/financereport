@@ -18,6 +18,7 @@ public class UtilityFunctions
 	static public boolean bCalledByJsp;
 	String strCapturedOutput;
 	static CustomBufferedWriter stdoutwriter;
+	
 
 	
 	public Connection getConnection()
@@ -47,6 +48,9 @@ public class UtilityFunctions
 			this.con = DriverManager.getConnection(url,strUser, strPass);
 			//this.bCalledByJsp = bCalled;
 			this.stdoutwriter = new CustomBufferedWriter(new FileWriter(strStdoutFile));
+			
+		
+
 		}
 		catch (Exception e)
 		{
@@ -115,28 +119,27 @@ public class UtilityFunctions
 		
 	}
 	
-	public void importTableIntoDB(ArrayList<String[]> tabledata, String[] columnnames, String tablename)
+	public void importTableIntoDB(ArrayList<String[]> tabledata, String tablename)
 	{
 		/* This function expects an arraylist with 2X of the number of values to be inserted with each value
 		preceeded by the datatype with the current 3 datatypes being VARCHAR, FUNCTIONS, INT */
+		/*OFP 9/28/2010 - I believe passing in the datatypes with the table data is redundant since the types
+		 * are retrieved from the database meta data.
+		 */
 		String[] rowdata;
 		String query ="";
 		String columns= "";
 		String values = "";
-		/*for (int i=0;i<columnnames.length;i++)
-		{
-			if (i==0)
-				columns = columns + columnnames[i];
-			else
-				columns = columns + "," + columnnames[i];
-		}
-		*/
+		
+		String[] columnnames = tabledata.get(0);
+		tabledata.remove(0);
+		
 		String[] datatypes = new String[columnnames.length];
 	
 		try
 		{
 			ResultSet rsColumns = null;
-	    DatabaseMetaData meta = con.getMetaData();
+			DatabaseMetaData meta = con.getMetaData();
 
 		
 	
@@ -371,6 +374,44 @@ public class UtilityFunctions
 			stdoutwriter.writeln(e);
 			return(null);
 		}
+	}
+	
+	public int retrieveAdjustedQuarter(int fiscalquarter,int fiscalyear, String strTicker)
+	{
+
+		String query="select begin_fiscal_calendar, company.ticker,";
+	    query = query + " (case when begin_fiscal_calendar in ('February','March','April') then 3";
+	    query = query + " when begin_fiscal_calendar in ('May','June','July') then 2 when";
+	    query = query + " begin_fiscal_calendar in ('August','September','October') then 1";
+	    query = query + " else 0 end) as qtr_code_adjusted from company where";
+	    query = query + " company.ticker='" + strTicker + "'";
+		
+		/*String temp = strDataSet.substring(strDataSet.indexOf("_")+1, strDataSet.indexOf("_")+5);
+		Integer quarter = Integer.parseInt(temp.substring(1,2));
+		Integer year = Integer.parseInt(temp.substring(2,4));*/
+		Integer unadjustedqtr = (4*fiscalyear) + fiscalquarter;
+		Integer adjustment_code = 0;
+		
+		try
+		{
+			ResultSet rs = db_run_query(query);
+			rs.next();
+			adjustment_code = rs.getInt("qtr_code_adjusted");
+			
+		}
+		catch (SQLException sqle)
+		{
+			UtilityFunctions.stdoutwriter.writeln("Problem adjusting quarter value");
+			UtilityFunctions.stdoutwriter.writeln(sqle);
+			
+		}
+		
+		return(unadjustedqtr-adjustment_code);
+	    
+	 
+	    
+		
+		
 	}
 	
 	public static void scrubCSV(String strFilename, String strDelimiter, String strEnclosure, String strOutFilename)
