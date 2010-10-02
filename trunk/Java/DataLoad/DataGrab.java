@@ -38,32 +38,30 @@ boolean bContinue;
 	{
 		return(!bContinue);
 	}
+	
+	public void run()
+	 {
+	 	try 
+	 	{
+	 		if (bContinue == false)
+	 			return;
+	 		uf.stdoutwriter.writeln("=========================================================");
+	 		uf.stdoutwriter.writeln("INITIATING THREAD");
+	 		grab_data_set();
+			clear_run_once();
+	 		sleep(60000);
+	 
+	 	}
+	 	catch (InterruptedException ie)
+	 	{
+	 		uf.stdoutwriter.writeln("InterruptedException thrown");
+	 		stopThread();
+	 		
+	 	}
+	 
+	 	
+	}
 
- public void run()
- {
- 	try 
- 	{
- 		if (bContinue == false)
- 			return;
- 		uf.stdoutwriter.writeln("=========================================================");
- 		uf.stdoutwriter.writeln("INITIATING THREAD");
- 		grab_dow_data_set();
- 		clear_run_once();
- 		sleep(60000);
- 	}
- 	catch (InterruptedException ie)
- 	{
- 		uf.stdoutwriter.writeln("InterruptedException thrown");
- 		stopThread();
- 		
- 	}
- 	catch (SQLException sqle)
- 	{
- 		uf.stdoutwriter.writeln("SQLException thrown in the threads run method.");
- 		uf.stdoutwriter.writeln(sqle);
- 	}
- 	
-}
 
 int regexSeekLoop(String regex, int nCount, int nCurOffset) throws TagNotFoundException
 {
@@ -95,7 +93,7 @@ int regexSeekLoop(String regex, int nCount, int nCurOffset) throws TagNotFoundEx
 	return(nCurOffset);
 }
 
-String regexSnipValue(String strBeforeUniqueCodeRegex, String strAfterUniqueCodeRegex, int nCurOffset) throws CustomEmptyStringException
+String regexSnipValue(String strBeforeUniqueCodeRegex, String strAfterUniqueCodeRegex, int nCurOffset) throws CustomRegexException
 {
   String strDataValue="";
   //try
@@ -119,15 +117,16 @@ String regexSnipValue(String strBeforeUniqueCodeRegex, String strAfterUniqueCode
 	  
 	  matcher = pattern.matcher(returned_content);
 	  
-	  matcher.find(nCurOffset);
+	  matcher.find(nBeginOffset);
 	  
 	  int nEndOffset = matcher.start();
 	  uf.stdoutwriter.writeln("end offset: " + nEndOffset);
 	  
 	  if (nEndOffset <= nBeginOffset)
 	  {
+		/* If we get here, skip processing this table cell but continue processing the rest of the table.*/
 	  	uf.stdoutwriter.writeln("EndOffset is < BeginOffset");
-	  	throw new CustomEmptyStringException();
+	  	throw new CustomRegexException();
 	  }
 	  strDataValue = returned_content.substring(nBeginOffset,nEndOffset);
 	  
@@ -143,14 +142,23 @@ String regexSnipValue(String strBeforeUniqueCodeRegex, String strAfterUniqueCode
 	
 }
 
-public void clear_run_once() throws SQLException
+public void clear_run_once()
 {
-	String query = "update schedule set run_once=0";
-	uf.db_update_query(query);
+	try
+	{
+		String query = "update schedule set run_once=0";
+		uf.db_update_query(query);
+	}
+	catch (SQLException sqle)
+	{
+		//OFP 9/26/2010 - Need to put in a pause mechanism for when running under the jsp pages.
+		//DataLoad.setPause();
+		uf.stdoutwriter.writeln("Problem clearing run_once flag");
+		uf.stdoutwriter.writeln(sqle);
+		
+	}
 }
-	
-	
-	
+
 public String get_value(String local_data_set)
 {
 	String strDataValue="";
@@ -229,7 +237,7 @@ public String get_value(String local_data_set)
 	String strInitialOpenUniqueCode = rs.getString("Initial_Bef_Unique_Code");
 	Pattern pattern;
 	Matcher matcher;
-	if (strInitialOpenUniqueCode != null)
+	if ((strInitialOpenUniqueCode != null) || (strInitialOpenUniqueCode.isEmpty() == false))
 	{
 		String strInitialOpenUniqueRegex = "(?i)(" + strInitialOpenUniqueCode + ")";
 		
@@ -281,8 +289,8 @@ public String get_value(String local_data_set)
   
   if (strDataValue.compareTo("") != 0)
   {
-  	uf.stdoutwriter.writeln("checking for negative data value");
-  	uf.stdoutwriter.writeln(strDataValue.substring(0,1));
+  	UtilityFunctions.stdoutwriter.writeln("checking for negative data value");
+  	UtilityFunctions.stdoutwriter.writeln(strDataValue.substring(0,1));
   	if (strDataValue.substring(0,1).compareTo("(") == 0)
  		{
  	
@@ -343,6 +351,51 @@ public String get_value(String local_data_set)
 
 }
 
+public ArrayList<String[]> get_table_with_headers(String strTableSet, String strCurTicker) throws SQLException
+{
+	
+	
+	
+	/* 
+	 * OFP 9/26/2010: Here's how this works. There are three datasets in extract_table: <data_set>_body, <data_set>_colhead and <data_set>_rowhead.
+	 * Only <data_set>_body will exist in the schedule table. This function is responsible for altering the dataset name and processing all 3.
+	 */
+	String query = "update extract_table set url_dynamic='" + strCurTicker + "' where data_set='" + strTableSet + "'";
+	uf.db_update_query(query);
+	ArrayList<String[]> tabledatabody = get_table(strTableSet);
+
+	
+	String strTmpTableSet = strTableSet.replace("_body","_colhead");
+	
+	
+	/* Only process table headers if the _colhead dataset exists */
+	if (strTableSet.indexOf("body")!=-1)
+	{
+	query = "update extract_table set url_dynamic='" + strCurTicker + "' where data_set='" + strTmpTableSet + "'";
+	uf.db_update_query(query);
+	ArrayList<String[]> tabledatacol = get_table(strTmpTableSet);
+	
+	strTmpTableSet = strTableSet.replace("_body","_rowhead");
+	query = "update extract_table set url_dynamic='" + strCurTicker + "' where data_set='" + strTmpTableSet + "'";
+	uf.db_update_query(query);
+	ArrayList<String[]> tabledatarow = get_table(strTmpTableSet);
+
+	
+	//Merge table data
+	tabledatabody.add(0,tabledatacol.get(0));
+	String[] temp = new String[tabledatarow.size()];
+	for (int i=0;i<tabledatarow.size();i++)
+	{
+		temp[i] = tabledatarow.get(i)[0];
+		
+	}
+	
+	tabledatabody.add(1,temp);
+	}
+    return(tabledatabody);
+	
+}
+
 public ArrayList<String[]> get_table(String strTableSet)
 {
 	//retrieve the table data_set
@@ -350,10 +403,12 @@ public ArrayList<String[]> get_table(String strTableSet)
 	try
 	{
 		String query = "select * from extract_table where data_set='" + strTableSet + "'";
+		
 		ResultSet rs = uf.db_run_query(query);
 		rs.next();
-		
-  	
+		int nDataRows = rs.getInt("rowsofdata");
+		int nRowInterval = rs.getInt("rowinterval");
+  	 
 		
 	
 		//read in the url
@@ -427,23 +482,33 @@ public ArrayList<String[]> get_table(String strTableSet)
 				strBeforeUniqueCodeRegex = "(?i)(" + rs.getString("bef_code_col" + (i+1)) + ")";
 			  //String strAfterUniqueCode = rs.getString("aft_code_col" + (i+1));
 			  strAfterUniqueCodeRegex = "(?i)(" + rs.getString("aft_code_col" + (i+1)) + ")";
-	  
-			  strDataValue = regexSnipValue(strBeforeUniqueCodeRegex,strAfterUniqueCodeRegex,nCurOffset);
+			  try
+			  {
+				  strDataValue = regexSnipValue(strBeforeUniqueCodeRegex,strAfterUniqueCodeRegex,nCurOffset);
+				  rowdata[i] = strDataValue;
+			  }
+			  catch (CustomRegexException cre)
+			  {
+				  uf.stdoutwriter.writeln("Empty cell in table in url stream. Voiding cell.");
+				  rowdata[i] = "void";
+			  }
 			  
-			  rowdata[i] = strDataValue;
+			  
 				
 				
 			}
 			
 			tabledata.add(rowdata);
 			
-			nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",1,nCurOffset);
-			if (nEndTableOffset < nCurOffset)
-				break;
+			nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",nRowInterval,nCurOffset);
 			nRowCount++;
+			if ((nEndTableOffset < nCurOffset) || (nDataRows == nRowCount))
+				break;
+			
 			
 		}
-	//import the csv file in using load file
+  	   
+	
 	}
 	catch (SQLException sqle)
 	{
@@ -454,11 +519,11 @@ public ArrayList<String[]> get_table(String strTableSet)
 	{
 		uf.stdoutwriter.writeln("TagNotFoundException thrown");
 	}
-	catch (CustomEmptyStringException cese)
+	/*catch (CustomEmptyStringException cese)
 	{
 		uf.stdoutwriter.writeln("CustomEmptyStringException thrown");
 		uf.stdoutwriter.writeln(cese);
-	}
+	}*/
 	catch (IOException ioe)
 	{
 		uf.stdoutwriter.writeln("Problem with io");
@@ -469,6 +534,8 @@ public ArrayList<String[]> get_table(String strTableSet)
 		return(tabledata);
 	}
 }
+
+
 
 public ArrayList<String> get_list_dataset_run_once()
 {
@@ -502,15 +569,11 @@ public ArrayList<String> get_list_dataset_run_once()
 
 	uf.stdoutwriter.writeln("Processing " + count + " data sets.");
 	return(tmpAL);
-
-	
-	
-	
 }
 
 
 
-public void grab_dow_data_set()
+public void grab_data_set()
 {
 	try
 	{
@@ -527,16 +590,59 @@ public void grab_dow_data_set()
 		
 		String strCurDataSet = data_sets.get(i);
 		uf.stdoutwriter.writeln("PROCESSING DATA SET " + strCurDataSet);
-		String query = "select * from company where in_dow=1 order by ticker";
-	
+		String query = "select companygroup from schedule where data_set='" + strCurDataSet + "'";
 		ResultSet rs = uf.db_run_query(query);
+		rs.next();
+		String group = rs.getString("companygroup");
+		
+		if (group.compareTo("none") == 0)
+		{
+			//this extract process is not associated with a group of companies.
+			if ((strCurDataSet.substring(0,5)).compareTo("table") == 0)
+			{
+				
+				ArrayList<String[]> tabledata = get_table(strCurDataSet);
+				pf.processTableSAndPCoList(tabledata,strCurDataSet,uf);
+				//need to add the quarter values somewhere around here.
+				
+				System.out.println(uf);
+				
+			
+				
+				String[] rowdata;
+				for (int x=0;x<tabledata.size();x++)
+				{
+					rowdata = tabledata.get(x);
+					for (int y=0;y<rowdata.length;y++)
+					{
+						System.out.print(rowdata[y]+"     ");
+					}
+					uf.stdoutwriter.writeln("");
+				}
+			}
+			/*
+			 * NEED to add code for ELSE condition, i.e. NON-GROUP, NON-TABLE EXTRACTIONS
+			 */
+
+			
+		}
+		else
+		{
+		
+		query = "select * from company where groups like '%" + group + "%' order by ticker";
+		
+	
+		rs = uf.db_run_query(query);
 			
 		String strCurTicker="";
 		String fullUrl;
 		String strDataValue="";
 		int count=0;
 		
-			
+		
+		
+		
+			/* Loop through the list of stock tickers */
 			while(rs.next())
 			{
 				try
@@ -552,25 +658,21 @@ public void grab_dow_data_set()
 				
 					if ((strCurDataSet.substring(0,5)).compareTo("table") == 0)
 					{
-						query = "update extract_table set url_dynamic='" + strCurTicker + "' where data_set='" + strCurDataSet + "'";
-						uf.stdoutwriter.writeln(query);
-						uf.db_update_query(query);
-						ArrayList<String[]> tabledata = get_table(strCurDataSet);
-						tabledata = pf.processNasdaqEPSEstTable(tabledata,strCurDataSet,uf);
+						try
+						{
+						ArrayList<String[]> tabledata = get_table_with_headers(strCurDataSet,strCurTicker);
+					 
+						ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
+					
 						
-						String[] tmpArray = {"ticker","date_collected","data_set","value"};
 						
 						System.out.println(uf);
 						
-						try
-						{
-							uf.importTableIntoDB(tabledata,tmpArray,"fact_data_stage");
-						}
-						catch (Exception e)
-						{
-							uf.stdoutwriter.writeln("Import value into DB failed");
-							uf.stdoutwriter.writeln(e);
-						}
+						
+					
+							uf.importTableIntoDB(tabledata2,"fact_data_stage");
+						
+					
 					
 						//UtilityFunctions.createCSV(tabledata,"fact_data_stage.csv",(count==0?false:true));
 						
@@ -586,6 +688,13 @@ public void grab_dow_data_set()
 							}
 							uf.stdoutwriter.writeln("");
 						}
+						}
+						catch (Exception e)
+						{
+							uf.stdoutwriter.writeln("Processing table for ticker " + strCurTicker + " failed, skipping");
+							uf.stdoutwriter.writeln(e);
+						}
+				
 					}
 					else
 					{
@@ -603,19 +712,30 @@ public void grab_dow_data_set()
 							uf.stdoutwriter.writeln("Returned empty value '', skipping ");
 							continue;
 						}
-				
-							query = "INSERT INTO fact_data_stage (data_set,value,quarter,ticker,date_collected) VALUES ('" + strCurDataSet + "','" + 
-							strDataValue + "','" + Integer.toString(40+i) + "','" + strCurTicker + "',NOW())";
+						
+						ResultSet rs2 = uf.db_run_query("select custom_insert,fiscalquarter,fiscalyear from extract_info where data_set='" + strCurDataSet + "'");
+						rs2.next();
+						
+						Integer nAdjQuarter = uf.retrieveAdjustedQuarter(rs.getInt("fiscalquarter"),rs.getInt("fiscalyear"),strCurTicker);
+						
+						//Some of this can be sped up by not running these read queries on every ticker iteration.
+						
+						//if the insert is not handled here it should have already been handled in the postProcessing function.
+						if (rs2.getBoolean("custom_insert")!=true)
+						{
+ 							query = "INSERT INTO fact_data_stage (data_set,value,adj_quarter,ticker,date_collected) VALUES ('" + strCurDataSet + "','" + 
+							strDataValue + "','" + Integer.toString(nAdjQuarter) + "','" + strCurTicker + "',NOW())";
+						}
+						
 							
-							/* Use the following update statement for populating fiscal_calendar_begin */
-							/*query = "UPDATE company set begin_fiscal_calendar='" + strDataValue + "' where ticker='" + strCurTicker + "'";*/
+						
 		 	  			uf.stdoutwriter.writeln(query);
 		  	 			uf.db_update_query(query);
 	  			}
 	  		}
   			catch (SQLException sqle)
   			{
-  				uf.stdoutwriter.writeln("problem with insert sql statement");
+  				uf.stdoutwriter.writeln("problem with sql statement in grab_data_set");
   				uf.stdoutwriter.writeln("Processing of data_set " + strCurDataSet + " with ticker " + strCurTicker + " FAILED ");
   				uf.stdoutwriter.writeln(sqle);
   			}
@@ -623,33 +743,18 @@ public void grab_dow_data_set()
 				
 				count++;	
 			}
-	//read list of dow stocks
-			
-	//replace url with dow quote
-	//call data grab function
 		}
+	}
 
 	}
 	catch (Exception e)
 	{
-		uf.stdoutwriter.writeln("Exception in grab_dow_data_set");
+		uf.stdoutwriter.writeln("Exception in grab_data_set");
 		uf.stdoutwriter.writeln(e);
 	}
 }
 
-
-	
-	
-
 }
-
-	
-	
-
-	
-
-	
-	
 
 
 class CustomEmptyStringException extends Exception
@@ -660,6 +765,14 @@ class CustomEmptyStringException extends Exception
 		//	super(); 
 	}
 }	
+
+class CustomRegexException extends Exception
+{
+	void CustomRegexException()
+	{
+		
+	}
+}
 
 class TagNotFoundException extends Exception
 {
