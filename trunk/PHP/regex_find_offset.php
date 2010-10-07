@@ -164,17 +164,20 @@ echo '<td><input type="text" name="web_page" value="'. $url_val . '" size=100 ma
 </body>
 
 <SCRIPT LANGUAGE="JavaScript">
-function changeContent(){
-    var x=document.getElementById('myTable').rows;
-    var y=x[0].cells;
-    
 <?PHP
+if(isset($_POST['submit_msg'])) 
+{
 
-   echo "y[0].innerHTML=\"OCCURENCES FOUND: ".$count."\"";
+echo "function changeContent(){\n";
+echo "var x=document.getElementById('myTable').rows;\n";
+echo "var y=x[0].cells;\n";
+echo "y[0].innerHTML=\"OCCURENCES FOUND: ".$count."\"\n";
+echo "}\n";
+echo "changeContent();\n";
+}
     
 ?>
-}
-changeContent();
+
 </SCRIPT>
 
 
