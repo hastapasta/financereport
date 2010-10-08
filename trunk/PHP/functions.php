@@ -1,6 +1,7 @@
 <?php
 
-include("post_processing_functions.php");
+/*This is legacy from before this code was converted to java.*/
+//include("post_processing_functions.php");
 
 function get_data($url)
 {
