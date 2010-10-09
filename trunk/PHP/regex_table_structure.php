@@ -13,6 +13,7 @@
 								Then when you select a field from the data_set drop down box, those fields which aren't
 								checked will be overwritten with the existing value from the data base. */
 
+include("functions.php");
 /* input values */
 $parse_external_url = 1;
 //$url_val = 'http://bloomberg.econoday.com/byshoweventfull.asp?fid=441986&cust=bloomberg&year=2010#top';
@@ -28,7 +29,7 @@ $global_div_count=0;
 $frame = $_GET['frame'];
 $seek_offset = $_GET['offset'];
 
-function get_data($url)
+/*function get_data($url)
 	{
   $ch = curl_init();
   $timeout = 5;
@@ -38,7 +39,7 @@ function get_data($url)
   $data = curl_exec($ch);
   curl_close($ch);
   return $data;
-	}
+	}*/
 
 
 
@@ -63,7 +64,7 @@ function parse_table_structure($bDisplay)
 
 if ($parse_external_url == true)
 {
-	$returned_content = get_data($url_val);
+	$returned_content = get_data($url_val,"");
 }
 else
 {
@@ -163,7 +164,7 @@ if ($count != 0)
 				$offset = $matches[0][1]+1;
 				$previous_offset = $offset;
 				//echo "<BR>location: ".$offset;
-				custom_echo($bDisplay,"<BR>location: ".$offse);
+				custom_echo($bDisplay,"<BR>location: ".$offset);
 				$count++;
 			}
 			else
@@ -300,9 +301,10 @@ else if ($frame == 'form')
 	
 		
 	echo "	<body> ";
-	echo "NOTES: Commas and ".htmlspecialchars("&nbsp;")." are replaced before inserting into the db.<BR>";
-	echo "Preserve value means that the existing database value won't be overwritten.<BR>";
-	echo "Initial begin search is done before any table tag searches.<BR>";
+	echo "NOTES: <BR>";
+	echo "+Commas and ".htmlspecialchars("&nbsp;")." are replaced before inserting into the db.<BR>";
+	echo "+Preserve value means that the existing value in the form won't be overwritten from the db when \"Refresh Fields\" is clicked.<BR>";
+	echo "+\"Initial Before Unique Code\" search is done before any table tag searches.<BR>";
 	
 	parse_table_structure(false);
 	
