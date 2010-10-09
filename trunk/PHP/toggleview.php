@@ -1,5 +1,5 @@
 <html>
-	<body>
+<script type="text/javascript">
 
 
 
@@ -34,12 +34,21 @@ if(isset($_POST['submit_table_switch']))
 		}
 		
 		
-		
-		
 }
-
-
+else if (isset($_POST['submit_clear_stage']))
+{
+	$query1 = "delete from fact_data_stage";
+	$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
+	
+	
+}
 ?>
+
+</script>
+<body>
+<table border="1">
+	<tr>
+		<td>
 <form name="SelectFactData" action="toggleview.php" method=POST > 	
 					<table>
 						<tr><td>
@@ -71,6 +80,77 @@ if(isset($_POST['submit_table_switch']))
 							</table>
 							
 </form>
+</td>
+</tr>
+<tr><br><br></tr>
+<tr>
+<td>
+<form name="ObtainURL" action="toggleview.php" method=POST>
+	<select name="data_set">
+	<?php
+	$query1 = "select data_set from extract_table";
+	$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
+	for ($j=0;$j<mysql_num_rows($result1);$j++)
+	{
+		$row1 = mysql_fetch_array($result1);
+		echo "<option value=\"".$row1[data_set]."\">".$row1[data_set]."</option>";
+	}
+	
+	$query1 = "select data_set from extract_info";
+	$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
+	for ($j=0;$j<mysql_num_rows($result1);$j++)
+	{
+		$row1 = mysql_fetch_array($result1);
+		echo "<option value=\"".$row1[data_set]."\">".$row1[data_set]."</option>";
+	}
 
+	?>
+</select>
+	<input type="submit" value="Show URL" name="show_url">
+</form>
+</td>
+<td>
+<?php
+	if(isset($_POST['show_url'])) 
+	{
+	$dataset = $_POST['data_set'];
+	if (substr($dataset,0,5) == "table")
+	{
+		$query1 = "select url_dynamic, url_static from extract_table where data_set='".$dataset."'";
+	}
+	else
+	{
+		$query1 = "select url_dynamic, url_static from extract_info where data_set='".$dataset."'";
+	}
+	$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
+	$row1 = mysql_fetch_array($result1);
+	echo "<A href=\"".$row1[url_static].$row1[url_dynamic]."\" target=\"_blank\">".$row1[url_static].$row1[url_dynamic]."</A>";
+
+
+}
+	?>
+</td>
+</tr>
+<tr>
+	<td>
+		<form name="ClearFactDataStage" action="toggleview.php" method=POST>
+			<?php
+			$query1 = "select count(value) from fact_data_stage";
+			$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
+			$row1 = mysql_fetch_array($result1);
+			echo "Rows in fact_data_stage: ".$row1['count(value)'];
+			?>
+		
+			<input type="submit" value="Clear fact_data_stage" name="submit_clear_stage">
+	</form>
+	</td>
+	
+</tr>
+</table>
+<script type="text/javascript">
+<?php
+
+	?>
+</script>
 </body>
 </html>
