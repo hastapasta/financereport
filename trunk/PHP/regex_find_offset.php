@@ -1,7 +1,11 @@
 <html>
 	<body>
-Note: -For now you need to manually preceed any special characters (e.g. forward slashes (/), decimal points (.), etc.) with back slashes (\).<BR>
-	
+Note: <BR>
+-For now you need to manually preceed any special characters (e.g. forward slashes (/), decimal points (.), etc.) with back slashes (\).<BR>
+Here are a sample POST URL and form properties that work:<BR>
+http://data.bls.gov/cgi-bin/surveymost<BR>
+series_id=LNS14000000&survey=ln&format=&html_tables=&delimiter=&catalog=&print_line_length=&lines_per_page=&row_stub_key=&year=&date=&net_change_start=&net_change_end=&percent_change_start=&percent_change_end=<BR>
+
 <?php
 
 /*TO DO:
@@ -10,12 +14,14 @@ Note: -For now you need to manually preceed any special characters (e.g. forward
 -Add close tag info to regex_table_structure.
 
 
+
 /* input values */
 $parse_external_url = 1;
 //$url_val = 'http://bloomberg.econoday.com/byshoweventfull.asp?fid=441986&cust=bloomberg&year=2010#top';
 //$url_val = 'http://www.bls.gov/lau/home.htm';
 $chars_before_after = 200;
 /*end input values */
+include ("functions.php");
 
 
 function wl($the_string)
@@ -26,6 +32,7 @@ function wl($the_string)
 	fclose( $fi );
 }
 
+//for testing purposes
 $html = ' 
 <html>
 <body>
@@ -55,7 +62,7 @@ $html = '
 '; 
 
 
-function get_data($url)
+/*function get_data($url)
 {
   $ch = curl_init();
   $timeout = 5;
@@ -65,7 +72,7 @@ function get_data($url)
   $data = curl_exec($ch);
   curl_close($ch);
   return $data;
-}
+}*/
 
 $url_val='';
 
@@ -73,16 +80,20 @@ if(isset($_POST['submit_msg']))
 {
 
 
+
 //$extract_value = htmlspecialchars($HTTP_POST_VARS['find_text']); 
 $extract_value = $_POST['find_text'];
 $url_val = $_POST['web_page'];
+$form_properties = $_POST['form_properties'];
+
 setcookie('web_page', $url_val ,mktime (0, 0, 0, 12, 31, 2015));
+setcookie('form_properties', $form_properties ,mktime (0, 0, 0, 12, 31, 2015));
 
 
 
 if ($parse_external_url == true)
 {
-	$returned_content = get_data($url_val);
+	$returned_content = get_data($url_val,$form_properties);
 }
 else
 {
@@ -157,6 +168,13 @@ if ($url_val == '')
 	
 echo '<td><input type="text" name="web_page" value="'. $url_val . '" size=100 maxlength="100"></td></tr>';
 ?>
+					<tr><td><br></td></tr>
+					<tr><td> Form properties: </td>
+						<td>
+<?php
+			echo '<input type="text" name="form_properties" value="'. $form_properties .'" size="100" maxlength="200">';
+?>
+						</td></tr>
 					<tr><td><input type="submit" value="Submit" name="submit_msg" ></td></tr>
 				</table>
 			</form>
@@ -164,6 +182,7 @@ echo '<td><input type="text" name="web_page" value="'. $url_val . '" size=100 ma
 </body>
 
 <SCRIPT LANGUAGE="JavaScript">
+
 <?PHP
 if(isset($_POST['submit_msg'])) 
 {
