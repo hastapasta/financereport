@@ -3,6 +3,7 @@ package com.roeschter.jsl;
 import java.net.*;
 import java.io.*; 
 import java.util.*; 
+
                   
 /**
   * A simple example for a java service.
@@ -66,7 +67,7 @@ class DataLoad extends Thread implements Stopable
       	try { 
       	  //new Echo( ss.accept() ).start();      
         	sleep(60000); //sleep for 1 minute
-        	System.out.println("Awake.....");
+        	//System.out.println("Awake.....");
    	  	} catch (Exception e)
     	  {
         	e.printStackTrace();
