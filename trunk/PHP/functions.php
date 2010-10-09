@@ -3,18 +3,45 @@
 /*This is legacy from before this code was converted to java.*/
 //include("post_processing_functions.php");
 
-function get_data($url)
+function get_data($url,$form_properties)
 {
-	echo "here<BR>";
-  $ch = curl_init();
-  $timeout = 5;
-  curl_setopt($ch,CURLOPT_URL,$url);
-  curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-  curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
-  $data = curl_exec($ch);
-  curl_close($ch);
-  echo "<BR>Length of data return from url: ".strlen($data)."<BR>";
-  return $data;
+	$timeout = 5;
+  if ($form_properties == "")
+  {
+	  $ch = curl_init();
+
+	  curl_setopt($ch,CURLOPT_URL,$url);
+	  curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+	  curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
+	  
+	}
+	else
+	{
+		define('POSTURL', $url);
+		define('POSTVARS', $form_properties);
+		
+		//sample url and form properties
+		//define('POSTURL', 'http://data.bls.gov/cgi-bin/surveymost');
+		//define('POSTVARS', 'series_id=LNS14000000&survey=ln&format=&html_tables=&delimiter=&catalog=&print_line_length=&lines_per_page=&row_stub_key=&year=&date=&net_change_start=&net_change_end=&percent_change_start=&percent_change_end='); 
+		
+		$ch = curl_init(POSTURL);
+		curl_setopt($ch, CURLOPT_POST      ,1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS    ,POSTVARS);
+		curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+	  curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
+		
+		
+		
+				
+				 
+		}
+
+		$data = curl_exec($ch);
+	  curl_close($ch);
+
+	  echo "<BR>Length of data returned from url: ".strlen($data)."<BR>";
+	  return $data;
+	
 }
 
 function get_value($local_data_set)
