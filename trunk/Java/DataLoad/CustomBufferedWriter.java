@@ -3,13 +3,14 @@ package com.roeschter.jsl;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class CustomBufferedWriter
 {
-	BufferedWriter fullfilewriter;
-	BufferedWriter errorfilewriter;
-	BufferedWriter sqlfilewriter;
-	BufferedWriter tmpBuf;
+	PrintWriter fullfilewriter;
+	PrintWriter errorfilewriter;
+	PrintWriter sqlfilewriter;
+
 	//static enum LOGS {FULL,ERROR,SQL,STATUS};
 	
 	static boolean bStaticStatus;
@@ -19,9 +20,15 @@ public class CustomBufferedWriter
 	{
 		try
 		{
-			fullfilewriter = new BufferedWriter( new FileWriter(strFullLog));
+			/*fullfilewriter = new BufferedWriter( new FileWriter(strFullLog));
 			errorfilewriter = new BufferedWriter( new FileWriter(strErrorLog));
-			sqlfilewriter = new BufferedWriter( new FileWriter(strSQLLog));
+			sqlfilewriter = new BufferedWriter( new FileWriter(strSQLLog));*/
+			fullfilewriter = new PrintWriter( new FileWriter(strFullLog,false),true);
+			errorfilewriter = new PrintWriter( new FileWriter(strErrorLog,false),true);
+			sqlfilewriter = new PrintWriter( new FileWriter(strSQLLog,false),true);
+			
+		
+			
 			bStaticStatus = bStatus;
 			bStaticSQL = bSQL;
 		}
@@ -33,55 +40,58 @@ public class CustomBufferedWriter
 	}
 	
 	
-	public void writeln (String str, Logs type)
+	public void writeln (String str, Logs type,String code)
 	{
 		//setWriter(type);
 		try
 		{
-			fullfilewriter.write(str);
+			//fullfilewriter.write(str);
 			
 			switch (type)
 			{
 			case ERROR:
 				System.out.println("ERROR OCCURRED, check error.log");
-				errorfilewriter.write(str);
-				errorfilewriter.newLine();
-				errorfilewriter.flush();
-				fullfilewriter.write(str);
-				fullfilewriter.newLine();
-				fullfilewriter.flush();
+				errorfilewriter.println(code + ":" + str);
+				//errorfilewriter.newLine();
+				//errorfilewriter.flush();
+				fullfilewriter.println("ERROR:" + code + ":" + str);
+				//fullfilewriter.newLine();
+				//fullfilewriter.flush();
 				break;
 
 			case SQL:
 				if (bStaticSQL == true)
 				{
-					sqlfilewriter.write(str);
-					sqlfilewriter.newLine();
-					sqlfilewriter.flush();
-					fullfilewriter.write(str);
-					fullfilewriter.newLine();
-					fullfilewriter.flush();
+					sqlfilewriter.println(code + ":" + str);
+					//sqlfilewriter.newLine();
+					//sqlfilewriter.flush();
+					fullfilewriter.println("SQL:" + code + ":" + str);
+					//fullfilewriter.newLine();
+					//fullfilewriter.flush();
 				}
 				break;
 			case STATUS1:
 				System.out.println(str);
-				fullfilewriter.write(str);
-				fullfilewriter.newLine();
-				fullfilewriter.flush();
+				fullfilewriter.println("STATUS:" + code + ":" + str);
+				//fullfilewriter.newLine();
+				//fullfilewriter.flush();
 				break;
 				
 			case STATUS2:
 				if (bStaticStatus == true)
 				{
-					fullfilewriter.write(str);
-					fullfilewriter.newLine();
-					fullfilewriter.flush();
+					fullfilewriter.println("STATUS:" + code + ":" + str);
+					//fullfilewriter.newLine();
+					//fullfilewriter.flush();
 				}
+				break;
+			case NONE:
+				fullfilewriter.println(str);
 				break;
 				
 			}
 		}
-		catch (IOException ioe)
+		catch (Exception ioe)
 		{
 			System.out.println("Error in CustomBufferedWriter in generating the log file.");
 			ioe.printStackTrace();
@@ -98,40 +108,40 @@ public class CustomBufferedWriter
 						if (e.getMessage() != null)
 						{
 							//System.out.println(e.getMessage());
-							errorfilewriter.write(e.getMessage());
-							errorfilewriter.newLine();
-							errorfilewriter.flush();
-							fullfilewriter.write(e.getMessage());
-							fullfilewriter.newLine();
-							errorfilewriter.flush();
+							errorfilewriter.println("EXCEPTION:" + e.getMessage());
+							//errorfilewriter.newLine();
+							//errorfilewriter.flush();
+							fullfilewriter.println("EXCEPTION:" + e.getMessage());
+							//fullfilewriter.newLine();
+							//errorfilewriter.flush();
 						}
 						StackTraceElement[] tmp2 = e.getStackTrace();
 						for (int i=(tmp2.length-1);i>=0;i--)
 						{
-							errorfilewriter.write(tmp2[i].toString());
-							errorfilewriter.newLine();
-							errorfilewriter.flush();
-							fullfilewriter.write(tmp2[i].toString());
-							fullfilewriter.newLine();
-							fullfilewriter.flush();
+							errorfilewriter.println(tmp2[i].toString());
+							//errorfilewriter.newLine();
+							//errorfilewriter.flush();
+							fullfilewriter.println(tmp2[i].toString());
+							//fullfilewriter.newLine();
+							//fullfilewriter.flush();
 						}
 						/* These flushes are probably really inefficient */
 						//tmpBuf.flush();
 					}
 					else
 					{
-						errorfilewriter.write("Attempting to write out exception but exception is null.");
-						errorfilewriter.newLine();
-						errorfilewriter.flush();
-						fullfilewriter.write("Attempting to write out exception but exception is null.");
-						fullfilewriter.newLine();
-						fullfilewriter.flush();
+						errorfilewriter.println("EXCEPTION:Attempting to write out exception but exception is null.");
+						//errorfilewriter.newLine();
+						//errorfilewriter.flush();
+						fullfilewriter.println("EXCEPTION:Attempting to write out exception but exception is null.");
+						//fullfilewriter.newLine();
+						//fullfilewriter.flush();
 						/* These flushes are probably really inefficient */
 						//tmpBuf.flush();
 					}
 					
 			}
-			catch (IOException ioe)
+			catch (Exception ioe)
 			{
 				System.out.println("Error in CustomBufferedWriter in generating the log file.");
 				ioe.printStackTrace();
