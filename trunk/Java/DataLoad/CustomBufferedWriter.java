@@ -1,6 +1,6 @@
 package com.roeschter.jsl;
 
-import java.io.BufferedWriter;
+//import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -51,6 +51,7 @@ public class CustomBufferedWriter
 			{
 			case ERROR:
 				System.out.println("ERROR OCCURRED, check error.log");
+				System.out.println(code + ":" + str);
 				errorfilewriter.println(code + ":" + str);
 				//errorfilewriter.newLine();
 				//errorfilewriter.flush();
