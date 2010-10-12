@@ -18,6 +18,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*; 
 import org.apache.http.protocol.HTTP;
+import java.util.Arrays;
 
 
 
@@ -32,7 +33,7 @@ static int nBatch;
 UtilityFunctions uf;
 ProcessingFunctions pf;
 boolean bContinue;
-static String strStaticTickerLimit = "AA";
+static String strStaticTickerLimit = "";
 
   public DataGrab(UtilityFunctions tmpUF)
   {
@@ -403,24 +404,24 @@ public ArrayList<String[]> get_table_with_headers(String strTableSet) throws SQL
 	if (strTableSet.indexOf("body")!=-1)
 	{
 	
-	ArrayList<String[]> tabledatacol = get_table(strTmpTableSet);
-	
-	strTmpTableSet = strTableSet.replace("_body","_rowhead");
-	
-	
-	ArrayList<String[]> tabledatarow = get_table(strTmpTableSet);
-
-	
-	//Merge table data
-	tabledatabody.add(0,tabledatacol.get(0));
-	String[] temp = new String[tabledatarow.size()];
-	for (int i=0;i<tabledatarow.size();i++)
-	{
-		temp[i] = tabledatarow.get(i)[0];
+		ArrayList<String[]> tabledatacol = get_table(strTmpTableSet);
 		
-	}
+		strTmpTableSet = strTableSet.replace("_body","_rowhead");
+		
+		
+		ArrayList<String[]> tabledatarow = get_table(strTmpTableSet);
 	
-	tabledatabody.add(1,temp);
+		
+		//Merge table data
+		tabledatabody.add(0,tabledatacol.get(0));
+		String[] temp = new String[tabledatarow.size()];
+		for (int i=0;i<tabledatarow.size();i++)
+		{
+			temp[i] = tabledatarow.get(i)[0];
+			
+		}
+		
+		tabledatabody.add(1,temp);
 	}
     return(tabledatabody);
 	
@@ -487,6 +488,12 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 			 data="series_id=LNS14000000&survey=ln&format=&html_tables=&delimiter=&catalog=&print_line_length=&lines_per_page=&row_stub_key=&year=&date=&net_change_start=&net_change_end=&percent_change_start=&percent_change_end=";
 			 HttpPost httppost = new HttpPost("http://data.bls.gov/cgi-bin/surveymost"); 
 			 
+			 /*
+			  * The following line fixes an issue where a non-fatal error is displayed about an invalid cookie data format.
+			  */
+				httppost.getParams().setParameter("http.protocol.cookie-datepatterns", 
+						Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z", "EEE, dd MMM yyyy HH:mm:ss z"));
+			 
 			 List <NameValuePair> nvps = new ArrayList <NameValuePair>();
 		        nvps.add(new BasicNameValuePair("series_id", "LNS14000000"));
 		        nvps.add(new BasicNameValuePair("survey", "ln"));
@@ -535,6 +542,11 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 			uf.stdoutwriter.writeln("Retrieving URL: " + strURL,Logs.STATUS2,"DG25");
 			
 			HttpGet httpget = new HttpGet(strURL); 
+			/*
+			 * The following line fixes an issue where a non-fatal error is displayed about an invalid cookie data format.
+			 */
+			httpget.getParams().setParameter("http.protocol.cookie-datepatterns", 
+					Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z", "EEE, dd MMM yyyy HH:mm:ss z"));
 					  
 			response = httpclient.execute(httpget);
 			//urlFinal = new URL(strURL);
@@ -577,6 +589,10 @@ public ArrayList<String[]> get_table(String strTableSet)
 		rs.next();
 		int nDataRows = rs.getInt("rowsofdata");
 		int nRowInterval = rs.getInt("rowinterval");
+		String strEndDataMarker = rs.getString("end_data_marker");
+		boolean bColTHtags = true;
+		if (rs.getInt("column_th_tags") != 1)
+			bColTHtags=false;
 		
 		int nCurOffset = 0;
 		//seek to the top corner of the table
@@ -616,7 +632,11 @@ public ArrayList<String[]> get_table(String strTableSet)
 				
 
 				uf.stdoutwriter.writeln("Column: " + i,Logs.STATUS2,"DG29");
-				nCurOffset = regexSeekLoop("(?i)(<td[^>]*>)",rs.getInt("Column" + (i+1)),nCurOffset);
+				
+				if (bColTHtags == false)
+					nCurOffset = regexSeekLoop("(?i)(<td[^>]*>)",rs.getInt("Column" + (i+1)),nCurOffset);
+				else
+					nCurOffset = regexSeekLoop("(?i)(<th[^>]*>)",rs.getInt("Column" + (i+1)),nCurOffset);
 				
 				//String strBeforeUniqueCode = rs.getString("bef_code_col" + (i+1));
 				strBeforeUniqueCodeRegex = "(?i)(" + rs.getString("bef_code_col" + (i+1)) + ")";
@@ -629,6 +649,16 @@ public ArrayList<String[]> get_table(String strTableSet)
 				  /*
 				   * Going to strip out &nbsp; for all data streams, let's see if this is a problem.
 				   */
+				  if (strEndDataMarker != null && (strEndDataMarker.length() > 0))
+					  if (strDataValue.equals(strEndDataMarker))
+					  {
+						  /*
+						   * Finished grabbing data for this table.
+						   */
+						  nCurOffset = nEndTableOffset; //this breaks us out of the while loop
+						  break; //this breaks us out of the for loop
+					  }
+				  
 				  rowdata[i] = strDataValue.replace("&nbsp;","");
 			  }
 			  catch (CustomRegexException cre)
@@ -646,6 +676,15 @@ public ArrayList<String[]> get_table(String strTableSet)
 			
 			nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",nRowInterval,nCurOffset);
 			nRowCount++;
+			
+			/*
+			 * Identified 3 table exit types
+			 * 1) fixed size (fixed # of rows & columns) (handled below)
+			 * -dynamic
+			 * 2) end table tag (handled below)
+			 * 3) end cell value (come across a cell value that is invalid or otherwise marks
+			 * that there is no more data) (handled above with strEndDataMarker)
+			 */
 			if ((nEndTableOffset < nCurOffset) || (nDataRows == nRowCount))
 				break;
 			
@@ -747,6 +786,9 @@ public void grab_data_set()
 		rs.next();
 		String group = rs.getString("companygroup");
 		
+		query = "update schedule set last_run=NOW() where data_set='" + strCurDataSet + "'";
+		uf.db_update_query(query);
+		
 		if (group.compareTo("none") == 0)
 		{
 			//this extract process is not associated with a group of companies.
@@ -757,14 +799,15 @@ public void grab_data_set()
 				
 				get_url(strCurDataSet);
 				 
-				ArrayList<String[]> tabledata = get_table(strCurDataSet);
+				ArrayList<String[]> tabledata = get_table_with_headers(strCurDataSet);
 				//pf.processTableSAndPCoList(tabledata,strCurDataSet,uf);
 				//need to add the quarter values somewhere around here.
 				
 				ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
 				
 				if (strCurDataSet.equals("table_sandp_co_list") != true) //already imported data in the processing function					
-					uf.updateTableIntoDB(tabledata2,"fact_data_stage");
+					uf.importTableIntoDB(tabledata2,"fact_data_stage");
+			
 				
 				/*String[] rowdata;
 				for (int x=0;x<tabledata.size();x++)
