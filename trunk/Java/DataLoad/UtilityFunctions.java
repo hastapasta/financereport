@@ -2,9 +2,9 @@ package com.roeschter.jsl;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Calendar;
+//import java.util.Calendar;
 import java.io.*;
-import java.util.StringTokenizer;
+//import java.util.StringTokenizer;
 import java.util.regex.*;
 
 
@@ -24,7 +24,7 @@ public class UtilityFunctions
 	
 	public Connection getConnection()
 	{
-		return(this.con);
+		return(UtilityFunctions.con);
 		
 	}
 	
@@ -37,7 +37,7 @@ public class UtilityFunctions
 
 		
 	
-	public UtilityFunctions(String strDatabase, String strUser, String strPass, String strFullLog, String strErrorLog, String strSQLLog)
+	public UtilityFunctions(String strDatabase, String strUser, String strPass, String strFullLog, String strErrorLog, String strSQLLog, String strThreadLog)
 	{
 	
 		//try
@@ -46,9 +46,9 @@ public class UtilityFunctions
 		{
 			Class.forName("com.mysql.jdbc.Driver");
 			String url = "jdbc:mysql://localhost:3306/" + strDatabase;
-			this.con = DriverManager.getConnection(url,strUser, strPass);
+			UtilityFunctions.con = DriverManager.getConnection(url,strUser, strPass);
 			//this.bCalledByJsp = bCalled;
-			UtilityFunctions.stdoutwriter = new CustomBufferedWriter(strFullLog, strErrorLog, strSQLLog, true, true);
+			UtilityFunctions.stdoutwriter = new CustomBufferedWriter(strFullLog, strErrorLog, strSQLLog,strThreadLog, true, true, true);
 	
 
 		}
@@ -74,7 +74,7 @@ public class UtilityFunctions
 			stdoutwriter.writeln(strUpdateStmt,Logs.SQL,"UF2");
 			Statement stmt = con.createStatement();
 			stmt.execute(strUpdateStmt);
-			if (stmt.getUpdateCount() == 0)
+			if (strUpdateStmt.substring(0,6).equals("update") && stmt.getUpdateCount() == 0)
 				stdoutwriter.writeln("No rows were updated",Logs.ERROR,"UF2.5");
 				
 			
@@ -124,7 +124,7 @@ public class UtilityFunctions
 		
 	}
 	
-	public void importTableIntoDB(ArrayList<String[]> tabledata, String tablename)
+	public void importTableIntoDB(ArrayList<String[]> tabledata, String tablename, Integer nBatch)
 	{
 		/* This function expects an arraylist with 2X of the number of values to be inserted with each value
 		preceeded by the datatype with the current 3 datatypes being VARCHAR, FUNCTIONS, INT */
@@ -133,7 +133,7 @@ public class UtilityFunctions
 		 */
 		String[] rowdata;
 		String query ="";
-		String columns= "";
+		//String columns= "";
 		String values = "";
 		
 		String[] columnnames = tabledata.get(0);
@@ -207,7 +207,7 @@ public class UtilityFunctions
 			{
 					rowdata = extendArray(rowdata);
 					//using columnnames here since that is guaranteed to be the correct length
-					rowdata[columnnames.length - 1] = Integer.toString(DataGrab.nBatch);
+					rowdata[columnnames.length - 1] = Integer.toString(nBatch);
 					
 			}
 			
@@ -265,8 +265,8 @@ public class UtilityFunctions
 		 */
 		String[] rowdata;
 		String query ="";
-		String columns= "";
-		String values = "";
+		//String columns= "";
+		//String values = "";
 		
 		String[] columnnames = tabledata.get(0);
 		tabledata.remove(0);
@@ -309,7 +309,7 @@ public class UtilityFunctions
 			stdoutwriter.writeln(sqle);
 		}
 		stdoutwriter.writeln("Finished retrieving column data types",Logs.STATUS2,"UF14");
-		String strColumns;
+		//String strColumns;
 	
 		int nInsertCount=0;
 		for (int x=0;x<tabledata.size();x++)
@@ -321,8 +321,8 @@ public class UtilityFunctions
 			rowdata = tabledata.get(x);
 		
 			
-			values ="";
-			strColumns="";
+			//values ="";
+			//strColumns="";
 			
 			
 			
@@ -437,7 +437,7 @@ public class UtilityFunctions
 		try
 		{
 			String strCurToken;
-			StringTokenizer st;
+			//StringTokenizer st;
 			int nTokenCount;
 			ArrayList<String[]> arraylist = new ArrayList<String[]>();
 			ArrayList<String> rowarraylist;
@@ -538,7 +538,7 @@ public class UtilityFunctions
 			String strRegex = "(" + strEnclosure + ")";
 			Pattern pattern = Pattern.compile(strRegex);
 			
-			int nOpenEnclosure, nCloseEnclosure;
+			//int nOpenEnclosure, nCloseEnclosure;
 			int nCurOffset=0;
 			int nLineCount =0;
 	
@@ -548,8 +548,8 @@ public class UtilityFunctions
 				strNewLine = "";
 				matcher = pattern.matcher(strCurLine);
 				stdoutwriter.writeln(strCurLine,Logs.STATUS2,"UF25");
-				nOpenEnclosure = 0;
-				nCloseEnclosure = 0;
+				//nOpenEnclosure = 0;
+				//nCloseEnclosure = 0;
 				nCurOffset=0;
 				while (true)
 				{
@@ -557,8 +557,8 @@ public class UtilityFunctions
 					//System.out.println("1 curOffset: " + nCurOffset);
 					if (matcher.find(nCurOffset) == false)
 						break;
-					else
-						nOpenEnclosure = matcher.end();
+					//else
+						//nOpenEnclosure = matcher.end();
 					
 					strNewLine = strNewLine + strCurLine.substring(nCurOffset,matcher.end());
 					nCurOffset = matcher.end();
@@ -570,8 +570,8 @@ public class UtilityFunctions
 						stdoutwriter.writeln("Invalid syntax for enclosure characters at line " + nLineCount,Logs.ERROR,"UF26");
 						break;
 					}
-					else
-						nCloseEnclosure = matcher.end();
+					//else
+						//nCloseEnclosure = matcher.end();
 					
 					strNewLine = strNewLine + strCurLine.substring(nCurOffset,matcher.end()).replace(strDelimiter,"");
 					//System.out.println(strNewLine);
@@ -634,6 +634,18 @@ public class UtilityFunctions
 		
 	}
 	
+	public static String getElapsedTimeHoursMinutesSecondsString(Long elapsedTime) 
+	{        
+		String format = String.format("%%0%dd", 2);   
+	    elapsedTime = elapsedTime / 1000;   
+	    String seconds = String.format(format, elapsedTime % 60);   
+	    String minutes = String.format(format, (elapsedTime % 3600) / 60);   
+	    String hours = String.format(format, elapsedTime / 3600);   
+	    String time =  hours + ":" + minutes + ":" + seconds;   
+	    return time;   
+	}  
+
+	
 	
 	
 	public String[] extendArray(String[] inputArray)
@@ -652,10 +664,15 @@ public class UtilityFunctions
 	
 	class TestException extends Exception
 	{
-		void TestException()
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 4426155592602941937L;
+
+		/*void TestException()
 		{
 			return;
-		}
+		}*/
 		
 		
 	}
