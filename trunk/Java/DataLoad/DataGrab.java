@@ -1,5 +1,7 @@
 /*CAREFUL with using a final data extraction pattern that matches the last searched table,row,cell,div pattern. */
 
+
+
 package com.roeschter.jsl;
 
 import java.sql.*;
@@ -27,18 +29,45 @@ import java.util.Arrays;
 public class DataGrab extends Thread
 {
 	
-static String returned_content;
-static String strCurDataSet;
-static int nBatch;
+String returned_content;
+String strCurDataSet;
+int nBatch;
 UtilityFunctions uf;
 ProcessingFunctions pf;
 boolean bContinue;
-static String strStaticTickerLimit = "";
+Calendar calStart =null;
+Calendar calEnd = null;
+String strStaticTickerLimit = "";
+String strOriginalTicker;
+String strCurrentTicker;
 
-  public DataGrab(UtilityFunctions tmpUF)
+  public DataGrab(UtilityFunctions tmpUF, String strDataSet)
   {
   	this.uf = tmpUF;
   	this.pf = new ProcessingFunctions(tmpUF,this);
+  	strCurDataSet = strDataSet;
+  	strCurrentTicker = "";
+  	
+  	UtilityFunctions.stdoutwriter.writeln("PROCESSING DATA SET " + strCurDataSet,Logs.STATUS1,"DG37");
+	calStart = Calendar.getInstance();
+
+	UtilityFunctions.stdoutwriter.writeln("DATA SET START TIME: " + calStart.getTime().toString(),Logs.STATUS1,"DG38");
+  }
+  
+  public Calendar getStartTime() throws CustomGenericException
+  {
+	  if (calStart != null)
+		  return(calStart);
+	  else
+		  throw new CustomGenericException();
+  }
+  
+  public Calendar getEndTime() throws CustomGenericException
+  {
+	  if (calEnd != null)
+		  return(calEnd);
+	  else
+		 throw new CustomGenericException();
   }
 
 	public void startThread()
@@ -74,7 +103,7 @@ static String strStaticTickerLimit = "";
 	 	/*}
 	 	catch (InterruptedException ie)
 	 	{
-	 		UtilityFunctions.stdoutwriter.writeln("InterruptedException thrown",Logs.ERROR);
+	 		UtilityFunctions.stdoutwriter.writeln("InterruptedException thrown",Logs.ERROR,"DG1.5");
 	 		UtilityFunctions.stdoutwriter.writeln(ie);
 	 		stopThread();
 	 		
@@ -108,7 +137,7 @@ int regexSeekLoop(String regex, int nCount, int nCurOffset) throws TagNotFoundEx
 		
 		nCurOffset = matcher.start() + 1;
 		
-		uf.stdoutwriter.writeln("regex iteration " + i + ", offset: " + nCurOffset,Logs.STATUS2,"DG3");
+		UtilityFunctions.stdoutwriter.writeln("regex iteration " + i + ", offset: " + nCurOffset,Logs.STATUS2,"DG3");
 		
 	}
 	return(nCurOffset);
@@ -128,14 +157,14 @@ String regexSnipValue(String strBeforeUniqueCode, String strAfterUniqueCode, int
   	{
   		
   		String strBeforeUniqueCodeRegex = "(?i)(" + strBeforeUniqueCode + ")";
-	  uf.stdoutwriter.writeln(strBeforeUniqueCodeRegex,Logs.STATUS2,"DG4");
+  		UtilityFunctions.stdoutwriter.writeln(strBeforeUniqueCodeRegex,Logs.STATUS2,"DG4");
 	  
 	  pattern = Pattern.compile(strBeforeUniqueCodeRegex);
-	  uf.stdoutwriter.writeln("after strbeforeuniquecoderegex compile", Logs.STATUS2,"DG5");
+	  UtilityFunctions.stdoutwriter.writeln("after strbeforeuniquecoderegex compile", Logs.STATUS2,"DG5");
 	  
 	  matcher = pattern.matcher(returned_content);
 	  
-	  uf.stdoutwriter.writeln("Current offset before final data extraction: " + nCurOffset,Logs.STATUS2,"DG6");
+	  UtilityFunctions.stdoutwriter.writeln("Current offset before final data extraction: " + nCurOffset,Logs.STATUS2,"DG6");
 	  
 	  matcher.find(nCurOffset);
 	  
@@ -144,28 +173,28 @@ String regexSnipValue(String strBeforeUniqueCode, String strAfterUniqueCode, int
   	else
   		nBeginOffset = nCurOffset;
   		
-	  uf.stdoutwriter.writeln("begin offset: " + nBeginOffset,Logs.STATUS2,"DG7");
+  	UtilityFunctions.stdoutwriter.writeln("begin offset: " + nBeginOffset,Logs.STATUS2,"DG7");
 	  
   	String strAfterUniqueCodeRegex = "(?i)(" + strAfterUniqueCode + ")";
 	  pattern = Pattern.compile(strAfterUniqueCodeRegex);
-	  uf.stdoutwriter.writeln("after strAfterUniqueCodeRegex compile",Logs.STATUS2,"DG8");
+	  UtilityFunctions.stdoutwriter.writeln("after strAfterUniqueCodeRegex compile",Logs.STATUS2,"DG8");
 	  
 	  matcher = pattern.matcher(returned_content);
 	  
 	  matcher.find(nBeginOffset);
 	  
 	  int nEndOffset = matcher.start();
-	  uf.stdoutwriter.writeln("end offset: " + nEndOffset,Logs.STATUS2,"DG9");
+	  UtilityFunctions.stdoutwriter.writeln("end offset: " + nEndOffset,Logs.STATUS2,"DG9");
 	  
 	  if (nEndOffset <= nBeginOffset)
 	  {
 		/* If we get here, skip processing this table cell but continue processing the rest of the table.*/
-	  	uf.stdoutwriter.writeln("EndOffset is < BeginOffset",Logs.STATUS2,"DG10");
+	  	UtilityFunctions.stdoutwriter.writeln("EndOffset is < BeginOffset",Logs.STATUS2,"DG10");
 	  	throw new CustomRegexException();
 	  }
 	  strDataValue = returned_content.substring(nBeginOffset,nEndOffset);
 	  
-	  uf.stdoutwriter.writeln ("Raw Data Value: " + strDataValue,Logs.STATUS2,"DG11");
+	  UtilityFunctions.stdoutwriter.writeln ("Raw Data Value: " + strDataValue,Logs.STATUS2,"DG11");
 	/*}
 	catch (IOException ioe)
 	{
@@ -182,25 +211,26 @@ public void clear_run_once()
 	try
 	{
 		String query = "update schedule set run_once=0";
-		uf.db_update_query(query);
+		UtilityFunctions.db_update_query(query);
 	}
 	catch (SQLException sqle)
 	{
 		//OFP 9/26/2010 - Need to put in a pause mechanism for when running under the jsp pages.
 		//DataLoad.setPause();
-		uf.stdoutwriter.writeln("Problem clearing run_once flag",Logs.ERROR,"DG13");
-		uf.stdoutwriter.writeln(sqle);
+		UtilityFunctions.stdoutwriter.writeln("Problem clearing run_once flag",Logs.ERROR,"DG13");
+		UtilityFunctions.stdoutwriter.writeln(sqle);
 		
 	}
 }
 
-public String get_value(String local_data_set)
+
+public String get_value(String local_data_set) throws IllegalStateException,TagNotFoundException,SQLException,CustomRegexException
 {
 	String strDataValue="";
 			
 	
-	try
-	{
+	//try
+	//{
 	
 	//run sql to get info about the data_set
 	//Connection con = UtilityFunctions.db_connect();
@@ -208,7 +238,7 @@ public String get_value(String local_data_set)
 	String query = "select * from extract_info where Data_Set='" + local_data_set + "'";
 	
   //Statement stmt = con.createStatement();
-  ResultSet rs = uf.db_run_query(query);
+  ResultSet rs = UtilityFunctions.db_run_query(query);
   
   rs.next();
   
@@ -218,49 +248,12 @@ public String get_value(String local_data_set)
   rows = rs.getInt("Row_Count");
   divs = rs.getInt("Div_Count");
   
-  /*String strUrlStatic;
-  
-  strUrlStatic = rs.getString("url_static");
-  
-  if (rs.getString("url_dynamic") != "")
-  	strUrlStatic = strUrlStatic + rs.getString("url_dynamic");*/
-  	
-  //strUrlStatic = "http://localhost/tabletest.html";
-  	
-  //uf.stdoutwriter.writeln("Retrieving URL: " + strUrlStatic,Logs.STATUS2);
-  
+
  
   	
   int nCurOffset = 0;
   
-  //get_url(strUrlStatic);
   
-  //strUrlStatic = "http://localhost/tabletest2.html";
-  
-  /*URL urlStatic = new URL(strUrlStatic);
-  
-  BufferedReader in = new BufferedReader(
-				new InputStreamReader(
-				urlStatic.openStream()));
-				
-	 returned_content = "";
-	 String curLine = "";
-	 int nTmp;*/
-
-  //changed from readline to read so that end-of-line characters are included
-  //this is to match the php regex searches
-  //I'm sure this can be optimized performance-wise
-	//while (( curLine= in.readLine()) != null)
-	//    returned_content = returned_content + curLine;
-	/*while ((nTmp = in.read()) != -1)
-		returned_content = returned_content + (char)nTmp;
-	
-
-	in.close();
-	
-	uf.stdoutwriter.writeln("Done reading url contents",Logs.STATUS2);*/
-	
-	//uf.stdoutwriter.writeln(returned_content);
 	
 	/*
 		Initial regex search.
@@ -273,7 +266,7 @@ public String get_value(String local_data_set)
 	{
 		String strInitialOpenUniqueRegex = "(?i)(" + strInitialOpenUniqueCode + ")";
 		
-		uf.stdoutwriter.writeln("Initial Open Regex: " + strInitialOpenUniqueRegex,Logs.STATUS2,"DG14");
+		UtilityFunctions.stdoutwriter.writeln("Initial Open Regex: " + strInitialOpenUniqueRegex,Logs.STATUS2,"DG14");
 		
 		pattern = Pattern.compile(strInitialOpenUniqueRegex);
 		
@@ -284,7 +277,7 @@ public String get_value(String local_data_set)
 		//nCurOffset = matcher.end();
 		nCurOffset = matcher.start();
 		
-		uf.stdoutwriter.writeln("Offset after initial regex search: " + nCurOffset,Logs.STATUS2,"DG15");
+		UtilityFunctions.stdoutwriter.writeln("Offset after initial regex search: " + nCurOffset,Logs.STATUS2,"DG15");
 				
 	}
 	
@@ -294,16 +287,16 @@ public String get_value(String local_data_set)
 		End initial regex search.
 	*/
 	
-	uf.stdoutwriter.writeln("Before table searches.",Logs.STATUS2,"DG16");
+	UtilityFunctions.stdoutwriter.writeln("Before table searches.",Logs.STATUS2,"DG16");
 	nCurOffset = regexSeekLoop("(?i)(<TABLE[^>]*>)",tables,nCurOffset);	
 	
-	uf.stdoutwriter.writeln("Before table row searches.",Logs.STATUS2,"DG17");
+	UtilityFunctions.stdoutwriter.writeln("Before table row searches.",Logs.STATUS2,"DG17");
 	nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",rows,nCurOffset);
 
-	uf.stdoutwriter.writeln("Before table cell searches.",Logs.STATUS2,"DG18");
+	UtilityFunctions.stdoutwriter.writeln("Before table cell searches.",Logs.STATUS2,"DG18");
 	nCurOffset = regexSeekLoop("(?i)(<td[^>]*>)",cells,nCurOffset);
 	
-	uf.stdoutwriter.writeln("Before div searches",Logs.STATUS2,"DG19");
+	UtilityFunctions.stdoutwriter.writeln("Before div searches",Logs.STATUS2,"DG19");
 	nCurOffset = regexSeekLoop("(?i)(<div[^>]*>)",divs,nCurOffset);
 	
 	
@@ -333,7 +326,7 @@ public String get_value(String local_data_set)
  	 
  	}
   
-  
+  UtilityFunctions.stdoutwriter.writeln("Data Value: " + strDataValue,Logs.STATUS2,"DG24");
   
   //remove commas
   
@@ -341,7 +334,7 @@ public String get_value(String local_data_set)
   
   /*query = "INSERT INTO fact_data (data_set,value,date_collected) VALUES ('" + local_data_set + "','" + strDataValue + "',NOW())";
   
-  uf.stdoutwriter.writeln(query);
+  UtilityFunctions.stdoutwriter.writeln(query);
   
   stmt = con.createStatement();
   boolean bRet = stmt.execute(query);*/
@@ -353,37 +346,37 @@ public String get_value(String local_data_set)
     
   //con.close();
     
-  }catch (IllegalStateException ise)
+  //}
+  /*catch (IllegalStateException ise)
   {
-  	uf.stdoutwriter.writeln("No regex match",Logs.ERROR,"DG22");
-  	uf.stdoutwriter.writeln(ise);
-  }
+  	UtilityFunctions.stdoutwriter.writeln("No regex match",Logs.ERROR,"DG22");
+  	UtilityFunctions.stdoutwriter.writeln(ise);
+  }*/
   /*catch (CustomEmptyStringException cese)
   {
-  	uf.stdoutwriter.writeln("CustomEmptyStringException thrown",Logs.ERROR);
-  	uf.stdoutwriter.writeln(cese);
+  	UtilityFunctions.stdoutwriter.writeln("CustomEmptyStringException thrown",Logs.ERROR);
+  	UtilityFunctions.stdoutwriter.writeln(cese);
   }*/
-  catch (TagNotFoundException tnfe)
+  /*catch (TagNotFoundException tnfe)
   {
-  	uf.stdoutwriter.writeln("TagNotFoundException thrown",Logs.ERROR,"DG23");
-  	uf.stdoutwriter.writeln(tnfe);
-  }
-  catch( Exception e )
+  	UtilityFunctions.stdoutwriter.writeln("TagNotFoundException thrown",Logs.ERROR,"DG23");
+  	UtilityFunctions.stdoutwriter.writeln(tnfe);
+  }*/
+  /*catch( Exception e )
   {
-      uf.stdoutwriter.writeln(e);
-  }
-  finally
-  {
-	  uf.stdoutwriter.writeln("Data Value: " + strDataValue,Logs.STATUS2,"DG24");
-	  return(strDataValue);
-  }
-
+      UtilityFunctions.stdoutwriter.writeln(e);
+  }*/
+  //finally
+  //{
+	  //return(strDataValue);
+  //}
+  return(strDataValue);
 
 
 
 }
 
-public ArrayList<String[]> get_table_with_headers(String strTableSet) throws SQLException
+public ArrayList<String[]> get_table_with_headers(String strTableSet) throws SQLException,TagNotFoundException
 {
 	
 	
@@ -439,9 +432,9 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 	  		query = "select * from extract_table where data_set='" + strDataSet + "'";
 	  	else 
 	  		query = "select * from extract_info where data_set='" + strDataSet + "'";
-		ResultSet rs2 = uf.db_run_query(query);
+		ResultSet rs2 = UtilityFunctions.db_run_query(query);
 		rs2.next();
-		URL urlFinal;
+		//URL urlFinal;
 		
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpResponse response;
@@ -450,7 +443,7 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 		 if ((rs2.getInt("input_source") != 0))
 		 {
 			 query = "select * from input_source where primary_key=" + rs2.getInt("input_source");
-			 ResultSet rs3 = uf.db_run_query(query);
+			 ResultSet rs3 = UtilityFunctions.db_run_query(query);
 			 rs3.next();
 			 String strStProperties = rs3.getString("form_static_properties");
 			 String[] listItems = strStProperties.split(":");
@@ -476,7 +469,7 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 
 			 //urlFinal = new URL(rs3.getString("url_form"));
 			 
-			 urlFinal = new URL("http://data.bls.gov/cgi-bin/surveymost");
+			 //urlFinal = new URL("http://data.bls.gov/cgi-bin/surveymost");
 			 
 			 UtilityFunctions.stdoutwriter.writeln("Retrieving URL Form: " + rs3.getString("url_form"),Logs.STATUS2,"DG24.5");
 			 //URLConnection conn = urlFinal.openConnection();
@@ -539,7 +532,7 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 			if (rs2.getString("url_dynamic") != "")
 				strURL = strURL + rs2.getString("url_dynamic");
 			
-			uf.stdoutwriter.writeln("Retrieving URL: " + strURL,Logs.STATUS2,"DG25");
+			UtilityFunctions.stdoutwriter.writeln("Retrieving URL: " + strURL,Logs.STATUS2,"DG25");
 			
 			HttpGet httpget = new HttpGet(strURL); 
 			/*
@@ -570,22 +563,22 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 
 	  in.close();
 	
-	  uf.stdoutwriter.writeln("Done reading url contents",Logs.STATUS2,"DG26");
+	  UtilityFunctions.stdoutwriter.writeln("Done reading url contents",Logs.STATUS2,"DG26");
 		 
   
 
 }
 
-public ArrayList<String[]> get_table(String strTableSet)
+public ArrayList<String[]> get_table(String strTableSet) throws SQLException,TagNotFoundException
 {
 	//retrieve the table data_set
 	ArrayList<String[]> tabledata = new ArrayList<String[]>();
-	try
-	{
+	//try
+	//{
 		
 		String query = "select * from extract_table where data_set='" + strTableSet + "'";
 		
-		ResultSet rs = uf.db_run_query(query);
+		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
 		int nDataRows = rs.getInt("rowsofdata");
 		int nRowInterval = rs.getInt("rowinterval");
@@ -596,7 +589,7 @@ public ArrayList<String[]> get_table(String strTableSet)
 		
 		int nCurOffset = 0;
 		//seek to the top corner of the table
-		uf.stdoutwriter.writeln("Before table searches.",Logs.STATUS2,"DG27");
+		UtilityFunctions.stdoutwriter.writeln("Before table searches.",Logs.STATUS2,"DG27");
 		
 		nCurOffset = regexSeekLoop("(?i)(<TABLE[^>]*>)",rs.getInt("table_count"),nCurOffset);
 		
@@ -624,14 +617,14 @@ public ArrayList<String[]> get_table(String strTableSet)
 		
 		while (!done)
 		{
-			uf.stdoutwriter.writeln("row: " + nRowCount,Logs.STATUS2,"DG28");
+			UtilityFunctions.stdoutwriter.writeln("row: " + nRowCount,Logs.STATUS2,"DG28");
 			rowdata = new String[nNumOfColumns];
 			
 			for(int i=0;i< nNumOfColumns;i++)
 			{
 				
 
-				uf.stdoutwriter.writeln("Column: " + i,Logs.STATUS2,"DG29");
+				UtilityFunctions.stdoutwriter.writeln("Column: " + i,Logs.STATUS2,"DG29");
 				
 				if (bColTHtags == false)
 					nCurOffset = regexSeekLoop("(?i)(<td[^>]*>)",rs.getInt("Column" + (i+1)),nCurOffset);
@@ -663,7 +656,7 @@ public ArrayList<String[]> get_table(String strTableSet)
 			  }
 			  catch (CustomRegexException cre)
 			  {
-				  uf.stdoutwriter.writeln("Empty cell in table in url stream. Voiding cell.",Logs.STATUS2,"DG30");
+				  UtilityFunctions.stdoutwriter.writeln("Empty cell in table in url stream. Voiding cell.",Logs.STATUS2,"DG30");
 				  rowdata[i] = "void";
 			  }
 			  
@@ -692,26 +685,27 @@ public ArrayList<String[]> get_table(String strTableSet)
 		}
   	   
 	
-	}
-	catch (SQLException sqle)
+	//}
+	/*catch (SQLException sqle)
 	{
-		uf.stdoutwriter.writeln("Problem with query",Logs.ERROR,"DG31");
-		uf.stdoutwriter.writeln(sqle);
+		UtilityFunctions.stdoutwriter.writeln("Problem with query",Logs.ERROR,"DG31");
+		UtilityFunctions.stdoutwriter.writeln(sqle);
 	}
 	catch (TagNotFoundException tnfe)
 	{
-		uf.stdoutwriter.writeln("TagNotFoundException thrown",Logs.ERROR,"DG32");
-		uf.stdoutwriter.writeln(tnfe);
+		UtilityFunctions.stdoutwriter.writeln("TagNotFoundException thrown",Logs.ERROR,"DG32");
+		UtilityFunctions.stdoutwriter.writeln(tnfe);
 	}
 	catch (Exception ex)
 	{
-		uf.stdoutwriter.writeln("Exception thrown",Logs.ERROR,"DG33");
-		uf.stdoutwriter.writeln(ex);
-	}
-	finally
+		UtilityFunctions.stdoutwriter.writeln("Exception thrown",Logs.ERROR,"DG33");
+		UtilityFunctions.stdoutwriter.writeln(ex);
+	}*/
+	/*finally
 	{
 		return(tabledata);
-	}
+	}*/
+	return(tabledata);
 }
 
 
@@ -726,7 +720,7 @@ public ArrayList<String> get_list_dataset_run_once()
 	{
 
 		String query = "select data_set from schedule where run_once=1";
-		ResultSet rs = uf.db_run_query(query);
+		ResultSet rs = UtilityFunctions.db_run_query(query);
 		
 		
 		while(rs.next())
@@ -741,14 +735,14 @@ public ArrayList<String> get_list_dataset_run_once()
 	}
 	catch (SQLException sqle)
 	{
-		uf.stdoutwriter.writeln("problem with retrieving data sets from schedule table",Logs.ERROR,"DG34");
-		uf.stdoutwriter.writeln(sqle);
+		UtilityFunctions.stdoutwriter.writeln("problem with retrieving data sets from schedule table",Logs.ERROR,"DG34");
+		UtilityFunctions.stdoutwriter.writeln(sqle);
 	}
 
 		
 
-	uf.stdoutwriter.writeln("Processing " + count + " data sets.",Logs.STATUS1,"DG35");
-	uf.stdoutwriter.writeln("Loading batch: " + this.nBatch,Logs.STATUS1,"DG36");
+	UtilityFunctions.stdoutwriter.writeln("Processing " + count + " data sets.",Logs.STATUS1,"DG35");
+	UtilityFunctions.stdoutwriter.writeln("Loading batch: " + this.nBatch,Logs.STATUS1,"DG36");
 	return(tmpAL);
 }
 
@@ -764,49 +758,69 @@ public void grab_data_set()
 	
 	
 	
-	ArrayList<String> data_sets = get_list_dataset_run_once();
+	//ArrayList<String> data_sets = get_list_dataset_run_once();
 	
 	//UtilityFunctions.stdoutwriter.writeln("TEST3",Logs.ERROR);
 
 	
-	for (int i=0;i<data_sets.size();i++)
-	{
+	//for (int i=0;i<data_sets.size();i++)
+	//{
 		
-		strCurDataSet = data_sets.get(i);
-		uf.stdoutwriter.writeln("PROCESSING DATA SET " + strCurDataSet,Logs.STATUS1,"DG37");
-		Calendar cal = Calendar.getInstance();
-		java.util.Date d = cal.getTime();
-		uf.stdoutwriter.writeln("DATA SET START TIME: " + d.toString(),Logs.STATUS1,"DG38");
+		//strCurDataSet = data_sets.get(i);
+		
 		
 		nBatch = uf.getBatchNumber();
 		
 		
 		String query = "select companygroup from schedule where data_set='" + strCurDataSet + "'";
-		ResultSet rs = uf.db_run_query(query);
+		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
 		String group = rs.getString("companygroup");
 		
-		query = "update schedule set last_run=NOW() where data_set='" + strCurDataSet + "'";
-		uf.db_update_query(query);
+		//This should be handled in DataLoad.java
+		//query = "update schedule set last_run=NOW() where data_set='" + strCurDataSet + "'";
+		//UtilityFunctions.db_update_query(query);
 		
 		if (group.compareTo("none") == 0)
 		{
 			//this extract process is not associated with a group of companies.
 			if ((strCurDataSet.substring(0,5)).compareTo("table") == 0)
 			{
-				
-				pf.preProcessingTable(strCurDataSet,"");
-				
-				get_url(strCurDataSet);
-				 
-				ArrayList<String[]> tabledata = get_table_with_headers(strCurDataSet);
-				//pf.processTableSAndPCoList(tabledata,strCurDataSet,uf);
-				//need to add the quarter values somewhere around here.
-				
-				ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
-				
-				if (strCurDataSet.equals("table_sandp_co_list") != true) //already imported data in the processing function					
-					uf.importTableIntoDB(tabledata2,"fact_data_stage");
+				try
+				{
+					pf.preProcessingTable(strCurDataSet,"");
+					
+					get_url(strCurDataSet);
+					 
+					ArrayList<String[]> tabledata = get_table_with_headers(strCurDataSet);
+					//pf.processTableSAndPCoList(tabledata,strCurDataSet,uf);
+					//need to add the quarter values somewhere around here.
+					
+					ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
+					
+					if (strCurDataSet.equals("table_sandp_co_list") != true) //already imported data in the processing function					
+						uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+				}
+				catch (MalformedURLException mue)
+				{
+					UtilityFunctions.stdoutwriter.writeln("Badly formed url, processing dataset aborted",Logs.ERROR,"DG38.1");
+					UtilityFunctions.stdoutwriter.writeln(mue);
+				}
+				catch (SQLException sqle)
+				{
+					UtilityFunctions.stdoutwriter.writeln("Problem issuing sql statement, processing dataset aborted",Logs.ERROR,"DG38.2");
+					UtilityFunctions.stdoutwriter.writeln(sqle);
+				}
+				catch (IOException ioe)
+				{
+					UtilityFunctions.stdoutwriter.writeln("Problem with I/O, processing dataset aborted",Logs.ERROR,"DG38.3");
+					UtilityFunctions.stdoutwriter.writeln(ioe);
+				}
+				catch (Exception e)
+				{
+					UtilityFunctions.stdoutwriter.writeln("Processing dataset aborted", Logs.ERROR,"DG38.4");
+					UtilityFunctions.stdoutwriter.writeln(e);
+				}
 			
 				
 				/*String[] rowdata;
@@ -831,10 +845,10 @@ public void grab_data_set()
 			query = "select * from company where groups like '%" + group + "%' order by ticker";
 			
 		
-			rs = uf.db_run_query(query);
+			rs = UtilityFunctions.db_run_query(query);
 				
-			String strCurTicker="";
-			String fullUrl;
+			//String strCurTicker="";
+			//String fullUrl;
 			String strDataValue="";
 			int count=0;
 		
@@ -846,13 +860,13 @@ public void grab_data_set()
 			{
 				try
 				{
-					strCurTicker = rs.getString("ticker");
+					this.strOriginalTicker = this.strCurrentTicker = rs.getString("ticker");
 					
-					uf.stdoutwriter.writeln("Processing ticker: " + strCurTicker,Logs.STATUS1,"DG39");
+					UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + this.strCurrentTicker,Logs.STATUS1,"DG39");
 					
 					/*Active only to debug individual tickers */
 					if (strStaticTickerLimit.isEmpty() != true)
-						if (strCurTicker.compareTo(strStaticTickerLimit) != 0) 
+						if (strCurrentTicker.compareTo(strStaticTickerLimit) != 0) 
 							continue;
 						else
 						{
@@ -863,25 +877,29 @@ public void grab_data_set()
 					
 				
 				
-					if ((strCurDataSet.substring(0,5)).compareTo("table") == 0)
+ 					if ((strCurDataSet.substring(0,5)).equals("table"))
 					{
 						try
 						{
-								/*Updating the dynamic url in the preprocessing function for now */
-								query = "update extract_table set url_dynamic='" + strCurTicker + "' where Data_Set='" + strCurDataSet + "'";
-								uf.db_update_query(query);
+								
+							/*query = "update extract_table set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
+							UtilityFunctions.db_update_query(query);*/
 								
 							
-							pf.preProcessingTable(strCurDataSet,strCurTicker);
+							pf.preProcessingTable(strCurDataSet,strCurrentTicker);
+							
+							query = "update extract_table set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
+							UtilityFunctions.db_update_query(query);
 							
 	
 							 
 							 get_url(strCurDataSet);
 							
 							/*perform no data check here*/
+							/*Should change this to throw a no data exception*/
 							if (pf.preNoDataCheck(strCurDataSet) == true)
 							{
-								uf.stdoutwriter.writeln("URL contains no data, skipping ticker", Logs.STATUS1,"DG40");
+								UtilityFunctions.stdoutwriter.writeln("URL contains no data, skipping ticker", Logs.STATUS1,"DG40");
 								continue;
 							}
 							
@@ -889,8 +907,10 @@ public void grab_data_set()
 						 
 							ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
 											
-						
-							uf.importTableIntoDB(tabledata2,"fact_data_stage");
+							ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from extract_table where data_set='" + strCurDataSet + "'");
+							rs2.next();
+							if (rs2.getInt("custom_insert") != 1)
+								uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
 							
 						
 						
@@ -904,7 +924,7 @@ public void grab_data_set()
 								rowdata = tabledata.get(x);
 								for (int y=0;y<rowdata.length;y++)
 								{
-									uf.stdoutwriter.writeln(rowdata[y]+"     ",Logs.STATUS2);
+									UtilityFunctions.stdoutwriter.writeln(rowdata[y]+"     ",Logs.STATUS2);
 									//System.out.print(rowdata[y]+"     ");
 								}
 	
@@ -912,23 +932,23 @@ public void grab_data_set()
 						}
 						catch (MalformedURLException mue)
 						{
-							uf.stdoutwriter.writeln("Badly formed url, skipping ticker",Logs.ERROR,"DG41");
-							uf.stdoutwriter.writeln(mue);
+							UtilityFunctions.stdoutwriter.writeln("Badly formed url, skipping ticker",Logs.ERROR,"DG41");
+							UtilityFunctions.stdoutwriter.writeln(mue);
 						}
 						catch (SQLException sqle)
 						{
-							uf.stdoutwriter.writeln("Problem issuing sql statement, skipping ticker",Logs.ERROR,"DG42");
-							uf.stdoutwriter.writeln(sqle);
+							UtilityFunctions.stdoutwriter.writeln("Problem issuing sql statement, skipping ticker",Logs.ERROR,"DG42");
+							UtilityFunctions.stdoutwriter.writeln(sqle);
 						}
 						catch (IOException ioe)
 						{
-							uf.stdoutwriter.writeln("Problem with I/O, skipping ticker",Logs.ERROR,"DG43");
-							uf.stdoutwriter.writeln(ioe);
+							UtilityFunctions.stdoutwriter.writeln("Problem with I/O, skipping ticker",Logs.ERROR,"DG43");
+							UtilityFunctions.stdoutwriter.writeln(ioe);
 						}
 						catch (Exception e)
 						{
-							uf.stdoutwriter.writeln("Processing table for ticker " + strCurTicker + " failed, skipping",Logs.ERROR,"DG44");
-							uf.stdoutwriter.writeln(e);
+							UtilityFunctions.stdoutwriter.writeln("Processing table for ticker " + strCurrentTicker + " failed, skipping",Logs.ERROR,"DG44");
+							UtilityFunctions.stdoutwriter.writeln(e);
 						}
 				
 					}
@@ -937,21 +957,23 @@ public void grab_data_set()
 						
 							try
 							{
-								query = "update extract_info set url_dynamic='" + strCurTicker + "' where Data_Set='" + strCurDataSet + "'";
-								uf.db_update_query(query);
-							
-								uf.stdoutwriter.writeln("Calling get value.",Logs.STATUS2,"DG45");
 								
-								if (pf.preProcessing(strCurDataSet,strCurTicker) != true)
+							
+								//UtilityFunctions.stdoutwriter.writeln("Calling get value.",Logs.STATUS2,"DG45");
+								
+								if (pf.preProcessing(strCurDataSet,strCurrentTicker) != true)
 								{
 									throw new CustomEmptyStringException();
 								}
+								
+								query = "update extract_info set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
+								UtilityFunctions.db_update_query(query);
 								
 								get_url(strCurDataSet);
 								
 								if (pf.preNoDataCheck(strCurDataSet) == true)
 								{
-									uf.stdoutwriter.writeln("URL contains no data, skipping ticker", Logs.STATUS1,"DG46");
+									UtilityFunctions.stdoutwriter.writeln("URL contains no data, skipping ticker", Logs.STATUS1,"DG46");
 									continue;
 								}
 										
@@ -960,7 +982,7 @@ public void grab_data_set()
 							
 								if (strDataValue.compareTo("") == 0)
 								{
-									uf.stdoutwriter.writeln("Returned empty value '', skipping ",Logs.STATUS2,"DG47");
+									UtilityFunctions.stdoutwriter.writeln("Returned empty value '', skipping ",Logs.STATUS2,"DG47");
 									continue;
 								}
 								
@@ -968,46 +990,49 @@ public void grab_data_set()
 								
 								String[] tmp = {strDataValue};
 								
+								/*
+								 * Create a table even for single values since we now use importTableIntoDB for everything.
+								 */
 								tabledata.add(tmp);
-								
-								
-							
-								
-								
-								ResultSet rs2 = uf.db_run_query("select custom_insert from extract_info where data_set='" + strCurDataSet + "'");
-								rs2.next();
-				
 								
 								
 							   	ArrayList<String []> tabledata2 = pf.postProcessing(tabledata, strCurDataSet);
 							   	
-							   	/*Probably need to add another column in the db for import table*/
-							   	//if (strCurDataSet.equals("sec_fiscal_year_begin"))
-							   	//	uf.customDataCheck(tabledata2, strCurTicker);
-							   	if (strCurDataSet.equals("nasdaq_fiscal_year_begin") || strCurDataSet.equals("sec_fiscal_year_begin"))
-							   		uf.updateTableIntoDB(tabledata2,"company");
+							   	ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from extract_info where data_set='" + strCurDataSet + "'");
+								rs2.next();
+								if (rs2.getInt("custom_insert") != 1)
+									uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+								
+								/*{
+			
+									if (strCurDataSet.equals("nasdaq_fiscal_year_begin") || strCurDataSet.equals("sec_fiscal_year_begin"))
+								   		uf.updateTableIntoDB(tabledata2,"company");
+									//else do nothing
+							
+						
+								}
 							   	else
-							   		uf.importTableIntoDB(tabledata2,"fact_data_stage");
+							   		uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);*/
 							}
 							catch (MalformedURLException mue)
 							{
-								uf.stdoutwriter.writeln("Badly formed url, skipping ticker",Logs.ERROR,"DG48");
-								uf.stdoutwriter.writeln(mue);
+								UtilityFunctions.stdoutwriter.writeln("Badly formed url, skipping ticker",Logs.ERROR,"DG48");
+								UtilityFunctions.stdoutwriter.writeln(mue);
 							}
 							catch (SQLException sqle)
 							{
-								uf.stdoutwriter.writeln("Problem issuing sql statement, skipping ticker",Logs.ERROR,"DG49");
-								uf.stdoutwriter.writeln(sqle);
+								UtilityFunctions.stdoutwriter.writeln("Problem issuing sql statement, skipping ticker",Logs.ERROR,"DG49");
+								UtilityFunctions.stdoutwriter.writeln(sqle);
 							}
 							catch (IOException ioe)
 							{
-								uf.stdoutwriter.writeln("Problem with I/O, skipping ticker",Logs.ERROR,"DG50");
-								uf.stdoutwriter.writeln(ioe);
+								UtilityFunctions.stdoutwriter.writeln("Problem with I/O, skipping ticker",Logs.ERROR,"DG50");
+								UtilityFunctions.stdoutwriter.writeln(ioe);
 							}
 							catch (Exception e)
 							{
-								uf.stdoutwriter.writeln("Processing table for ticker " + strCurTicker + " failed, skipping",Logs.ERROR,"DG51");
-								uf.stdoutwriter.writeln(e);
+								UtilityFunctions.stdoutwriter.writeln("Processing table for ticker " + strCurrentTicker + " failed, skipping",Logs.ERROR,"DG51");
+								UtilityFunctions.stdoutwriter.writeln(e);
 							}
 							
 						   	
@@ -1034,9 +1059,9 @@ public void grab_data_set()
 	  		}
   			catch (SQLException sqle)
   			{
-  				uf.stdoutwriter.writeln("problem with sql statement in grab_data_set",Logs.ERROR,"DG52");
-  				uf.stdoutwriter.writeln("Processing of data_set " + strCurDataSet + " with ticker " + strCurTicker + " FAILED ",Logs.ERROR,"DG53");
-  				uf.stdoutwriter.writeln(sqle);
+  				UtilityFunctions.stdoutwriter.writeln("problem with sql statement in grab_data_set",Logs.ERROR,"DG52");
+  				UtilityFunctions.stdoutwriter.writeln("Processing of data_set " + strCurDataSet + " with ticker " + strCurrentTicker + " FAILED ",Logs.ERROR,"DG53");
+  				UtilityFunctions.stdoutwriter.writeln(sqle);
   			}
 
   			
@@ -1046,16 +1071,16 @@ public void grab_data_set()
 			}
 		}
 		
-		cal = Calendar.getInstance();
-		d = cal.getTime();
-		uf.stdoutwriter.writeln("DATA SET END TIME: " + d.toString(),Logs.STATUS1,"DG54");
-	}
+		calEnd = Calendar.getInstance();
+		
+		UtilityFunctions.stdoutwriter.writeln("DATA SET END TIME: " + calEnd.getTime().toString(),Logs.STATUS1,"DG54");
+	//}
 
 	}
 	catch (Exception e)
 	{
-		uf.stdoutwriter.writeln("Exception in grab_data_set",Logs.ERROR,"DG55");
-		uf.stdoutwriter.writeln(e);
+		UtilityFunctions.stdoutwriter.writeln("Exception in grab_data_set",Logs.ERROR,"DG55");
+		UtilityFunctions.stdoutwriter.writeln(e);
 	}
 
 	}
@@ -1065,27 +1090,51 @@ public void grab_data_set()
 class CustomEmptyStringException extends Exception
 {
 
-	void CustomEmptyStringException()
-	{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3458604207910623258L;
+
+	
+	//void CustomEmptyStringException()
+	//{
 		//	super(); 
-	}
+	//}
 }	
 
 class CustomRegexException extends Exception
 {
-	void CustomRegexException()
+
+	private static final long serialVersionUID = 3833467121806555695L;
+
+	/*void CustomRegexException()
 	{
 		
-	}
+	}*/
 }
 
 class TagNotFoundException extends Exception
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3350211930488258897L;
+
 	void TagNoutFoundException()
 	{
 		
 	}
 	
+	
+}
+
+class CustomGenericException extends Exception
+{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1323548081845621968L;
 	
 }
 	
