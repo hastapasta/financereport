@@ -1,6 +1,9 @@
 package com.roeschter.jsl;
 
 import java.sql.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -11,19 +14,19 @@ import java.util.regex.Pattern;
 class ProcessingFunctions
 {
 	/*Individual extraction processing function parameters*/
-	//String strStaticDataSet;  //These have static in the name but is not static, need to change.
-	String strStaticDataValue;
+	
+	String strDataValue;
 
 	/*RIght now this is only set during the preProcessing function */
-	String strStaticTicker;
+	String strTicker;
 	String strTemp1, strTemp2, strTemp3;
 	
 	/*table extraction processing function parameters*/
-	ArrayList<String[]> staticTableData;
-	String strStaticTableDataSet;
+	ArrayList<String[]> propTableData;
+	String propStrTableDataSet;
 	
 	
-	/* Need to figure out why two log files are being written to... uf.stdoutwriter and stdoutwriter */
+	/* Need to figure out why two log files are being written to... UtilityFunctions.stdoutwriter and stdoutwriter */
 	UtilityFunctions uf;
 	DataGrab dg;
 	//CustomBufferedWriter stdoutwriter;
@@ -44,14 +47,14 @@ class ProcessingFunctions
 			else
 				query = "select pre_nodata_check_func from extract_info where Data_Set='" + strDataSet + "'";
 			
-			ResultSet rs = uf.db_run_query(query);
+			ResultSet rs = UtilityFunctions.db_run_query(query);
 			rs.next();
 			String strFunctionName = rs.getString("pre_nodata_check_func");
 			
-			uf.stdoutwriter.writeln("Pre No Data Check function name: " + strFunctionName,Logs.STATUS2,"PF1");
+			UtilityFunctions.stdoutwriter.writeln("Pre No Data Check function name: " + strFunctionName,Logs.STATUS2,"PF1");
 			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
 			{
-				uf.stdoutwriter.writeln("No data check function, assuming data is ok",Logs.STATUS2,"PF2");
+				UtilityFunctions.stdoutwriter.writeln("No data check function, assuming data is ok",Logs.STATUS2,"PF2");
 				return(false);
 			}
 
@@ -60,8 +63,8 @@ class ProcessingFunctions
 		}
 		catch (Exception e)
 		{
-			uf.stdoutwriter.writeln("preNoDataCheck method call failed",Logs.ERROR,"PF3");
-			uf.stdoutwriter.writeln(e);
+			UtilityFunctions.stdoutwriter.writeln("preNoDataCheck method call failed",Logs.ERROR,"PF3");
+			UtilityFunctions.stdoutwriter.writeln(e);
 			return(false);
 			
 		}
@@ -82,32 +85,32 @@ public boolean preProcessing(String strDataSet, String strTicker)
 	
 		try
 		{
-			ResultSet rs = uf.db_run_query(query);
+			ResultSet rs = UtilityFunctions.db_run_query(query);
 			rs.next();
 			String strFunctionName = rs.getString("pre_process_func_name");
 			
-			uf.stdoutwriter.writeln("Pre Process Func Name: " + strFunctionName,Logs.STATUS2,"PF4");
-			strStaticTicker = strTicker;
+			UtilityFunctions.stdoutwriter.writeln("Pre Process Func Name: " + strFunctionName,Logs.STATUS2,"PF4");
+			this.strTicker = strTicker;
 			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
 			{
-				uf.stdoutwriter.writeln("No pre process function, exiting...",Logs.STATUS2,"PF5");
+				UtilityFunctions.stdoutwriter.writeln("No pre process function, exiting...",Logs.STATUS2,"PF5");
 				return(true);
 			}
 	
-			strStaticDataValue = "";
+			strDataValue = "";
 			strTemp1 = "";
 			strTemp2 = "";
 			strTemp3 = "";
 			//strStaticDataSet = strDataSet;
 
-			uf.stdoutwriter.writeln(strFunctionName,Logs.STATUS2,"PF6");
+			UtilityFunctions.stdoutwriter.writeln(strFunctionName,Logs.STATUS2,"PF6");
 			Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
 			return((Boolean)m.invoke(this, new Object[] {}));
 		}
 		catch (Exception tmpE)
 		{
-			uf.stdoutwriter.writeln("preProcessing method call failed",Logs.ERROR,"PF7");
-			uf.stdoutwriter.writeln(tmpE);
+			UtilityFunctions.stdoutwriter.writeln("preProcessing method call failed",Logs.ERROR,"PF7");
+			UtilityFunctions.stdoutwriter.writeln(tmpE);
 			return(false);
 		}
 
@@ -119,24 +122,24 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Stri
 	
 		String query = "select post_process_func_name from extract_info where Data_Set='" + strDataSet + "'";
 		
-		strStaticDataValue = tabledata.get(0)[0];
+		strDataValue = tabledata.get(0)[0];
 
 	
 		try
 		{
 			
-			ResultSet rs = uf.db_run_query(query);
+			ResultSet rs = UtilityFunctions.db_run_query(query);
 			rs.next();
 			String strFunctionName = rs.getString("post_process_func_name");
 			
-			uf.stdoutwriter.writeln("Post Process Func Name: " + strFunctionName,Logs.STATUS2,"PF8");
+			UtilityFunctions.stdoutwriter.writeln("Post Process Func Name: " + strFunctionName,Logs.STATUS2,"PF8");
 			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
 			{
-				uf.stdoutwriter.writeln("No post process function, exiting...",Logs.STATUS2,"PF9");
+				UtilityFunctions.stdoutwriter.writeln("No post process function, exiting...",Logs.STATUS2,"PF9");
 				return(tabledata);
 			}
 			
-			staticTableData = tabledata;
+			propTableData = tabledata;
 			//strStaticDataSet = strDataSet;
 			Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
 			m.invoke(this, new Object[] {});
@@ -144,8 +147,8 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Stri
 		/* Need to break this down into individual exceptions */
 		catch (Exception tmpE)
 		{
-			uf.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF10");
-			uf.stdoutwriter.writeln(tmpE);
+			UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF10");
+			UtilityFunctions.stdoutwriter.writeln(tmpE);
 		}
 		
 		return(tabledata);
@@ -169,31 +172,31 @@ public boolean preProcessingTable(String strDataSet, String strCurTicker)
 		
 		try
 		{
-			ResultSet rs = uf.db_run_query(query);
+			ResultSet rs = UtilityFunctions.db_run_query(query);
 			rs.next();
 			String strFunctionName = rs.getString("pre_process_func_name");
 			
-			uf.stdoutwriter.writeln("Pre Process Func Name: " + strFunctionName,Logs.STATUS2,"PF11");
+			UtilityFunctions.stdoutwriter.writeln("Pre Process Func Name: " + strFunctionName,Logs.STATUS2,"PF11");
 			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
 			{
-				uf.stdoutwriter.writeln("No pre process function, exiting...",Logs.STATUS2,"PF12");
+				UtilityFunctions.stdoutwriter.writeln("No pre process function, exiting...",Logs.STATUS2,"PF12");
 				return(true);
 			}
 			
-			strStaticDataValue = "";
+			strDataValue = "";
 			strTemp1 = "";
 			strTemp2 = "";
 			strTemp3 = "";
 			//strStaticDataSet = strDataSet;
-			strStaticTicker = strCurTicker;
-			uf.stdoutwriter.writeln(strFunctionName,Logs.STATUS2,"PF13");
+			strTicker = strCurTicker;
+			UtilityFunctions.stdoutwriter.writeln(strFunctionName,Logs.STATUS2,"PF13");
 			Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
 			return((Boolean)m.invoke(this, new Object[] {}));
 		}
 		catch (Exception tmpE)
 		{
-			uf.stdoutwriter.writeln("preProcessingTable method call failed",Logs.ERROR,"PF14");
-			uf.stdoutwriter.writeln(tmpE);
+			UtilityFunctions.stdoutwriter.writeln("preProcessingTable method call failed",Logs.ERROR,"PF14");
+			UtilityFunctions.stdoutwriter.writeln(tmpE);
 			return(false);
 		}
 
@@ -206,29 +209,29 @@ public ArrayList<String[]> postProcessingTable(ArrayList<String[]> tabledata,Str
 
 	try
 	{
-		ResultSet rs = uf.db_run_query(query);
+		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
 		String strFunctionName = rs.getString("post_process_func_name");
 		
-		uf.stdoutwriter.writeln("Table Post Process Func Name: " + strFunctionName,Logs.STATUS2,"PF15");
+		UtilityFunctions.stdoutwriter.writeln("Table Post Process Func Name: " + strFunctionName,Logs.STATUS2,"PF15");
 		if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
 		{
-			uf.stdoutwriter.writeln("No table post process function, exiting...",Logs.STATUS2,"PF16");
+			UtilityFunctions.stdoutwriter.writeln("No table post process function, exiting...",Logs.STATUS2,"PF16");
 			return(tabledata);
 		}
-		staticTableData = tabledata;
-		strStaticTableDataSet = strDataSet;
+		propTableData = tabledata;
+		propStrTableDataSet = strDataSet;
 		Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
 		m.invoke(this, new Object[] {});
 	
 	}
 	catch (Exception tmpE)
 	{
-		uf.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF17");
-		uf.stdoutwriter.writeln(tmpE);
+		UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF17");
+		UtilityFunctions.stdoutwriter.writeln(tmpE);
 	}
 	
-	return(staticTableData);
+	return(propTableData);
 	
 	
 }
@@ -236,7 +239,7 @@ public ArrayList<String[]> postProcessingTable(ArrayList<String[]> tabledata,Str
 
 
 
-public boolean preNasdaqEPSEst()
+public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomRegexException
 {
 	/*
 		I'm going to store the estimated values as the adjusted quarter values whereas the
@@ -246,63 +249,73 @@ public boolean preNasdaqEPSEst()
 	//initialize the row value
 	String query; 
 	
-	
+	//try
+	//{
 	boolean done = false;
-	boolean bSuccess = false;
+	//boolean bSuccess = false;
 	//loop through doing a data grab of all the dates
 	// when the correct data is found then do the actual data grab for the value
-	int nDataSetYear = Integer.parseInt(DataGrab.strCurDataSet.substring(9,11));
-	int nDataSetQuarter = Integer.parseInt(DataGrab.strCurDataSet.substring(8,9));
-	uf.stdoutwriter.writeln("DataSetYear: " + nDataSetYear + " DataSetQuarter: " + nDataSetQuarter,Logs.STATUS2,"PF18");
+	int nDataSetYear = Integer.parseInt(dg.strCurDataSet.substring(9,11));
+	int nDataSetQuarter = Integer.parseInt(dg.strCurDataSet.substring(8,9));
+	UtilityFunctions.stdoutwriter.writeln("DataSetYear: " + nDataSetYear + " DataSetQuarter: " + nDataSetQuarter,Logs.STATUS2,"PF18");
 	int curRowCount=4;
 	String ticker;
-	try
-	{
-		query = "select url_dynamic from extract_info where data_set='" + DataGrab.strCurDataSet + "'";
-		ResultSet rs = uf.db_run_query(query);
+	//try
+	//{
+		query = "select url_dynamic from extract_info where data_set='" + dg.strCurDataSet + "'";
+		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
 		ticker = rs.getString("url_dynamic");
-		uf.stdoutwriter.writeln("Processing ticker: " + ticker,Logs.STATUS2,"PF19");
+		UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + ticker,Logs.STATUS2,"PF19");
 		
-	}
-	catch(SQLException sqle)
+	//}
+	/*catch(SQLException sqle)
 	{
-		uf.stdoutwriter.writeln("Problem running query in prenasdaqEPSEst",Logs.ERROR,"PF20");
-		uf.stdoutwriter.writeln(sqle);
+		UtilityFunctions.stdoutwriter.writeln("Problem running query in prenasdaqEPSEst",Logs.ERROR,"PF20");
+		UtilityFunctions.stdoutwriter.writeln(sqle);
 		return(false);
-	}
+	}*/
 	
 	while (!done)
 	{
-		uf.stdoutwriter.writeln("Row Count: " + curRowCount,Logs.STATUS2,"PF21");
+		UtilityFunctions.stdoutwriter.writeln("Row Count: " + curRowCount,Logs.STATUS2,"PF21");
 		query = "update extract_info set Row_Count=" + curRowCount + ",url_dynamic='" + ticker + "' where data_set='nasdaq_eps_est_quarter'";
 		
-		try
+		//try
+		//{
+			UtilityFunctions.db_update_query(query);
+		//}
+		/*catch (SQLException sqle)
 		{
-			uf.db_update_query(query);
-		}
-		catch (SQLException sqle)
-		{
-				uf.stdoutwriter.writeln("Problem with update query.",Logs.ERROR,"PF22");
-				uf.stdoutwriter.writeln(sqle);
+				UtilityFunctions.stdoutwriter.writeln("Problem with update query.",Logs.ERROR,"PF22");
+				UtilityFunctions.stdoutwriter.writeln(sqle);
 				return(false);
 			
-		}
-		
-		String curValue = dg.get_value("nasdaq_eps_est_quarter");
+		}*/
+		String curValue;
+		//try
+		//{
+			curValue = dg.get_value("nasdaq_eps_est_quarter");
+		//}
+		/*catch (CustomRegexException cre)
+		{
+			UtilityFunctions.stdoutwriter.writeln("Problem with update query.",Logs.ERROR,"PF22.5");
+			UtilityFunctions.stdoutwriter.writeln(cre);
+			return(false);
+		}*/
 		if (curValue.length() < 7)
 		//string returned too short
 			break;
 		int nDataValueYear = Integer.parseInt(curValue.substring(5,7));
-		uf.stdoutwriter.writeln("DatValueYear: " + nDataValueYear,Logs.STATUS2,"PF23");
+		UtilityFunctions.stdoutwriter.writeln("DatValueYear: " + nDataValueYear,Logs.STATUS2,"PF23");
 		if (nDataValueYear != nDataSetYear)
 		{
 			curRowCount++;
 			continue;
 		}
 		String nDataValueMonth = curValue.substring(0,3);
-		uf.stdoutwriter.writeln("DataValueMonth: " + nDataValueMonth,Logs.STATUS2,"PF24");
-		uf.stdoutwriter.writeln("DatValueYear: " + nDataValueYear + " DataValueMonth: " + nDataValueMonth,Logs.STATUS2,"PF25");
+		UtilityFunctions.stdoutwriter.writeln("DataValueMonth: " + nDataValueMonth,Logs.STATUS2,"PF24");
+		UtilityFunctions.stdoutwriter.writeln("DatValueYear: " + nDataValueYear + " DataValueMonth: " + nDataValueMonth,Logs.STATUS2,"PF25");
 		
 		if ((nDataValueMonth.compareTo("Nov") == 0) || 
 		(nDataValueMonth.compareTo("Dec") == 0) || 
@@ -310,7 +323,7 @@ public boolean preNasdaqEPSEst()
 		{
 			if (nDataSetQuarter == 4)
 			{
-				bSuccess = true;
+				//bSuccess = true;
 				break;
 			}
 
@@ -321,7 +334,7 @@ public boolean preNasdaqEPSEst()
 		{
 			if (nDataSetQuarter == 3)
 			{
-				bSuccess = true;
+				//bSuccess = true;
 				break;
 			}
 
@@ -332,7 +345,7 @@ public boolean preNasdaqEPSEst()
 		{
 			if (nDataSetQuarter == 2)
 			{
-				bSuccess = true;
+				//bSuccess = true;
 				break;
 			}
 		
@@ -343,7 +356,7 @@ public boolean preNasdaqEPSEst()
 		{
 			if (nDataSetQuarter == 1)
 			{
-				bSuccess = true;
+				//bSuccess = true;
 				break;
 			}
 
@@ -358,48 +371,34 @@ public boolean preNasdaqEPSEst()
 		
 		
 	}
-	if (bSuccess == true)
-	{
-		try
-		{
-			uf.db_update_query(query);
-			return(true);
-		}
-		catch (SQLException sqle)
-		{
-			uf.stdoutwriter.writeln("Problem with update query",Logs.ERROR,"PF26");
-			uf.stdoutwriter.writeln(sqle);
-			return(false);
-		}
-	}
-	else
-		return(false);
+	UtilityFunctions.db_update_query(query);
+	
 		
 	
 	
 }
 
 
-public boolean preNasdaqEPS()
+public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRegexException
 {
-	try
-	{
-		String query = "select url_dynamic from extract_info where Data_Set='" + DataGrab.strCurDataSet + "'";
-		ResultSet rs = uf.db_run_query(query);
+	//try
+	//{
+		String query = "select url_dynamic from extract_info where Data_Set='" + dg.strCurDataSet + "'";
+		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
-		String strTicker = rs.getString("url_dynamic");
-		uf.stdoutwriter.writeln("Processing ticker: " + rs.getString("url_dynamic"),Logs.STATUS2,"PF27");
+		//String strTicker = rs.getString("url_dynamic");
+		UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + rs.getString("url_dynamic"),Logs.STATUS2,"PF27");
 		query = "update extract_info set url_dynamic='" + rs.getString("url_dynamic") + "' where data_set='nasdaq_current_fiscal_year'";
 		//have to save the value here because the get_value() call wipes it out.
-		String tmpStaticDataSet = DataGrab.strCurDataSet;
-		uf.db_update_query(query);
+		String tmpStaticDataSet = dg.strCurDataSet;
+		UtilityFunctions.db_update_query(query);
 		String strCurValue = dg.get_value("nasdaq_current_fiscal_year");
-		uf.stdoutwriter.writeln("Nasdaq_current_fiscal_year: " + strCurValue,Logs.STATUS2,"PF28");
+		UtilityFunctions.stdoutwriter.writeln("Nasdaq_current_fiscal_year: " + strCurValue,Logs.STATUS2,"PF28");
 		int nDataSetYear = Integer.parseInt(tmpStaticDataSet.substring(9,11));
 		
 		if 	((strCurValue.compareTo("2009") == 0) && (nDataSetYear == 10))
 		/* Data not available yet...return false (skip) */
-			return false;
+			throw new CustomRegexException();
 	
 		
 		if ((strCurValue.compareTo("2010") == 0) && (nDataSetYear != 10))
@@ -407,7 +406,7 @@ public boolean preNasdaqEPS()
 			//need to shift things over one.
 			query = "select Cell_Count,url_static from extract_info where Data_Set='" + tmpStaticDataSet + "'";
 
-			rs = uf.db_run_query(query);
+			rs = UtilityFunctions.db_run_query(query);
 			rs.next();
 			int nCellCount = rs.getInt("Cell_Count");
 			strTemp2 = String.valueOf(nCellCount);
@@ -421,50 +420,57 @@ public boolean preNasdaqEPS()
 			{
 				query = "update extract_info set Cell_Count=" + String.valueOf(nCellCount + 1) + " where Data_Set='" + tmpStaticDataSet + "'";
 			}
-			uf.db_update_query(query);
+			UtilityFunctions.db_update_query(query);
 			
 			
 		}
 		
-		return(true);
+		//return(true);
 		
 		
 		
-	}
-	catch (SQLException sqle)
+	//}
+	/*catch (SQLException sqle)
 	{
-		uf.stdoutwriter.writeln("preNasdaqEPS2 failed...",Logs.ERROR,"PF29");
-		uf.stdoutwriter.writeln(sqle);
+		UtilityFunctions.stdoutwriter.writeln("preNasdaqEPS2 failed...",Logs.ERROR,"PF29");
+		UtilityFunctions.stdoutwriter.writeln(sqle);
 		return(false);
 	}
+	catch (CustomRegexException cre)
+	{
+		UtilityFunctions.stdoutwriter.writeln("preNasdaqEPS2 failed...",Logs.ERROR,"PF29.5");
+		UtilityFunctions.stdoutwriter.writeln(cre);
+		return(false);
+		
+	}*/
 	
 }
 
 
 public void postNasdaqEPS()
 {
-	uf.stdoutwriter.writeln("Inside postNasdaqEPS...",Logs.ERROR,"PF30");
+	UtilityFunctions.stdoutwriter.writeln("Inside postNasdaqEPS...",Logs.ERROR,"PF30");
 	
-	strStaticDataValue = strStaticDataValue.replace("(m)","");
+	strDataValue = strDataValue.replace("(m)","");
 	try
 	{
 		//restore URL static
 		if (strTemp1.compareTo("") != 0)
 		{
-			uf.db_update_query("update extract_info set url_static='" + strTemp1 + "' where Data_Set = '" + DataGrab.strCurDataSet + "'");
+			UtilityFunctions.db_update_query("update extract_info set url_static='" + strTemp1 + "' where Data_Set = '" + dg.strCurDataSet + "'");
 			strTemp1 = "";
 		}
 		//restore Cell Count
 		if (strTemp2.compareTo("") != 0)
 		{
-			uf.db_update_query("update extract_info set Cell_Count='" + strTemp2 + "' where Data_Set = '" + DataGrab.strCurDataSet + "'");
+			UtilityFunctions.db_update_query("update extract_info set Cell_Count='" + strTemp2 + "' where Data_Set = '" + dg.strCurDataSet + "'");
 			strTemp2 = "";
 		}
 	}
 	catch (SQLException sqle)
 	{
-		uf.stdoutwriter.writeln("Problem updating fields for Data Set " + DataGrab.strCurDataSet + "in postNasdaqEPS! Fields may be corrupted...",Logs.ERROR,"PF31");
-		uf.stdoutwriter.writeln(sqle);
+		UtilityFunctions.stdoutwriter.writeln("Problem updating fields for Data Set " + dg.strCurDataSet + "in postNasdaqEPS! Fields may be corrupted...",Logs.ERROR,"PF31");
+		UtilityFunctions.stdoutwriter.writeln(sqle);
 	}
 }
 
@@ -476,23 +482,23 @@ public void postYahooStockQuote()
 	
 	Pattern pattern;
 	Matcher matcher;
-	int nCurOffset, nBegin, nEnd;
+	int nCurOffset, nBegin; //, nEnd;
 	
 	String strRegex = "(?i)(<big>)";
-	uf.stdoutwriter.writeln("Post processing regex search 1" + strRegex,Logs.STATUS2,"PF32");
+	UtilityFunctions.stdoutwriter.writeln("Post processing regex search 1" + strRegex,Logs.STATUS2,"PF32");
 	pattern = Pattern.compile(strRegex);
-	matcher = pattern.matcher(this.strStaticDataValue);
+	matcher = pattern.matcher(this.strDataValue);
 	matcher.find();
 	nCurOffset = matcher.start();
 	
 	strRegex = "(?i)(\">)";
-	uf.stdoutwriter.writeln("Post processing regex search 2" + strRegex,Logs.STATUS2,"PF33");
+	UtilityFunctions.stdoutwriter.writeln("Post processing regex search 2" + strRegex,Logs.STATUS2,"PF33");
 	pattern = Pattern.compile(strRegex);
-	matcher = pattern.matcher(this.strStaticDataValue);
+	matcher = pattern.matcher(this.strDataValue);
 	matcher.find(nCurOffset);
 	nBegin = matcher.end();
 	
-	this.strStaticDataValue = this.strStaticDataValue.substring(nBegin,this.strStaticDataValue.length());
+	this.strDataValue = this.strDataValue.substring(nBegin,this.strDataValue.length());
 	
 	
 	
@@ -503,6 +509,21 @@ public void postYahooStockQuote()
 					
 }
 
+public void postProcessNasdaqSharesOut() throws SQLException
+{
+	
+	//query = "LOCK TABLES repeat_types WRITE, schedule WRITE";
+	//UtilityFunctions.db_update_query(query);
+	strDataValue.replace(",", "");
+	String query = "update company set shares_outstanding=" + this.propTableData.get(0)[0] + " where ticker='" + this.strTicker + "'";
+	UtilityFunctions.db_update_query(query);
+	
+	//finally
+	//query = "UNLOCK TABLES";
+	
+}
+
+
 public void postNasdaqFiscalYear()
 {
 	/*
@@ -510,56 +531,56 @@ public void postNasdaqFiscalYear()
 	 * Some tickers have to be corrected with the sec_fiscal_calendar_field. These are designated with
 	 * the nasdaq_begin_fiscal_year_correct group in the company table.
 	 */
-	uf.stdoutwriter.writeln("Inside postNasdaqFiscalYear function",Logs.STATUS2,"PF34");
+	UtilityFunctions.stdoutwriter.writeln("Inside postNasdaqFiscalYear function",Logs.STATUS2,"PF34");
 	
-	if (strStaticDataValue.compareTo("January") == 0)
-		strStaticDataValue = "November";
-	else if (strStaticDataValue.compareTo("February") == 0)
-		strStaticDataValue = "December";
-	else if (strStaticDataValue.compareTo("March") == 0)
-		strStaticDataValue = "January";
-	else if (strStaticDataValue.compareTo("April") == 0)
-		strStaticDataValue = "February";
-	else if (strStaticDataValue.compareTo("May") == 0)
-		strStaticDataValue = "March";
-	else if (strStaticDataValue.compareTo("June") == 0)
-		strStaticDataValue = "April";
-	else if (strStaticDataValue.compareTo("July") == 0)
-		strStaticDataValue = "May";
-	else if (strStaticDataValue.compareTo("August") == 0)
-		strStaticDataValue = "June";
-	else if (strStaticDataValue.compareTo("September") == 0)
-		strStaticDataValue = "July";
-	else if (strStaticDataValue.compareTo("October") == 0)
-		strStaticDataValue = "August";
-	else if (strStaticDataValue.compareTo("November") == 0)
-		strStaticDataValue = "September";
-	else if (strStaticDataValue.compareTo("December") == 0)
-		strStaticDataValue = "October";
+	if (strDataValue.compareTo("January") == 0)
+		strDataValue = "November";
+	else if (strDataValue.compareTo("February") == 0)
+		strDataValue = "December";
+	else if (strDataValue.compareTo("March") == 0)
+		strDataValue = "January";
+	else if (strDataValue.compareTo("April") == 0)
+		strDataValue = "February";
+	else if (strDataValue.compareTo("May") == 0)
+		strDataValue = "March";
+	else if (strDataValue.compareTo("June") == 0)
+		strDataValue = "April";
+	else if (strDataValue.compareTo("July") == 0)
+		strDataValue = "May";
+	else if (strDataValue.compareTo("August") == 0)
+		strDataValue = "June";
+	else if (strDataValue.compareTo("September") == 0)
+		strDataValue = "July";
+	else if (strDataValue.compareTo("October") == 0)
+		strDataValue = "August";
+	else if (strDataValue.compareTo("November") == 0)
+		strDataValue = "September";
+	else if (strDataValue.compareTo("December") == 0)
+		strDataValue = "October";
 	
 	/* Use the following update statement for populating fiscal_calendar_begin */
 	try
 	{
-		//String query = "UPDATE company set begin_fiscal_calendar='" + strStaticDataValue + "' where ticker=(select url_dynamic from extract_info where data_set='nasdaq_fiscal_year_begin')";
-		//uf.db_update_query(query);
+		//String query = "UPDATE company set begin_fiscal_calendar='" + strDataValue + "' where ticker=(select url_dynamic from extract_info where data_set='nasdaq_fiscal_year_begin')";
+		//UtilityFunctions.db_update_query(query);
 		
 		String[] tmp = {"ticker","begin_fiscal_calendar"};
 		
-		staticTableData.add(0,tmp);
+		propTableData.add(0,tmp);
 		
-		//String fiscalyearquarter = uf.getFiscalYearAndQuarter(strStaticTicker);
+		//String fiscalyearquarter = uf.getFiscalYearAndQuarter(strTicker);
 		
-		//int nAdjQtr = uf.retrieveAdjustedQuarter(Integer.parseInt(fiscalyearquarter.substring(0,1)),Integer.parseInt(fiscalyearquarter.substring(3,5)),strStaticTicker);
+		//int nAdjQtr = uf.retrieveAdjustedQuarter(Integer.parseInt(fiscalyearquarter.substring(0,1)),Integer.parseInt(fiscalyearquarter.substring(3,5)),strTicker);
 		
-		String[] values = {strStaticTicker,strStaticDataValue};
+		String[] values = {strTicker,strDataValue};
 		
-		staticTableData.remove(1);
-		staticTableData.add(values);
+		propTableData.remove(1);
+		propTableData.add(values);
 	}
 	catch(Exception e)
 	{
-		uf.stdoutwriter.writeln("Problem updating begin_fiscal_calendar field.",Logs.ERROR,"PF35");
-		uf.stdoutwriter.writeln(e);
+		UtilityFunctions.stdoutwriter.writeln("Problem updating begin_fiscal_calendar field.",Logs.ERROR,"PF35");
+		UtilityFunctions.stdoutwriter.writeln(e);
 	}
 
 	
@@ -572,7 +593,7 @@ public void processTableSAndPCoList(ArrayList<String[]> tabledata,String strData
 	String[] rowdata;
 	String query;
 	String groups;
-	uf.stdoutwriter.writeln("In function processTableSAndPCoList",Logs.STATUS2,"PF36");
+	UtilityFunctions.stdoutwriter.writeln("In function processTableSAndPCoList",Logs.STATUS2,"PF36");
 	try
 	{
 		ResultSet rs;
@@ -590,11 +611,11 @@ public void processTableSAndPCoList(ArrayList<String[]> tabledata,String strData
 			
 			/*Determine if ticker is already in company table, if not, add it*/
 			query = "select * from company where ticker='" + rowdata[0] + "'";
-			rs = uf.db_run_query(query);
+			rs = UtilityFunctions.db_run_query(query);
 			if (rs.next() == false)
 			{
 				query = "insert into company (ticker, groups) values ('" + rowdata[0] + "','sandp')";
-				uf.db_update_query(query);
+				UtilityFunctions.db_update_query(query);
 			}
 			else
 			{
@@ -603,7 +624,7 @@ public void processTableSAndPCoList(ArrayList<String[]> tabledata,String strData
 				{
 					groups = groups + ",sandp";
 					query = "update company set groups='" + groups + "' where ticker='" + rowdata[0] + "'";
-					uf.db_update_query(query);
+					UtilityFunctions.db_update_query(query);
 				}
 				
 				
@@ -614,8 +635,8 @@ public void processTableSAndPCoList(ArrayList<String[]> tabledata,String strData
 	}
 	catch (SQLException sqle)
 	{
-		uf.stdoutwriter.writeln("Problem processing S and P company list table data",Logs.ERROR,"PF37");
-		uf.stdoutwriter.writeln(sqle);		
+		UtilityFunctions.stdoutwriter.writeln("Problem processing S and P company list table data",Logs.ERROR,"PF37");
+		UtilityFunctions.stdoutwriter.writeln(sqle);		
 	}
 	
 	
@@ -635,8 +656,8 @@ public boolean preProcessNasdaqEPSTable()
 		 * from the same URL.
 		 */
 		
-		String query = "update extract_table set url_dynamic='" + strStaticTicker + "' where data_set='" + DataGrab.strCurDataSet + "'";
-		uf.db_update_query(query);
+		String query = "update extract_table set url_dynamic='" + strTicker + "' where data_set='" + dg.strCurDataSet + "'";
+		UtilityFunctions.db_update_query(query);
 		return(true);
 		
 		
@@ -644,12 +665,12 @@ public boolean preProcessNasdaqEPSTable()
 		/*String strTmpTableSet = strStaticDataSet.replace("_body","_colhead");
 		
 		query = "update extract_table set url_dynamic='" + strTemp1 + "' where data_set='" + strStaticDataSet + "'";
-		uf.db_update_query(query);
+		UtilityFunctions.db_update_query(query);
 		
 		strTmpTableSet = strStaticDataSet.replace("_body","_rowhead");
 		
 		query = "update extract_table set url_dynamic='" + strTemp1 + "' where data_set='" + strTmpTableSet + "'";
-		uf.db_update_query(query);*/
+		UtilityFunctions.db_update_query(query);*/
 	}
 	catch (SQLException sqle)
 	{
@@ -670,19 +691,21 @@ public void postProcessNasdaqEPSTable() throws SQLException
 	 * -negative values use hyphen
 	 */
 	
+	/*JNJ end of quarter months are incorrect, still need to code for this */
+	
 	/*
 	 * Ticker urls currently without data: BF/B, BRK/A, AON
 	 */
 	//try
 	//{
-		String query = "select url_dynamic from extract_table where Data_Set='" + strStaticTableDataSet + "'";
-		ResultSet rs = uf.db_run_query(query);
+		String query = "select url_dynamic from extract_table where Data_Set='" + propStrTableDataSet + "'";
+		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
-		String strTicker = rs.getString("url_dynamic");
+		String strTicker = dg.strOriginalTicker;
 
 		String[] rowdata, newrow;
-		String[] colheaders = staticTableData.get(0);
-		String[] rowheaders = staticTableData.get(1);
+		String[] colheaders = propTableData.get(0);
+		String[] rowheaders = propTableData.get(1);
 		
 		/*This is custom code to fix rowheader #4 since the html is not consistent.*/
 		rowheaders[3] = rowheaders[3].replace("(FYE)","");
@@ -691,9 +714,9 @@ public void postProcessNasdaqEPSTable() throws SQLException
 		String[] tmpArray = {"data_set","value","date_collected","ticker","adj_quarter","data_group","fiscalquarter","fiscalyear","calquarter","calyear"};
 		newTableData.add(tmpArray);
 	
-		for (int row=2;row<staticTableData.size();row++)
+		for (int row=2;row<propTableData.size();row++)
 		{
-			rowdata = staticTableData.get(row);
+			rowdata = propTableData.get(row);
 			
 			for (int col=0;col<colheaders.length;col++)
 			{
@@ -701,7 +724,7 @@ public void postProcessNasdaqEPSTable() throws SQLException
 				if (rowdata[col].compareTo("void") != 0)
 				{
 					//newrow[0] = "VARCHAR";
-					newrow[0] = strStaticTableDataSet;
+					newrow[0] = propStrTableDataSet;
 					//newrow[2] = "INTEGER";
 					
 					if ((rowdata[col].contains("N/A") == true) || (rowdata[col].isEmpty() == true))
@@ -737,12 +760,12 @@ public void postProcessNasdaqEPSTable() throws SQLException
 			}
 			
 		}
-		staticTableData = newTableData;
+		propTableData = newTableData;
 	//}
 	//catch (SQLException sqle)
 	//{
-	//	uf.stdoutwriter.writeln("Problem processing table data",Logs.ERROR,"PF41");
-	//	uf.stdoutwriter.writeln(sqle);
+	//	UtilityFunctions.stdoutwriter.writeln("Problem processing table data",Logs.ERROR,"PF41");
+	//	UtilityFunctions.stdoutwriter.writeln(sqle);
 	//}
 	
 	
@@ -756,44 +779,46 @@ public void postProcessNasdaqEPSTable() throws SQLException
 
 public void postProcessNasdaqEPSEstTable()
 {
-	String[] rowdata,newrow;
-	String strMonth;
+	String[] rowdata, newrow;
+	//String strMonth;
 	String strTicker;
-	int nQuarter=0;
-	int nYear=0;
-	int nMonth=0;
+	//int nQuarter=0;
+	//int nYear=0;
+	//int nMonth=0;
 	String[] tmpArray = {"ticker","date_collected","data_set","value","data_group","fiscalquarter","fiscalyear","calquarter","calyear"};
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	
+	/*OFP 10/17/2010 - For Ticker T there is currently redundant data being displayed */
 	
 	//Need to add code to make the query insert column definitions the first row in the table data that is returned.
 	
 	
 	try
 	{
-		String query = "select url_dynamic from extract_table where Data_Set='" + strStaticTableDataSet + "'";
+		String query = "select url_dynamic from extract_table where Data_Set='" + propStrTableDataSet + "'";
 
-		ResultSet rs = uf.db_run_query(query);
+		ResultSet rs = UtilityFunctions.db_run_query(query);
 
 		rs.next();
-		strTicker = rs.getString("url_dynamic");
+		strTicker = dg.strOriginalTicker;
 		
-		//String[] colheaders = staticTableData.get(0);
-		String[] rowheaders = staticTableData.get(1);
+		//String[] colheaders = propTableData.get(0);
+		String[] rowheaders = propTableData.get(1);
 		
 		
 		
-		for (int x=2;x<staticTableData.size();x++)
+		for (int x=2;x<propTableData.size();x++)
 		{
-			rowdata = staticTableData.get(x);
+			rowdata = propTableData.get(x);
 			newrow = new String[tmpArray.length];
 			//newrow[0] = "VARCHAR";
 			newrow[0] = strTicker;
 			//newrow[2] = "FUNCTION";
 			newrow[1] = "NOW()";
 			//newrow[4] = "VARCHAR";
-			newrow[2] = strStaticTableDataSet;
+			newrow[2] = propStrTableDataSet;
 			//newrow[6] = "INTEGER";
-			newrow[3] = staticTableData.get(x)[0];
+			newrow[3] = rowdata[0];
 			//newrow[8] = "INTEGER";
 			
 			MoneyTime mt = new MoneyTime(rowheaders[x-2].substring(0,3),
@@ -801,10 +826,10 @@ public void postProcessNasdaqEPSEstTable()
 					strTicker);
 			
 			
-			strMonth = rowheaders[x-2].substring(0,3);
+			//strMonth = rowheaders[x-2].substring(0,3);
 		
 		
-			nYear = Integer.parseInt(rowheaders[x-2].replace("&nbsp;","").substring(5,7));
+			//nYear = Integer.parseInt(rowheaders[x-2].replace("&nbsp;","").substring(5,7));
 			
 			//String strFiscalQtrYear = uf.getFiscalYearAndQuarter(strTicker, nMonth, nYear);
 			
@@ -831,12 +856,12 @@ public void postProcessNasdaqEPSEstTable()
 		}
 	
 		newTableData.add(0, tmpArray);
-		staticTableData = newTableData;
+		propTableData = newTableData;
 	}
 	catch (SQLException sqle)
 	{
-		uf.stdoutwriter.writeln("Problem processing table data",Logs.ERROR,"PF43");
-		uf.stdoutwriter.writeln(sqle);
+		UtilityFunctions.stdoutwriter.writeln("Problem processing table data",Logs.ERROR,"PF43");
+		UtilityFunctions.stdoutwriter.writeln(sqle);
 	}
 
 }
@@ -847,10 +872,10 @@ public void postProcessMsnMoneyEPSEst()
 	/*
 	 * Negative values are enclosed in span tags which have to be removed.
 	 */
-	if (strStaticDataValue.indexOf("<") != -1)
+	if (strDataValue.indexOf("<") != -1)
 	{
-		strStaticDataValue = strStaticDataValue.substring(strStaticDataValue.indexOf(">")+1,strStaticDataValue.length());
-		strStaticDataValue = strStaticDataValue.substring(0,strStaticDataValue.indexOf("<"));
+		strDataValue = strDataValue.substring(strDataValue.indexOf(">")+1,strDataValue.length());
+		strDataValue = strDataValue.substring(0,strDataValue.indexOf("<"));
 	}
 
 	
@@ -860,27 +885,22 @@ public void postProcessMsnMoneyEPSEst()
 public boolean preProcessYahooEPSEst() throws SQLException
 {
 
-	String query;
-	String strNewTicker="";
+
 	
 
 	/*
 	 * Negative values are enclosed in font changing tags which have to be removed
 	 */
-	if (strStaticTicker.equals("BF/B"))
+	if (strTicker.equals("BF/B"))
 	{
-		strNewTicker = "BF-B";		
+		dg.strCurrentTicker = "BF-B";		
 	}
-	else if (strStaticTicker.equals("BRK/A"))
+	else if (strTicker.equals("BRK/A"))
 	{
-		strNewTicker = "BRK-A";	
+		dg.strCurrentTicker = "BRK-A";	
 	}
 	
-	if (strNewTicker.equals("") == false)
-	{
-		query = "update extract_table set url_dynamic='" + strNewTicker + "' where data_set='" + DataGrab.strCurDataSet + "'";
-		uf.db_update_query(query);
-	}
+	
 	
 	/*
 	 * Need to get rid of these return values and go with exceptions 
@@ -894,24 +914,97 @@ public boolean preProcessYahooEPSEst() throws SQLException
 		
 }
 
+public void postProcessTableYahooBeginYearVerify() throws CustomEmptyStringException, SQLException
+{ 
+	/* The purpose of this function is to verify that the quarter end months
+	 * reported in yahoo match the begin_fiscal_calendar property stated in the
+	 * company table.
+	 * 
+	 * It can be swapped into the 'table_yahoo_q_eps_est_body' data_set
+	 */
+	String[] colheaders = propTableData.get(0);
+	String strQEndMonth = colheaders[0];
+	String query = "select begin_fiscal_calendar from company where ticker='" + this.strTicker + "'";
+	ResultSet rs = UtilityFunctions.db_run_query(query);
+	rs.next();
+	int nBeginFiscalCal = MoneyTime.convertMonthStringtoInt(rs.getString("begin_fiscal_calendar"));
+	PrintWriter fullfilewriter = null;
+	
+	try
+	{
+		fullfilewriter = new PrintWriter( new FileWriter("YahooVerify.txt",true),true);
+	}
+	catch (IOException ioe)
+	{
+	}
+	
+	
+	switch(nBeginFiscalCal)
+	{
+		case 1:
+		case 4:
+		case 7:
+		case 10:
+			if (!(strQEndMonth.substring(0,3).equalsIgnoreCase("Mar") ||
+					strQEndMonth.substring(0,3).equalsIgnoreCase("Jun") ||
+					strQEndMonth.substring(0,3).equalsIgnoreCase("Sep") ||
+					strQEndMonth.substring(0,3).equalsIgnoreCase("Dec")))
+			{
+				System.out.println("begin_fiscal_calendar and quote.yahoo mismatch for ticker " + strTicker);
+				fullfilewriter.write(strTicker + "\n");
+			}
+			break;
+		case 2:
+		case 5:
+		case 8:
+		case 11:
+			if (!(strQEndMonth.substring(0,3).equalsIgnoreCase("Apr") ||
+					strQEndMonth.substring(0,3).equalsIgnoreCase("Jul") ||
+					strQEndMonth.substring(0,3).equalsIgnoreCase("Oct") ||
+					strQEndMonth.substring(0,3).equalsIgnoreCase("Jan")))
+			{
+				System.out.println("begin_fiscal_calendar and quote.yahoo mismatch for ticker " + strTicker);
+				fullfilewriter.write(strTicker + "\n");
+			}
+			break;
+		case 3:
+		case 6:
+		case 9:
+		case 12:
+			if (!(strQEndMonth.substring(0,3).equalsIgnoreCase("May") ||
+					strQEndMonth.substring(0,3).equalsIgnoreCase("Aug") ||
+					strQEndMonth.substring(0,3).equalsIgnoreCase("Nov") ||
+					strQEndMonth.substring(0,3).equalsIgnoreCase("Feb")))
+			{
+				System.out.println("begin_fiscal_calendar and quote.yahoo mismatch for ticker " + strTicker);
+				fullfilewriter.write(strTicker + "\n");
+			}
+			break;
+		
+	}
+	
+	fullfilewriter.close();
+
+}
+
 
 
 public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQLException
 {
-	/*String query = "select url_dynamic from extract_table where Data_Set='" + strStaticTableDataSet + "'";
-	//ResultSet rs = uf.db_run_query(query);
+	/*String query = "select url_dynamic from extract_table where Data_Set='" + propStrTableDataSet + "'";
+	//ResultSet rs = UtilityFunctions.db_run_query(query);
 	//rs.next();
 	//String strTicker = rs.getString("url_dynamic");*/
 
 	String[] rowdata, newrow;
-	String[] colheaders = staticTableData.get(0);
-	String[] rowheaders = staticTableData.get(1);
+	String[] colheaders = propTableData.get(0);
+	//String[] rowheaders = propTableData.get(1);
 	
 	String[] tmpArray = {"data_set","value","date_collected","ticker","data_group","fiscalyear","calyear"};//"calquarter","fiscalquarter"};
 	
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
 	
-	if (strStaticTableDataSet.contains("_q_") == true)
+	if (propStrTableDataSet.contains("_q_") == true)
 	{
 		int i = tmpArray.length;
 		tmpArray = uf.extendArray(uf.extendArray(tmpArray));
@@ -922,9 +1015,9 @@ public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQL
 	
 	newTableData.add(tmpArray);
 	
-	for (int row=2;row<staticTableData.size();row++)
+	for (int row=2;row<propTableData.size();row++)
 	{
-		rowdata = staticTableData.get(row);
+		rowdata = propTableData.get(row);
 		
 		for (int col=0;col<colheaders.length;col++)
 		{
@@ -932,7 +1025,7 @@ public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQL
 			if (rowdata[col].compareTo("void") != 0)
 			{
 				//newrow[0] = "VARCHAR";
-				newrow[0] = strStaticTableDataSet;
+				newrow[0] = propStrTableDataSet;
 				//newrow[2] = "INTEGER";
 				
 				if (rowdata[col].equals("N/A"))
@@ -955,10 +1048,10 @@ public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQL
 				//newrow[4] = "FUNCTION";
 				newrow[2] = "NOW()";
 				//newrow[6] = "VARCHAR";
-				newrow[3] = strStaticTicker;
+				newrow[3] = dg.strOriginalTicker;
 				//newrow[8] = "INTEGER";
 				
-				MoneyTime mt = new MoneyTime(colheaders[col].substring(0,3),colheaders[col].substring(4,6),strStaticTicker);
+				MoneyTime mt = new MoneyTime(colheaders[col].substring(0,3),colheaders[col].substring(4,6),strTicker);
 				
 				//int nMonth = uf.convertMontStringtoInt(colheaders[col].substring(0,3));
 				//int nYear = Integer.parseInt(colheaders[col].substring(4,8));
@@ -974,7 +1067,7 @@ public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQL
 				//newrow[14] = "INTEGER";
 				newrow[5] = mt.strFiscalYear;
 				newrow[6] = Integer.toString(mt.nCalAdjYear);
-				if (strStaticTableDataSet.contains("_q_") == true)
+				if (propStrTableDataSet.contains("_q_") == true)
 				{
 					newrow[7] = mt.strFiscalQtr;
 					newrow[8] = Integer.toString(mt.nCalQtr);
@@ -988,15 +1081,15 @@ public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQL
 		
 	}
 	
-	staticTableData = newTableData;
+	propTableData = newTableData;
 	
 }
 
 public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQLException
 {
 	String[] rowdata, newrow;
-	String[] colheaders = staticTableData.get(0);
-	String[] rowheaders = staticTableData.get(1);
+	String[] colheaders = propTableData.get(0);
+	//String[] rowheaders = propTableData.get(1);
 	
 	String[] tmpArray = {"data_set","value","date_collected","data_group","calmonth","calyear","day"};
 	
@@ -1006,9 +1099,9 @@ public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQ
 	
 	Calendar cal = Calendar.getInstance();
 	
-	for (int row=2;row<staticTableData.size();row++)
+	for (int row=2;row<propTableData.size();row++)
 	{
-		rowdata = staticTableData.get(row);
+		rowdata = propTableData.get(row);
 		
 		for (int col=0;col<colheaders.length;col++)
 		{
@@ -1017,7 +1110,7 @@ public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQ
 			
 			newrow = new String[tmpArray.length];
 			
-			newrow[0] = strStaticTableDataSet;
+			newrow[0] = propStrTableDataSet;
 			//This will have to be fixed if we ever get a 7 figure initial claims print
 			newrow[1] = rowdata[col].replace("K","000");
 			newrow[2] = "NOW()";
@@ -1033,14 +1126,14 @@ public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQ
 		}
 	}
 	
-	staticTableData = newTableData;
+	propTableData = newTableData;
 }
 
 public void postProcessTableBLSUERate() throws CustomEmptyStringException, SQLException
 {
 	String[] rowdata, newrow;
-	String[] colheaders = staticTableData.get(0);
-	String[] rowheaders = staticTableData.get(1);
+	String[] colheaders = propTableData.get(0);
+	String[] rowheaders = propTableData.get(1);
 	
 	String[] tmpArray = {"data_set","value","date_collected","data_group","calmonth","calyear"};
 	
@@ -1048,9 +1141,9 @@ public void postProcessTableBLSUERate() throws CustomEmptyStringException, SQLEx
 	
 	newTableData.add(tmpArray);
 	
-	for (int row=2;row<staticTableData.size();row++)
+	for (int row=2;row<propTableData.size();row++)
 	{
-		rowdata = staticTableData.get(row);
+		rowdata = propTableData.get(row);
 		
 		for (int col=0;col<colheaders.length;col++)
 		{
@@ -1059,7 +1152,7 @@ public void postProcessTableBLSUERate() throws CustomEmptyStringException, SQLEx
 			
 			newrow = new String[tmpArray.length];
 			
-			newrow[0] = strStaticTableDataSet;
+			newrow[0] = propStrTableDataSet;
 			newrow[1] = rowdata[col];
 			newrow[2] = "NOW()";
 			newrow[3] = "ue_rate";
@@ -1073,7 +1166,7 @@ public void postProcessTableBLSUERate() throws CustomEmptyStringException, SQLEx
 		}
 	}
 	
-	staticTableData = newTableData;
+	propTableData = newTableData;
 	
 	
 	
@@ -1085,30 +1178,30 @@ public void postProcessYahooEPSEst() throws CustomEmptyStringException, SQLExcep
 	
 	//Integer nAdjQuarter = uf.retrieveAdjustedQuarter(Integer.parseInt(fiscalyearquarter.substring(0,1)),Integer.parseInt(fiscalyearquarter.substring(3,5)),strTicker);
 
-	if (strStaticDataValue.equals("N/A"))
+	if (strDataValue.equals("N/A"))
 	{
-		uf.stdoutwriter.writeln("Retrieved N/A value, skipping",Logs.ERROR,"PF44");
+		UtilityFunctions.stdoutwriter.writeln("Retrieved N/A value, skipping",Logs.ERROR,"PF44");
 		throw (new CustomEmptyStringException());
 	}
 	/*
 	 * Negative values are enclosed in font changing tags which have to be removed
 	 */
-	if (strStaticDataValue.indexOf("<") != -1)
+	if (strDataValue.indexOf("<") != -1)
 	{
-		strStaticDataValue = strStaticDataValue.substring(strStaticDataValue.indexOf(">")+1,strStaticDataValue.length());
-		strStaticDataValue = strStaticDataValue.substring(0,strStaticDataValue.indexOf("<"));
+		strDataValue = strDataValue.substring(strDataValue.indexOf(">")+1,strDataValue.length());
+		strDataValue = strDataValue.substring(0,strDataValue.indexOf("<"));
 	}
 	
 	String[] tmp = {"data_set","value","adj_quarter","ticker","date_collected","fiscalquarter","fiscalyear"};
 	
-	staticTableData.add(0,tmp);
+	propTableData.add(0,tmp);
 	
-	//String fiscalyearquarter = uf.getFiscalYearAndQuarter(strStaticTicker,-1,-1);
+	//String fiscalyearquarter = uf.getFiscalYearAndQuarter(strTicker,-1,-1);
 	
 	//Integer nFiscalY = Integer.parseInt(fiscalyearquarter.substring(3,5));
 	//Integer nFiscalQ = Integer.parseInt(fiscalyearquarter.substring(0,1));
 	
-	String[] values=null;
+	//String[] values=null;
 	
 	/*if (DataGrab.strCurDataSet.equals("yahoo_next_q_eps_est") || DataGrab.strCurDataSet.equals("yahoo_cur_q_eps_est"))
 	{
@@ -1124,9 +1217,9 @@ public void postProcessYahooEPSEst() throws CustomEmptyStringException, SQLExcep
 			
 		}
 		
-		int nAdjQtr = uf.retrieveAdjustedQuarter(nFiscalQ,nFiscalY,strStaticTicker);
+		int nAdjQtr = uf.retrieveAdjustedQuarter(nFiscalQ,nFiscalY,strTicker);
 		
-		String[] values2 = {DataGrab.strCurDataSet, strStaticDataValue, Integer.toString(nAdjQtr),strStaticTicker, "NOW()", 
+		String[] values2 = {DataGrab.strCurDataSet, strDataValue, Integer.toString(nAdjQtr),strTicker, "NOW()", 
 							Integer.toString(nFiscalQ),Integer.toString(nFiscalY)};
 		values = values2;
 	}*/
@@ -1135,14 +1228,14 @@ public void postProcessYahooEPSEst() throws CustomEmptyStringException, SQLExcep
 		
 		if (DataGrab.strCurDataSet.equals("yahoo_next_y_eps_est"))
 			nFiscalY++;
-		String[] values2 = {DataGrab.strCurDataSet, strStaticDataValue, "" ,strStaticTicker, "NOW()", 
+		String[] values2 = {DataGrab.strCurDataSet, strDataValue, "" ,strTicker, "NOW()", 
 				"",Integer.toString(nFiscalY)};
 		
 		values = values2;
 	}*/
 	
-	//staticTableData.remove(1);
-	//staticTableData.add(values);
+	//propTableData.remove(1);
+	//propTableData.add(values);
 
 	
 		
@@ -1154,43 +1247,42 @@ public boolean preProcessSECFiscalYear() throws SQLException
 	 * Currently no analyst estimates for IVZ or LUK.
 	 */
 
-	String query;
+	//String query;
 	String strNewTicker="";
 	/*
 	 * Negative values are enclosed in font changing tags which have to be removed
 	 */
-	if (strStaticTicker.equals("BF/B"))
+	if (strTicker.equals("BF/B"))
 	{
 		strNewTicker = "BFB";		
 	}
-	else if (strStaticTicker.equals("BRK/A"))
+	else if (strTicker.equals("BRK/A"))
 	{
 		strNewTicker = "BRKA";
 	}
 	/*
 	 * Can't find the ticker symbol for CareFusion on the SEC site so using the CIK # instead
 	 */
-	else if (strStaticTicker.equals("CFN"))
+	else if (strTicker.equals("CFN"))
 	{
 		strNewTicker ="0001457543";
 	}
-	else if (strStaticTicker.equals("QEP"))
+	else if (strTicker.equals("QEP"))
 	{
 		strNewTicker = "0001108827";
 	}
-	else if (strStaticTicker.equals("SNI"))
+	else if (strTicker.equals("SNI"))
 	{
 		strNewTicker = "0001430602";
 	}
-	else if (strStaticTicker.equals("ZION"))
+	else if (strTicker.equals("ZION"))
 	{
 		strNewTicker = "0000109380";
 	}
 	
 	if (strNewTicker.equals("") == false)
 	{
-		query = "update extract_info set url_dynamic='" + strNewTicker + "' where data_set='" + DataGrab.strCurDataSet + "'";
-		uf.db_update_query(query);
+		dg.strCurrentTicker=strNewTicker;
 	}
 	
 	/*
@@ -1205,81 +1297,190 @@ public boolean preProcessSECFiscalYear() throws SQLException
 		
 }
 
-public void postProcessSECFiscalYear()
+public void postProcessSECFiscalYearEndRaw()
 {
+	/* This is for populating actual_fiscal_year_end in the company table */
+
 	
-	int nMonth = Integer.parseInt(strStaticDataValue.substring(0,2));
+	String[] tmp = {"ticker","actual_fiscal_year_end"};
+		
+	propTableData.add(0,tmp);
+	
+	String[] values = {strTicker,strDataValue};
+		
+		
+	propTableData.remove(1);
+	propTableData.add(values);
+		
+	uf.updateTableIntoDB(propTableData,"company");
+	
+}
+
+public void postProcessSECBeginCalendarYear()
+{
+	/* This is for populating begin_fiscal_calendar in the company table */
+	String strNewDataValue="";
+	int nMonth = Integer.parseInt(strDataValue.substring(0,2));
+	
+	/*Tickers where the SEC has an incorrect value AZO,DV,EMN,FDO,GME,HES,JNJ,KMX,KO,KR,LLTC,NSC,PFG,PG,SPLS,VFC,WYNN,YUM */
+	/*AZO=September
+	PG=LLTC=DV=July
+	YUM=WYNN=VFC=PFG=NSC=KO=HES=EMN=January
+	FDO=September
+	SPLS=KR=JNJ=GME=February
+	KMX=March*/
+	
+	if ((strTicker.equals("AZO")) || (strTicker.equals("FDO")))
+		nMonth=8;
+	else if ((strTicker.equals("PG")) || (strTicker.equals("LLTC")) || (strTicker.equals("DV")))
+		nMonth=6;
+	else if ((strTicker.equals("YUM")) || (strTicker.equals("WYNN")) || (strTicker.equals("VFC")) || 
+			(strTicker.equals("PFG")) || (strTicker.equals("NSC")) || (strTicker.equals("KO")) ||
+			(strTicker.equals("HES")) || (strTicker.equals("EMN")))
+		nMonth=12;
+	else if (strTicker.equals("KMX"))
+		nMonth=2;
+	else if ((strTicker.equals("SPLS")) || (strTicker.equals("KR")) || (strTicker.equals("JNJ")) || 
+			(strTicker.equals("GME")))
+		nMonth=1;
+	
+		
+	
+	
+	
+	/*These are mostly retail stocks whose fiscal calendar doesn't end directly at the end of a month */
+	if ((strTicker.equals("AVY")) || (strTicker.equals("CERN")) || (strTicker.equals("CPB"))
+		|| (strTicker.equals("CSC")) || (strTicker.equals("DIS")) || (strTicker.equals("JEC"))
+		|| (strTicker.equals("JNJ"))|| (strTicker.equals("K"))|| (strTicker.equals("MU"))
+		|| (strTicker.equals("SNA")) || (strTicker.equals("SNDK")) || (strTicker.equals("SWK"))
+		|| (strTicker.equals("SWY"))|| (strTicker.equals("SYMC"))|| (strTicker.equals("TXT"))
+		|| (strTicker.equals("VAR")) || (strTicker.equals("VFC")) || (strTicker.equals("XLNX")))
+		nMonth--;
+	
+	//boundary condition
+	if (nMonth==0)
+		nMonth=12;
 	
 	if (nMonth == 1)
-		strStaticDataValue = "February";
+		strNewDataValue = "February";
 	else if (nMonth == 2)
-		strStaticDataValue = "March";
+		strNewDataValue = "March";
 	else if (nMonth == 3)
-		strStaticDataValue = "April";
+		strNewDataValue = "April";
 	else if (nMonth == 4)
-		strStaticDataValue = "May";
+		strNewDataValue = "May";
 	else if (nMonth == 5)
-		strStaticDataValue = "June";
+		strNewDataValue = "June";
 	else if (nMonth == 6)
-		strStaticDataValue = "July";
+		strNewDataValue = "July";
 	else if (nMonth == 7)
-		strStaticDataValue = "August";
+		strNewDataValue = "August";
 	else if (nMonth == 8)
-		strStaticDataValue = "September";
+		strNewDataValue = "September";
 	else if (nMonth == 9)
-		strStaticDataValue = "October";
+		strNewDataValue = "October";
 	else if (nMonth == 10)
-		strStaticDataValue = "November";
+		strNewDataValue = "November";
 	else if (nMonth == 11)
-		strStaticDataValue = "December";
+		strNewDataValue = "December";
 	else if (nMonth == 12)
-		strStaticDataValue = "January";
-	
-	//try
-	//{
+		strNewDataValue = "January";
+	else
+		UtilityFunctions.stdoutwriter.writeln("Problem converting month to begin calendar year month",Logs.ERROR,"PF44.5");
 		
-		//String query = "UPDATE company set begin_fiscal_calendar='" + strStaticDataValue + "' where ticker=(select url_dynamic from extract_info where data_set='nasdaq_fiscal_year_begin')";
-		//uf.db_update_query(query);
+	
+
 		
 		String[] tmp = {"ticker","begin_fiscal_calendar"};
 		
-		staticTableData.add(0,tmp);
+		propTableData.add(0,tmp);
+				
+		String[] values = {strTicker,strNewDataValue};
+				
+		propTableData.remove(1);
+		propTableData.add(values);
 		
-		//String fiscalyearquarter = uf.getFiscalYearAndQuarter(strStaticTicker);
+		uf.updateTableIntoDB(propTableData,"company");
 		
-		//int nAdjQtr = uf.retrieveAdjustedQuarter(Integer.parseInt(fiscalyearquarter.substring(0,1)),Integer.parseInt(fiscalyearquarter.substring(3,5)),strStaticTicker);
-		
-		String[] values = {strStaticTicker,strStaticDataValue};
-		
-		staticTableData.remove(1);
-		staticTableData.add(values);
-		/*String query = "UPDATE company set begin_fiscal_calendar='" + strStaticDataValue + "' where ticker='" + strStaticTicker + "'";
-		uf.db_update_query(query);*/
-	/*}
-	catch(SQLException sqle)
-	{
-		uf.stdoutwriter.writeln("Problem updating begin_fiscal_calendar field.",Logs.ERROR);
-		uf.stdoutwriter.writeln(sqle);
-	}*/
 	
+}
+
+public void postProcessYahooBeginCalendarYear()
+{
+	/*Created these 2 yahoo data captures because there were so many errors in the SEC data.
+	 * Your tax dollars at work.
+	 */
+	int nMonth = MoneyTime.convertMonthStringtoInt(strDataValue.substring(0,3));
 	
+	/*These are mostly retail stocks whose fiscal calendar doesn't end directly at the end of a month */
+	if ((strTicker.equals("AVY")) || (strTicker.equals("CERN")) || (strTicker.equals("CPB"))
+		|| (strTicker.equals("CSC")) || (strTicker.equals("DIS")) || (strTicker.equals("JEC"))
+		|| (strTicker.equals("JNJ"))|| (strTicker.equals("K"))|| (strTicker.equals("MU"))
+		|| (strTicker.equals("SNA")) || (strTicker.equals("SNDK")) || (strTicker.equals("SWK"))
+		|| (strTicker.equals("SWY"))|| (strTicker.equals("SYMC"))|| (strTicker.equals("TXT"))
+		|| (strTicker.equals("VAR")) || (strTicker.equals("VFC")) || (strTicker.equals("XLNX")))
+		nMonth--;
+	
+
+	
+	//We have end of year, need beginning of year 
+	nMonth++;
+	
+	//boundary condition
+	if (nMonth==13)
+		nMonth=1;
+	
+	String strMonth = MoneyTime.convertMonthInttoString(nMonth);
+	
+	String[] tmp = {"ticker","begin_fiscal_calendar"};
+	
+	propTableData.add(0,tmp);
+			
+	String[] values = {strTicker,strMonth};
+			
+	propTableData.remove(1);
+	propTableData.add(values);
+	
+	uf.updateTableIntoDB(propTableData,"company");
 	
 	
 	
 }
 
+public void postProcessYahooFiscalYearEndRaw()
+{
+	/*Created these 2 yahoo data captures because there were so many errors in the SEC data.
+	 * Your tax dollars at work.
+	 */
+	
+	String[] tmp = {"ticker","actual_fiscal_year_end"};
+	
+	propTableData.add(0,tmp);
+	
+	String[] values = {strTicker,strDataValue};
+		
+		
+	propTableData.remove(1);
+	propTableData.add(values);
+		
+	uf.updateTableIntoDB(propTableData,"company");
+	
+
+}
+
+
 	public boolean preNDCYahooEPSEst()
 	{
 		String strRegex = "(?i)(There is no Analyst Estimates)";
-		  uf.stdoutwriter.writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF45");
+		  UtilityFunctions.stdoutwriter.writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF45");
 
 		  
 		  Pattern pattern = Pattern.compile(strRegex);
-		  //uf.stdoutwriter.writeln("after strbeforeuniquecoderegex compile", Logs.STATUS2);
+		  //UtilityFunctions.stdoutwriter.writeln("after strbeforeuniquecoderegex compile", Logs.STATUS2);
 		  
-		  Matcher matcher = pattern.matcher(DataGrab.returned_content);
+		  Matcher matcher = pattern.matcher(dg.returned_content);
 		  
-		  //uf.stdoutwriter.writeln("Current offset before final data extraction: " + nCurOffset,Logs.STATUS2);
+		  //UtilityFunctions.stdoutwriter.writeln("Current offset before final data extraction: " + nCurOffset,Logs.STATUS2);
 		  
 		  return(matcher.find());
 		
@@ -1289,15 +1490,15 @@ public void postProcessSECFiscalYear()
 	{
 		
 	  String strRegex = "(?i)(No Data Available)";
-	  uf.stdoutwriter.writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46");
+	  UtilityFunctions.stdoutwriter.writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46");
 
 	  
 	  Pattern pattern = Pattern.compile(strRegex);
-	  //uf.stdoutwriter.writeln("after strbeforeuniquecoderegex compile", Logs.STATUS2);
+	  //UtilityFunctions.stdoutwriter.writeln("after strbeforeuniquecoderegex compile", Logs.STATUS2);
 	  
-	  Matcher matcher = pattern.matcher(DataGrab.returned_content);
+	  Matcher matcher = pattern.matcher(dg.returned_content);
 	  
-	  //uf.stdoutwriter.writeln("Current offset before final data extraction: " + nCurOffset,Logs.STATUS2);
+	  //UtilityFunctions.stdoutwriter.writeln("Current offset before final data extraction: " + nCurOffset,Logs.STATUS2);
 	  
 	  return(matcher.find());
 	  
@@ -1307,11 +1508,11 @@ public void postProcessSECFiscalYear()
 	public boolean preNDCNasdaqFiscalYear()
 	{
 		String strRegex = "(?i)(This feature currently is unavailable)";
-		uf.stdoutwriter.writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF47");
+		UtilityFunctions.stdoutwriter.writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF47");
 		
 		Pattern pattern = Pattern.compile(strRegex);
 		
-		Matcher matcher = pattern.matcher(DataGrab.returned_content);
+		Matcher matcher = pattern.matcher(dg.returned_content);
 		
 		return(matcher.find());
 		
