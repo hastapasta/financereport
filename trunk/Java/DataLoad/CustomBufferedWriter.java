@@ -1,36 +1,59 @@
 package com.roeschter.jsl;
 
+
 //import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.concurrent.locks.ReentrantLock; 
+import org.apache.commons.io.FileUtils;
+
 
 public class CustomBufferedWriter
 {
 	PrintWriter fullfilewriter;
 	PrintWriter errorfilewriter;
 	PrintWriter sqlfilewriter;
+	PrintWriter threadfilewriter;
 
 	//static enum LOGS {FULL,ERROR,SQL,STATUS};
 	
 	static boolean bStaticStatus;
 	static boolean bStaticSQL;
+	static boolean bStaticThread;
 	
-	CustomBufferedWriter(String strFullLog, String strErrorLog, String strSQLLog, boolean bSQL, boolean bStatus)
+	final ReentrantLock lock = new ReentrantLock(); 
+	
+	CustomBufferedWriter(String strFullLog, String strErrorLog, String strSQLLog, String strThreadLog, boolean bSQL, boolean bStatus, boolean bThread)
 	{
 		try
 		{
 			/*fullfilewriter = new BufferedWriter( new FileWriter(strFullLog));
 			errorfilewriter = new BufferedWriter( new FileWriter(strErrorLog));
 			sqlfilewriter = new BufferedWriter( new FileWriter(strSQLLog));*/
+			try
+			{
+				FileUtils.copyFile(new File(strFullLog), new File("archive_" + strFullLog));
+				FileUtils.copyFile(new File(strErrorLog), new File("archive_" + strErrorLog));
+				FileUtils.copyFile(new File(strSQLLog), new File("archive_" + strSQLLog));
+				FileUtils.copyFile(new File(strThreadLog), new File("archive_" + strThreadLog));
+			}
+			catch (FileNotFoundException fnfe)
+			{
+				//ignore
+			}
 			fullfilewriter = new PrintWriter( new FileWriter(strFullLog,false),true);
 			errorfilewriter = new PrintWriter( new FileWriter(strErrorLog,false),true);
 			sqlfilewriter = new PrintWriter( new FileWriter(strSQLLog,false),true);
+			threadfilewriter = new PrintWriter( new FileWriter(strThreadLog,false),true);
 			
 		
 			
 			bStaticStatus = bStatus;
 			bStaticSQL = bSQL;
+			bStaticThread = bThread;
 		}
 		catch (IOException ioe)
 		{
@@ -46,7 +69,7 @@ public class CustomBufferedWriter
 		try
 		{
 			//fullfilewriter.write(str);
-			
+			//lock.lock();
 			switch (type)
 			{
 			case ERROR:
@@ -71,6 +94,19 @@ public class CustomBufferedWriter
 					//fullfilewriter.flush();
 				}
 				break;
+				
+			case THREAD:
+				if (bStaticThread == true)
+				{
+					threadfilewriter.println(code + ":" + str);
+					//sqlfilewriter.newLine();
+					//sqlfilewriter.flush();
+					fullfilewriter.println("SQL:" + code + ":" + str);
+					//fullfilewriter.newLine();
+					//fullfilewriter.flush();
+				}
+				break;
+				
 			case STATUS1:
 				System.out.println(str);
 				fullfilewriter.println("STATUS:" + code + ":" + str);
@@ -97,6 +133,10 @@ public class CustomBufferedWriter
 			System.out.println("Error in CustomBufferedWriter in generating the log file.");
 			ioe.printStackTrace();
 		}
+		/*finally
+		{
+			lock.unlock();
+		}*/
 	}
 	
 	public void writeln (Exception e)
@@ -104,6 +144,7 @@ public class CustomBufferedWriter
 			System.out.println("EXCEPTION THROWN, check error.log");
 			try
 			{
+				lock.lock();
 					if (e!=null)
 					{
 						if (e.getMessage() != null)
@@ -147,6 +188,10 @@ public class CustomBufferedWriter
 				System.out.println("Error in CustomBufferedWriter in generating the log file.");
 				ioe.printStackTrace();
 			}
+			/*finally
+			{
+				lock.unlock();
+			}*/
 			
 		
 		
