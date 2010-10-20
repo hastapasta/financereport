@@ -1,5 +1,6 @@
 package com.roeschter.jsl;
 
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
@@ -78,6 +79,39 @@ public class MoneyTime {
 		
 	}
 	
+	public static String convertMonthInttoString(int nMonth)
+	{
+		if (nMonth==1)
+			return "January";
+		else if (nMonth==2)
+			return "February";	
+		else if (nMonth==3)
+			return "March";
+		else if (nMonth==4)
+			return "April";
+		else if (nMonth==5)
+			return "May";
+		else if (nMonth==6)
+			return "June";
+		else if (nMonth==7)
+			return "July";
+		else if (nMonth==8)
+			return "Aurgust";
+		else if (nMonth==9)
+			return "September";
+		else if (nMonth==10)
+			return "October";
+		else if (nMonth==11)
+			return "November";
+		else if (nMonth==12)
+			return "December";
+		else 
+		{
+			UtilityFunctions.stdoutwriter.writeln("Invalid month integer value", Logs.ERROR,"PF42");
+			return "";
+		}
+	}
+	
 	public int retrieveCalQuarter(int nMonth)
 	{
 		if ((2 <= nMonth) && (nMonth <= 4))
@@ -141,7 +175,52 @@ public class MoneyTime {
 		
 	}
 	
-	public String getFiscalYearAndQuarter(String strTicker, int curmonth, int curyear) throws SQLException
+
+	
+	public static String getCalendarYearAndQuarter(String strTicker, int fiscalquarter, int fiscalyear) throws SQLException
+	{
+		int calquarter=0;
+		int calyear=fiscalyear;
+		String query = "select begin_fiscal_calendar from company where ticker='" + strTicker +"'";
+		ResultSet rs = UtilityFunctions.db_run_query(query);
+		rs.next();
+		int nBeginFiscalYear = convertMonthStringtoInt(rs.getString("begin_fiscal_calendar"));
+		
+		if (nBeginFiscalYear==12 || nBeginFiscalYear==1 || nBeginFiscalYear==2)
+		{
+			if (nBeginFiscalYear==2)
+				calyear--;
+			calquarter = fiscalquarter;
+		}
+		else if (nBeginFiscalYear==3 || nBeginFiscalYear==4 || nBeginFiscalYear==5)
+		{
+			if (fiscalquarter != 4)
+				calyear--;
+			calquarter = fiscalquarter+1;
+		}
+		else if (nBeginFiscalYear==6 || nBeginFiscalYear==7 || nBeginFiscalYear==8)
+		{
+			if (fiscalquarter != 4 && fiscalquarter != 3)
+				calyear--;
+			calquarter = fiscalquarter+2;
+		}
+		else if (nBeginFiscalYear==9 || nBeginFiscalYear==10 || nBeginFiscalYear==11)
+		{
+			if (fiscalquarter ==1)
+				calyear--;
+			calquarter = fiscalquarter+3;
+			
+		}
+		else
+			UtilityFunctions.stdoutwriter.writeln("Begin fiscal year month string not found",Logs.ERROR,"UF24.5");
+			
+		if (calquarter != 4)
+			calquarter = calquarter % 4;
+		
+		return calquarter + "" + calyear;
+	}
+	
+	public static String getFiscalYearAndQuarter(String strTicker, int curmonth, int curyear) throws SQLException
 	{
 		/*NOTE: If a 2 digit year is submitted, a 2 digit year is returned. 
 		 *  4 digit year submitted, 4 digits returned.
@@ -181,19 +260,9 @@ public class MoneyTime {
 				curmonth = cal.get(Calendar.MONTH) + 1;      
 				curyear = cal.get(Calendar.YEAR);
 			}
-			if (strBeginFiscalYear.equals("January")) nBeginFiscalYear = 1;
-			else if (strBeginFiscalYear.equals("February")) nBeginFiscalYear = 2;
-			else if (strBeginFiscalYear.equals("March")) nBeginFiscalYear = 3;
-			else if (strBeginFiscalYear.equals("April")) nBeginFiscalYear = 4;
-			else if (strBeginFiscalYear.equals("May")) nBeginFiscalYear = 5;
-			else if (strBeginFiscalYear.equals("June")) nBeginFiscalYear = 6;
-			else if (strBeginFiscalYear.equals("July")) nBeginFiscalYear = 7;
-			else if (strBeginFiscalYear.equals("August")) nBeginFiscalYear = 8;
-			else if (strBeginFiscalYear.equals("September")) nBeginFiscalYear = 9;
-			else if (strBeginFiscalYear.equals("October")) nBeginFiscalYear = 10;
-			else if (strBeginFiscalYear.equals("November")) nBeginFiscalYear = 11;
-			else if (strBeginFiscalYear.equals("December")) nBeginFiscalYear = 12;
-			else UtilityFunctions.stdoutwriter.writeln("ERROR: Month not converted to int.",Logs.ERROR,"UF29");
+			
+			nBeginFiscalYear = convertMonthStringtoInt(strBeginFiscalYear);
+		
 			Integer nCurFiscalQuarter, nCurFiscalYear;
 			if ((curmonth - nBeginFiscalYear)>=0)
 				nCurFiscalQuarter = ((curmonth - nBeginFiscalYear) / 3) + 1;
