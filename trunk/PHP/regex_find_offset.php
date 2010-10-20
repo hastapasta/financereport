@@ -75,6 +75,7 @@ $html = '
 }*/
 
 $url_val='';
+$form_properties='';
 
 if(isset($_POST['submit_msg'])) 
 {
@@ -164,6 +165,10 @@ while (!$done)
 if ($url_val == '')
 {
 	$url_val = $_COOKIE['web_page'];
+}
+if ($form_properties == '')
+{
+	$form_properties = $_COOKIE['form_properties'];
 }
 	
 echo '<td><input type="text" name="web_page" value="'. $url_val . '" size=100 maxlength="100"></td></tr>';

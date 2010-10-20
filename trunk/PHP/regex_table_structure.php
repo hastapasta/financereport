@@ -19,6 +19,8 @@ $parse_external_url = 1;
 //$url_val = 'http://bloomberg.econoday.com/byshoweventfull.asp?fid=441986&cust=bloomberg&year=2010#top';
 //$url_val = 'http://www.bls.gov/lau/home.htm';
 $url_val = $_COOKIE['web_page'];
+$form_properties = $_COOKIE['form_properties'];
+
 //$extract_value = '444';
 /*end input values */
 $global_table_count=0;
@@ -45,7 +47,7 @@ $seek_offset = $_GET['offset'];
 
 function parse_table_structure($bDisplay)
 {
-	global $url_val, $parse_external_url, $seek_offset;
+	global $url_val, $parse_external_url, $seek_offset,$form_properties;
 	global $global_table_count,$global_row_count,$global_cell_count,$global_div_count;
 	
 	function custom_echo($bDisplay,$string)
@@ -64,7 +66,7 @@ function parse_table_structure($bDisplay)
 
 if ($parse_external_url == true)
 {
-	$returned_content = get_data($url_val,"");
+	$returned_content = get_data($url_val,$form_properties);
 }
 else
 {
