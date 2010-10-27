@@ -10,14 +10,26 @@ package com.roeschter.jsl;
  * and have all threads write to that?
  */
 
+import java.math.BigDecimal;
 import java.net.*;
 import java.io.*; 
 import java.sql.*;
 import java.util.Date;
+import java.util.Properties;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*; 
+
+/*import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;*/
+
+
+
 
                   
 /**
@@ -140,15 +152,15 @@ class DataLoad extends Thread implements Stopable
 				
 			}
 		}
-		/* Putting this here so that there is no differece between the time used to add jobs to the quere and 
+		/* Putting this here so that there is no differece between the time used to add jobs to the queue and 
 		 * for recalculating the next trigger time.
 		 */
 		updateEventTimes(cal);
 	}
 	finally
 	{
-		query = "UNLOCK TABLES";
-		UtilityFunctions.db_run_query(query);
+		//query = "UNLOCK TABLES";
+		//UtilityFunctions.db_run_query(query);
 	}
 	
   }
@@ -245,6 +257,7 @@ class DataLoad extends Thread implements Stopable
 			  {
 				 
 				  updateJobStats(arrayRunningJobs[j]);
+				  checkNotifications(arrayRunningJobs[j]);
 				  UtilityFunctions.stdoutwriter.writeln("Cleaning up thread " + arrayRunningJobs[j].getName(),Logs.THREAD,"DL3");
 				  arrayRunningJobs[j] = null;
 				  
@@ -426,7 +439,159 @@ class DataLoad extends Thread implements Stopable
 	  
 	  
   }
-
+  
+  public void checkNotifications(DataGrab dg) throws SQLException
+  {
+	  String strDataSet = dg.strCurDataSet;
+	  
+	  String query = "select * from schedule where data_set='" + strDataSet + "'";
+	  ResultSet rs = UtilityFunctions.db_run_query(query);
+	  if (rs.next())
+	  {
+		  int nKey = rs.getInt("primary_key");
+		  query = "select * from notify where schedule=" + nKey;
+		  rs = UtilityFunctions.db_run_query(query);
+		  //loop through the schedules associated with this notification
+		  while (rs.next())
+		  {
+			  //String strType = rs.getString("type");
+			  String strTicker = rs.getString("ticker");
+			  String strFrequency = rs.getString("frequency");
+			  String strEmail = rs.getString("email");
+			  BigDecimal dLimit = rs.getBigDecimal("limit_value");
+			  int nFactKey = rs.getInt("fact_data_key");
+			  int nNotifyKey = rs.getInt("primary_key");
+			  
+			  //try to find the fact key in fact_data
+			  String query2 = "select * from fact_data where primary_key=" + nFactKey;
+			  ResultSet rs2 = UtilityFunctions.db_run_query(query2);
+			  
+			  String query3;
+			  if (!(strTicker==null) && !(strTicker.isEmpty()))
+				  query3 = "select * from fact_data where data_set='" + strDataSet + "' and ticker='" + strTicker + "' and batch=" +
+				  "(select max(batch) from fact_data where data_set='" + strDataSet + "' and ticker='" + strTicker + "')";
+			  else
+				  query3 = "select * from fact_data where data_set='" + strDataSet + "' and batch=" +
+				  "(select max(batch) from fact_data where data_set='" + strDataSet + "')";
+			  
+			  ResultSet rs3 = UtilityFunctions.db_run_query(query3);
+			
+			  if (rs2.next())
+			  {
+				  //if (strFrequency.equals("HOURLY"))
+				  //{
+					  Calendar calJustCollected;
+					  Calendar calLastRun = Calendar.getInstance();
+					  try
+					  {
+						  calJustCollected = dg.getEndTime();
+					  }
+					  catch (CustomGenericException cge)
+					  //added this exception for multi-threading purposes - this should be populated by here
+					  {
+						  UtilityFunctions.stdoutwriter.writeln("Attempted to read empty end time, skipping notification for this job",Logs.ERROR,"DL2.73");
+						  UtilityFunctions.stdoutwriter.writeln(cge);
+						  return;
+						  
+					  }
+					  
+					
+					//get the date
+					
+					  calLastRun.setTime(rs2.getDate("date_collected"));
+					  if (strFrequency.equals("HOURLY"))
+					  {
+						  calLastRun.add(Calendar.HOUR,1);
+					  }
+					  else if (strFrequency.equals("WEEKLY"))
+					  {
+						  calLastRun.add(Calendar.WEEK_OF_YEAR,1);
+					  }
+					  else if (strFrequency.equals("MONTHLY"))
+					  {
+						  calLastRun.add(Calendar.MONTH,1);
+					  }
+					  else if (strFrequency.equals("DAILY"))
+					  {
+						  calLastRun.add(Calendar.DAY_OF_YEAR,1);
+					  }
+					  else if (strFrequency.equals("MINUTE"))
+					  {
+						  calLastRun.add(Calendar.MINUTE,1);
+					  }
+					  else
+					  {
+						  UtilityFunctions.stdoutwriter.writeln("Notify frequency not found, skipping job notification",Logs.ERROR,"DL2.735");
+						  continue;
+					  }
+					  
+					
+					  
+					  if (calJustCollected.after(calLastRun))
+					  {
+						  rs3.next();
+						  
+						  BigDecimal dJustCollectedValue = rs3.getBigDecimal("value");
+						  BigDecimal dLastRunValue = rs2.getBigDecimal("value");
+						  
+						  //update with new primary key
+						  String query4 = "update notify set fact_data_key=" + rs3.getInt("primary_key") + " where primary_key=" + nNotifyKey;
+						  UtilityFunctions.db_update_query(query4);
+						  
+						  BigDecimal dChange = dLastRunValue.subtract(dJustCollectedValue).divide(dLastRunValue,BigDecimal.ROUND_HALF_UP);
+						  
+						 
+						  if (dChange.compareTo(dLimit) > 0)
+						  {
+							  //send notification
+							  System.out.println("ALERT: Send mail!");
+							  UtilityFunctions.mail(strEmail,"ALERT: " + strDataSet + " moved " + dChange.multiply(new BigDecimal(100)).toString() + "%");
+					  
+						  }
+						  
+						  
+							  
+						  
+					  }
+					  
+					  
+					
+				 // }  
+			  }
+			  else
+				  //fact_data_key not found, assume this is the first time this notification has been used and needs to be populated
+				  //if I base this off of the batch #, have to be very careful with how it is maintained.
+			  {
+				 
+				  if (rs3.next())
+				  {
+					  query2 = "update notify set fact_data_key=" + rs3.getInt("primary_key") + " where primary_key=" + nNotifyKey;
+					  UtilityFunctions.db_update_query(query2);
+				  }
+					  
+				  else
+				  //didn't find a fact_data_key with which to populate this notification and there should be at least one there
+				  //print a message
+					  UtilityFunctions.stdoutwriter.writeln("Attempting to populate notify table and did not find fact_data entry",Logs.ERROR,"DL2.75");
+			  }
+			  
+			  
+			  
+			  
+			  
+		  }
+		  
+		  
+		  
+	  }
+	  
+	  
+	  
+	  
+  
+  }
+  
+  
 
 
   
@@ -467,10 +632,13 @@ class DataLoad extends Thread implements Stopable
 				
 				getTriggeredJobs();
 				executeJobs();
-				//updateEventTimes();
-				cleanTerminatedJobs();
 				writeJobQueueIntoDB();
 				sleep(60000);
+				//updateEventTimes();
+				cleanTerminatedJobs();
+				
+				//checkNotifications();
+				
 				
 				//new Echo( ss.accept() ).start();      
 				//sleep(60000); //sleep for 1 minute
@@ -568,6 +736,9 @@ class DataLoad extends Thread implements Stopable
   {
     System.out.println( "Service continued" );
   }     
+  
+  
+
                                                                                                                                 
   /**                                                         
     * The main method called when the service starts.
@@ -620,7 +791,12 @@ class DataLoad extends Thread implements Stopable
   }
 
 
-}               
+}              
+
+
+ 
+
+
 
 
 

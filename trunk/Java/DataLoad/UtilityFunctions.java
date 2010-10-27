@@ -1,11 +1,22 @@
 package com.roeschter.jsl;
 
+
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Properties;
 //import java.util.Calendar;
 import java.io.*;
 //import java.util.StringTokenizer;
 import java.util.regex.*;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
 
 
 
@@ -136,10 +147,16 @@ public class UtilityFunctions
 		//String columns= "";
 		String values = "";
 		
+		if (tabledata.size() < 2)
+		{
+			stdoutwriter.writeln("Not enough rows of data passed into importTableIntoDB\nThis may be a custom import and the flag needs to be set",Logs.ERROR,"UF4.5");
+			return;
+		}
+		
 		String[] columnnames = tabledata.get(0);
 		tabledata.remove(0);
 		
-		if (tablename.equals("fact_data_stage"))
+		if (tablename.equals("fact_data_stage") || tablename.equals("fact_data"))
 		{
 				columnnames = extendArray(columnnames);
 				columnnames[columnnames.length - 1] = "batch";
@@ -203,7 +220,7 @@ public class UtilityFunctions
 			values ="";
 			strColumns="";
 			
-			if (tablename.equals("fact_data_stage"))
+			if (tablename.equals("fact_data_stage") || tablename.equals("fact_data"))
 			{
 					rowdata = extendArray(rowdata);
 					//using columnnames here since that is guaranteed to be the correct length
@@ -258,8 +275,7 @@ public class UtilityFunctions
 	
 	public void updateTableIntoDB(ArrayList<String[]> tabledata, String tablename)
 	{
-		/* This function expects an arraylist with 2X of the number of values to be inserted with each value
-		preceeded by the datatype with the current 3 datatypes being VARCHAR, FUNCTIONS, INT */
+		
 		/*OFP 9/28/2010 - I believe passing in the datatypes with the table data is redundant since the types
 		 * are retrieved from the database meta data.
 		 */
@@ -614,7 +630,7 @@ public class UtilityFunctions
 		 * Get the current highest batch number from both fact_data & fact_data_stage and increase that by 1
 		 */
 		
-		Integer nFact =0;
+		/*Integer nFact =0;
 		Integer nFactStage=0;
 		String query = "select max(batch) from fact_data_stage";
 		ResultSet rs = db_run_query(query);
@@ -628,7 +644,15 @@ public class UtilityFunctions
 		if (nFact >= nFactStage)
 			return(nFact+1);
 		else
-			return(nFactStage+1);
+			return(nFactStage+1);*/
+		
+		String query = "select max(batch) from ";
+		query = query + "(select batch from fact_data union all ";
+		query = query + "select batch from fact_data_stage union all ";
+		query = query + "select batch from fact_data_stage_est) t1";
+		ResultSet rs = db_run_query(query);
+		rs.next();
+		return (rs.getInt("max(batch)") + 1);
 			
 	
 		
@@ -659,6 +683,53 @@ public class UtilityFunctions
 		
 	}
 	
+	public static void mail(String strEmail, String strMessage)
+	  {	
+	  	//String host = "smtp.gmail.com";
+	  	//int port = 587;
+	  	String username = "hastapasta99";
+	  	String password = "madmax1.";
+
+	  	Properties props = new Properties();
+	  	props.put("mail.smtp.port","587");
+	  	props.put("mail.smtp.host", "smtp.gmail.com");
+	  	props.put("mail.smtp.auth", "true");
+	  	props.put("mail.smtp.starttls.enable", "true");
+	  	props.put("mail.debug", "true");
+
+
+	  	//Session session = Session.getInstance(props);
+	  	Session session = Session.getInstance(props,new MyPasswordAuthenticator(username, password));
+
+
+
+	  	try {
+
+		    Message message = new MimeMessage(session);
+		    message.setFrom(new InternetAddress("hastapasta99@gmail.com"));
+		    message.setRecipients(Message.RecipientType.TO, 
+	                      InternetAddress.parse(strEmail));
+		    message.setSubject("Pikefin Alert");
+		    message.setText(strMessage);
+
+		    //Transport transport = session.getTransport("smtp");
+		    //transport.connect(host, port, username, password);
+		    //transport.connect(host,username,password);
+		    
+		    
+
+		    Transport.send(message);
+
+		    System.out.println("Done");
+
+	  	} catch (MessagingException e) {
+	  	    throw new RuntimeException(e);
+	  	}
+	  }
+
+	
+	
+	
 	
 }
 	
@@ -676,6 +747,37 @@ public class UtilityFunctions
 		
 		
 	}
+	
+	class SkipLoadException extends Exception
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -6553765592848567969L;
+		
+	}
+	
+	class MyPasswordAuthenticator extends Authenticator
+	{
+		String user;
+		String pw;
+		public MyPasswordAuthenticator (String username, String password)
+		{
+			super();
+			this.user = username;
+			this.pw = password;
+		}
+		public PasswordAuthentication getPasswordAuthentication()
+		{
+			return new PasswordAuthentication(user, pw);
+			
+		}
+	}
+
+	
+	 
+
 	
 	
 	

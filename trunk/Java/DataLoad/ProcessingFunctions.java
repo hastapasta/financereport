@@ -4,6 +4,7 @@ import java.sql.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -151,7 +152,7 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Stri
 			UtilityFunctions.stdoutwriter.writeln(tmpE);
 		}
 		
-		return(tabledata);
+		return(propTableData);
 	
 
 
@@ -203,7 +204,7 @@ public boolean preProcessingTable(String strDataSet, String strCurTicker)
 }
 
 
-public ArrayList<String[]> postProcessingTable(ArrayList<String[]> tabledata,String strDataSet)
+public ArrayList<String[]> postProcessingTable(ArrayList<String[]> tabledata,String strDataSet) throws SkipLoadException
 {
 	String query = "select post_process_func_name from extract_table where Data_Set='" + strDataSet + "'";
 
@@ -225,7 +226,30 @@ public ArrayList<String[]> postProcessingTable(ArrayList<String[]> tabledata,Str
 		m.invoke(this, new Object[] {});
 	
 	}
-	catch (Exception tmpE)
+	catch (IllegalAccessException iae)
+	{
+		UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF16.1");
+		UtilityFunctions.stdoutwriter.writeln(iae);
+	
+	}
+	//any exceptins thrown by the function pointer are wrapped in an InvocationTargetException
+	catch (InvocationTargetException ite)
+	{
+		if (ite.getTargetException().getClass().getSimpleName().equals("SkipLoadException"))
+			throw new SkipLoadException();
+		else
+		{
+			UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF16.3");
+			UtilityFunctions.stdoutwriter.writeln(ite);
+		}
+	
+	}
+	catch (NoSuchMethodException nsme)
+	{
+		UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF16.5");
+		UtilityFunctions.stdoutwriter.writeln(nsme);
+	}
+	catch (SQLException tmpE)
 	{
 		UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF17");
 		UtilityFunctions.stdoutwriter.writeln(tmpE);
@@ -378,7 +402,9 @@ public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomReg
 	
 }
 
-
+/*
+ * I think these next 2 are obsolete
+ */
 public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRegexException
 {
 	//try
@@ -474,39 +500,40 @@ public void postNasdaqEPS()
 	}
 }
 
-public void postYahooStockQuote()
+/*
+ * end obsolete
+ */
+
+
+
+public void postProcessYahooSharePrice() throws SQLException
 {
-
-	//OFP 9/26/2010 - Have to do custom post process because the ticker name is in the html code right before
-	// the value being extracted.
+	//System.out.println("here");
+	String[] strTmpValue = propTableData.get(0);
 	
-	Pattern pattern;
-	Matcher matcher;
-	int nCurOffset, nBegin; //, nEnd;
+	strTmpValue[0] = strTmpValue[0].substring(strTmpValue[0].indexOf(">")+1,strTmpValue[0].length());
 	
-	String strRegex = "(?i)(<big>)";
-	UtilityFunctions.stdoutwriter.writeln("Post processing regex search 1" + strRegex,Logs.STATUS2,"PF32");
-	pattern = Pattern.compile(strRegex);
-	matcher = pattern.matcher(this.strDataValue);
-	matcher.find();
-	nCurOffset = matcher.start();
 	
-	strRegex = "(?i)(\">)";
-	UtilityFunctions.stdoutwriter.writeln("Post processing regex search 2" + strRegex,Logs.STATUS2,"PF33");
-	pattern = Pattern.compile(strRegex);
-	matcher = pattern.matcher(this.strDataValue);
-	matcher.find(nCurOffset);
-	nBegin = matcher.end();
+	String[] tmpArray = {"data_set","value","date_collected","ticker","data_group"};
+	String[] rowdata = new String[tmpArray.length];
 	
-	this.strDataValue = this.strDataValue.substring(nBegin,this.strDataValue.length());
+	rowdata[0] = dg.strCurDataSet;
+	rowdata[1] = strTmpValue[0];
+	rowdata[2] = "NOW()";
+	rowdata[3] = dg.strOriginalTicker;
+	rowdata[4] = "share_price";
+	
+	
+	propTableData.remove(0);
+	propTableData.add(tmpArray);
+	propTableData.add(rowdata);
+	
+	
 	
 	
 	
 	
 
-		
-	
-					
 }
 
 public void postProcessNasdaqSharesOut() throws SQLException
@@ -682,6 +709,80 @@ public boolean preProcessNasdaqEPSTable()
 	
 }
 
+public void postProcessTableNasdaqUpdateEPS() throws SQLException,SkipLoadException
+{
+	
+	//String[] rowdata, newrow;
+	String[] colheaders = propTableData.get(0);
+	String[] rowheaders = propTableData.get(1);
+	
+	/*This is custom code to fix rowheader #4 since the html is not consistent.*/
+	rowheaders[3] = rowheaders[3].replace("(FYE)","");
+	int nRecentFisQtr=4;
+	
+	//find the most recent quarter
+	for (int row=2;row<propTableData.size();row++)
+	{
+		if (propTableData.get(row)[0].equals("void") || propTableData.get(row)[0].isEmpty())
+		//hopefully the first row isn't void, if it is, then we will assume the fiscal 4th quarter is the most recent.
+			if (row==2)
+			{
+				//leaving FisQtr the same
+				nRecentFisQtr=4;
+				//need some special code since this situation screws up our colheaders processing logic below
+				String[] tmp = new String[1];
+				tmp[0] = colheaders[1];
+				colheaders = tmp;
+				break;
+			}
+			else
+			{
+				String[] tmp = new String[1];
+				tmp[0] = colheaders[0];
+				colheaders = tmp;
+				nRecentFisQtr=row-2;
+				break;
+			}
+		//didn't run into any emptys or voids but still have to reset colheaders
+		else if (row==5)
+		{
+			String[] tmp = new String[1];
+			tmp[0] = colheaders[0];
+			colheaders = tmp;
+			
+		}
+			
+	}
+	
+	//check to see if the data already exists
+	String query="select * from fact_data where ticker='" + dg.strOriginalTicker + "' and data_set='" + dg.strCurDataSet +"'";
+	query = query + " and fiscalquarter=" + nRecentFisQtr + " and fiscalyear=" + colheaders[0];
+	ResultSet rs = UtilityFunctions.db_run_query(query);
+	
+	if (rs.next())
+	{
+		UtilityFunctions.stdoutwriter.writeln("MRQ already loaded, skipping",Logs.STATUS1,"PF38.5");
+		propTableData = null;
+		throw new SkipLoadException();
+	}
+		
+	
+	
+	
+	//void out all the other quarters so only the most recent gets loaded
+	for (int i=2;i<propTableData.size();i++)
+		if (i-1!=nRecentFisQtr)
+			propTableData.get(i)[0] = "void";
+	
+	propTableData.set(0,colheaders);
+	
+	this.postProcessNasdaqEPSTable();
+	
+	
+	
+	
+}
+
 public void postProcessNasdaqEPSTable() throws SQLException
 {
 	/*
@@ -698,9 +799,9 @@ public void postProcessNasdaqEPSTable() throws SQLException
 	 */
 	//try
 	//{
-		String query = "select url_dynamic from extract_table where Data_Set='" + propStrTableDataSet + "'";
-		ResultSet rs = UtilityFunctions.db_run_query(query);
-		rs.next();
+		//String query = "select url_dynamic from extract_table where Data_Set='" + propStrTableDataSet + "'";
+		//ResultSet rs = UtilityFunctions.db_run_query(query);
+		//rs.next();
 		String strTicker = dg.strOriginalTicker;
 
 		String[] rowdata, newrow;
@@ -711,7 +812,7 @@ public void postProcessNasdaqEPSTable() throws SQLException
 		rowheaders[3] = rowheaders[3].replace("(FYE)","");
 		
 		ArrayList<String[]> newTableData = new ArrayList<String[]>();
-		String[] tmpArray = {"data_set","value","date_collected","ticker","adj_quarter","data_group","fiscalquarter","fiscalyear","calquarter","calyear"};
+		String[] tmpArray = {"data_set","value","date_collected","ticker","data_group","fiscalquarter","fiscalyear","calquarter","calyear"};
 		newTableData.add(tmpArray);
 	
 		for (int row=2;row<propTableData.size();row++)
@@ -730,28 +831,28 @@ public void postProcessNasdaqEPSTable() throws SQLException
 					if ((rowdata[col].contains("N/A") == true) || (rowdata[col].isEmpty() == true))
 					{
 						UtilityFunctions.stdoutwriter.writeln("N/A value or empty value, skipping...",Logs.STATUS2,"PF39");
-						break;
+						continue;
 					}
 					else if (rowdata[col].contains("(") == true)
 						newrow[1]=rowdata[col].substring(0,rowdata[col].indexOf("("));
 					else
 						UtilityFunctions.stdoutwriter.writeln("Problem with data value formatting",Logs.ERROR,"PF40");
 					
-					//newrow[3] = rowdata[col].substring.indexOf("&");
-					//newrow[4] = "FUNCTION";
+				
 					newrow[2] = "NOW()";
-					//newrow[6] = "VARCHAR";
-					newrow[3] = strTicker;
-					//newrow[8] = "INTEGER";
 					
-					//MoneyTime mt = new MoneyTime()
-					//newrow[4] = Integer.toString(uf.retrieveAdjustedQuarter(row-1,Integer.parseInt(colheaders[col].substring(2,4)),strTicker));
-					//newrow[10] = "VARCHAR";
-					newrow[5] = "eps";
-					//newrow[12] = "INTEGER";
-					newrow[6] = Integer.toString(row-1);
-					//newrow[14] = "INTEGER";
-					newrow[7] = colheaders[col].substring(2,4);
+					newrow[3] = strTicker;
+					
+					newrow[4] = "eps";
+				
+					newrow[5] = Integer.toString(row-1);
+				
+					newrow[6] = colheaders[col];
+					String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, Integer.parseInt(newrow[5]), Integer.parseInt(newrow[6]));
+					
+					newrow[7] = strCalYearQuarter.substring(0,1);
+					newrow[8] = strCalYearQuarter.substring(1,5);
+						
 					newTableData.add(newrow);
 					
 				}
@@ -761,17 +862,7 @@ public void postProcessNasdaqEPSTable() throws SQLException
 			
 		}
 		propTableData = newTableData;
-	//}
-	//catch (SQLException sqle)
-	//{
-	//	UtilityFunctions.stdoutwriter.writeln("Problem processing table data",Logs.ERROR,"PF41");
-	//	UtilityFunctions.stdoutwriter.writeln(sqle);
-	//}
-	
-	
-	
-	
-	
+
 	
 }
 
@@ -1000,7 +1091,7 @@ public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQL
 	String[] colheaders = propTableData.get(0);
 	//String[] rowheaders = propTableData.get(1);
 	
-	String[] tmpArray = {"data_set","value","date_collected","ticker","data_group","fiscalyear","calyear"};//"calquarter","fiscalquarter"};
+	String[] tmpArray = {"data_set","value","date_collected","ticker","data_group","fiscalyear"};//"calquarter","fiscalquarter"};
 	
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
 	
@@ -1008,8 +1099,9 @@ public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQL
 	{
 		int i = tmpArray.length;
 		tmpArray = uf.extendArray(uf.extendArray(tmpArray));
-		tmpArray[i] = "fiscalquarter";
-		tmpArray[i+1] = "calquarter";
+		tmpArray[i] = "calyear";
+		tmpArray[i+1] = "fiscalquarter";
+		tmpArray[i+2] = "calquarter";
 		
 	}
 	
@@ -1066,9 +1158,10 @@ public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQL
 				
 				//newrow[14] = "INTEGER";
 				newrow[5] = mt.strFiscalYear;
-				newrow[6] = Integer.toString(mt.nCalAdjYear);
+	
 				if (propStrTableDataSet.contains("_q_") == true)
 				{
+					newrow[6] = Integer.toString(mt.nCalAdjYear);
 					newrow[7] = mt.strFiscalQtr;
 					newrow[8] = Integer.toString(mt.nCalQtr);
 				}
@@ -1170,6 +1263,33 @@ public void postProcessTableBLSUERate() throws CustomEmptyStringException, SQLEx
 	
 	
 	
+}
+
+public void postProcessExchRate()
+{
+	String[] newrow;
+	/*String[] colheaders = propTableData.get(0);
+	String[] rowheaders = propTableData.get(1);*/
+	
+	String[] tmpArray = {"data_set","value","date_collected","data_group"};
+	
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	
+	newTableData.add(tmpArray);
+	
+	newrow = new String[tmpArray.length];
+	
+	newrow[0] = dg.strCurDataSet;
+	newrow[1] = this.propTableData.get(0)[0];
+	newrow[2] = "NOW()";
+	newrow[3] = "forex";
+	
+	newTableData.add(newrow);
+	
+	propTableData = newTableData;
+
+	
+
 }
 
 public void postProcessYahooEPSEst() throws CustomEmptyStringException, SQLException
@@ -1447,6 +1567,21 @@ public void postProcessYahooBeginCalendarYear()
 	
 }
 
+public void postProcessYahooCompanyName()
+{
+	String[] tmp = {"ticker","full_name"};
+	
+	propTableData.add(0,tmp);
+	
+	String[] values = {dg.strOriginalTicker,propTableData.get(1)[0]};
+	
+	propTableData.remove(1);
+	propTableData.add(values);
+	
+	uf.updateTableIntoDB(propTableData, "company");
+	
+}
+
 public void postProcessYahooFiscalYearEndRaw()
 {
 	/*Created these 2 yahoo data captures because there were so many errors in the SEC data.
@@ -1467,6 +1602,8 @@ public void postProcessYahooFiscalYearEndRaw()
 	
 
 }
+
+
 
 
 	public boolean preNDCYahooEPSEst()
@@ -1500,7 +1637,22 @@ public void postProcessYahooFiscalYearEndRaw()
 	  
 	  //UtilityFunctions.stdoutwriter.writeln("Current offset before final data extraction: " + nCurOffset,Logs.STATUS2);
 	  
+	  if (matcher.find())
+		  return(true);
+	  
+	  strRegex = "(?i)(feature currently is unavailable)";
+	  UtilityFunctions.stdoutwriter.writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46.5");
+
+	  
+	  pattern = Pattern.compile(strRegex);
+	  //UtilityFunctions.stdoutwriter.writeln("after strbeforeuniquecoderegex compile", Logs.STATUS2);
+	  
+	  matcher = pattern.matcher(dg.returned_content);
+	  
 	  return(matcher.find());
+	  
+	  
+	  
 	  
 
 	}

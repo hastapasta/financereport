@@ -484,7 +484,7 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 			 /*
 			  * The following line fixes an issue where a non-fatal error is displayed about an invalid cookie data format.
 			  */
-				httppost.getParams().setParameter("http.protocol.cookie-datepatterns", 
+			httppost.getParams().setParameter("http.protocol.cookie-datepatterns", 
 						Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z", "EEE, dd MMM yyyy HH:mm:ss z"));
 			 
 			 List <NameValuePair> nvps = new ArrayList <NameValuePair>();
@@ -529,17 +529,25 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 			String strURL;
 			strURL = rs2.getString("url_static");
 					  
-			if (rs2.getString("url_dynamic") != "")
+			if (rs2.getString("url_dynamic")!=null && !rs2.getString("url_dynamic").isEmpty())
 				strURL = strURL + rs2.getString("url_dynamic");
 			
 			UtilityFunctions.stdoutwriter.writeln("Retrieving URL: " + strURL,Logs.STATUS2,"DG25");
 			
+			if (!strURL.contains(":"))
+				UtilityFunctions.stdoutwriter.writeln("WARNING: url is not preceeded with a protocol" + strURL,Logs.STATUS1,"DG25.5");
+			
 			HttpGet httpget = new HttpGet(strURL); 
 			/*
 			 * The following line fixes an issue where a non-fatal error is displayed about an invalid cookie data format.
+			 * It turns out that some sites generate a warning with this code, and others without it.
+			 * with code: www.exchange-rates.org
 			 */
-			httpget.getParams().setParameter("http.protocol.cookie-datepatterns", 
+			
+			
+				httpget.getParams().setParameter("http.protocol.cookie-datepatterns", 
 					Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z", "EEE, dd MMM yyyy HH:mm:ss z"));
+		
 					  
 			response = httpclient.execute(httpget);
 			//urlFinal = new URL(strURL);
@@ -777,6 +785,7 @@ public void grab_data_set()
 		rs.next();
 		String group = rs.getString("companygroup");
 		
+		
 		//This should be handled in DataLoad.java
 		//query = "update schedule set last_run=NOW() where data_set='" + strCurDataSet + "'";
 		//UtilityFunctions.db_update_query(query);
@@ -798,8 +807,13 @@ public void grab_data_set()
 					
 					ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
 					
-					if (strCurDataSet.equals("table_sandp_co_list") != true) //already imported data in the processing function					
+					ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from extract_info where data_set='" + strCurDataSet + "'");
+					rs2.next();
+					
+					//if (strCurDataSet.equals("table_sandp_co_list") != true) //already imported data in the processing function
+					if (rs2.getInt("custom_insert") != 1)	
 						uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+					
 				}
 				catch (MalformedURLException mue)
 				{
@@ -836,6 +850,60 @@ public void grab_data_set()
 			/*
 			 * NEED to add code for ELSE condition, i.e. NON-GROUP, NON-TABLE EXTRACTIONS
 			 */
+			else
+			{
+				if (pf.preProcessing(strCurDataSet,strCurrentTicker) != true)
+				{
+					throw new CustomEmptyStringException();
+				}
+				
+				
+				get_url(strCurDataSet);
+				
+				if (pf.preNoDataCheck(strCurDataSet) == true)
+				{
+					UtilityFunctions.stdoutwriter.writeln("URL contains no data, skipping ticker", Logs.STATUS1,"DG46");
+					return;
+				}
+						
+				
+				String strDataValue = get_value(strCurDataSet);
+			
+				if (strDataValue.compareTo("") == 0)
+				{
+					UtilityFunctions.stdoutwriter.writeln("Returned empty value '', skipping ",Logs.STATUS2,"DG47");
+					return;
+				}
+				
+				
+				
+				ArrayList<String []> tabledata = new ArrayList<String []>();
+			
+				String[] tmp = {strDataValue};
+			
+				/*
+				 * Create a table even for single values since we now use importTableIntoDB for everything.
+				 */
+				tabledata.add(tmp);
+			
+			
+				ArrayList<String []> tabledata2 = pf.postProcessing(tabledata, strCurDataSet);
+		   	
+				ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from extract_info where data_set='" + strCurDataSet + "'");
+				rs2.next();
+				if (rs2.getInt("custom_insert") != 1)
+				{
+					if (this.strCurDataSet.equals("exchrate_yen_dollar"))
+						uf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);	
+					else
+						uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+					
+				}
+				
+				
+				
+				
+			}
 
 			
 		}
@@ -930,6 +998,12 @@ public void grab_data_set()
 	
 							}*/
 						}
+						catch (SkipLoadException sle)
+						{
+							//This is not an error but is thrown by the processing function to indicate that the load method shouldn't be called
+							//May want to convert over the custom insert processing functions to use this exception
+							UtilityFunctions.stdoutwriter.writeln("SkipLoadException thrown, skipping load",Logs.STATUS1,"DG40.5");
+						}
 						catch (MalformedURLException mue)
 						{
 							UtilityFunctions.stdoutwriter.writeln("Badly formed url, skipping ticker",Logs.ERROR,"DG41");
@@ -1001,6 +1075,8 @@ public void grab_data_set()
 							   	ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from extract_info where data_set='" + strCurDataSet + "'");
 								rs2.next();
 								if (rs2.getInt("custom_insert") != 1)
+									//uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+									//mainlining the data right into the femoral artery
 									uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
 								
 								/*{
