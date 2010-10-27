@@ -1,7 +1,7 @@
 package com.roeschter.jsl;
 
 /*
- * Comments about multithreading:
+ * Comments about multithreading: 
  * -Should avoid passing short term information through the database. Ideally, only should write to database for
  * persistent storage. With current setup, cannot process the same dataset concurrently in multiple threads 
  * (one example is dynamic_url).
