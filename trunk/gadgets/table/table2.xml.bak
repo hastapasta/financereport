@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs title="__MSG_default_title__" height="300" author="Google Engineering" author_affiliation="Google Inc." description="__MSG_description__" screenshot="http://www.google.com/ig/modules/table.png" thumbnail="http://www.google.com/ig/modules/table-thm.png" author_email="visualization.api+table@gmail.com">
+        <Require feature="settitle" />
+        <Require feature="idi" />
+        <Require feature="locked-domain" />
+        <Require feature="setprefs" />
+        <Locale messages="http://www.google.com/ig/modules/table_content/en_ALL.xml" />
+        <Locale lang="ar" messages="http://www.google.com/ig/modules/table_content/ar_ALL.xml" language_direction="rtl" />
+        <Locale lang="bg" messages="http://www.google.com/ig/modules/table_content/bg_ALL.xml" />
+        <Locale lang="ca" messages="http://www.google.com/ig/modules/table_content/ca_ALL.xml" />
+        <Locale lang="cs" messages="http://www.google.com/ig/modules/table_content/cs_ALL.xml" />
+        <Locale lang="da" messages="http://www.google.com/ig/modules/table_content/da_ALL.xml" />
+        <Locale lang="de" messages="http://www.google.com/ig/modules/table_content/de_ALL.xml" />
+        <Locale lang="el" messages="http://www.google.com/ig/modules/table_content/el_ALL.xml" />
+        <Locale lang="en-GB" messages="http://www.google.com/ig/modules/table_content/en_GB.xml" />
+        <Locale lang="es" messages="http://www.google.com/ig/modules/table_content/es_ALL.xml" />
+        <Locale lang="et" messages="http://www.google.com/ig/modules/table_content/et_ALL.xml" />
+        <Locale lang="fi" messages="http://www.google.com/ig/modules/table_content/fi_ALL.xml" />
+        <Locale lang="fr" messages="http://www.google.com/ig/modules/table_content/fr_ALL.xml" />
+        <Locale lang="hi" messages="http://www.google.com/ig/modules/table_content/hi_ALL.xml" />
+        <Locale lang="hr" messages="http://www.google.com/ig/modules/table_content/hr_ALL.xml" />
+        <Locale lang="hu" messages="http://www.google.com/ig/modules/table_content/hu_ALL.xml" />
+        <Locale lang="hy" messages="http://www.google.com/ig/modules/table_content/hy_ALL.xml" />
+        <Locale lang="id" messages="http://www.google.com/ig/modules/table_content/id_ALL.xml" />
+        <Locale lang="is" messages="http://www.google.com/ig/modules/table_content/is_ALL.xml" />
+        <Locale lang="it" messages="http://www.google.com/ig/modules/table_content/it_ALL.xml" />
+        <Locale lang="iw" messages="http://www.google.com/ig/modules/table_content/iw_ALL.xml" language_direction="rtl" />
+        <Locale lang="ja" messages="http://www.google.com/ig/modules/table_content/ja_ALL.xml" />
+        <Locale lang="ko" messages="http://www.google.com/ig/modules/table_content/ko_ALL.xml" />
+        <Locale lang="lt" messages="http://www.google.com/ig/modules/table_content/lt_ALL.xml" />
+        <Locale lang="lv" messages="http://www.google.com/ig/modules/table_content/lv_ALL.xml" />
+        <Locale lang="ms" messages="http://www.google.com/ig/modules/table_content/ms_ALL.xml" />
+        <Locale lang="nl" messages="http://www.google.com/ig/modules/table_content/nl_ALL.xml" />
+        <Locale lang="no" messages="http://www.google.com/ig/modules/table_content/no_ALL.xml" />
+        <Locale lang="pl" messages="http://www.google.com/ig/modules/table_content/pl_ALL.xml" />
+        <Locale lang="pt-BR" messages="http://www.google.com/ig/modules/table_content/pt_BR.xml" />
+        <Locale lang="pt-PT" messages="http://www.google.com/ig/modules/table_content/pt_PT.xml" />
+        <Locale lang="ro" messages="http://www.google.com/ig/modules/table_content/ro_ALL.xml" />
+        <Locale lang="ru" messages="http://www.google.com/ig/modules/table_content/ru_ALL.xml" />
+        <Locale lang="sl" messages="http://www.google.com/ig/modules/table_content/sl_ALL.xml" />
+        <Locale lang="sk" messages="http://www.google.com/ig/modules/table_content/sk_ALL.xml" />
+        <Locale lang="sr" messages="http://www.google.com/ig/modules/table_content/sr_ALL.xml" />
+        <Locale lang="sv" messages="http://www.google.com/ig/modules/table_content/sv_ALL.xml" />
+        <Locale lang="th" messages="http://www.google.com/ig/modules/table_content/th_ALL.xml" />
+        <Locale lang="tl" messages="http://www.google.com/ig/modules/table_content/tl_ALL.xml" />
+        <Locale lang="tr" messages="http://www.google.com/ig/modules/table_content/tr_ALL.xml" />
+        <Locale lang="uk" messages="http://www.google.com/ig/modules/table_content/uk_ALL.xml" />
+        <Locale lang="vi" messages="http://www.google.com/ig/modules/table_content/vi_ALL.xml" />
+        <Locale lang="zh-CN" messages="http://www.google.com/ig/modules/table_content/zh_CN.xml" />
+        <Locale lang="zh-TW" messages="http://www.google.com/ig/modules/table_content/zh_TW.xml" />
+    </ModulePrefs>
+    <UserPref name="_table_query_url" display_name="__MSG_tablequeryurl__" required="true" />
+    <UserPref name="title" display_name="__MSG_title__" required="false" />
+    <UserPref name="last_query_hash" datatype="hidden" />
+    <UserPref name="groupbycolumn" datatype="hidden" />
+    <UserPref name="_table_query_refresh_interval" display_name="__MSG_tablequeryrefreshinterval__" default_value="300" datatype="enum" required="false">
+        <EnumValue value="0" display_value="__MSG_never__" />
+        <EnumValue value="60" display_value="1" />
+        <EnumValue value="300" display_value="5" />
+        <EnumValue value="1800" display_value="30" />
+    </UserPref>
+    <UserPref name="showfilters" display_name="__MSG_showfilters__" default_value="true" datatype="bool" required="false" />
+    <UserPref name="aggregateby" datatype="hidden" />
+    <UserPref name="enablegrouping" display_name="__MSG_enablegrouping__" default_value="true" datatype="bool" required="false" />
+    <Content type="html"><![CDATA[<link rel='stylesheet' type='text/css'
+	href='http://www.google.com/ig/modules/table_content/table.css' />
+<div id='loading' style='overflow: auto; width: 100%; height: 100%;'><img
+	src='http://www.google.com/ig/images/spinner.gif' alt="" /></div>
+<div id='scrollpane' style='overflow: auto;'>
+<div id='cfg-first-section-div' class='cfg-configuration-layout-div'
+	style='display: none'>
+<table class='cfg-configuration-layout-table'>
+	<thead>
+		<tr class='cfg-title-row-tr'>
+			<td class='cfg-title-row-td'>__MSG_regularcolumns__</td>
+			<td class='cfg-title-row-secondary-cell'></td>
+			<td class='cfg-title-row-td'>__MSG_groupingcolumns__</td>
+			<td class='cfg-title-row-secondary-cell'></td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td class='cfg-columns-list-outer-td'>  
+			<div class='cfg-columns-list-div'>
+			<table id='cfg-all-columns-table' class='cfg-columns-list-table'>
+			</table>
+			</div>
+			</td>
+			<td class='cfg-move-buttons-outer-td'>
+			<table class='cfg-move-buttons-table'>
+				<tr class='cfg-move-buttons-tr'>
+					<td class='cfg-button-td'><input type='button'
+						class='cfg-button' name='right-button' id='right-button'
+						disabled='true' value='&#9658;'
+						onclick='_mgr._gcc().groupColumn()'></td>
+				</tr>
+				<tr class='cfg-move-button-tr'>
+					<td class='cfg-button-td'><input type='button'
+						class='cfg-button' name='left-button' id='left-button'
+						disabled='true' value='&#9668;'
+						onclick='_mgr._gcc().unGroupColumn()'></td>
+				</tr>
+			</table>
+			</td>
+			<td class='cfg-columns-list-outer-td'>
+			<div class='cfg-columns-list-div'>
+			<table id='cfg-grouping-columns-table' class='cfg-columns-list-table'>
+			</table>
+			</div>
+			</td>
+			<td class='cfg-move-buttons-outer-td'>
+			<table class='cfg-move-buttons-table'>
+				<tr class='cfg-move-buttons-tr'>
+					<td class='cfg-button-td'><input type='button'
+						class='cfg-button' name='up-button' id='up-button' disabled='true'
+						value='&#9650;' onclick='_mgr._gcc().moveColumn(true)'></td>
+				</tr>
+				<tr class='cfg-move-buttons-tr'>
+					<td class='cfg-button-td'><input type='button'
+						class='cfg-button' name='down-button' id='down-button'
+						disabled='true' value='&#9660;'
+						onclick='_mgr._gcc().moveColumn(false)'></td>
+				</tr>
+			</table>
+			</td>
+		</tr>
+		<tr>
+			<td class='cfg-general-buttons-outer-td' colspan='4'>
+			<div class='cfg-general-buttons-div'>
+			<table class='cfg-general-buttons-table'>
+				<tr class='cfg-general-buttons-tr'>
+					<td class='cfg-button-td'><input type='button'
+						class='cfg-button' name='next-button' id='next-button'
+						value='Next &raquo;' onclick='_mgr._gcc().handleNext()'></td>
+					<td class='cfg-button-td'><input type='button'
+						class='cfg-button' name='ok-button-first-section'
+						id='ok-button-first-section' value='__MSG_ok__'
+						onclick='_mgr._gcc().handleOk()'></td>
+					<td class='cfg-button-td'><input type='button'
+						class='cfg-button' name='cancel-button-first-section'
+						id='cancel-button-first-section' value='__MSG_cancel__'
+						onclick='_mgr._gcc().handleCancel()'></td>
+				</tr>
+			</table>
+			</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+<div id='cfg-second-section-div' class='cfg-configuration-layout-div'
+	style='display: none'>
+<table class='cfg-configuration-layout-table'>
+	<thead>
+		<tr class='cfg-title-row-tr'>
+			<td class='cfg-title-row-td'>__MSG_aggregatedcolumns__</td>
+			<td class='cfg-title-row-secondary-cell'></td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td class='cfg-aggregation-columns-list-outer-td'>
+			<div class='cfg-columns-list-div'>
+			<table id='cfg-aggregte-columns-table' class='cfg-columns-list-table'>
+			</table>
+			</div>
+			</td>
+			<tr>
+				<td class='cfg-general-buttons-outer-td ' colspan='2'>
+				<div class='cfg-general-buttons-div'>
+				<table class='cfg-general-buttons-table'>
+					<tr class='cfg-general-buttons-tr'>
+						<td class='cfg-button-td'><input type='button'
+							class='cfg-button' name='back-button' id='back-button'
+							value='&laquo; __MSG_back__' onclick='_mgr._gcc().handleBack()'>
+						</td>
+						<td class='cfg-button-td'><input type='button'
+							class='cfg-button' name='ok-button-second-section'
+							id='ok-button-second-section' value='__MSG_ok__'
+							onclick='_mgr._gcc().handleOk()'></td>
+						<td class='cfg-button-td'><input type='button'
+							class='cfg-button' name='cancel-button-second-tab'
+							id='cancel-button-second-section' value='__MSG_cancel__'
+							onclick='_mgr._gcc().handleCancel()'></td>
+					</tr>
+				</table>
+				</div>
+				</td>
+			</tr>
+		</tr>
+	</tbody>
+</table>
+</div>
+<div>
+<div><span id='open-dialog-link-span'
+	onclick='_mgr._gcc().openDialog()' style='display: none;'>__MSG_definegroupingsandcalculations__
+</span></div>
+<div id='table-div'></div>
+</div>
+</div>
+<script src='http://www.google.com/jsapi' type='text/javascript'></script>
+<script src='http://www.google.com/ig/modules/table_content/table.js'
+	type='text/javascript'></script>
+<script type='text/javascript'>  var configMessages = {};  configMessages['none'] = '__MSG_none__';  configMessages['sum'] = '__MSG_sum__';  configMessages['count'] = '__MSG_count__';  configMessages['min'] = '__MSG_min__';  configMessages['max'] = '__MSG_max__';  configMessages['avg'] = '__MSG_avg__';  _IG_RegisterOnloadHandler(init);  var _mgr;  function init() {    _mgr = new TableGadgetManager(configMessages);  }  </script>
+ ]]></Content>
+</Module>

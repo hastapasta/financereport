@@ -1,0 +1,403 @@
+/* Copyright 2007 Google Inc. All Rights Reserved. */
+
+
+/* The table */
+.table {
+  border: 1px solid #cccccc;
+  border-collapse: collapse;
+  font-family: arial,helvetica,serif;
+  font-size: 80%;
+  font-weight: normal;
+}
+
+/* The style of all <td> Elements. Note: This style is not used with a
+   "class=.." declaration, it overwrites the <td> style directly. */
+td {
+  border: 1px solid #cccccc;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+/* A title row */
+.t-row {
+  background-color: #c3d9ff;
+  color: #112abb;
+  font-weight: bold;
+  text-align: center
+}
+
+/* A filter row with drop down boxes */
+.f-row {
+  background-color: #c3d9ff;
+}
+
+/* An even row */
+.e-row {
+  background-color: white;
+}
+
+/* An odd row */
+.o-row {
+  background-color: #f7f7f7;
+}
+
+/* A groupBy subtotal row */
+.g-row-0 {
+  background-color: #e5ecf9;
+}
+
+/* A groupBy subtotal row of level 1 */
+.g-row-1 {
+  background-color: #ecf1fb;
+}
+
+/* A groupBy subtotal row of level 2 */
+.g-row-2 {
+  background-color: #eff3fc;
+}
+
+/* A groupBy subtotal row of level 3 */
+.g-row-3 {
+  background-color: #f7f9fd;
+}
+
+/* A groupBy subtotal row of level 4 */
+.g-row-4 {
+  background-color: #f7f9fd;
+}
+
+/* A groupBy subtotal row of level 5 */
+.g-row-5 {
+  background-color: #f7f9fd;
+}
+
+/* A groupBy subtotal row of level 6 */
+.g-row-6 {
+  background-color: #f7f9fd;
+}
+
+/* A regular table cell (td) */
+.cell {
+  width: 50px;
+  white-space: nowrap;
+}
+
+/* A center aligned cell */
+.c-cell {
+  white-space: nowrap;
+  text-align: center;
+  font-family: Arial Unicode MS, Arial, Verdana, Helvetica;
+}
+
+/* A right aligned cell */
+.r-cell {
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* A left aligned cell */
+.l-cell {
+  white-space: nowrap;
+  text-align: left
+}
+
+/* A title row cell */
+.t-cell {
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* A filter row cell */
+.f-cell {
+  white-space: nowrap;
+  width: 70px;
+}
+
+/* A filter select element */
+.f-cell-select {
+  width: 100%;
+}
+
+/* A groupBy row cell */
+.g-cell {
+  font-weight: bold;
+}
+
+/* An aggregated value row cell */
+.g-v-cell {
+  padding: 0;
+}
+
+/* A grouped value span */
+.g-value {
+  cursor: pointer;
+  cursor: hand;
+}
+
+/* td wrapping the agg-text */
+.agg-td {
+  border: none;
+  font-size: 80%;
+}
+
+/* Text for showing the aggregation type in an aggregation value cell */
+.agg-text {
+  color: #808080;
+  font-size: 70%;
+  border: none;
+  text-align: left;
+}
+
+/* Value of an aggregation cell (depreacted). */
+.agg-value {
+  width: 100%;
+  border: none;
+  padding: 0;
+  font-size: 80%;
+  font-weight: normal;
+  text-align: right;
+}
+
+/* Value of an aggregation cell. */
+.agg-cell {
+  width: 100%;
+  border: none;
+  padding: 0;
+  font-size: 80%;
+  font-weight: normal;
+  text-align: right;
+}
+/* Show/hide icons*/
+
+/* The indentation cell */
+.ind-cell {
+  border: none;
+}
+
+/* The groupBy icon cell with closed image */
+.icon-cell-cl {
+  background-image: url("http://www.google.com/ig/modules/table_content/closed.gif");
+  background-repeat: no-repeat;
+  background-position: 0 2px;
+  position: relative;
+  width: 16px;
+  cursor: pointer;
+  cursor: hand;
+  border: none;
+}
+
+/* The groupBy icon cell with opened image */
+.icon-cell-op {
+  background-image: url("http://www.google.com/ig/modules/table_content/opened.gif");
+  background-repeat: no-repeat;
+  background-position: 0 2px;
+  position: relative;
+  width: 16px;
+  cursor: pointer;
+  cursor: hand;
+  border: none;
+}
+
+/* The td cell with the number of leaves in the subtree */
+.num-cell {
+  font-size: 75%;
+  color: #808080;
+  position: relative;
+  border: none;
+  width: 100%;
+}
+
+/* The groupBy table */
+.icon-table {
+  padding: 0px;
+  border: none;
+  font-size: 12px;
+}
+
+/*********************************************/
+/* A configuration dialog layout div (choosing grouping and aggregation
+    columns) */
+.cfg-configuration-layout-div {
+  width: 350px;
+  border: 1px solid #3366cc;
+}
+
+/* A configuration dialog layout table (choosing grouping and aggregation
+    columns) */
+.cfg-configuration-layout-table {
+  width: 100%;
+  padding: 4px 4px;
+  border: none;
+  border-spacing: 0px 4px;
+}
+
+/* A configuration dialog title row. */
+.cfg-title-row-tr {
+  background-color: #c3d9ff;
+  color: #112abb;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+/* A configuration dialog title row cell. */
+.cfg-title-row-td {
+  padding-left: 2px;
+  border: none;
+}
+
+/* A configuration dialog title row secondary cell. */
+.cfg-title-row-secondary-cell {
+  background-color: white;
+}
+
+/* A a list of columns outer td. */
+.cfg-columns-list-outer-td {
+  width: 40%;
+  vertical-align: top;
+}
+
+.cfg-aggregation-columns-list-outer-td {
+  width: 100%;
+  height: 100%;
+  vertical-align: top;
+}
+
+/* A div holding a list of columns. */
+.cfg-columns-list-div {
+  overflow: auto;
+  height: 100px;
+}
+
+/* A table holding a list of columns. */
+.cfg-columns-list-table {
+  width: 100%;
+}
+
+/* A list of columns table row in the all table (used for identification).*/
+.cfg-columns-list-all-tr {
+}
+
+/* A list of columns table row in the grouping table (used for
+    identification).*/
+.cfg-columns-list-grouping-tr {
+}
+
+/* A list of columns table row in the aggregation table (used for
+    identification).*/
+.cfg-columns-list-aggreagtion-tr {
+}
+
+/* The 'td' for a column in a column list. */
+.cfg-columns-list-td {
+  font-size: 11px;
+  border: none;
+}
+
+/* The 'td' for a column in a column which can be selected but it is not. */
+.cfg-columns-list-non-selected-td {
+  cursor: pointer;
+  cursor: hand;
+  font-size: 11px;
+  border: none;
+}
+
+/* The 'td' for a column in a column list which is currently selected. */
+.cfg-columns-list-selected-td {
+  cursor: pointer;
+  cursor: hand;
+  font-size: 11px;
+  background-color: #e8eef7;
+  border: none;
+}
+
+/* A list of columns cell holding a selection menu. */
+.cfg-columns-list-menu-td {
+  border: none;
+  width: 40%;
+}
+
+/* A drop down select menu. */
+.cfg-select-menu {
+}
+
+/* The span holding the indent symbol in the grouping columns table. */
+.cfg-indent-span {
+  color: #3399ff;
+  font-size: 9px;
+}
+
+/* Move buttons outer td. */
+.cfg-move-buttons-outer-td {
+  width: 15%;
+  border: none;
+}
+
+/* Move buttons table. */
+.cfg-move-buttons-table {
+  width: 100%;
+}
+
+/* Move buttons table row. */
+.cfg-move-buttons-tr {
+}
+
+/* Move buttons table cell. */
+.cfg-move-buttons-td {
+  border: none;
+  width: 100%;
+}
+
+/* General buttons outer td. */
+.cfg-general-buttons-outer-td {
+  border: none;
+}
+
+/* General buttons div. */
+.cfg-general-buttons-div {
+  position:relative;
+  left: 70px;
+}
+
+/* General buttons table. */
+.cfg-general-buttons-table {
+}
+
+/* General buttons table row. */
+.cfg-general-buttons-tr {
+}
+
+/* General buttons table row cell. */
+.cfg-button-td {
+  text-align: center;
+  border: none;
+}
+
+/* A button */
+.cfg-button {
+  font-size: 11px;
+}
+
+/* A drop down select menu */
+.cfg-select-menu {
+  font-size: 11px;
+  width: 100%;
+}
+
+/* The span holding the open dialog link. */
+#open-dialog-link-span {
+  border: none;
+  font-size: 10px;
+  cursor: pointer;
+  cursor: hand;
+  text-decoration: underline;
+  color: blue;
+  padding-bottom: 4px;
+  padding-left: 4px;
+}
+
+/* The div designated to hold the html (server generated) table. Do not delete
+    this style since it is manipulated from the java-script.*/
+#table-div {
+  position: relative;
+  top: 0px;
+}
