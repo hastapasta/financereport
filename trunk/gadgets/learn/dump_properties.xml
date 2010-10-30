@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<ModulePrefs title="Sample Spreadsheet Gadget"
+             description="Fun sample spreadsheet Gadget."
+             author="Google Engineering"
+             author_affiliation="Google Inc."
+             author_email="visualization.api+spreadsheet@gmail.com"
+             screenshot="/ig/modules/spreadsheet.png"
+             thumbnail="/ig/modules/spreadsheet-thm.png" > 
+<!-- <Require feature="idi"/> -->
+<!-- <Require feature="locked-domain" /> -->
+</ModulePrefs>
+<!-- making the below not required for now -->
+<UserPref name="_table_query_url" display_name="Data source url" 
+          required="false"/>
+<UserPref name="_table_query_refresh_interval" 
+          display_name="Data refresh interval (minutes)" 
+          default_value="0" datatype="enum" required="false">
+<EnumValue value="0" display_value="Do not refresh"/>
+<EnumValue value="60" display_value="1"/>
+<EnumValue value="300" display_value="5"/>
+<EnumValue value="1800" display_value="30"/>
+</UserPref>
+<Content type="html"><![CDATA[
+What up world
+  
+  <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+
+<div id="tablediv" style="overflow: auto;">
+<img src="http://www.google.com/ig/images/spinner.gif" />
+</div>
+
+<script>
+    
+    var gadgetHelper = null;
+_IG_RegisterOnloadHandler(loadVisualizationAPI);
+function loadVisualizationAPI() { 
+  google.load("visualization", "1");
+  google.setOnLoadCallback(sendQuery);
+}
+
+/**
+ * Create a query (shaped by the Gadget's user preferences), then 
+ * send it to the spreadsheet data source. Also give the name of a 
+ * function ("handleQueryResponse") to run once the spreadsheet data 
+ * is retrieved:
+ */
+function sendQuery() {
+  var prefs = new _IG_Prefs(); // User preferences 
+  gadgetHelper = new google.visualization.GadgetHelper(); 
+  var query = gadgetHelper.createQueryFromPrefs(prefs);
+  dumpProps(query,null);
+  
+  //ofp - removed
+  query.send(handleQueryResponse);
+  //var html2 = [];
+  
+  //html2.push('This is some text');
+} 
+  
+  function handleQueryResponse(response)
+  {
+    var html3 = [];
+    html3.push('Here is some more text');
+  alert('here 2');
+  var tableDiv = _gel('tablediv');
+  tableDiv.innerHTML = html3.join('');
+  tableDiv.style.width = document.body.clientWidth + 'px';
+  tableDiv.style.height = document.body.clientHeight + 'px';
+  }
+  
+ function dumpProps(obj, parent) {
+   // Go through all the properties of the passed-in object 
+   for (var i in obj)
+    {
+      // if a parent (2nd parameter) was passed in, then use that to 
+      // build the message. Message includes i (the object's property name) 
+      // then the object's property value on a new line 
+      if (parent) 
+      { 
+        var msg = parent + "." + i + "\n" + obj[i];
+      } 
+        else 
+      {
+         var msg = i + "\n" + obj[i]; 
+      }
+      // Display the message. If the user clicks "OK", then continue. If they 
+      // click "CANCEL" then quit this level of recursion 
+      if (!confirm(msg)) { return; }
+      // If this property (i) is an object, then recursively process the object 
+      if (typeof obj[i] == "object")
+       { 
+         if (parent) { dumpProps(obj[i], parent + "." + i); } else { dumpProps(obj[i], i); }
+      }
+   }
+}
+
+
+  </script>
+]]>
+</Content>
+</Module>
+
