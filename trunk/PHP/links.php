@@ -21,8 +21,12 @@
 <A HREF="../examples/jsp/checkbox/check.html">Checkbox jsp sample</A><BR>
 <BR>
 <A HREF="http://win-d2sjsg6emdd:8080/manager/html">Tomcat Manager</A><BR>
+<BR>
+<A HREF="http://oracleepm:19000/workspace">Workspace</A><BR>
+<A HREF="http://oracleepm:10080/easconsole/console.html">EAS Console</A><BR>
 
 
 
-</BODY>
-</HTML>
+
+</BODY> 
+ 
