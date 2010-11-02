@@ -19,6 +19,7 @@ $parse_external_url = 1;
 //$url_val = 'http://bloomberg.econoday.com/byshoweventfull.asp?fid=441986&cust=bloomberg&year=2010#top';
 //$url_val = 'http://www.bls.gov/lau/home.htm';
 $url_val = $_COOKIE['web_page'];
+
 $form_properties = $_COOKIE['form_properties'];
 
 //$extract_value = '444';
@@ -81,6 +82,7 @@ $offset = 0;
 
 while (!$done)
 {
+	
 	if (preg_match($open_table_regex, $returned_content, $matches, PREG_OFFSET_CAPTURE, $offset))
 	{
 		if ($seek_offset > $matches[0][1])
@@ -267,8 +269,8 @@ if ($frame == 'parent')
 ?>
 
 <frameset cols="50%,*">
- 	<frame src="http://win-d2sjsg6emdd/dev/regex_table_structure.php?offset=<?php	echo $seek_offset;?>&frame=display" name=table_structure_display>
-  <frame src="http://win-d2sjsg6emdd/dev/regex_table_structure.php?offset=<?php	echo $seek_offset;?>&frame=form" name=table_structure_form>
+ 	<frame src="regex_table_structure.php?offset=<?php	echo $seek_offset;?>&frame=display" name=table_structure_display>
+  <frame src="regex_table_structure.php?offset=<?php	echo $seek_offset;?>&frame=form" name=table_structure_form>
 <!--  <frame src=<?=$PHP_SELF?>?frame=whc_left#here name=whc_left>
   <frame src=<?=$PHP_SELF?>?frame=whc_right name=whc_right> -->
  </frameset>
