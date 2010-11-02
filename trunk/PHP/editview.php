@@ -14,13 +14,34 @@ include ("functions.php");
 	
 if (isset($_POST['submitviewchange']))
 {
-	$query3 = "drop view ".$_COOKIE['viewname'];
-	echo $query3."<BR>";
+
+	//test creation of view with temporary name
+	$viewname = $_COOKIE['viewname'];
+	$viewcode = $_POST['viewcode'];
+	$search = "`".$viewname."`";
+	echo $search."<BR>";
+	$replace= "`temp_".$viewname."`";
+	$tempviewcode = str_replace($search,$replace,$viewcode);
+	$result4 = mysql_query($tempviewcode) or die("Failed Query of " . $tempviewcode);
+	echo "TESTED CREATION OF VIEW...<BR>";
+	
+	//if succssfull delete old view and temporary view
+	$query3 = "drop view ".$viewname;
 	$result3 = mysql_query($query3) or die("Failed Query of " . $query3);
-	$query3 = $_POST['viewcode'];
-	echo $query3."<BR>";
+	echo "DELETED OLD VIEW...<BR>";
+	
+	$query3 = "drop view temp_".$viewname;
 	$result3 = mysql_query($query3) or die("Failed Query of " . $query3);
-	echo "output: ".$result3;
+	echo "DELETED TEST VIEW...<BR>";
+	
+	//now read to create new view with old name
+	$result4 = mysql_query($viewcode) or die("Failed Query of " . $viewcode);
+	echo "output: ".$result4;
+	echo "<BR>SUCCESSFULLY CREATED NEW VIEW<BR>";
+	
+	
+	
+	
 	
 	
 }
