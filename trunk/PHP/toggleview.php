@@ -88,7 +88,7 @@ else if (isset($_POST['submit_clear_stage']))
 <form name="ObtainURL" action="toggleview.php" method=POST>
 	<select name="data_set">
 	<?php
-	$query1 = "select data_set from extract_table";
+	$query1 = "select data_set from extract_table where !(data_set like '%colhead%') and !(data_set like '%rowhead%')";
 	$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 	for ($j=0;$j<mysql_num_rows($result1);$j++)
 	{
