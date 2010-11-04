@@ -1,4 +1,4 @@
-package com.roeschter.jsl;
+//package com.roeschter.jsl;
  
 import java.sql.*;
 import java.io.FileWriter;
@@ -43,10 +43,12 @@ class ProcessingFunctions
 		try
 		{
 			String query;
-			if ((strDataSet.substring(0,5)).compareTo("table") == 0)
+			/*if ((strDataSet.substring(0,5)).compareTo("table") == 0)
 				query = "select pre_nodata_check_func from extract_table where Data_Set='" + strDataSet + "'";
 			else
-				query = "select pre_nodata_check_func from extract_info where Data_Set='" + strDataSet + "'";
+				query = "select pre_nodata_check_func from extract_info where Data_Set='" + strDataSet + "'";*/
+			
+			query = "select pre_nodata_check_func from job_info where data_set='" + strDataSet + "'";
 			
 			ResultSet rs = UtilityFunctions.db_run_query(query);
 			rs.next();
@@ -79,7 +81,7 @@ public boolean preProcessing(String strDataSet, String strTicker)
 	  
 	
 
-		String query = "select pre_process_func_name from extract_info where Data_Set='" + strDataSet + "'";
+		String query = "select pre_process_func_name from job_info where Data_Set='" + strDataSet + "'";
 		
 		
 		
@@ -121,7 +123,7 @@ public boolean preProcessing(String strDataSet, String strTicker)
 public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , String strDataSet)
 {
 	
-		String query = "select post_process_func_name from extract_info where Data_Set='" + strDataSet + "'";
+		String query = "select post_process_func_name from job_info where Data_Set='" + strDataSet + "'";
 		
 		strDataValue = tabledata.get(0)[0];
 
@@ -169,7 +171,7 @@ public boolean preProcessingTable(String strDataSet, String strCurTicker)
 	  
 		//UtilityFunctions.stdoutwriter.writeln("TEST5",Logs.ERROR);
 
-		String query = "select pre_process_func_name from extract_table where Data_Set='" + strDataSet + "'";
+		String query = "select pre_process_func_name from job_info where Data_Set='" + strDataSet + "'";
 		
 		try
 		{
@@ -206,7 +208,7 @@ public boolean preProcessingTable(String strDataSet, String strCurTicker)
 
 public ArrayList<String[]> postProcessingTable(ArrayList<String[]> tabledata,String strDataSet) throws SkipLoadException
 {
-	String query = "select post_process_func_name from extract_table where Data_Set='" + strDataSet + "'";
+	String query = "select post_process_func_name from job_info where Data_Set='" + strDataSet + "'";
 
 	try
 	{
@@ -286,7 +288,7 @@ public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomReg
 	String ticker;
 	//try
 	//{
-		query = "select url_dynamic from extract_info where data_set='" + dg.strCurDataSet + "'";
+		query = "select extract_info.url_dynamic from extract_info,job_info where job_info.extract_key=extract_info.primary_key and job_info.data_set='" + dg.strCurDataSet + "'";
 		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
 		ticker = rs.getString("url_dynamic");
@@ -303,7 +305,7 @@ public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomReg
 	while (!done)
 	{
 		UtilityFunctions.stdoutwriter.writeln("Row Count: " + curRowCount,Logs.STATUS2,"PF21");
-		query = "update extract_info set Row_Count=" + curRowCount + ",url_dynamic='" + ticker + "' where data_set='nasdaq_eps_est_quarter'";
+		query = "update extract_info,job_info set extract_info.Row_Count=" + curRowCount + ",extract_info.url_dynamic='" + ticker + "' where job_info.extract_key=data_info.primary_key and job_info.data_set='nasdaq_eps_est_quarter'";
 		
 		//try
 		//{
@@ -409,12 +411,12 @@ public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRege
 {
 	//try
 	//{
-		String query = "select url_dynamic from extract_info where Data_Set='" + dg.strCurDataSet + "'";
+		String query = "select extract_info.url_dynamic from extract_info,job_info where job_info.extract_key=extract_info.primary_key and job_info.Data_Set='" + dg.strCurDataSet + "'";
 		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
 		//String strTicker = rs.getString("url_dynamic");
 		UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + rs.getString("url_dynamic"),Logs.STATUS2,"PF27");
-		query = "update extract_info set url_dynamic='" + rs.getString("url_dynamic") + "' where data_set='nasdaq_current_fiscal_year'";
+		query = "update extract_info,job_info set extract_info.url_dynamic='" + rs.getString("url_dynamic") + "' where job_info.extract_key=extract_info.primary_key and job_info.data_set='nasdaq_current_fiscal_year'";
 		//have to save the value here because the get_value() call wipes it out.
 		String tmpStaticDataSet = dg.strCurDataSet;
 		UtilityFunctions.db_update_query(query);
@@ -430,7 +432,7 @@ public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRege
 		if ((strCurValue.compareTo("2010") == 0) && (nDataSetYear != 10))
 		{
 			//need to shift things over one.
-			query = "select Cell_Count,url_static from extract_info where Data_Set='" + tmpStaticDataSet + "'";
+			query = "select extract_info.Cell_Count,extract_info.url_static from extract_info,job_info where job_info.extract_key=extract_info.primary_key and job_info.Data_Set='" + tmpStaticDataSet + "'";
 
 			rs = UtilityFunctions.db_run_query(query);
 			rs.next();
@@ -440,11 +442,11 @@ public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRege
 			
 			if (nDataSetYear == 7)
 			{
-				query = "update extract_info set url_static='http://fundamentals.nasdaq.com/redpage.asp?page=2&selected=', Cell_Count=2 where Data_Set='" + tmpStaticDataSet + "'";
+				query = "update extract_info,job_info set extract_info.url_static='http://fundamentals.nasdaq.com/redpage.asp?page=2&selected=', Cell_Count=2 where job_info.extract_key=extract_info.primary_key and job_info.Data_Set='" + tmpStaticDataSet + "'";
 			}
 			else 
 			{
-				query = "update extract_info set Cell_Count=" + String.valueOf(nCellCount + 1) + " where Data_Set='" + tmpStaticDataSet + "'";
+				query = "update extract_info,job_info set extract_info.Cell_Count=" + String.valueOf(nCellCount + 1) + " where job_info.extract_key=extract_info.primary_key and job_info.Data_Set='" + tmpStaticDataSet + "'";
 			}
 			UtilityFunctions.db_update_query(query);
 			
@@ -483,13 +485,13 @@ public void postNasdaqEPS()
 		//restore URL static
 		if (strTemp1.compareTo("") != 0)
 		{
-			UtilityFunctions.db_update_query("update extract_info set url_static='" + strTemp1 + "' where Data_Set = '" + dg.strCurDataSet + "'");
+			UtilityFunctions.db_update_query("update extract_info,job_info set extract_info.url_static='" + strTemp1 + "' where job_info.extract_key=extract_info.primary_key and job_info.Data_Set = '" + dg.strCurDataSet + "'");
 			strTemp1 = "";
 		}
 		//restore Cell Count
 		if (strTemp2.compareTo("") != 0)
 		{
-			UtilityFunctions.db_update_query("update extract_info set Cell_Count='" + strTemp2 + "' where Data_Set = '" + dg.strCurDataSet + "'");
+			UtilityFunctions.db_update_query("update extract_info,job_info set extract_info.Cell_Count='" + strTemp2 + "' where job_info.extract_key=extract_info.primary_key and job_info.Data_Set = '" + dg.strCurDataSet + "'");
 			strTemp2 = "";
 		}
 	}
@@ -683,7 +685,7 @@ public boolean preProcessNasdaqEPSTable()
 		 * from the same URL.
 		 */
 		
-		String query = "update extract_table set url_dynamic='" + strTicker + "' where data_set='" + dg.strCurDataSet + "'";
+		String query = "update extract_table,job_info set extract_table.url_dynamic='" + strTicker + "' where job_info.data_set='" + dg.strCurDataSet + "' and extract_table.primary_key=job_info.extract_key";
 		UtilityFunctions.db_update_query(query);
 		return(true);
 		
@@ -886,7 +888,7 @@ public void postProcessNasdaqEPSEstTable()
 	
 	try
 	{
-		String query = "select url_dynamic from extract_table where Data_Set='" + propStrTableDataSet + "'";
+		String query = "select extract_table.url_dynamic from extract_table,job_info where job_info.extract_key=extract_table.primary_key and job_info.Data_Set='" + propStrTableDataSet + "'";
 
 		ResultSet rs = UtilityFunctions.db_run_query(query);
 
