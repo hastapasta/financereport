@@ -288,7 +288,7 @@ public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomReg
 	String ticker;
 	//try
 	//{
-		query = "select extract_info.url_dynamic from extract_info,job_info where job_info.extract_key=extract_info.primary_key and job_info.data_set='" + dg.strCurDataSet + "'";
+		query = "select url_dynamic from job_info where job_info.data_set='" + dg.strCurDataSet + "'";
 		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
 		ticker = rs.getString("url_dynamic");
@@ -305,7 +305,7 @@ public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomReg
 	while (!done)
 	{
 		UtilityFunctions.stdoutwriter.writeln("Row Count: " + curRowCount,Logs.STATUS2,"PF21");
-		query = "update extract_info,job_info set extract_info.Row_Count=" + curRowCount + ",extract_info.url_dynamic='" + ticker + "' where job_info.extract_key=data_info.primary_key and job_info.data_set='nasdaq_eps_est_quarter'";
+		query = "update extract_info,job_info set extract_info.Row_Count=" + curRowCount + ",job_info.url_dynamic='" + ticker + "' where job_info.extract_key=data_info.primary_key and job_info.data_set='nasdaq_eps_est_quarter'";
 		
 		//try
 		//{
@@ -411,12 +411,12 @@ public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRege
 {
 	//try
 	//{
-		String query = "select extract_info.url_dynamic from extract_info,job_info where job_info.extract_key=extract_info.primary_key and job_info.Data_Set='" + dg.strCurDataSet + "'";
+		String query = "select url_dynamic from job_info where job_info.Data_Set='" + dg.strCurDataSet + "'";
 		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
 		//String strTicker = rs.getString("url_dynamic");
 		UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + rs.getString("url_dynamic"),Logs.STATUS2,"PF27");
-		query = "update extract_info,job_info set extract_info.url_dynamic='" + rs.getString("url_dynamic") + "' where job_info.extract_key=extract_info.primary_key and job_info.data_set='nasdaq_current_fiscal_year'";
+		query = "update job_info set url_dynamic='" + rs.getString("url_dynamic") + "' where job_info.data_set='nasdaq_current_fiscal_year'";
 		//have to save the value here because the get_value() call wipes it out.
 		String tmpStaticDataSet = dg.strCurDataSet;
 		UtilityFunctions.db_update_query(query);
@@ -432,7 +432,7 @@ public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRege
 		if ((strCurValue.compareTo("2010") == 0) && (nDataSetYear != 10))
 		{
 			//need to shift things over one.
-			query = "select extract_info.Cell_Count,extract_info.url_static from extract_info,job_info where job_info.extract_key=extract_info.primary_key and job_info.Data_Set='" + tmpStaticDataSet + "'";
+			query = "select extract_info.Cell_Count,job_info.url_static from extract_info,job_info where job_info.extract_key=extract_info.primary_key and job_info.Data_Set='" + tmpStaticDataSet + "'";
 
 			rs = UtilityFunctions.db_run_query(query);
 			rs.next();
@@ -442,7 +442,7 @@ public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRege
 			
 			if (nDataSetYear == 7)
 			{
-				query = "update extract_info,job_info set extract_info.url_static='http://fundamentals.nasdaq.com/redpage.asp?page=2&selected=', Cell_Count=2 where job_info.extract_key=extract_info.primary_key and job_info.Data_Set='" + tmpStaticDataSet + "'";
+				query = "update extract_info,job_info set job_info.url_static='http://fundamentals.nasdaq.com/redpage.asp?page=2&selected=', Cell_Count=2 where job_info.extract_key=extract_info.primary_key and job_info.Data_Set='" + tmpStaticDataSet + "'";
 			}
 			else 
 			{
@@ -685,7 +685,7 @@ public boolean preProcessNasdaqEPSTable()
 		 * from the same URL.
 		 */
 		
-		String query = "update extract_table,job_info set extract_table.url_dynamic='" + strTicker + "' where job_info.data_set='" + dg.strCurDataSet + "' and extract_table.primary_key=job_info.extract_key";
+		String query = "update job_info set url_dynamic='" + strTicker + "' where job_info.data_set='" + dg.strCurDataSet + "'";
 		UtilityFunctions.db_update_query(query);
 		return(true);
 		
@@ -888,7 +888,7 @@ public void postProcessNasdaqEPSEstTable()
 	
 	try
 	{
-		String query = "select extract_table.url_dynamic from extract_table,job_info where job_info.extract_key=extract_table.primary_key and job_info.Data_Set='" + propStrTableDataSet + "'";
+		String query = "select url_dynamic from job_info where job_info.Data_Set='" + propStrTableDataSet + "'";
 
 		ResultSet rs = UtilityFunctions.db_run_query(query);
 
