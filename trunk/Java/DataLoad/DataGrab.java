@@ -2,7 +2,7 @@
 
 
 
-package com.roeschter.jsl; 
+//package com.roeschter.jsl; 
 
 import java.sql.*;
 import java.net.*;
@@ -40,6 +40,7 @@ Calendar calEnd = null;
 String strStaticTickerLimit = "";
 String strOriginalTicker;
 String strCurrentTicker;
+
 
   public DataGrab(UtilityFunctions tmpUF, String strDataSet)
   {
@@ -235,7 +236,7 @@ public String get_value(String local_data_set) throws IllegalStateException,TagN
 	//run sql to get info about the data_set
 	//Connection con = UtilityFunctions.db_connect();
 	
-	String query = "select * from extract_info where Data_Set='" + local_data_set + "'";
+	String query = "select extract_info.* from extract_info,job_info where extract_info.primary_key=job_info.extract_key and job_info.Data_Set='" + local_data_set + "'";
 	
   //Statement stmt = con.createStatement();
   ResultSet rs = UtilityFunctions.db_run_query(query);
@@ -428,10 +429,12 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 	  String query;
 	 
 	  	/*retrieve url data */
-	  	if ((strDataSet.substring(0,5)).compareTo("table") == 0)
-	  		query = "select * from extract_table where data_set='" + strDataSet + "'";
+	  	/*if ((strDataSet.substring(0,5)).compareTo("table") == 0)
+	  		query = "select job_info.input_source,extract_table.* from extract_table where data_set='" + strDataSet + "'";
 	  	else 
-	  		query = "select * from extract_info where data_set='" + strDataSet + "'";
+	  		query = "select job_info.input_srouce,extract* from extract_info where data_set='" + strDataSet + "'";*/
+	    query = "select * from job_info where data_set='" + strDataSet + "'";
+	  
 		ResultSet rs2 = UtilityFunctions.db_run_query(query);
 		rs2.next();
 		//URL urlFinal;
@@ -584,7 +587,7 @@ public ArrayList<String[]> get_table(String strTableSet) throws SQLException,Tag
 	//try
 	//{
 		
-		String query = "select * from extract_table where data_set='" + strTableSet + "'";
+		String query = "select extract_table.* from extract_table,job_info where extract_table.primary_key=job_info.extract_key and job_info.data_set='" + strTableSet + "'";
 		
 		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
@@ -807,7 +810,7 @@ public void grab_data_set()
 					
 					ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
 					
-					ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from extract_info where data_set='" + strCurDataSet + "'");
+					ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
 					rs2.next();
 					
 					//if (strCurDataSet.equals("table_sandp_co_list") != true) //already imported data in the processing function
@@ -889,7 +892,7 @@ public void grab_data_set()
 			
 				ArrayList<String []> tabledata2 = pf.postProcessing(tabledata, strCurDataSet);
 		   	
-				ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from extract_info where data_set='" + strCurDataSet + "'");
+				ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
 				rs2.next();
 				if (rs2.getInt("custom_insert") != 1)
 				{
@@ -956,7 +959,7 @@ public void grab_data_set()
 							
 							pf.preProcessingTable(strCurDataSet,strCurrentTicker);
 							
-							query = "update extract_table set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
+							query = "update job_info set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
 							UtilityFunctions.db_update_query(query);
 							
 	
@@ -975,7 +978,7 @@ public void grab_data_set()
 						 
 							ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
 											
-							ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from extract_table where data_set='" + strCurDataSet + "'");
+							ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
 							rs2.next();
 							if (rs2.getInt("custom_insert") != 1)
 								uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
@@ -1040,7 +1043,7 @@ public void grab_data_set()
 									throw new CustomEmptyStringException();
 								}
 								
-								query = "update extract_info set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
+								query = "update job_info set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
 								UtilityFunctions.db_update_query(query);
 								
 								get_url(strCurDataSet);
@@ -1072,12 +1075,15 @@ public void grab_data_set()
 								
 							   	ArrayList<String []> tabledata2 = pf.postProcessing(tabledata, strCurDataSet);
 							   	
-							   	ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from extract_info where data_set='" + strCurDataSet + "'");
+							   	ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
 								rs2.next();
 								if (rs2.getInt("custom_insert") != 1)
 									//uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
 									//mainlining the data right into the femoral artery
-									uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+									if (strCurDataSet.equals("yahoo_share_price_new"))
+										uf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);
+									else
+										uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
 								
 								/*{
 			
