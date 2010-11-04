@@ -1,4 +1,4 @@
-package com.roeschter.jsl;
+//package com.roeschter.jsl;
  
 
 import java.sql.*;
@@ -48,7 +48,7 @@ public class UtilityFunctions
 
 		
 	
-	public UtilityFunctions(String strDatabase, String strUser, String strPass, String strFullLog, String strErrorLog, String strSQLLog, String strThreadLog)
+	public UtilityFunctions(String strDBHost, String strDBPort, String strDatabase, String strUser, String strPass, String strFullLog, String strErrorLog, String strSQLLog, String strThreadLog)
 	{
 	
 		//try
@@ -56,7 +56,8 @@ public class UtilityFunctions
 		try
 		{
 			Class.forName("com.mysql.jdbc.Driver");
-			String url = "jdbc:mysql://localhost:3306/" + strDatabase;
+			//String url = "jdbc:mysql://localhost:3306/" + strDatabase;
+			String url = "jdbc:mysql://" + strDBHost + ":" + strDBPort + "/" + strDatabase;
 			UtilityFunctions.con = DriverManager.getConnection(url,strUser, strPass);
 			//this.bCalledByJsp = bCalled;
 			UtilityFunctions.stdoutwriter = new CustomBufferedWriter(strFullLog, strErrorLog, strSQLLog,strThreadLog, true, true, true);
@@ -695,7 +696,7 @@ public class UtilityFunctions
 	  	props.put("mail.smtp.host", "smtp.gmail.com");
 	  	props.put("mail.smtp.auth", "true");
 	  	props.put("mail.smtp.starttls.enable", "true");
-	  	props.put("mail.debug", "true");
+	  	props.put("mail.debug", "false");
 
 
 	  	//Session session = Session.getInstance(props);
