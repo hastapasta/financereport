@@ -1,4 +1,4 @@
-package com.roeschter.jsl;
+//package com.roeschter.jsl;
 
 /*
  * Comments about multithreading: 
@@ -15,7 +15,7 @@ import java.net.*;
 import java.io.*; 
 import java.sql.*;
 import java.util.Date;
-import java.util.Properties;
+//import java.util.Properties;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,7 +37,7 @@ import javax.mail.internet.MimeMessage;*/
   * This is a simple echoing Telnet Server.
   * It accepts telnet connections on port 23 and echos back every character typed.
 */                  
-class DataLoad extends Thread implements Stopable
+class DataLoad extends Thread //implements Stopable
 {                                               
   /**
     * The server cocket which accepts connections
@@ -600,7 +600,7 @@ class DataLoad extends Thread implements Stopable
   */                                                   
   public void run()
   {	
-  	uf = new UtilityFunctions("mydb","root","madmax1.","full.log","error.log","sql.log","thread.log");
+  	uf = new UtilityFunctions("localhost","3306","findata","root","madmax1.","full.log","error.log","sql.log","thread.log");
   	//Scheduler sched = new Scheduler(uf);
   	//System.out.println("in run 1");
 	//testCalendar();  
