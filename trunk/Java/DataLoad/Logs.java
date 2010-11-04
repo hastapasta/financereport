@@ -1,4 +1,4 @@
-package com.roeschter.jsl;
+//package com.roeschter.jsl;
 
 /* 
  * STATUS1 messages are high level and also get written to System.out.println
