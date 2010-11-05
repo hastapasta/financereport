@@ -1,8 +1,11 @@
 <HTML>
 	<BODY>
 	<?php
-	mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
-	mysql_select_db("mydb") or die(mysql_error());
+	//mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
+	//mysql_select_db("mydb") or die(mysql_error());
+	echo "this is some text";
+	include ("functions.php");
+	db_connect();
 	
 	$data_set_input = $_POST['data_set_input'];
 	$url_static = $_POST['static_url'];

@@ -3,6 +3,12 @@
 /*This is legacy from before this code was converted to java.*/
 //include("post_processing_functions.php");
 
+function db_connect()
+{
+	mysql_connect("localhost:3306", "root", "madmax1.") or die(mysql_error());
+	mysql_select_db("findata") or die(mysql_error());
+}
+
 function get_data($url,$form_properties)
 {
 	$timeout = 5;
