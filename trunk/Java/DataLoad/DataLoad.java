@@ -15,11 +15,14 @@ import java.net.*;
 import java.io.*; 
 import java.sql.*;
 import java.util.Date;
-//import java.util.Properties;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*; 
+import org.apache.log4j.Logger;
+import org.apache.log4j.NDC;
+
+
 
 /*import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -40,8 +43,11 @@ import javax.mail.internet.MimeMessage;*/
 class DataLoad extends Thread //implements Stopable
 {                                               
   /**
-    * The server cocket which accepts connections
+    * The server socket which accepts connections
   */
+	static Logger logger = Logger.getLogger(DataLoad.class);
+	
+
   ServerSocket ss;
   static boolean pause=false;
   static UtilityFunctions uf;
@@ -113,7 +119,7 @@ class DataLoad extends Thread //implements Stopable
 		ResultSet rs = UtilityFunctions.db_run_query(query);
 		ResultSet rs2;
 		java.util.Date dNextTrigger;
-		listWaitingJobs = new ArrayList<String>();
+		
 		Calendar cal = Calendar.getInstance();
 		Calendar cal2 = Calendar.getInstance();
 		
@@ -135,10 +141,17 @@ class DataLoad extends Thread //implements Stopable
 				 */
 				while (rs2.next())
 				{
-					listWaitingJobs.add(rs2.getString("data_set"));
-					/*query = "update schedule set status='QUEUED' where data_set='" + rs2.getString("data_set") + "'" +
-						" and status !='RUNNABLE'";
-					UtilityFunctions.db_update_query(query);*/
+					//check if job is already in queue, don't add it again if it is
+					boolean bInQ=false;
+					for (int i=0;i<listWaitingJobs.size();i++)
+					{
+						if (listWaitingJobs.get(i).equals(rs2.getString("data_set")))
+							bInQ=true;
+										
+					}
+					if (!bInQ)
+						listWaitingJobs.add(rs2.getString("data_set"));
+				
 					//turn off run once after job is in queue, 4 is the primary key for run type 'NONE'
 					if (rs.getString("type").equals("RUNONCE"))
 					{
@@ -396,24 +409,24 @@ class DataLoad extends Thread //implements Stopable
 				 */
 				 if (strType.equals("WEEKLY"))
 				 {
-					 newCal.add(Calendar.WEEK_OF_YEAR, 1);
+					 newCal.add(Calendar.WEEK_OF_YEAR, rs.getInt("multiplier"));
 				 }
 				 else if (strType.equals("MONTHLY"))
 				 {
 					 //May need to add code to handle the 28th - 31st
-					 newCal.add(Calendar.MONTH, 1);
+					 newCal.add(Calendar.MONTH, rs.getInt("multiplier"));
 				 }
 				 else if (strType.equals("HOURLY"))
 				 {
-					 newCal.add(Calendar.HOUR, 1);
+					 newCal.add(Calendar.HOUR, rs.getInt("multiplier"));
 				 }
 				 else if (strType.equals("MINUTE"))
 				 {
-					 newCal.add(Calendar.MINUTE, 1);
+					 newCal.add(Calendar.MINUTE, rs.getInt("multiplier"));
 				 }
 				 else if (strType.equals("DAILY"))
 				 {
-					 newCal.add(Calendar.DAY_OF_YEAR, 1);
+					 newCal.add(Calendar.DAY_OF_YEAR, rs.getInt("multiplier"));
 				 }
 				 else
 					 continue;
@@ -502,6 +515,10 @@ class DataLoad extends Thread //implements Stopable
 					  if (strFrequency.equals("HOURLY"))
 					  {
 						  calLastRun.add(Calendar.HOUR,1);
+					  }
+					  else if (strFrequency.equals("YEARLY"))
+					  {
+						  calLastRun.add(Calendar.YEAR, 1);
 					  }
 					  else if (strFrequency.equals("WEEKLY"))
 					  {
@@ -600,11 +617,14 @@ class DataLoad extends Thread //implements Stopable
   */                                                   
   public void run()
   {	
+	  
+	NDC.push("DataLoad");
   	uf = new UtilityFunctions("localhost","3306","findata","root","madmax1.","full.log","error.log","sql.log","thread.log");
   	//Scheduler sched = new Scheduler(uf);
   	//System.out.println("in run 1");
 	//testCalendar();  
   	arrayRunningJobs = new DataGrab[nMaxThreads];
+  	listWaitingJobs = new ArrayList<String>();
   	for (int i=0;i<nMaxThreads;i++)
   		arrayRunningJobs[i] = null;
   	//ArrayList<DataGrab> listDataGrab;
@@ -633,7 +653,7 @@ class DataLoad extends Thread //implements Stopable
 				getTriggeredJobs();
 				executeJobs();
 				writeJobQueueIntoDB();
-				sleep(60000);
+				sleep(10000);
 				//updateEventTimes();
 				cleanTerminatedJobs();
 				
@@ -672,11 +692,18 @@ class DataLoad extends Thread //implements Stopable
 				UtilityFunctions.stdoutwriter.writeln("Problem issuing sql statement while processing schedules",Logs.ERROR,"DL10");
 				UtilityFunctions.stdoutwriter.writeln(sqle);
 			}
+			catch(InterruptedException ie)
+			{
+				NDC.pop();
+				break;
+				
+			}
 			catch (Exception e)
 			{
 				e.printStackTrace();
 			}
 		}
+		
 	}  
 }                
   
@@ -756,6 +783,7 @@ class DataLoad extends Thread //implements Stopable
     props.load( new FileInputStream(inifile) );
     
     System.out.println( props );
+    
     			                         
     //Create echo server class
     DataLoad dLoad = new DataLoad();
@@ -767,6 +795,7 @@ class DataLoad extends Thread //implements Stopable
     
     //Start the echo server thread
     dLoad.start();
+    NDC.pop();
   }
   
   public ArrayList<String> checkSchedules() throws SQLException

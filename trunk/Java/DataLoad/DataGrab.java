@@ -653,6 +653,7 @@ public ArrayList<String[]> get_table(String strTableSet) throws SQLException,Tag
 				  /*
 				   * Going to strip out &nbsp; for all data streams, let's see if this is a problem.
 				   */
+				  /* See below for exit conditions.*/
 				  if (strEndDataMarker != null && (strEndDataMarker.length() > 0))
 					  if (strDataValue.equals(strEndDataMarker))
 					  {
@@ -663,6 +664,8 @@ public ArrayList<String[]> get_table(String strTableSet) throws SQLException,Tag
 						  break; //this breaks us out of the for loop
 					  }
 				  
+				  strDataValue = strDataValue.replace("\r","");
+				  strDataValue = strDataValue.replace("\n","");
 				  rowdata[i] = strDataValue.replace("&nbsp;","");
 			  }
 			  catch (CustomRegexException cre)
@@ -689,7 +692,12 @@ public ArrayList<String[]> get_table(String strTableSet) throws SQLException,Tag
 			 * 3) end cell value (come across a cell value that is invalid or otherwise marks
 			 * that there is no more data) (handled above with strEndDataMarker)
 			 */
-			if ((nEndTableOffset < nCurOffset) || (nDataRows == nRowCount))
+			if (nDataRows > 0)
+			{
+				if (nDataRows==nRowCount)
+					break;
+			}
+			else if (nEndTableOffset < nCurOffset)
 				break;
 			
 			
@@ -788,6 +796,7 @@ public void grab_data_set()
 		rs.next();
 		String group = rs.getString("companygroup");
 		
+		pf.preJobProcessing(strCurDataSet);
 		
 		//This should be handled in DataLoad.java
 		//query = "update schedule set last_run=NOW() where data_set='" + strCurDataSet + "'";
@@ -800,7 +809,8 @@ public void grab_data_set()
 			{
 				try
 				{
-					pf.preProcessingTable(strCurDataSet,"");
+					//pf.preProcessingTable(strCurDataSet,"");
+					pf.preProcessing(strCurDataSet, "");
 					
 					get_url(strCurDataSet);
 					 
@@ -808,14 +818,20 @@ public void grab_data_set()
 					//pf.processTableSAndPCoList(tabledata,strCurDataSet,uf);
 					//need to add the quarter values somewhere around here.
 					
-					ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
+					//ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
+					ArrayList<String[]> tabledata2 = pf.postProcessing(tabledata, strCurDataSet);
 					
 					ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
 					rs2.next();
 					
 					//if (strCurDataSet.equals("table_sandp_co_list") != true) //already imported data in the processing function
 					if (rs2.getInt("custom_insert") != 1)	
-						uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+					{
+						if (strCurDataSet.contains("xrateorg"))
+							uf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);
+						else
+							uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+					}
 					
 				}
 				catch (MalformedURLException mue)
@@ -957,7 +973,8 @@ public void grab_data_set()
 							UtilityFunctions.db_update_query(query);*/
 								
 							
-							pf.preProcessingTable(strCurDataSet,strCurrentTicker);
+							//pf.preProcessingTable(strCurDataSet,strCurrentTicker);
+							pf.preProcessing(strCurDataSet,strCurrentTicker);
 							
 							query = "update job_info set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
 							UtilityFunctions.db_update_query(query);
@@ -976,7 +993,8 @@ public void grab_data_set()
 							
 							ArrayList<String[]> tabledata = get_table_with_headers(strCurDataSet);
 						 
-							ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
+							//ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
+							ArrayList<String[]> tabledata2 = pf.postProcessing(tabledata, strCurDataSet);
 											
 							ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
 							rs2.next();
@@ -1153,6 +1171,7 @@ public void grab_data_set()
 			}
 		}
 		
+		pf.postJobProcessing(strCurDataSet);
 		calEnd = Calendar.getInstance();
 		
 		UtilityFunctions.stdoutwriter.writeln("DATA SET END TIME: " + calEnd.getTime().toString(),Logs.STATUS1,"DG54");

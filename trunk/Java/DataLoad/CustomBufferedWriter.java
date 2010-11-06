@@ -9,6 +9,23 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.concurrent.locks.ReentrantLock; 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+import org.apache.log4j.NDC;
+
+/*Level 	Description
+ * FATAL 	Severe errors that cause premature termination. Expect these to be 
+ * 			immediately visible on a status console.
+ * ERROR 	Other runtime errors or unexpected conditions. Expect these to be immediately 
+ * 			visible on a status console.
+ * WARN 	Use of deprecated APIs, poor use of API, 'almost' errors, other runtime 
+ * 			situations that are undesirable or unexpected, but not necessarily "wrong". Expect 
+ * 			these to be immediately visible on a status console.
+ * INFO 	Interesting runtime events (startup/shutdown). Expect these to be immediately visible
+ * 			on a console, so be conservative and keep to a minimum.
+ * DEBUG 	Detailed information on the flow through the system. Expect these to be written to logs only.
+ * TRACE 	More detailed information. Expect these to be written to logs only. Was only added in version 1.2.12.
+*/
+
 
 
 public class CustomBufferedWriter
@@ -17,6 +34,8 @@ public class CustomBufferedWriter
 	PrintWriter errorfilewriter;
 	PrintWriter sqlfilewriter;
 	PrintWriter threadfilewriter;
+	
+	static Logger logger = Logger.getLogger(CustomBufferedWriter.class);
 
 	//static enum LOGS {FULL,ERROR,SQL,STATUS};
 	
@@ -25,6 +44,8 @@ public class CustomBufferedWriter
 	static boolean bStaticThread;
 	
 	final ReentrantLock lock = new ReentrantLock(); 
+	
+	
 	
 	CustomBufferedWriter(String strFullLog, String strErrorLog, String strSQLLog, String strThreadLog, boolean bSQL, boolean bStatus, boolean bThread)
 	{
@@ -73,12 +94,13 @@ public class CustomBufferedWriter
 			switch (type)
 			{
 			case ERROR:
-				System.out.println("ERROR OCCURRED, check error.log");
-				System.out.println(code + ":" + str);
+				//System.out.println("ERROR OCCURRED, check error.log");
+				//System.out.println(code + ":" + str);
 				errorfilewriter.println(code + ":" + str);
 				//errorfilewriter.newLine();
 				//errorfilewriter.flush();
 				fullfilewriter.println("ERROR:" + code + ":" + str);
+				logger.error(code + ":" + str);
 				//fullfilewriter.newLine();
 				//fullfilewriter.flush();
 				break;
@@ -86,10 +108,14 @@ public class CustomBufferedWriter
 			case SQL:
 				if (bStaticSQL == true)
 				{
+					//Not sure if this usage of NDCs makes sense here
+					NDC.push("SQL");
 					sqlfilewriter.println(code + ":" + str);
 					//sqlfilewriter.newLine();
 					//sqlfilewriter.flush();
 					fullfilewriter.println("SQL:" + code + ":" + str);
+					logger.debug(code + ":" + str);
+					NDC.pop();
 					//fullfilewriter.newLine();
 					//fullfilewriter.flush();
 				}
@@ -98,18 +124,22 @@ public class CustomBufferedWriter
 			case THREAD:
 				if (bStaticThread == true)
 				{
+					NDC.push("Thread");
 					threadfilewriter.println(code + ":" + str);
 					//sqlfilewriter.newLine();
 					//sqlfilewriter.flush();
 					fullfilewriter.println("SQL:" + code + ":" + str);
+					logger.debug(code + ":" + str);
+					NDC.pop();
 					//fullfilewriter.newLine();
 					//fullfilewriter.flush();
 				}
 				break;
 				
 			case STATUS1:
-				System.out.println(str);
+				//System.out.println(str);
 				fullfilewriter.println("STATUS:" + code + ":" + str);
+				logger.info("STATUS:" + code + ":" + str);
 				//fullfilewriter.newLine();
 				//fullfilewriter.flush();
 				break;
@@ -121,9 +151,11 @@ public class CustomBufferedWriter
 					//fullfilewriter.newLine();
 					//fullfilewriter.flush();
 				}
+				logger.debug("STATUS:" + code + ":" + str);
 				break;
 			case NONE:
 				fullfilewriter.println(str);
+				logger.debug(str);
 				break;
 				
 			}
@@ -154,6 +186,7 @@ public class CustomBufferedWriter
 							//errorfilewriter.newLine();
 							//errorfilewriter.flush();
 							fullfilewriter.println("EXCEPTION:" + e.getMessage());
+							logger.error(e.getMessage());
 							//fullfilewriter.newLine();
 							//errorfilewriter.flush();
 						}
@@ -164,6 +197,7 @@ public class CustomBufferedWriter
 							//errorfilewriter.newLine();
 							//errorfilewriter.flush();
 							fullfilewriter.println(tmp2[i].toString());
+							logger.error(tmp2[i].toString());
 							//fullfilewriter.newLine();
 							//fullfilewriter.flush();
 						}
@@ -176,6 +210,7 @@ public class CustomBufferedWriter
 						//errorfilewriter.newLine();
 						//errorfilewriter.flush();
 						fullfilewriter.println("EXCEPTION:Attempting to write out exception but exception is null.");
+						logger.error("EXCEPTION:Attempting to write out exception but exception is null.");
 						//fullfilewriter.newLine();
 						//fullfilewriter.flush();
 						/* These flushes are probably really inefficient */

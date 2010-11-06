@@ -185,7 +185,7 @@ public class UtilityFunctions
 		
 					/*System.out.println(rsColumns.getString("COLUMN_NAME"));
 					System.out.println(rsColumns.getString("TYPE_NAME"));*/
-					stdoutwriter.writeln(columnnames[j],Logs.STATUS2,"UF5");
+					//stdoutwriter.writeln(columnnames[j],Logs.STATUS2,"UF5");
 					if (columnnames[j].compareTo(rsColumns.getString("COLUMN_NAME")) == 0)
 					{
 						datatypes[j] = rsColumns.getString("TYPE_NAME");
@@ -759,7 +759,7 @@ public class UtilityFunctions
 		
 	}
 	
-	class MyPasswordAuthenticator extends Authenticator
+	class MyPasswordAuthenticator extends Authenticator 
 	{
 		String user;
 		String pw;

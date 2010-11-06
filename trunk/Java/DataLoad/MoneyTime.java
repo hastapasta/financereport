@@ -42,7 +42,7 @@ public class MoneyTime {
 		nMonth = convertMonthStringtoInt(strMonth);
 		nCalYear = Integer.parseInt(strCalYear);
 		
-		String tmpStr = this.getFiscalYearAndQuarter(strTicker, nMonth, nCalYear);
+		String tmpStr = MoneyTime.getFiscalYearAndQuarter(strTicker, nMonth, nCalYear);
 		nFiscalQtr = Integer.parseInt(tmpStr.substring(0,1));
 		nFiscalYear = Integer.parseInt(tmpStr.substring(1,5));
 		strFiscalQtr = Integer.toString(nFiscalQtr);

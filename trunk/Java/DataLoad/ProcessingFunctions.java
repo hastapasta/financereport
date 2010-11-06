@@ -74,6 +74,84 @@ class ProcessingFunctions
 		
 	}
 	
+	public boolean preJobProcessing(String strDataSet)
+	{
+		String query = "select pre_job_process_func_name from job_info where Data_Set='" + strDataSet + "'";
+		
+		
+		
+		
+		try
+		{
+			ResultSet rs = UtilityFunctions.db_run_query(query);
+			rs.next();
+			String strFunctionName = rs.getString("pre_job_process_func_name");
+			
+			UtilityFunctions.stdoutwriter.writeln("Pre Job Process Func Name: " + strFunctionName,Logs.STATUS2,"PF3.2");
+			//this.strTicker = strTicker;
+			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
+			{
+				UtilityFunctions.stdoutwriter.writeln("No pre job process function, exiting...",Logs.STATUS2,"PF3.3");
+				return(true);
+			}
+	
+			/*strDataValue = "";
+			strTemp1 = "";
+			strTemp2 = "";
+			strTemp3 = "";*/
+			//strStaticDataSet = strDataSet;
+
+			UtilityFunctions.stdoutwriter.writeln(strFunctionName,Logs.STATUS2,"PF3.35");
+			Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
+			return((Boolean)m.invoke(this, new Object[] {}));
+		}
+		catch (Exception tmpE)
+		{
+			UtilityFunctions.stdoutwriter.writeln("pre Job Processing method call failed",Logs.ERROR,"PF3.4");
+			UtilityFunctions.stdoutwriter.writeln(tmpE);
+			return(false);
+		}
+	}
+	
+	public boolean postJobProcessing(String strDataSet)
+	{
+		String query = "select post_job_process_func_name from job_info where Data_Set='" + strDataSet + "'";
+		
+		
+		
+		
+		try
+		{
+			ResultSet rs = UtilityFunctions.db_run_query(query);
+			rs.next();
+			String strFunctionName = rs.getString("post_job_process_func_name");
+			
+			UtilityFunctions.stdoutwriter.writeln("Post Job Process Func Name: " + strFunctionName,Logs.STATUS2,"PF3.5");
+			//this.strTicker = strTicker;
+			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
+			{
+				UtilityFunctions.stdoutwriter.writeln("No post job process function, exiting...",Logs.STATUS2,"PF3.7");
+				return(true);
+			}
+	
+			/*strDataValue = "";
+			strTemp1 = "";
+			strTemp2 = "";
+			strTemp3 = "";*/
+			//strStaticDataSet = strDataSet;
+
+			UtilityFunctions.stdoutwriter.writeln(strFunctionName,Logs.STATUS2,"PF3.8");
+			Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
+			return((Boolean)m.invoke(this, new Object[] {}));
+		}
+		catch (Exception tmpE)
+		{
+			UtilityFunctions.stdoutwriter.writeln("post Job Processing method call failed",Logs.ERROR,"PF3.9");
+			UtilityFunctions.stdoutwriter.writeln(tmpE);
+			return(false);
+		}
+	}
+	
 
 public boolean preProcessing(String strDataSet, String strTicker)
 {
@@ -120,7 +198,7 @@ public boolean preProcessing(String strDataSet, String strTicker)
 }
 
 
-public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , String strDataSet)
+public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , String strDataSet) throws SkipLoadException
 {
 	
 		String query = "select post_process_func_name from job_info where Data_Set='" + strDataSet + "'";
@@ -143,14 +221,37 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Stri
 			}
 			
 			propTableData = tabledata;
-			//strStaticDataSet = strDataSet;
+			propStrTableDataSet = strDataSet;
 			Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
 			m.invoke(this, new Object[] {});
 		}
 		/* Need to break this down into individual exceptions */
-		catch (Exception tmpE)
+		catch (IllegalAccessException iae)
 		{
-			UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF10");
+			UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF16.1");
+			UtilityFunctions.stdoutwriter.writeln(iae);
+		
+		}
+		//any exceptins thrown by the function pointer are wrapped in an InvocationTargetException
+		catch (InvocationTargetException ite)
+		{
+			if (ite.getTargetException().getClass().getSimpleName().equals("SkipLoadException"))
+				throw new SkipLoadException();
+			else
+			{
+				UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF16.3");
+				UtilityFunctions.stdoutwriter.writeln(ite);
+			}
+		
+		}
+		catch (NoSuchMethodException nsme)
+		{
+			UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF16.5");
+			UtilityFunctions.stdoutwriter.writeln(nsme);
+		}
+		catch (SQLException tmpE)
+		{
+			UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF17");
 			UtilityFunctions.stdoutwriter.writeln(tmpE);
 		}
 		
@@ -165,9 +266,9 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Stri
  * The table and non-table general processing methods can probably be merged.
  */
 
-public boolean preProcessingTable(String strDataSet, String strCurTicker)
+/*public boolean preProcessingTable(String strDataSet, String strCurTicker)
 {
-	  /* For the return value, return false if the attempt to grab the value should be skipped. */
+	  //For the return value, return false if the attempt to grab the value should be skipped. 
 	  
 		//UtilityFunctions.stdoutwriter.writeln("TEST5",Logs.ERROR);
 
@@ -260,7 +361,7 @@ public ArrayList<String[]> postProcessingTable(ArrayList<String[]> tabledata,Str
 	return(propTableData);
 	
 	
-}
+}*/
 
 
 
@@ -1080,6 +1181,62 @@ public void postProcessTableYahooBeginYearVerify() throws CustomEmptyStringExcep
 
 }
 
+public void preJobProcessTableXrateorg() throws SQLException
+{
+	//clean out all fact_data items that aren't linked to in the notify table
+	String query = "select * from fact_data where primary_key NOT IN ";
+	query = query + "(select fact_data.primary_key from fact_data,notify where fact_data.primary_key=notify.fact_data_key)";
+	ResultSet rs = UtilityFunctions.db_run_query(query);
+	while(rs.next())
+	{
+		query = "delete from fact_data where primary_key=" + rs.getInt("primary_key");
+		UtilityFunctions.db_update_query(query);
+	}
+}
+
+public void postProcessTableXrateorg() 
+{
+	String[] rowheaders = propTableData.get(1);
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	
+
+
+	String[] tmpArray = {"data_set","value","date_collected","data_group","ticker"};
+	
+	newTableData.add(tmpArray);
+	
+	
+	for (int i=0;i<rowheaders.length;i++)
+	{
+		String strTmp = rowheaders[i];
+		strTmp = "USD" + strTmp.substring(strTmp.indexOf("(")+1,strTmp.indexOf(")"));
+		
+		//The first 2 crosses on the europe page are inverse: EURUSD and GBPUSD
+		if (propStrTableDataSet.contains("europe"))
+		{
+			if (i==0)
+				strTmp = "EURUSD";
+			else if (i==1)
+				strTmp = "EURGBP";
+		}
+		String[] tmpA = new String[tmpArray.length];
+		tmpA[0] = propStrTableDataSet;
+		tmpA[1] = propTableData.get(i+2)[0];
+		tmpA[2] = "NOW()";
+		tmpA[3] = "forex";
+		tmpA[4] = strTmp;
+		newTableData.add(tmpA);
+		
+	}
+	
+	
+	propTableData = newTableData;
+	
+	
+	
+	
+	
+}
 
 
 public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQLException
