@@ -5,7 +5,7 @@
 	//mysql_select_db("mydb") or die(mysql_error());
 	echo "this is some text";
 	include ("functions.php");
-	db_connect();
+	db_utility::db_connect();
 	
 	$data_set_input = $_POST['data_set_input'];
 	$url_static = $_POST['static_url'];

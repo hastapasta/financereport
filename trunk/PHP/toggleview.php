@@ -5,8 +5,11 @@
 
 
 <?php
-mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
-	mysql_select_db("mydb") or die(mysql_error());
+
+	include("functions.php");
+	
+	db_utility::db_connect();
+
 if(isset($_POST['submit_table_switch'])) 
 {
 		$query1 = "select count(primary_key) from view_fact_data";
@@ -88,7 +91,7 @@ else if (isset($_POST['submit_clear_stage']))
 <form name="ObtainURL" action="toggleview.php" method=POST>
 	<select name="data_set">
 	<?php
-	$query1 = "select data_set from extract_table where !(data_set like '%colhead%') and !(data_set like '%rowhead%')";
+	$query1 = "select data_set from job_info where !(data_set like '%colhead%') and !(data_set like '%rowhead%')";
 	$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 	for ($j=0;$j<mysql_num_rows($result1);$j++)
 	{
@@ -96,7 +99,7 @@ else if (isset($_POST['submit_clear_stage']))
 		echo "<option value=\"".$row1[data_set]."\">".$row1[data_set]."</option>";
 	}
 	
-	$query1 = "select data_set from extract_info";
+	$query1 = "select data_set from job_info";
 	$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 	for ($j=0;$j<mysql_num_rows($result1);$j++)
 	{
@@ -116,11 +119,11 @@ else if (isset($_POST['submit_clear_stage']))
 	$dataset = $_POST['data_set'];
 	if (substr($dataset,0,5) == "table")
 	{
-		$query1 = "select url_dynamic, url_static from extract_table where data_set='".$dataset."'";
+		$query1 = "select url_dynamic, url_static from job_info where data_set='".$dataset."'";
 	}
 	else
 	{
-		$query1 = "select url_dynamic, url_static from extract_info where data_set='".$dataset."'";
+		$query1 = "select url_dynamic, url_static from job_info where data_set='".$dataset."'";
 	}
 	$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 	$row1 = mysql_fetch_array($result1);
