@@ -40,14 +40,17 @@ Calendar calEnd = null;
 String strStaticTickerLimit = "";
 String strOriginalTicker;
 String strCurrentTicker;
+DBFunctions dbf;
 
 
-  public DataGrab(UtilityFunctions tmpUF, String strDataSet)
+  public DataGrab(UtilityFunctions tmpUF, DBFunctions dbfparam, String strDataSet)
   {
   	this.uf = tmpUF;
   	this.pf = new ProcessingFunctions(tmpUF,this);
   	strCurDataSet = strDataSet;
   	strCurrentTicker = "";
+  	
+  	this.dbf = dbfparam;
   	
   	UtilityFunctions.stdoutwriter.writeln("PROCESSING DATA SET " + strCurDataSet,Logs.STATUS1,"DG37");
 	calStart = Calendar.getInstance();
@@ -89,26 +92,16 @@ String strCurrentTicker;
 	
 	public void run()
 	 {
-	 	/*try 
-	 	{*/
+	
 	 		if (bContinue == false)
 	 			return;
 	 		UtilityFunctions.stdoutwriter.writeln("=========================================================",Logs.NONE,"");
 	 		UtilityFunctions.stdoutwriter.writeln("INITIATING THREAD",Logs.STATUS1,"DG1");
-	 		//UtilityFunctions.stdoutwriter.writeln("TEST2",Logs.ERROR);
-	 		//UtilityFunctions.stdoutwriter.writeln("TEST2.1",Logs.ERROR);
+
 	 		grab_data_set();
-			//clear_run_once();
-	 		//sleep(60000);
-	 
-	 	/*}
-	 	catch (InterruptedException ie)
-	 	{
-	 		UtilityFunctions.stdoutwriter.writeln("InterruptedException thrown",Logs.ERROR,"DG1.5");
-	 		UtilityFunctions.stdoutwriter.writeln(ie);
-	 		stopThread();
 	 		
-	 	}*/
+	 		dbf.closeConnection();
+
 	 
 	 	
 	}
@@ -212,7 +205,7 @@ public void clear_run_once()
 	try
 	{
 		String query = "update schedule set run_once=0";
-		UtilityFunctions.db_update_query(query);
+		dbf.db_update_query(query);
 	}
 	catch (SQLException sqle)
 	{
@@ -239,7 +232,7 @@ public String get_value(String local_data_set) throws IllegalStateException,TagN
 	String query = "select extract_info.* from extract_info,job_info where extract_info.primary_key=job_info.extract_key and job_info.Data_Set='" + local_data_set + "'";
 	
   //Statement stmt = con.createStatement();
-  ResultSet rs = UtilityFunctions.db_run_query(query);
+  ResultSet rs = dbf.db_run_query(query);
   
   rs.next();
   
@@ -435,7 +428,7 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 	  		query = "select job_info.input_srouce,extract* from extract_info where data_set='" + strDataSet + "'";*/
 	    query = "select * from job_info where data_set='" + strDataSet + "'";
 	  
-		ResultSet rs2 = UtilityFunctions.db_run_query(query);
+		ResultSet rs2 = dbf.db_run_query(query);
 		rs2.next();
 		//URL urlFinal;
 		
@@ -446,7 +439,7 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 		 if ((rs2.getInt("input_source") != 0))
 		 {
 			 query = "select * from input_source where primary_key=" + rs2.getInt("input_source");
-			 ResultSet rs3 = UtilityFunctions.db_run_query(query);
+			 ResultSet rs3 = dbf.db_run_query(query);
 			 rs3.next();
 			 String strStProperties = rs3.getString("form_static_properties");
 			 String[] listItems = strStProperties.split(":");
@@ -589,7 +582,7 @@ public ArrayList<String[]> get_table(String strTableSet) throws SQLException,Tag
 		
 		String query = "select extract_table.* from extract_table,job_info where extract_table.primary_key=job_info.extract_key and job_info.data_set='" + strTableSet + "'";
 		
-		ResultSet rs = UtilityFunctions.db_run_query(query);
+		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
 		int nDataRows = rs.getInt("rowsofdata");
 		int nRowInterval = rs.getInt("rowinterval");
@@ -739,7 +732,7 @@ public ArrayList<String> get_list_dataset_run_once()
 	{
 
 		String query = "select data_set from schedule where run_once=1";
-		ResultSet rs = UtilityFunctions.db_run_query(query);
+		ResultSet rs = dbf.db_run_query(query);
 		
 		
 		while(rs.next())
@@ -788,11 +781,11 @@ public void grab_data_set()
 		//strCurDataSet = data_sets.get(i);
 		
 		
-		nBatch = uf.getBatchNumber();
+		nBatch = dbf.getBatchNumber();
 		
 		
 		String query = "select companygroup from schedule where data_set='" + strCurDataSet + "'";
-		ResultSet rs = UtilityFunctions.db_run_query(query);
+		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
 		String group = rs.getString("companygroup");
 		
@@ -800,7 +793,7 @@ public void grab_data_set()
 		
 		//This should be handled in DataLoad.java
 		//query = "update schedule set last_run=NOW() where data_set='" + strCurDataSet + "'";
-		//UtilityFunctions.db_update_query(query);
+		//dbf.db_update_query(query);
 		
 		if (group.compareTo("none") == 0)
 		{
@@ -821,16 +814,16 @@ public void grab_data_set()
 					//ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
 					ArrayList<String[]> tabledata2 = pf.postProcessing(tabledata, strCurDataSet);
 					
-					ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
+					ResultSet rs2 = dbf.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
 					rs2.next();
 					
 					//if (strCurDataSet.equals("table_sandp_co_list") != true) //already imported data in the processing function
 					if (rs2.getInt("custom_insert") != 1)	
 					{
 						if (strCurDataSet.contains("xrateorg"))
-							uf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);
+							dbf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);
 						else
-							uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+							dbf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
 					}
 					
 				}
@@ -908,14 +901,14 @@ public void grab_data_set()
 			
 				ArrayList<String []> tabledata2 = pf.postProcessing(tabledata, strCurDataSet);
 		   	
-				ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
+				ResultSet rs2 = dbf.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
 				rs2.next();
 				if (rs2.getInt("custom_insert") != 1)
 				{
 					if (this.strCurDataSet.equals("exchrate_yen_dollar"))
-						uf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);	
+						dbf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);	
 					else
-						uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+						dbf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
 					
 				}
 				
@@ -932,7 +925,7 @@ public void grab_data_set()
 			query = "select * from company where groups like '%" + group + "%' order by ticker";
 			
 		
-			rs = UtilityFunctions.db_run_query(query);
+			rs = dbf.db_run_query(query);
 				
 			//String strCurTicker="";
 			//String fullUrl;
@@ -970,14 +963,14 @@ public void grab_data_set()
 						{
 								
 							/*query = "update extract_table set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
-							UtilityFunctions.db_update_query(query);*/
+							dbf.db_update_query(query);*/
 								
 							
 							//pf.preProcessingTable(strCurDataSet,strCurrentTicker);
 							pf.preProcessing(strCurDataSet,strCurrentTicker);
 							
 							query = "update job_info set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
-							UtilityFunctions.db_update_query(query);
+							dbf.db_update_query(query);
 							
 	
 							 
@@ -996,10 +989,10 @@ public void grab_data_set()
 							//ArrayList<String[]> tabledata2 = pf.postProcessingTable(tabledata, strCurDataSet);
 							ArrayList<String[]> tabledata2 = pf.postProcessing(tabledata, strCurDataSet);
 											
-							ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
+							ResultSet rs2 = dbf.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
 							rs2.next();
 							if (rs2.getInt("custom_insert") != 1)
-								uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+								dbf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
 							
 						
 						
@@ -1062,7 +1055,7 @@ public void grab_data_set()
 								}
 								
 								query = "update job_info set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
-								UtilityFunctions.db_update_query(query);
+								dbf.db_update_query(query);
 								
 								get_url(strCurDataSet);
 								
@@ -1093,15 +1086,15 @@ public void grab_data_set()
 								
 							   	ArrayList<String []> tabledata2 = pf.postProcessing(tabledata, strCurDataSet);
 							   	
-							   	ResultSet rs2 = UtilityFunctions.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
+							   	ResultSet rs2 = dbf.db_run_query("select custom_insert from job_info where data_set='" + strCurDataSet + "'");
 								rs2.next();
 								if (rs2.getInt("custom_insert") != 1)
 									//uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
 									//mainlining the data right into the femoral artery
 									if (strCurDataSet.equals("yahoo_share_price_new"))
-										uf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);
+										dbf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);
 									else
-										uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+										dbf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
 								
 								/*{
 			

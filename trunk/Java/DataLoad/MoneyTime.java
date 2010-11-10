@@ -27,11 +27,8 @@ public class MoneyTime {
 	String strFiscalYear;
 	
 
-	//Integer nAdjustedQuarter;
 	
-	UtilityFunctions uf;
-	
-	public MoneyTime(String strTmpMonth, String strTmpCalYear, String strTicker) throws SQLException
+	public MoneyTime(String strTmpMonth, String strTmpCalYear, String strTicker, DBFunctions dbf) throws SQLException
 	{
 		strMonth = strTmpMonth;
 		if (strTmpCalYear.length() == 2)
@@ -42,7 +39,7 @@ public class MoneyTime {
 		nMonth = convertMonthStringtoInt(strMonth);
 		nCalYear = Integer.parseInt(strCalYear);
 		
-		String tmpStr = MoneyTime.getFiscalYearAndQuarter(strTicker, nMonth, nCalYear);
+		String tmpStr = MoneyTime.getFiscalYearAndQuarter(strTicker, nMonth, nCalYear,dbf);
 		nFiscalQtr = Integer.parseInt(tmpStr.substring(0,1));
 		nFiscalYear = Integer.parseInt(tmpStr.substring(1,5));
 		strFiscalQtr = Integer.toString(nFiscalQtr);
@@ -132,7 +129,7 @@ public class MoneyTime {
 	}
 	
 	
-	public int retrieveAdjustedQuarter(int fiscalquarter,int fiscalyear, String strTicker)
+	public int retrieveAdjustedQuarter(int fiscalquarter,int fiscalyear, String strTicker,DBFunctions dbf)
 	{
 		/*Adjusted quarter starts with the first quarter of calendar year 2000 as being 1*/
 		
@@ -155,7 +152,7 @@ public class MoneyTime {
 		
 		try
 		{
-			ResultSet rs = UtilityFunctions.db_run_query(query);
+			ResultSet rs = dbf.db_run_query(query);
 			rs.next();
 			adjustment_code = rs.getInt("qtr_code_adjusted");
 			
@@ -177,12 +174,12 @@ public class MoneyTime {
 	
 
 	
-	public static String getCalendarYearAndQuarter(String strTicker, int fiscalquarter, int fiscalyear) throws SQLException
+	public static String getCalendarYearAndQuarter(String strTicker, int fiscalquarter, int fiscalyear, DBFunctions dbf) throws SQLException
 	{
 		int calquarter=0;
 		int calyear=fiscalyear;
 		String query = "select begin_fiscal_calendar from company where ticker='" + strTicker +"'";
-		ResultSet rs = UtilityFunctions.db_run_query(query);
+		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
 		int nBeginFiscalYear = convertMonthStringtoInt(rs.getString("begin_fiscal_calendar"));
 		
@@ -220,7 +217,7 @@ public class MoneyTime {
 		return calquarter + "" + calyear;
 	}
 	
-	public static String getFiscalYearAndQuarter(String strTicker, int curmonth, int curyear) throws SQLException
+	public static String getFiscalYearAndQuarter(String strTicker, int curmonth, int curyear, DBFunctions dbf) throws SQLException
 	{
 		/*NOTE: If a 2 digit year is submitted, a 2 digit year is returned. 
 		 *  4 digit year submitted, 4 digits returned.
@@ -250,7 +247,7 @@ public class MoneyTime {
 		//{
 			Integer nBeginFiscalYear=0;
 			String query = "select begin_fiscal_calendar from company where ticker='" + strTicker +"'";
-			ResultSet rs = UtilityFunctions.db_run_query(query);
+			ResultSet rs = dbf.db_run_query(query);
 			rs.next();
 			String strBeginFiscalYear = rs.getString("begin_fiscal_calendar");
 			Calendar cal = Calendar.getInstance(); 

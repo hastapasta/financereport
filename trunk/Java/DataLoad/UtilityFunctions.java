@@ -48,17 +48,17 @@ public class UtilityFunctions
 
 		
 	
-	public UtilityFunctions(String strDBHost, String strDBPort, String strDatabase, String strUser, String strPass, String strFullLog, String strErrorLog, String strSQLLog, String strThreadLog)
+	public UtilityFunctions(String strFullLog, String strErrorLog, String strSQLLog, String strThreadLog)
 	{
 	
 		//try
 		//{
 		try
 		{
-			Class.forName("com.mysql.jdbc.Driver");
+			/*Class.forName("com.mysql.jdbc.Driver");
 			//String url = "jdbc:mysql://localhost:3306/" + strDatabase;
 			String url = "jdbc:mysql://" + strDBHost + ":" + strDBPort + "/" + strDatabase;
-			UtilityFunctions.con = DriverManager.getConnection(url,strUser, strPass);
+			UtilityFunctions.con = DriverManager.getConnection(url,strUser, strPass);*/
 			//this.bCalledByJsp = bCalled;
 			UtilityFunctions.stdoutwriter = new CustomBufferedWriter(strFullLog, strErrorLog, strSQLLog,strThreadLog, true, true, true);
 	
@@ -75,7 +75,7 @@ public class UtilityFunctions
 		
 	}
 	
-	public static void db_update_query(String strUpdateStmt) throws SQLException
+	/*public static void db_update_query(String strUpdateStmt) throws SQLException
 	{
 
 	
@@ -90,25 +90,25 @@ public class UtilityFunctions
 				stdoutwriter.writeln("No rows were updated",Logs.ERROR,"UF2.5");
 				
 			
-		/*}
-		catch (SQLException sqle)
-		{
-			stdoutwriter.writeln("1 SQL statement failed: " + strUpdateStmt);
-			stdoutwriter.writeln(sqle);
-	
+		///}
+		//catch (SQLException sqle)
+		//{
+		//	stdoutwriter.writeln("1 SQL statement failed: " + strUpdateStmt);
+		//	stdoutwriter.writeln(sqle);
+	//
 			
-		}*/
+		//}
 		
 		
 		
 		
-	}
+	}*/
 	
 
 	
 	
 	
-	public static ResultSet db_run_query(String query) throws SQLException
+	/*public static ResultSet db_run_query(String query) throws SQLException
 	{
 
 		ResultSet rs =null;
@@ -121,28 +121,23 @@ public class UtilityFunctions
 			rs = stmt.executeQuery(query);
 
 	
-		/*}
-		catch (SQLException sqle)
-		{
-			stdoutwriter.writeln("About to throw SQLExcpetion");
-			throw sqle;
+		}
 		
-		}*/
 		
 		return(rs);
-		/* Not going to worry about closing the connection, we'll let it be garbage collected.*/
+		//Not going to worry about closing the connection, we'll let it be garbage collected.
 		
 		
 		
-	}
+	}*/
 	
-	public void importTableIntoDB(ArrayList<String[]> tabledata, String tablename, Integer nBatch)
+	/*public void importTableIntoDB(ArrayList<String[]> tabledata, String tablename, Integer nBatch)
 	{
-		/* This function expects an arraylist with 2X of the number of values to be inserted with each value
-		preceeded by the datatype with the current 3 datatypes being VARCHAR, FUNCTIONS, INT */
-		/*OFP 9/28/2010 - I believe passing in the datatypes with the table data is redundant since the types
+		#* This function expects an arraylist with 2X of the number of values to be inserted with each value
+		preceeded by the datatype with the current 3 datatypes being VARCHAR, FUNCTIONS, INT *#
+		#*OFP 9/28/2010 - I believe passing in the datatypes with the table data is redundant since the types
 		 * are retrieved from the database meta data.
-		 */
+		 *#
 		String[] rowdata;
 		String query ="";
 		//String columns= "";
@@ -183,8 +178,8 @@ public class UtilityFunctions
 	    	while (rsColumns.next())
 				{
 		
-					/*System.out.println(rsColumns.getString("COLUMN_NAME"));
-					System.out.println(rsColumns.getString("TYPE_NAME"));*/
+					#*System.out.println(rsColumns.getString("COLUMN_NAME"));
+					System.out.println(rsColumns.getString("TYPE_NAME"));*#
 					//stdoutwriter.writeln(columnnames[j],Logs.STATUS2,"UF5");
 					if (columnnames[j].compareTo(rsColumns.getString("COLUMN_NAME")) == 0)
 					{
@@ -272,14 +267,14 @@ public class UtilityFunctions
 		
 		}
 		stdoutwriter.writeln(nInsertCount + " records inserted in db.",Logs.STATUS2,"UF10");
-	}
+	}*/
 	
-	public void updateTableIntoDB(ArrayList<String[]> tabledata, String tablename)
+	/*public void updateTableIntoDB(ArrayList<String[]> tabledata, String tablename)
 	{
 		
-		/*OFP 9/28/2010 - I believe passing in the datatypes with the table data is redundant since the types
+		#*OFP 9/28/2010 - I believe passing in the datatypes with the table data is redundant since the types
 		 * are retrieved from the database meta data.
-		 */
+		 *#
 		String[] rowdata;
 		String query ="";
 		//String columns= "";
@@ -307,8 +302,8 @@ public class UtilityFunctions
 	    	while (rsColumns.next())
 				{
 		
-					/*System.out.println(rsColumns.getString("COLUMN_NAME"));
-					System.out.println(rsColumns.getString("TYPE_NAME"));*/
+					#*System.out.println(rsColumns.getString("COLUMN_NAME"));
+					System.out.println(rsColumns.getString("TYPE_NAME"));*#
 					stdoutwriter.writeln(columnnames[j],Logs.STATUS2,"UF11");
 					if (columnnames[j].compareTo(rsColumns.getString("COLUMN_NAME")) == 0)
 					{
@@ -359,13 +354,13 @@ public class UtilityFunctions
 		
 		}
 		stdoutwriter.writeln("Updated " + nInsertCount + " records.",Logs.STATUS2,"UF16");
-	}
+	}*/
 	
-	public void customDataCheck(ArrayList<String[]> tabledata, String strTicker)
+	/*public void customDataCheck(ArrayList<String[]> tabledata, String strTicker)
 	{
-		/*This is a custom function to compare the begin_fiscal_calendar from the nasdaq and the sec
+		#*This is a custom function to compare the begin_fiscal_calendar from the nasdaq and the sec
 		 * websites.
-		 */
+		 *#
 		try
 		{
 			String query = "select begin_fiscal_calendar from company where ticker='" + strTicker + "'";
@@ -386,7 +381,7 @@ public class UtilityFunctions
 		}
 		
 		
-	}
+	}*/
 	
 	
 	public static void createCSV(ArrayList<String[]> tabledata,String filename,boolean append)
@@ -625,39 +620,7 @@ public class UtilityFunctions
 		
 	}
 	
-	public Integer getBatchNumber() throws SQLException
-	{
-		/*
-		 * Get the current highest batch number from both fact_data & fact_data_stage and increase that by 1
-		 */
-		
-		/*Integer nFact =0;
-		Integer nFactStage=0;
-		String query = "select max(batch) from fact_data_stage";
-		ResultSet rs = db_run_query(query);
-		rs.next();
-		nFactStage = rs.getInt("max(batch)");
-		query = "select max(batch) from fact_data";
-		rs = db_run_query(query);
-		rs.next();
-		nFact = rs.getInt("max(batch)");
-		
-		if (nFact >= nFactStage)
-			return(nFact+1);
-		else
-			return(nFactStage+1);*/
-		
-		String query = "select max(batch) from ";
-		query = query + "(select batch from fact_data union all ";
-		query = query + "select batch from fact_data_stage union all ";
-		query = query + "select batch from fact_data_stage_est) t1";
-		ResultSet rs = db_run_query(query);
-		rs.next();
-		return (rs.getInt("max(batch)") + 1);
-			
-	
-		
-	}
+
 	
 	public static String getElapsedTimeHoursMinutesSecondsString(Long elapsedTime) 
 	{        
@@ -673,7 +636,7 @@ public class UtilityFunctions
 	
 	
 	
-	public String[] extendArray(String[] inputArray)
+	public static String[] extendArray(String[] inputArray)
 	{
 		String[] tmpArray = new String[inputArray.length + 1];
 		for (int i=0; i<inputArray.length;i++)
@@ -684,7 +647,7 @@ public class UtilityFunctions
 		
 	}
 	
-	public static void mail(String strEmail, String strMessage)
+	public static void mail(String strEmail, String strMessage, String strSubject, String strFromAddy)
 	  {	
 	  	//String host = "smtp.gmail.com";
 	  	//int port = 587;
@@ -707,10 +670,10 @@ public class UtilityFunctions
 	  	try {
 
 		    Message message = new MimeMessage(session);
-		    message.setFrom(new InternetAddress("hastapasta99@gmail.com"));
+		    message.setFrom(new InternetAddress(strFromAddy));
 		    message.setRecipients(Message.RecipientType.TO, 
 	                      InternetAddress.parse(strEmail));
-		    message.setSubject("Pikefin Alert");
+		    message.setSubject(strSubject);
 		    message.setText(strMessage);
 
 		    //Transport transport = session.getTransport("smtp");

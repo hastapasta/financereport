@@ -52,9 +52,12 @@ class DataLoad extends Thread //implements Stopable
   static boolean pause=false;
   static UtilityFunctions uf;
   static int nMaxThreads = 1;
+  static Properties props;
   //Hashtable<String,Hashtable<String,String>> hashScheduleTable;
   ArrayList<String> listWaitingJobs;
   DataGrab[] arrayRunningJobs;
+  DBFunctions dbf;
+
   //static printwriter
                                                                  
   /**                                           
@@ -110,13 +113,13 @@ class DataLoad extends Thread //implements Stopable
 	try
 	{
 		//query = "LOCK TABLES repeat_types WRITE, schedule WRITE";
-		//UtilityFunctions.db_update_query(query);
+		//dbf.db_update_query(query);
 		//query = "LOCK TABLES schedule WRITE";
-		//UtilityFunctions.db_update_query(query);
+		//dbf.db_update_query(query);
 		
 	
 		query = "select * from repeat_types";
-		ResultSet rs = UtilityFunctions.db_run_query(query);
+		ResultSet rs = dbf.db_run_query(query);
 		ResultSet rs2;
 		java.util.Date dNextTrigger;
 		
@@ -135,7 +138,7 @@ class DataLoad extends Thread //implements Stopable
 			{
 				//listTriggeredEvents.add(Integer.toString(rs.getInt("primary_key")));
 				query = "select * from schedule where repeat_type=" + Integer.toString(rs.getInt("primary_key"));
-				rs2 = UtilityFunctions.db_run_query(query);
+				rs2 = dbf.db_run_query(query);
 				/*
 				 * Data_set is guaranteed to be unique because of db constraint
 				 */
@@ -156,10 +159,10 @@ class DataLoad extends Thread //implements Stopable
 					if (rs.getString("type").equals("RUNONCE"))
 					{
 						query = "select primary_key from repeat_types where type='NONE'";
-						ResultSet rs3 = UtilityFunctions.db_run_query(query);
+						ResultSet rs3 = dbf.db_run_query(query);
 						rs3.next();
 						query = "update schedule set repeat_type=" + rs3.getInt("primary_key") + " where data_set='" + rs2.getString("data_set") + "'";
-						UtilityFunctions.db_update_query(query);
+						dbf.db_update_query(query);
 					}
 				}
 				
@@ -173,7 +176,7 @@ class DataLoad extends Thread //implements Stopable
 	finally
 	{
 		//query = "UNLOCK TABLES";
-		//UtilityFunctions.db_run_query(query);
+		//dbf.db_run_query(query);
 	}
 	
   }
@@ -185,7 +188,7 @@ class DataLoad extends Thread //implements Stopable
 	  query = "delete from job_queue";
 	  try
 	  {
-		  UtilityFunctions.db_update_query(query);
+		  dbf.db_update_query(query);
 		  
 		  for (int i=0;i<nMaxThreads;i++)
 		  {
@@ -193,7 +196,7 @@ class DataLoad extends Thread //implements Stopable
 			  {
 				  query = "insert into job_queue (data_set,status) values ('" + arrayRunningJobs[i].strCurDataSet + "','" +
 				  arrayRunningJobs[i].getState().toString() + "')";
-				  UtilityFunctions.db_update_query(query);
+				  dbf.db_update_query(query);
 				  UtilityFunctions.stdoutwriter.writeln("Status of thread " + arrayRunningJobs[i].getName() + ": " + 
 						  arrayRunningJobs[i].getState().toString(),Logs.THREAD,"DL2");
 			  }
@@ -201,7 +204,7 @@ class DataLoad extends Thread //implements Stopable
 		  for (int k=0;k<listWaitingJobs.size();k++)
 		  {
 			  query = "insert into job_queue (data_set,status) values ('" + listWaitingJobs.get(k) + "','QUEUED')";
-			  UtilityFunctions.db_update_query(query);
+			  dbf.db_update_query(query);
 		  }
 		  
 	  }
@@ -225,7 +228,8 @@ class DataLoad extends Thread //implements Stopable
 	  {
 		  //try LOCK TABLES
 		  strDataSet = listWaitingJobs.get(0);
-		  dg = new DataGrab(DataLoad.uf,strDataSet);
+		  DBFunctions tmpdbf = new DBFunctions((String)props.get("dbhost"),(String)props.get("dbport"),(String)props.get("database"),(String)props.get("dbuser"),(String)props.get("dbpass"));
+		  dg = new DataGrab(DataLoad.uf,tmpdbf,strDataSet);
 		  dg.startThread();
 		  UtilityFunctions.stdoutwriter.writeln("Initiated DataGrab thread " + dg.getName(),Logs.THREAD,"DL4");
 		  
@@ -237,7 +241,7 @@ class DataLoad extends Thread //implements Stopable
 
 			  strDate = formatter.format(dg.getStartTime().getTime());
 			  String query = "update schedule set last_run='" + strDate + "' where data_set='" + strDataSet + "'";
-			  UtilityFunctions.db_update_query(query);
+			  dbf.db_update_query(query);
 		  }
 		  catch (CustomGenericException cge)
 		  {
@@ -314,10 +318,10 @@ class DataLoad extends Thread //implements Stopable
 		  
 		  //strDate = formatter.format(dg.getStartTime().getTime());
 		  String query = "update schedule set last_run='" + formatter.format(endCal.getTime())+ "' where data_set='" + strDataSet + "'";
-		  UtilityFunctions.db_update_query(query);
+		  dbf.db_update_query(query);
 		  
 		  query = "select * from job_stats where data_set='" + strDataSet + "'";
-		  ResultSet rs = UtilityFunctions.db_run_query(query);
+		  ResultSet rs = dbf.db_run_query(query);
 		  
 		  Long lStart = startCal.getTimeInMillis();
 		  Long lEnd = endCal.getTimeInMillis();
@@ -348,7 +352,7 @@ class DataLoad extends Thread //implements Stopable
 			  ",last_run_dur_converted='" + UtilityFunctions.getElapsedTimeHoursMinutesSecondsString(lDiff) + "'" +
 			  ",avg_run_dur_converted='" + UtilityFunctions.getElapsedTimeHoursMinutesSecondsString(lAvg) + "'" +
 			  " where data_set='" + strDataSet + "'";
-			  UtilityFunctions.db_update_query(query);
+			  dbf.db_update_query(query);
 		  }
 		  else
 		  //data_set doesn't exist in job_stats, need to insert it.
@@ -361,7 +365,7 @@ class DataLoad extends Thread //implements Stopable
 			  UtilityFunctions.getElapsedTimeHoursMinutesSecondsString(lDiff) + "','" +
 			  UtilityFunctions.getElapsedTimeHoursMinutesSecondsString(lDiff) + "')";
 
-			  UtilityFunctions.db_update_query(query);
+			  dbf.db_update_query(query);
 		  }
 	  }
 	  catch (CustomGenericException cge)
@@ -382,9 +386,9 @@ class DataLoad extends Thread //implements Stopable
 	 try
 	 {
 		 //String query = "LOCK TABLES repeat_types WRITE,schedule WRITE";
-		// UtilityFunctions.db_update_query(query);
+		// dbf.db_update_query(query);
 		 String query = "select * from repeat_types";
-		 ResultSet rs = UtilityFunctions.db_run_query(query);
+		 ResultSet rs = dbf.db_run_query(query);
 		 String strType;
 		 Date dNextTrigger;
 		 Calendar triggerCal;
@@ -435,7 +439,7 @@ class DataLoad extends Thread //implements Stopable
 				DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				String strDate = formatter.format(newCal.getTime());
 				query = "update repeat_types set next_trigger='" + strDate + "' where primary_key=" + rs.getInt("primary_key");
-				UtilityFunctions.db_update_query(query);
+				dbf.db_update_query(query);
 			 }
 		 }
 		 
@@ -446,9 +450,86 @@ class DataLoad extends Thread //implements Stopable
 	 finally
 	 {
 		 //String query = "UNLOCK TABLES";
-		 //UtilityFunctions.db_run_query(query);
+		 //dbf.db_run_query(query);
 	 }
 	  
+	  
+	  
+  }
+  
+  public void garbageCollectionFunction()
+  {
+	  /*
+	   * Check if it is time to run the garbage collector
+	   */
+	  
+	  
+	  try
+	  {
+		  GarbCollector gc = new GarbCollector(dbf,(String)props.get("gcday"),(String)props.get("gctime"),false);
+		  
+		  
+		  if (gc.shouldRun() == true)
+		  {
+			  //wait for all jobs to complete
+			  boolean alldone=false;
+			  while(!alldone)
+			  {
+				  alldone = true;
+				  for (int j=0;j<nMaxThreads;j++)
+				  {
+					  if (Thread.State.TERMINATED != arrayRunningJobs[j].getState())
+					  {
+						  alldone=false;
+						  break;
+					  }
+				  }
+				  sleep(10000);
+				  
+			  }
+			  //when get here, no jobs are running
+			  
+			  gc.takeOutTrash();
+			  
+		  }
+		  
+		  
+		
+
+		  
+		  
+			  //run gc
+
+				 
+	  }
+	  catch(ParseException pe)
+	  {
+		  UtilityFunctions.stdoutwriter.writeln("Problem parsing time. Garbage Collector did not execute",Logs.ERROR,"DL2.721");
+		  UtilityFunctions.stdoutwriter.writeln(pe);
+		  
+	  }
+	  catch(InterruptedException ie)
+	  {
+		  UtilityFunctions.stdoutwriter.writeln("Garbage Collector was interrupted waiting for all jobs" +
+		  		" to complete.\nGarbage Collector did not execute.",Logs.ERROR,"DL2.722");
+		  UtilityFunctions.stdoutwriter.writeln(ie);
+		  
+	  }
+	  catch(SQLException sqle)
+	  {
+		  UtilityFunctions.stdoutwriter.writeln("Garbage Collector terminated prematurely from a SQLException." +
+			  		" \nGarbage Collector did not complete execution.",Logs.ERROR,"DL2.725");
+		  UtilityFunctions.stdoutwriter.writeln(sqle);
+	  }
+	  
+	  
+	  
+	  /*
+	   * yes - wait for all current threads to finish and then run it.
+	   */
+	  /*
+	   * no - exit;
+	   */
 	  
 	  
   }
@@ -458,12 +539,12 @@ class DataLoad extends Thread //implements Stopable
 	  String strDataSet = dg.strCurDataSet;
 	  
 	  String query = "select * from schedule where data_set='" + strDataSet + "'";
-	  ResultSet rs = UtilityFunctions.db_run_query(query);
+	  ResultSet rs = dbf.db_run_query(query);
 	  if (rs.next())
 	  {
 		  int nKey = rs.getInt("primary_key");
 		  query = "select * from notify where schedule=" + nKey;
-		  rs = UtilityFunctions.db_run_query(query);
+		  rs = dbf.db_run_query(query);
 		  //loop through the schedules associated with this notification
 		  while (rs.next())
 		  {
@@ -477,7 +558,7 @@ class DataLoad extends Thread //implements Stopable
 			  
 			  //try to find the fact key in fact_data
 			  String query2 = "select * from fact_data where primary_key=" + nFactKey;
-			  ResultSet rs2 = UtilityFunctions.db_run_query(query2);
+			  ResultSet rs2 = dbf.db_run_query(query2);
 			  
 			  String query3;
 			  if (!(strTicker==null) && !(strTicker.isEmpty()))
@@ -487,7 +568,7 @@ class DataLoad extends Thread //implements Stopable
 				  query3 = "select * from fact_data where data_set='" + strDataSet + "' and batch=" +
 				  "(select max(batch) from fact_data where data_set='" + strDataSet + "')";
 			  
-			  ResultSet rs3 = UtilityFunctions.db_run_query(query3);
+			  ResultSet rs3 = dbf.db_run_query(query3);
 			
 			  if (rs2.next())
 			  {
@@ -544,32 +625,62 @@ class DataLoad extends Thread //implements Stopable
 					  
 					
 					  
-					  if (calJustCollected.after(calLastRun))
-					  {
+					  //if (calJustCollected.after(calLastRun))
+					  //{
+					  
+					  //Check if limit is exceeded, if so then send alert.
 						  rs3.next();
 						  
 						  BigDecimal dJustCollectedValue = rs3.getBigDecimal("value");
 						  BigDecimal dLastRunValue = rs2.getBigDecimal("value");
 						  
 						  //update with new primary key
-						  String query4 = "update notify set fact_data_key=" + rs3.getInt("primary_key") + " where primary_key=" + nNotifyKey;
-						  UtilityFunctions.db_update_query(query4);
+						
 						  
 						  BigDecimal dChange = dLastRunValue.subtract(dJustCollectedValue).divide(dLastRunValue,BigDecimal.ROUND_HALF_UP);
 						  
-						 
-						  if (dChange.compareTo(dLimit) > 0)
+						 /* For now, if an alert is triggered, we will automatically reset the initial value.
+						  * In the future, we will mark link as triggered and then provide a link to an interface to:
+						  * a) up the limit but keep the initial value the same.
+						  * b) Reset the initial value to the current value.
+						  */
+						  String query4 = "update notify set fact_data_key=" + rs3.getInt("primary_key") + " where primary_key=" + nNotifyKey;
+						  if (dChange.abs().compareTo(dLimit) > 0)
 						  {
 							  //send notification
-							  System.out.println("ALERT: Send mail!");
-							  UtilityFunctions.mail(strEmail,"ALERT: " + strDataSet + " moved " + dChange.multiply(new BigDecimal(100)).toString() + "%");
+							  //System.out.println("ALERT: Send mail!");
+							  String strMsg;
+							  
+							  strMsg = "ALERT\r\n";
+							  strMsg = strMsg + "Data Set: " + strDataSet + "\r\n";
+							  if (strTicker != null && !(strTicker.isEmpty()))
+									  strMsg = strMsg + "Ticker: " + strTicker + "\r\n";
+							  strMsg = strMsg + "Amount: " + dChange.multiply(new BigDecimal(100)).toString() + "%\r\n";
+							  strMsg = strMsg + "Previous Value: " + dLastRunValue.toString() + "\r\n";
+							  strMsg = strMsg + "Current Value: " + dJustCollectedValue.toString() + "\r\n";
+							  strMsg = strMsg + "Date & Time: " + calJustCollected.toString() + "\r\n"; 
+							  
+							  UtilityFunctions.mail(strEmail,strMsg,(String)props.get("subjecttext"),(String)props.get("fromaddy"));
+								  
+							  dbf.db_update_query(query4);
 					  
 						  }
+						  
+						  if (calJustCollected.after(calLastRun))
+						  {
+							  dbf.db_update_query(query4);
+						  }
+						  
+						  
+						  
+						  
+						  
+						 
 						  
 						  
 							  
 						  
-					  }
+					 // }
 					  
 					  
 					
@@ -583,7 +694,7 @@ class DataLoad extends Thread //implements Stopable
 				  if (rs3.next())
 				  {
 					  query2 = "update notify set fact_data_key=" + rs3.getInt("primary_key") + " where primary_key=" + nNotifyKey;
-					  UtilityFunctions.db_update_query(query2);
+					  dbf.db_update_query(query2);
 				  }
 					  
 				  else
@@ -619,27 +730,21 @@ class DataLoad extends Thread //implements Stopable
   {	
 	  
 	NDC.push("DataLoad");
-  	uf = new UtilityFunctions("localhost","3306","findata","root","madmax1.","full.log","error.log","sql.log","thread.log");
-  	//Scheduler sched = new Scheduler(uf);
-  	//System.out.println("in run 1");
-	//testCalendar();  
+
+	
+	/*
+	 * This uf is for just the DataLoad thread. Because of a memory leak issue, we will create a separte uf for each job thread, and then
+	 * close the database connection when that thread is done.
+	 */
+	uf = new UtilityFunctions("full.log","error.log","sql.log","thread.log");
+	dbf = new DBFunctions((String)props.get("dbhost"),(String)props.get("dbport"),(String)props.get("database"),(String)props.get("dbuser"),(String)props.get("dbpass"));
+
   	arrayRunningJobs = new DataGrab[nMaxThreads];
   	listWaitingJobs = new ArrayList<String>();
   	for (int i=0;i<nMaxThreads;i++)
   		arrayRunningJobs[i] = null;
-  	//ArrayList<DataGrab> listDataGrab;
-  	//ArrayList<String> listJobs;
-  	//ArrayList<String[]> listSchedules;
-  	
-  	//DataGrab DG = new DataGrab(uf);
- 
-  	//DG.startThread();
-  	//int nRunningThreads = 0;
 
-  	
-  	/*String userDir = System.getProperty("user.dir");
-		System.out.println(userDir + "\\fact_data_stage.csv");
-  	UtilityFunctions.loadCSV(userDir + "\\fact_data_stage.csv");*/
+
   	
     
 	if (pause != true)
@@ -655,6 +760,7 @@ class DataLoad extends Thread //implements Stopable
 				writeJobQueueIntoDB();
 				sleep(10000);
 				//updateEventTimes();
+				garbageCollectionFunction();
 				cleanTerminatedJobs();
 				
 				//checkNotifications();
@@ -779,10 +885,12 @@ class DataLoad extends Thread //implements Stopable
     String inifile = System.getProperty( "service.inifile" ); 			      
     System.out.println( "Loading ini file: " + inifile );
     
-    Properties props = new WindowsCompatibleProperties();
+    props = new WindowsCompatibleProperties();
     props.load( new FileInputStream(inifile) );
     
     System.out.println( props );
+    
+  
     
     			                         
     //Create echo server class
@@ -803,7 +911,7 @@ class DataLoad extends Thread //implements Stopable
 
 	  ArrayList<String> tmpList = new ArrayList<String>();
 	  String query = "select next_trigger,data_set from repeat_types,schedule where repeat_types.primary_key=schedule.Repeat_Type";
-	  ResultSet rs = UtilityFunctions.db_run_query(query);
+	  ResultSet rs = dbf.db_run_query(query);
 	  Calendar cal = Calendar.getInstance();
 	  while(rs.next())
 	  {
