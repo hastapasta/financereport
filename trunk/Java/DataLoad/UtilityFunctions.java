@@ -659,7 +659,7 @@ public class UtilityFunctions
 	  	props.put("mail.smtp.host", "smtp.gmail.com");
 	  	props.put("mail.smtp.auth", "true");
 	  	props.put("mail.smtp.starttls.enable", "true");
-	  	props.put("mail.debug", "false");
+	  	props.put("mail.debug", "true");
 
 
 	  	//Session session = Session.getInstance(props);
@@ -684,7 +684,7 @@ public class UtilityFunctions
 
 		    Transport.send(message);
 
-		    System.out.println("Done");
+
 
 	  	} catch (MessagingException e) {
 	  	    throw new RuntimeException(e);
