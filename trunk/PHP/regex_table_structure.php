@@ -299,10 +299,8 @@ parse_table_structure(true);
 }
 else if ($frame == 'form')
 {
-	//mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
-	//mysql_select_db("mydb") or die(mysql_error());
-
-	db_connect();
+	mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
+	mysql_select_db("mydb") or die(mysql_error());
 	
 	
 		
@@ -324,7 +322,7 @@ else if ($frame == 'form')
 							<!-- <select name="data_set" onchange="alert(this.value);" onchange="UpdateField(this.selectedIndex);"> -->
 							<select name="data_set" onchange="UpdateField(this.selectedIndex);">
 								<?php
-									$query2 = "select distinct Data_Set from job_info";
+									$query2 = "select distinct Data_Set from extract_info";
 				
 									$result2 = mysql_query($query2) or die("Failed Query of " . $query2);
 									
@@ -404,7 +402,7 @@ if(isset($_POST['submit_update']))
 		$after_code = $_POST['after'];
 		$pre_func = $_POST['pre_func']
 		$post_func = $_POST['post_func']*/
-		$query1 = "select job_info.*,extract_info.* from job_info,extract_info where job_info.extract_key=extract_info.primary_key data_set='".$_POST['data_set']."'";
+		$query1 = "select * from extract_info where data_set='".$_POST['data_set']."'";
 		$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 		//should only return one row since there is a database constraint on unique data sets.
 		$row1 = mysql_fetch_array($result1);
