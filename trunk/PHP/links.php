@@ -24,6 +24,8 @@
 <BR>
 <A HREF="http://oracleepm:19000/workspace">Workspace</A><BR>
 <A HREF="http://oracleepm:10080/easconsole/console.html">EAS Console</A><BR>
+<A HREF="http://oracleepm:55000/cmc/index.jsp">Configuration Console</A><BR>
+<A HREF="http://oracleepm:16000/WebAnalysis/WebAnalysis.jsp">WebAnalysis</A><BR>
 
 
 
