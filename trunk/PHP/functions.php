@@ -37,11 +37,18 @@ function wl($the_string)
 
 function get_data($url,$form_properties)
 {
+
+/* IF CURL_EXEC RETURNS NOTHING and no errors are being generated, check
+the selinux configuration or disable selinux completely.*/
+
 	$timeout = 5;
+	wl("in get data");
+	 wl("url:".$url);
   if ($form_properties == "")
   {
 	  $ch = curl_init();
-	  wl("in get data");
+	  wl("no form properties");
+	 
 	  curl_setopt($ch,CURLOPT_URL,$url);
 	  curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
 	  curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
@@ -51,7 +58,7 @@ function get_data($url,$form_properties)
 	{
 		define('POSTURL', $url);
 		define('POSTVARS', $form_properties);
-		
+		wl("with form properties");
 		//sample url and form properties
 		//define('POSTURL', 'http://data.bls.gov/cgi-bin/surveymost');
 		//define('POSTVARS', 'series_id=LNS14000000&survey=ln&format=&html_tables=&delimiter=&catalog=&print_line_length=&lines_per_page=&row_stub_key=&year=&date=&net_change_start=&net_change_end=&percent_change_start=&percent_change_end='); 
@@ -73,7 +80,7 @@ function get_data($url,$form_properties)
 		$data = curl_exec($ch);
 		wl("still in get_data");
 	  curl_close($ch);
-
+	  wl(strlen($data));
 	  echo "<BR>Length of data returned from url: ".strlen($data)."<BR>";
 	  return $data;
 	
