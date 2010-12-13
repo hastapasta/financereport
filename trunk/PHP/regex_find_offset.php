@@ -24,13 +24,7 @@ $chars_before_after = 200;
 include ("functions.php");
 
 
-function wl($the_string)
-{
-	$fi = fopen( 'logfile2.txt', 'w+');
-	$the_string = $the_string."\n";
-	fputs( $fi, $the_string, strlen($the_string) );
-	fclose( $fi );
-}
+
 
 //for testing purposes
 $html = ' 
@@ -87,6 +81,8 @@ $extract_value = $_POST['find_text'];
 $url_val = $_POST['web_page'];
 $form_properties = $_POST['form_properties'];
 
+wl($url_val);
+wl("ollie test");
 setcookie('web_page', $url_val ,mktime (0, 0, 0, 12, 31, 2015));
 setcookie('form_properties', $form_properties ,mktime (0, 0, 0, 12, 31, 2015));
 

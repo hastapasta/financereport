@@ -3,13 +3,45 @@
 /*This is legacy from before this code was converted to java.*/
 //include("post_processing_functions.php");
 
+class db_utility
+{
+
+	static private $functions_dbhost="localhost";
+	static private $functions_dbport="3306";
+	static private $functions_dbuser="root";
+	static private $functions_dbpass="madmax1.";
+	static private $functions_database="findata";
+	
+	
+	static public function db_connect()
+	{
+
+		mysql_connect(self::$functions_dbhost.":".self::$functions_dbport,self::$functions_dbuser,self::$functions_dbpass) or die (mysql_error());
+		mysql_select_db(self::$functions_database) or die(mysql_error());
+	
+	}
+	
+	static public function get_database()
+	{
+		return(self::$functions_database);
+	}
+}
+
+function wl($the_string)
+{
+	$fi = fopen( 'logfile2.txt', 'a+');
+	$the_string = $the_string."\n";
+	fputs( $fi, $the_string, strlen($the_string) );
+	fclose( $fi );
+}
+
 function get_data($url,$form_properties)
 {
 	$timeout = 5;
   if ($form_properties == "")
   {
 	  $ch = curl_init();
-
+	  wl("in get data");
 	  curl_setopt($ch,CURLOPT_URL,$url);
 	  curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
 	  curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
@@ -36,7 +68,10 @@ function get_data($url,$form_properties)
 				 
 		}
 
+		wl("Still here");
+		curl_error($ch);
 		$data = curl_exec($ch);
+		wl("still in get_data");
 	  curl_close($ch);
 
 	  echo "<BR>Length of data returned from url: ".strlen($data)."<BR>";

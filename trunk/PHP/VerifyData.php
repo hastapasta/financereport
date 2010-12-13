@@ -1,16 +1,18 @@
 <?php
 $frame = $_GET['frame'];
 
+include("functions.php");
+
 if ($frame == 'parent')
 {
 ?>
 
 
 <frameset rows="30%,*">
-	<frame src="http://win-d2sjsg6emdd/dev/VerifyData.php?frame=form" name=form>
+	<frame src="VerifyData.php?frame=form" name=form>
 <frameset cols="50%,*">
- 	<frame src="http://win-d2sjsg6emdd/dev/VerifyData.php?frame=internaldata" name=internaldata>
-  <frame src="http://win-d2sjsg6emdd/dev/VerifyData.php?frame=webpage" name=webpage>
+ 	<frame src="VerifyData.php?frame=internaldata" name=internaldata>
+  <frame src="VerifyData.php?frame=webpage" name=webpage>
  </frameset>
 </frameset>
 
@@ -23,15 +25,20 @@ else if ($frame == 'internaldata')
 	<body>
 <table>
 <?php
-	mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
-	mysql_select_db("mydb") or die(mysql_error());
+
+	db_utility::db_connect();
+	
 	if(isset($_POST['submit_internal'])) 
 	{
 		
 		$selected_data_set = $_POST['data_set'];
 		$selected_ticker = $_POST['ticker'];
 		
-		if (substr($selected_data_set,0,5) == "table")
+		echo "here 2<BR>";
+		echo $selected_data_set."<BR>";
+		echo $selected_ticker."<BR>";
+		
+		/*if (substr($selected_data_set,0,5) == "table")
 		{
 			$query1 = 	"SELECT view_fact_data.data_set, ticker, value, url_static, fiscalquarter, fiscalyear
 		FROM view_fact_data, extract_table
@@ -47,9 +54,24 @@ else if ($frame == 'internaldata')
 		WHERE view_fact_data.data_set = extract_info.Data_Set
 		AND view_fact_data.data_set = '".$selected_data_set."' 
 		AND view_fact_data.ticker = '".$selected_ticker."'";
-		}
+		}*/
+		
+
+		$query1 = 	"SELECT view_fact_data.data_set, ticker, value, url_static, fiscalquarter, fiscalyear
+		FROM view_fact_data, job_info
+		WHERE view_fact_data.data_set = job_info.Data_Set
+		AND view_fact_data.data_set = '".$selected_data_set."' 
+		AND view_fact_data.ticker = '".$selected_ticker."'";
+		
+		
+		
 
 		$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
+		
+		echo "here 1";
+		
+		
+		echo $query1;
 		
 		for ($j=0;$j<mysql_num_rows($result1);$j++)
 		//for ($j=0;$j<2;$j++)
@@ -91,8 +113,9 @@ THIS IS THE WEBPAGE DATA FRAME
 }
 else if ($frame == 'form')
 {
-	mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
-	mysql_select_db("mydb") or die(mysql_error());
+	//mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
+	//mysql_select_db("mydb") or die(mysql_error());
+	db_utility::db_connect();
 ?>
 <html>
 	<script type="text/javascript">

@@ -1,6 +1,8 @@
 <?php
-	mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
-	mysql_select_db("mydb") or die(mysql_error());
+	//mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
+	//mysql_select_db("mydb") or die(mysql_error());
+	include ("functions.php");
+	db_utility::db_connect();
 ?>
 <HTML>
 	<BODY>
