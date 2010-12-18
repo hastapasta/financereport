@@ -53,7 +53,7 @@ public class CurrencyActivity extends Activity implements View.OnClickListener{
         
         try
         {
-        	jArray = MySQLConnect.connect(this.getString(R.string.json_url),strType);
+        	jArray = MySQLConnect.connect(this.getString(R.string.json_url) + "forexgainerslosers.php",strType);
         	populate(tl);
         }
         catch (CustomConnectionException cce)
@@ -265,7 +265,7 @@ public class CurrencyActivity extends Activity implements View.OnClickListener{
         	//retrieve(tl);
         	try
         	{
-        		CurrencyActivity.jArray = MySQLConnect.connect(CurrencyActivity.this.getString(R.string.json_url),strType);
+        		CurrencyActivity.jArray = MySQLConnect.connect(CurrencyActivity.this.getString(R.string.json_url) + "forexgainerslosers.php",strType);
         		handler.sendEmptyMessage(0);
         	}
         	catch (CustomConnectionException cce)

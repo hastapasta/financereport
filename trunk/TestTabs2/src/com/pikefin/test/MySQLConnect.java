@@ -38,7 +38,7 @@ public class MySQLConnect {
 				//HttpPost httppost = new HttpPost("http://example.com/getAllPeopleBornAfter.php");
 				//HttpPost httppost = new HttpPost("http://10.0.0.19/dev/datatest.php");
 				//emulator is currently unable to resolve pikefin.com
-				HttpPost httppost = new HttpPost("http://204.93.193.191/json/forexgainerslosers.php");
+				HttpPost httppost = new HttpPost(strConnectURL);
 				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 				HttpResponse response = httpclient.execute(httppost); 
 				HttpEntity entity = response.getEntity();
@@ -78,10 +78,10 @@ public class MySQLConnect {
 			for(int i=0;i<jArray.length();i++)
 			{
 				json_data = jArray.getJSONObject(i);
-				Log.i("log_tag","ticker: "+json_data.getString("ticker")+
+				/*Log.i("log_tag","ticker: "+json_data.getString("ticker")+
 						", value2: "+json_data.getDouble("value2")+
 						", value: "+json_data.getDouble("value")+
-						", frequency: "+json_data.getString("frequency"));
+						", frequency: "+json_data.getString("frequency"));*/
 			}
 		}
 		catch(JSONException e)
