@@ -2,4 +2,5 @@
 <resources>
     <string name="hello">Hello World, TestTabs2!</string>
     <string name="app_name">TestTabs2</string>
+    <string name="json_url">http://204.93.193.191/json/forexgainerslosers.php</string>
 </resources>

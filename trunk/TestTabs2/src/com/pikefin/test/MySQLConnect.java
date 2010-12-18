@@ -21,7 +21,7 @@ import org.json.JSONObject;
 
 public class MySQLConnect {
 	
-	public static JSONArray connect(String strType) throws CustomConnectionException
+	public static JSONArray connect(String strConnectURL, String strType) throws CustomConnectionException
 	{
 	
 		String result = "";
@@ -38,7 +38,7 @@ public class MySQLConnect {
 				//HttpPost httppost = new HttpPost("http://example.com/getAllPeopleBornAfter.php");
 				//HttpPost httppost = new HttpPost("http://10.0.0.19/dev/datatest.php");
 				//emulator is currently unable to resolve pikefin.com
-				HttpPost httppost = new HttpPost("http://204.93.193.191/forexgainerslosers.php");
+				HttpPost httppost = new HttpPost("http://204.93.193.191/json/forexgainerslosers.php");
 				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 				HttpResponse response = httpclient.execute(httppost); 
 				HttpEntity entity = response.getEntity();

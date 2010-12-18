@@ -1,10 +1,10 @@
 package com.pikefin.test;
 
 
-import android.app.Activity;
+//import android.app.Activity;
 import android.app.TabActivity;
 import android.content.Intent;
-import android.content.res.Resources;
+//import android.content.res.Resources;
 import android.os.Bundle;
 import android.widget.TabHost;
 
@@ -35,11 +35,11 @@ public class TestTabs2 extends TabActivity {
       
 
         // Do the same for the other tabs
-        intent = new Intent().setClass(this, AlbumsActivity.class);
+        intent = new Intent().setClass(this, CurrencyActivity.class);
         /*spec = tabHost.newTabSpec("albums").setIndicator("Albums",
                           res.getDrawable(R.drawable.ic_tab_albums))
                       .setContent(intent);*/
-        spec = tabHost.newTabSpec("albums").setIndicator("Albums")
+        spec = tabHost.newTabSpec("currency").setIndicator("Currency")
         .setContent(intent);
         tabHost.addTab(spec);
         

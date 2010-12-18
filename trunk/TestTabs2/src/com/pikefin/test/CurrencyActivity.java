@@ -6,7 +6,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
+//import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -15,8 +15,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.widget.Button;
+//import android.view.Window;
+//import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -29,7 +29,7 @@ import android.widget.TableRow.LayoutParams;
 public class CurrencyActivity extends Activity implements View.OnClickListener{
 	TableLayout tl;
 	String strType;
-	private static final int DIALOG2_KEY = 1;
+	//private static final int DIALOG2_KEY = 1;
 	ProgressDialog mDialog2;
 	AlertDialog alertDialog;
 	static JSONArray jArray;
@@ -53,7 +53,7 @@ public class CurrencyActivity extends Activity implements View.OnClickListener{
         
         try
         {
-        	jArray = MySQLConnect.connect(strType);
+        	jArray = MySQLConnect.connect(this.getString(R.string.json_url),strType);
         	populate(tl);
         }
         catch (CustomConnectionException cce)
@@ -265,7 +265,7 @@ public class CurrencyActivity extends Activity implements View.OnClickListener{
         	//retrieve(tl);
         	try
         	{
-        		CurrencyActivity.jArray = MySQLConnect.connect(strType);
+        		CurrencyActivity.jArray = MySQLConnect.connect(CurrencyActivity.this.getString(R.string.json_url),strType);
         		handler.sendEmptyMessage(0);
         	}
         	catch (CustomConnectionException cce)
