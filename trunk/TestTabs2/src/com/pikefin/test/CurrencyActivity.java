@@ -181,8 +181,8 @@ public class CurrencyActivity extends Activity implements View.OnClickListener{
    	             
    	             labelTV = new TextView(this);
    	             labelTV.setId(220+i);
-   	             //labelTV.setText(json_data.getString("value2"));
-   	             labelTV.setText("This is a test of some really long text.");
+   	             labelTV.setText(json_data.getString("value2"));
+   	             //labelTV.setText("This is a test of some really long text.");
    	             labelTV.setTextColor(Color.WHITE);
    	             labelTV.setLayoutParams(new LayoutParams(
    	                     LayoutParams.FILL_PARENT,
