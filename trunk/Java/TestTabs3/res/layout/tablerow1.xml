@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <TableRow xmlns:android="http://schemas.android.com/apk/res/android">
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:id="@+id/tablerow00">   
+     <TextView android:id="@+id/content0"
+     	 android:padding="1dip"
+     	 android:text="TICKER"
+         android:singleLine="true"/>
+     <TextView android:id="@+id/content01"
+     android:padding="1dip" 
+     android:text="Q1:2011"
+         android:singleLine="true"/>
+     <TextView android:id="@+id/content02"
+     android:padding="1dip" 
+     android:text="Q2:2011"
+         android:singleLine="true"/>
+     <TextView android:id="@+id/content03"
+     android:padding="1dip" 
+     android:text="Q3:2011"
+         android:singleLine="true"/>
+     <TextView android:id="@+id/content04"
+     android:padding="1dip" 
+     android:text="Q4:2011"
+         android:singleLine="true"/>
+     
+        <!--  android:textAppearance="@style/someappearance" /> -->
+     </TableRow> 
+

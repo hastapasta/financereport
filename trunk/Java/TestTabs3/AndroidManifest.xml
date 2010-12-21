@@ -1,0 +1,699 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- Declare the contents of this Android application.  The namespace
+     attribute brings in the Android platform namespace, and the package
+     supplies a unique name for the application.  When writing your
+     own application, the package name must be changed from "com.example.*"
+     to come from a domain that you own or have control over. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.android.apis">
+
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+
+    <!-- We will request access to the camera, saying we require a camera
+         of some sort but not one with autofocus capability. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
+    <application android:name="ApiDemosApplication"
+            android:label="@string/activity_sample_code"
+            android:icon="@drawable/app_sample_code" android:debuggable="true">
+
+        <!-- This is how we can request a library but still allow the app
+             to be installed if it doesn't exist. -->
+        <uses-library android:name="com.example.will.never.exist" android:required="false" />
+
+        <activity android:name="ApiDemos">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- ************************************* -->
+        <!--      APPLICATION PACKAGE SAMPLES      -->
+        <!-- ************************************* -->
+
+        <!-- Activity Samples -->
+
+        
+
+        
+
+        
+
+       
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+        
+        
+
+        
+
+        <!-- Intent Samples -->
+
+        
+
+        <!-- Service Samples -->
+
+        
+
+        
+
+        
+
+
+        
+
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <!-- Alarm Samples -->
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <!-- Instrumentation Samples -->
+
+        
+
+        
+
+
+        <!-- Notifications samples -->
+
+        
+
+        
+
+        
+
+        <!-- This is used to display a notification selected by the user
+             from StatusBarNotifications.  Note the configuration here so
+             that the activity layers on top of whatever the user is doing,
+             allowing them to press back to return. -->
+        
+
+        
+
+        
+
+        
+
+        <!-- Dialog samples -->
+        
+
+        <!-- Search Samples -->
+
+        <!-- This activity represents a "typical" activity in your application from which the -->
+        <!-- user would be allowed to invoke a search function.  As noted below, the definition -->
+        <!-- of android.app.default_searchable is more typically handled at the application -->
+        <!-- level, where it can serve as a default for all of your activities. -->
+
+        
+
+        <!-- This activity represents the "search" activity in your application, in which -->
+        <!-- search results are gathered and displayed. -->
+
+        
+
+        <!-- This provider declaration informs the Search Manager that you have a provider of -->
+        <!-- Search suggestions, and provides information about how to access it. -->
+
+        
+
+        <!-- Shortcuts Samples -->
+
+        <!-- This section of sample code shows how your application can add shortcuts to -->
+        <!-- the launcher (home screen).  Shortcuts have a three step life cycle. -->
+
+        <!-- 1.  Your application offers to provide shortcuts to the launcher.  When -->
+        <!--     the user installs a shortcut, an activity within your application -->
+        <!--     generates the actual shortcut and returns it to the launcher, where it -->
+        <!--     is shown to the user as an icon. -->
+
+        <!-- 2.  Any time the user clicks on an installed shortcut, an intent is sent. -->
+        <!--     Typically this would then be handled as necessary by an activity within -->
+        <!--     your application. -->
+
+        <!-- 3.  The shortcut is deleted.  There is no notification to your application. -->
+
+        <!-- In order provide shortcuts from your application, you provide three things: -->
+
+        <!-- 1.  An intent-filter declaring your ability to provide shortcuts -->
+        <!-- 2.  Code within the activity to provide the shortcuts as requested -->
+        <!-- 3.  Code elsewhere within your activity, if appropriate, to receive -->
+        <!--     intents from the shortcut itself. -->
+
+        
+
+        <!-- It is recommended that you use an activity-alias to provide the "CREATE_SHORTCUT" -->
+        <!-- intent-filter.  This gives you a way to set the text (and optionally the -->
+        <!-- icon) that will be seen in the launcher's create-shortcut user interface. -->
+
+        
+
+        <!-- Menu Samples -->
+
+        
+
+        <!-- Preferences Samples -->
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <!-- Device Admin Samples -->
+
+        
+
+
+        
+
+
+        <!-- Voice Recognition Samples -->
+
+        
+
+        <!-- Text-To-Speech Samples -->
+
+        
+
+        <!-- ************************************* -->
+        <!--        CONTENT PACKAGE SAMPLES        -->
+        <!-- ************************************* -->
+
+        
+
+        
+
+        
+
+        
+
+        <!-- ************************************* -->
+        <!--     OS PACKAGE SAMPLES                -->
+        <!-- ************************************* -->
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <!-- ************************************* -->
+        <!--     ANIMATION PACKAGE SAMPLES         -->
+        <!-- ************************************* -->
+
+        
+
+        <!-- ************************************* -->
+        <!--      VIEW/WIDGET PACKAGE SAMPLES      -->
+        <!-- ************************************* -->
+
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <activity android:name=".view.Tabs1" android:label="Content By Id">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".view.Tabs2" android:label="Content By Factory">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".view.Tabs3" android:label="Content By Intent">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <activity android:name=".view.List1" android:label="1. Array">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <activity android:name=".view.List8" android:label="8. Photos">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <activity android:name=".view.Controls2" android:label="2. Default Theme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        <!-- ************************************* -->
+        <!--           GRAPHICS SAMPLES            -->
+        <!-- ************************************* -->
+
+        
+
+        
+
+        
+
+        
+
+        
+
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+       
+
+        
+
+        <!-- ************************************* -->
+        <!--             MEDIA SAMPLES             -->
+        <!-- ************************************* -->
+
+        
+
+        
+
+        
+
+        
+
+        <!-- ************************************* -->
+        <!--      APPWIDGET PACKAGE SAMPLES           -->
+        <!-- ************************************* -->
+
+        
+
+        
+
+        
+
+        <!-- ************************************* -->
+        <!--             OTHER SAMPLES             -->
+        <!-- ************************************* -->
+
+        
+
+        
+
+        
+
+    <activity android:name=".view.TestTabs2" android:label="4.TestTabs2"><activity android:name=".view.EarningsActivity"><intent-filter><action android:name="android.intent.action.VIEW"></action>
+</intent-filter>
+</activity><intent-filter><action android:name="android.intent.action.MAIN"></action>
+<category android:name="android.intent.category.SAMPLE_CODE"></category>
+</intent-filter>
+</activity>
+
+<activity android:name=".view.EarningsActivity"><intent-filter><action android:name="android.intent.action.VIEW"></action>
+</intent-filter>
+</activity>
+<activity android:name=".view.CurrencyActivity"><intent-filter><action android:name="android.intent.action.VIEW"></action>
+</intent-filter>
+</activity>
+</application>
+
+    <instrumentation android:name=".app.LocalSampleInstrumentation"
+        android:targetPackage="com.example.android.apis"
+        android:label="Local Sample" />
+
+</manifest>
