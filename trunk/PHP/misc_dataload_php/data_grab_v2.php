@@ -12,7 +12,7 @@ week:604800
 /*version 2: allows for multiple passes to accomodate dynamic urls */
 /* also added code to handle div tags */
 
-include("functions.php");
+include("../common/functions.php");
 
 
 

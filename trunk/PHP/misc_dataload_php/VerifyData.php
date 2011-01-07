@@ -1,7 +1,10 @@
 <?php
+/*
+ * Note: The top level url to access this page is http://<path>/VerifyData.php?frame=parent
+ */
 $frame = $_GET['frame'];
 
-include("functions.php");
+include("../common/functions.php");
 
 if ($frame == 'parent')
 {

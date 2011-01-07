@@ -26,7 +26,7 @@ function verify()
 
 <?php
 
-include ("functions.php");
+include ("../common/functions.php");
 
 	//mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
 	//mysql_select_db("mydb") or die(mysql_error());

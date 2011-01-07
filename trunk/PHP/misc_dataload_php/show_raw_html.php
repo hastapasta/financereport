@@ -3,7 +3,7 @@
 	<BODY>
 	
 	<?php
-	include("functions.php");
+	include("../common/functions.php");
 	$url_val = $_COOKIE['web_page'];
 	$form_properties = $_COOKIE['form_properties'];
 	$returned_content = get_data($url_val,$form_properties);

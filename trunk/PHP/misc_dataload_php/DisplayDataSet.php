@@ -1,7 +1,7 @@
 <?php
 	//mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
 	//mysql_select_db("mydb") or die(mysql_error());
-	include ("functions.php");
+	include ("../common/functions.php");
 	db_utility::db_connect();
 ?>
 <HTML>
@@ -15,7 +15,7 @@
 				{
 					$selected_data_set = $_POST['data_set'];
 					
-				$query1 = "select data_set,ticker,value from test_fact_data where data_set='".$selected_data_set."'";
+				$query1 = "select data_set,ticker,value from fact_data where data_set='".$selected_data_set."'";
 				
 				$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 				
@@ -44,7 +44,7 @@
 						<tr><td>
 							<select name="data_set">
 								<?php
-									$query2 = "select distinct Data_Set from extract_info";
+									$query2 = "select distinct Data_Set from job_info";
 				
 									$result2 = mysql_query($query2) or die("Failed Query of " . $query2);
 									
