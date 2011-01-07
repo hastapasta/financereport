@@ -50,26 +50,50 @@ public class DBFunctions {
 		
 	}
 	
-	public void openConnection() throws SQLException
+	public void openConnection() //throws SQLException
 	{
-		try
+		
+		boolean bFirstAttempt=true;
+		boolean bSuccess = false;
+		
+		while (!bSuccess)
 		{
-			Class.forName("com.mysql.jdbc.Driver");
-			//String url = "jdbc:mysql://localhost:3306/" + strDatabase;
-			String url = "jdbc:mysql://" + strHost + ":" + strPort + "/" + strDatabase + "?tcpKeepAlive=true";
-			this.con = DriverManager.getConnection(url,strUser, strPass);
-
+			try
+			{
+				Class.forName("com.mysql.jdbc.Driver");
+				//String url = "jdbc:mysql://localhost:3306/" + strDatabase;
+				String url = "jdbc:mysql://" + strHost + ":" + strPort + "/" + strDatabase + "?tcpKeepAlive=true";
+				this.con = DriverManager.getConnection(url,strUser, strPass);
+				bSuccess=true;
+	
+			}
+			catch (ClassNotFoundException cnfe)
+			{
+				UtilityFunctions.stdoutwriter.writeln("Problem opening database connection",Logs.ERROR,"DBF0.65");
+				UtilityFunctions.stdoutwriter.writeln(cnfe);
+			}
+			catch (SQLException sqle)
+			{
+				UtilityFunctions.stdoutwriter.writeln("Problem opening database connection",Logs.ERROR,"DBF0.66");
+				if (bFirstAttempt==true)
+				{
+					
+					UtilityFunctions.stdoutwriter.writeln(sqle);
+					bFirstAttempt=false;
+				}
+					
+				try
+				{
+					Thread.sleep(10000);
+				}
+				catch (InterruptedException ite)
+				{
+					UtilityFunctions.stdoutwriter.writeln("Thread Interrupted",Logs.ERROR,"DBF0.67");
+					UtilityFunctions.stdoutwriter.writeln(ite);
+				}
+				
+			}
 		}
-		catch (ClassNotFoundException cnfe)
-		{
-			UtilityFunctions.stdoutwriter.writeln("Problem opening database connection",Logs.ERROR,"DBF0.65");
-			UtilityFunctions.stdoutwriter.writeln(cnfe);
-		}
-		/*catch (SQLException sqle)
-		{
-			UtilityFunctions.stdoutwriter.writeln("Problem opening database connection",Logs.ERROR,"DBF0.66");
-			UtilityFunctions.stdoutwriter.writeln(sqle);		
-		}*/
 	}
 	
 	public void cycleConnection() throws SQLException
