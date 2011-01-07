@@ -1,0 +1,327 @@
+http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+ollie test
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33730
+test
+Array
+http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+ollie test
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33728
+test
+Array
+http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+ollie test
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33728
+test
+Array
+http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+ollie test
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33730
+test
+Array
+http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+ollie test
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33728
+test
+Array
+http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+ollie test
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33730
+test
+Array
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33730
+http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+ollie test
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33729
+test
+Array
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33645
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33731
+http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+ollie test
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33731
+test
+Array
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33729
+http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+ollie test
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33729
+test
+Array
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33731
+http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+ollie test
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33731
+test
+Array
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33729
+http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+ollie test
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33731
+test
+Array
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33731
+http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+ollie test
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33731
+test
+Array
+http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+ollie test
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33729
+test
+Array
+in get data
+url:http://finance.yahoo.com/q/ae?s=AA+Analyst+Estimates
+no form properties
+Still here
+still in get_data
+33645
+http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+ollie test
+in get data
+url:http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+no form properties
+Still here
+still in get_data
+75591
+test
+Array
+in get data
+url:http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+no form properties
+Still here
+still in get_data
+75591
+http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+ollie test
+in get data
+url:http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+no form properties
+Still here
+still in get_data
+75591
+test
+Array
+Array
+in get data
+url:http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+no form properties
+Still here
+still in get_data
+75591
+http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+ollie test
+in get data
+url:http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+no form properties
+Still here
+still in get_data
+75591
+test
+http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+ollie test
+in get data
+url:http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+no form properties
+Still here
+still in get_data
+75591
+test
+Array
+Array
+Array
+Array
+Array
+in get data
+url:http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+no form properties
+Still here
+still in get_data
+75591
+http://www.google.com/finance?fstype=ii&q=v
+ollie test
+in get data
+url:http://www.google.com/finance?fstype=ii&q=v
+no form properties
+Still here
+still in get_data
+70452
+test
+Array
+Array
+in get data
+url:http://www.google.com/finance?fstype=ii&q=v
+no form properties
+Still here
+still in get_data
+70452
+http://www.exchange-rates.org/currentRates/A/USD
+ollie test
+in get data
+url:http://www.exchange-rates.org/currentRates/A/USD
+no form properties
+Still here
+still in get_data
+41388
+test
+Array
+in get data
+url:http://www.exchange-rates.org/currentRates/A/USD
+no form properties
+Still here
+still in get_data
+41388
+http://www.exchange-rates.org/currentRates/P/USD
+ollie test
+in get data
+url:http://www.exchange-rates.org/currentRates/P/USD
+no form properties
+Still here
+still in get_data
+40628
+test
+http://www.exchange-rates.org/currentRates/P/USD
+ollie test
+in get data
+url:http://www.exchange-rates.org/currentRates/P/USD
+no form properties
+Still here
+still in get_data
+40628
+test
+Array
+Array
+Array
+Array
+in get data
+url:http://www.exchange-rates.org/currentRates/P/USD
+no form properties
+Still here
+still in get_data
+40628
+http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+ollie test
+in get data
+url:http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+no form properties
+Still here
+still in get_data
+75370
+test
+Array
+Array
+Array
+Array
+Array
+in get data
+url:http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+no form properties
+Still here
+still in get_data
+75370
+in get data
+url:http://www.nasdaq.com/earnings/earnings_forecast.asp?symbol=A&selected=A
+no form properties
+Still here
+still in get_data
+75370
