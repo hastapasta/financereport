@@ -186,7 +186,9 @@ public class CustomBufferedWriter
 				lock.lock();
 					if (e!=null)
 					{
-						if (e.getMessage() != null)
+						
+						fulllogger.error(e);
+						/*if (e.getMessage() != null)
 						{
 
 							//errorfilewriter.println("EXCEPTION:" + e.getMessage());
@@ -196,6 +198,9 @@ public class CustomBufferedWriter
 							fulllogger.error(e.getMessage());
 
 						}
+						fulllogger.error(e.getLocalizedMessage());
+					    fulllogger.error(e.getCause());*/
+						
 						StackTraceElement[] tmp2 = e.getStackTrace();
 						for (int i=(tmp2.length-1);i>=0;i--)
 						{
