@@ -769,8 +769,9 @@ class DataLoad extends Thread //implements Stopable
 	UtilityFunctions.stdoutwriter.writeln("DATABASE NAME: " + (String)props.get("database"),Logs.STATUS1,"DL14");
 	UtilityFunctions.stdoutwriter.writeln("DATABASE USER: " + (String)props.get("dbuser"),Logs.STATUS1,"DL15");
 	UtilityFunctions.stdoutwriter.writeln("SLEEP INTERVAL: " + (String)props.get("sleep_interval"),Logs.STATUS1,"DL16");
-	UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR DAY: " + (String)props.get("gcday"),Logs.STATUS1,"DL17");
-	UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR TIME: " + (String)props.get("gctime"),Logs.STATUS1,"DL18");
+	UtilityFunctions.stdoutwriter.writeln("KEEP ALIVE FILE LOCATION: " + (String)props.get("filelocation"),Logs.STATUS1,"DL17");
+	//UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR DAY: " + (String)props.get("gcday"),Logs.STATUS1,"DL17");
+	//UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR TIME: " + (String)props.get("gctime"),Logs.STATUS1,"DL18");
 	
 	/*
 	 * This dbf is for just the DataLoad thread. Because of a memory leak issue, we will create a separte dbf for each job thread, and then
@@ -813,6 +814,7 @@ class DataLoad extends Thread //implements Stopable
 			try 
 			{ 
 				
+				writeKeepAlive();
 				getTriggeredJobs();
 				executeJobs();
 				writeJobQueueIntoDB();
@@ -988,6 +990,30 @@ class DataLoad extends Thread //implements Stopable
 	
 	  
 	  return (tmpList);
+	  
+	  
+  }
+  
+  public void writeKeepAlive()
+  {
+	  String strFilePath = (String)props.get("filelocation");
+	  try
+	  {
+		  PrintWriter kafilewriter = new PrintWriter( new FileWriter(strFilePath,false),true);
+		  
+		  kafilewriter.println("1");
+		  
+		  kafilewriter.close();
+		  
+		 
+	  }
+	  catch (IOException ioe)
+	  {
+		  UtilityFunctions.stdoutwriter.writeln("Problem writing to keep alive file.",Logs.ERROR,"DL30");
+		  UtilityFunctions.stdoutwriter.writeln(ioe);
+		  
+	  }
+	  
 	  
 	  
   }
