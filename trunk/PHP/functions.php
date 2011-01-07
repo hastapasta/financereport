@@ -27,6 +27,42 @@ class db_utility
 	}
 }
 
+class schema_arrays
+{
+	public static $table_job_info = array (
+	array ("field" => "data_set","type" => "varchar", "length" =>  45),
+	array ("field" => "url_static","type" => "varchar", "length" =>  200),
+    array ("field" => "pre_process_func_name","type" => "varchar", "length" =>  45),
+    array ("field" => "post_process_func_name","type" => "varchar", "length" =>  45),
+    array ("field" => "pre_no_data_check_func","type" => "varchar", "length" =>  45),
+    array ("field" => "pre_job_process_func_name","type" => "varchar", "length" =>  45),
+    array ("field" => "post_job_process_func_name","type" => "varchar", "length" =>  45),
+    array ("field" => "source","type" => "varchar", "length" =>  20),
+    array ("field" => "data_group","type" => "varchar", "length" =>  25)
+	);
+	
+	public static $table_extract_table = array (
+    array ("field" => "table_count","type" => "int", "length" =>  11),
+    array ("field" => "top_corner_row","type" => "int", "length" =>  11),
+    array ("field" => "number_of_columns","type" => "int", "length" =>  11),
+    array ("field" => "column_th_tags","type" => "boolean", "length" =>  1),
+    array ("field" => "rowsofdata","type" => "int", "length" =>  11),
+    array ("field" => "rowinterval","type" => "int", "length" =>  11),
+    array ("field" => "end_data_marker","type" => "varchar", "length" =>  20),
+    array ("field" => "column1","type" => "int", "length" =>  11),
+    array ("field" => "column2","type" => "int", "length" =>  11),
+    array ("field" => "column3","type" => "int", "length" =>  11),
+    array ("field" => "column4","type" => "int", "length" =>  11),
+    array ("field" => "column5","type" => "int", "length" =>  11),
+    array ("field" => "column6","type" => "int", "length" =>  11)
+    );
+    
+    public static $table_schedule = array (
+    array ("field" => "Repeat_Type","type" => "int", "length" =>  5),
+    array ("field" => "companygroup","type" => "varchar", "length" =>  40)
+    );
+}
+
 function wl($the_string)
 {
 	$fi = fopen( 'logfile2.txt', 'a+');
@@ -34,6 +70,8 @@ function wl($the_string)
 	fputs( $fi, $the_string, strlen($the_string) );
 	fclose( $fi );
 }
+
+
 
 function get_data($url,$form_properties)
 {
@@ -228,6 +266,222 @@ echo "# of records: " . mysql_num_rows($result);
 	
 }
 
+function parse_table_structure($bDisplay)
+{
+	global $url_val, $parse_external_url, $seek_offset,$form_properties;
+	global $global_table_count,$global_row_count,$global_cell_count,$global_div_count;
+	
+	function custom_echo($bDisplay,$string)
+	{
+		
+		if ($bDisplay == true)
+			echo $string;
+	}
+			
+	
+	
 
+	
+	
+	$html = "<html></html>";
+
+if ($parse_external_url == true)
+{
+	$returned_content = get_data($url_val,$form_properties);
+}
+else
+{
+	$returned_content=$html;
+}
+
+	$open_table_regex="/<table[^>]*>/i";
+$close_table_regex="/<\/table[^>]*>/i";
+$done = false;
+$count = 0;
+$offset = 0;
+
+while (!$done)
+{
+	
+	if (preg_match($open_table_regex, $returned_content, $matches, PREG_OFFSET_CAPTURE, $offset))
+	{
+		if ($seek_offset > $matches[0][1])
+		//table tag is before seek_offset
+		{
+			
+			
+			$offset = $matches[0][1]+1;
+			$previous_offset = $offset;
+			//echo "<BR>location: ".$offset;
+			custom_echo($bDisplay,"<BR>location: ".$offset);
+			$count++;
+		}
+		else
+			$done = true;
+	}
+	else
+	{
+		$done = true;
+	}
+}
+
+custom_echo($bDisplay,"<BR>There are ".$count." open table tags preceeding offset ".$seek_offset.".<BR>");
+$global_table_count = $count;
+//echo "<BR>There are ".$count." open table tags preceeding offset ".$seek_offset.".<BR>";
+
+if ($count != 0)
+{
+
+	$open_tr_regex = "/<tr[^>]*>/i";
+	$done = false;
+	$count = 0;
+	$save_offset = $previous_offset;
+	$offset = $previous_offset;
+	
+	
+	while (!$done)
+	{
+		if (preg_match($open_tr_regex, $returned_content, $matches, PREG_OFFSET_CAPTURE, $offset))
+		{
+			if ($seek_offset > $matches[0][1])
+			//table tag is before seek_offset
+			{
+				
+				$offset = $matches[0][1]+1;
+				$previous_offset = $offset;
+				//echo "<BR>location: ".$offset;
+				custom_echo($bDisplay,"<BR>location: ".$offset);
+				$count++;
+			}
+			else
+				$done = true;
+		}
+		else
+		{
+			$done = true;
+		}
+	}
+
+	//echo "<BR>There are ".$count." open tr tags between offset ".$save_offset." and ".$seek_offset.".<BR>";
+	custom_echo($bDisplay,"<BR>There are ".$count." open tr tags between offset ".$save_offset." and ".$seek_offset.".<BR>");
+	$global_row_count = $count;
+}
+
+if ($count != 0)
+{
+
+	$open_td_regex = "/<td[^>]*>/i";
+	$done = false;
+	$count = 0;
+	$save_offset = $previous_offset;
+	$offset = $previous_offset;
+	
+	
+	while (!$done)
+	{
+		if (preg_match($open_td_regex, $returned_content, $matches, PREG_OFFSET_CAPTURE, $offset))
+		{
+			if ($seek_offset > $matches[0][1])
+			//table tag is before seek_offset
+			{
+				
+				$offset = $matches[0][1]+1;
+				$previous_offset = $offset;
+				//echo "<BR>location: ".$offset;
+				custom_echo($bDisplay,"<BR>location: ".$offset);
+				$count++;
+			}
+			else
+				$done = true;
+		}
+		else
+		{
+			$done = true;
+		}
+	}
+
+	//echo "<BR>There are ".$count." open td tags preceeding offset ".$save_offset." and ".$seek_offset.".<BR>";
+	custom_echo($bDisplay,"<BR>There are ".$count." open td tags preceeding offset ".$save_offset." and ".$seek_offset.".<BR>");
+	$global_cell_count = $count;
+}
+
+$close_td_regex = "%</td>(?i)%";
+if (preg_match($close_td_regex, $returned_content, $matches, PREG_OFFSET_CAPTURE, $offset))
+{
+	$end = $matches[0][1]+1;
+	$length = $end - $offset;
+	//echo "<BR>Contents of last td open and close tags:<BR>";
+	//echo "<BR>".htmlspecialchars(substr($returned_content, $offset - 1, $length + 5))."<BR>";
+	custom_echo($bDisplay,"<BR>Contents of last td open and close tags:<BR>");
+	custom_echo($bDisplay,"<BR>".htmlspecialchars(substr($returned_content, $offset - 1, $length + 5))."<BR>");
+	
+}
+else
+{
+	echo "Issue with processing open and close td tags.";
+}
+
+if ($count != 0)
+{
+	
+	$open_div_regex = "/<div[^>]*>/i";
+	$done = false;
+	$count = 0;
+	$save_offset = $previous_offset;
+	$offset = $previous_offset;
+	
+	while (!$done)
+	{
+		if (preg_match($open_div_regex, $returned_content, $matches, PREG_OFFSET_CAPTURE, $offset))
+		{
+			if ($seek_offset > $matches[0][1])
+			//table tag is before seek_offset
+			{
+				
+				$offset = $matches[0][1]+1;
+				$previous_offset = $offset;
+				//echo "<BR>location: ".$offset;
+				custom_echo($bDisplay,"<BR>location: ".$offset);
+				$count++;
+			}
+			else
+				$done = true;
+		}
+		else
+		{
+			$done = true;
+		}
+	}
+
+	//echo "<BR>There are ".$count." open div tags preceeding offset ".$save_offset." and ".$seek_offset.".<BR>";
+	custom_echo($bDisplay,"<BR>There are ".$count." open div tags preceeding offset ".$save_offset." and ".$seek_offset.".<BR>");
+	$global_div_count=$count;
+	
+}
+
+//display the contents between the last <div> tag and its corresponding </div> tag
+
+if ($count > 0)
+{
+//find the close </div> tag
+$close_div_regex = "%</div>(?i)%";
+if (preg_match($close_div_regex, $returned_content, $matches, PREG_OFFSET_CAPTURE, $offset))
+{
+	$end = $matches[0][1]+1;
+	$length = $end - $offset;
+	//echo "<BR>Contents of last div open and close tags:<BR>";
+	//echo "<BR>".htmlspecialchars(substr($returned_content, $offset - 1, $length + 6))."<BR>";
+	custom_echo($bDisplay,"<BR>Contents of last div open and close tags:<BR>");
+	custom_echo($bDisplay,"<BR>".htmlspecialchars(substr($returned_content, $offset - 1, $length + 6))."<BR>");
+	
+}
+else
+{
+	echo "<BR>Issue with processing open and close div tags.<BR>";
+}
+	
+
+}
+}
 
 ?>
