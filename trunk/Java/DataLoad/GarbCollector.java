@@ -37,7 +37,7 @@ public class GarbCollector {
 		calNextRunTime = Calendar.getInstance();
 		
 		Calendar calForTimeComparison = (Calendar)calNextRunTime.clone();
-		calForTimeComparison.set(Calendar.HOUR, calDateInput.get(Calendar.HOUR));
+		calForTimeComparison.set(Calendar.HOUR_OF_DAY, calDateInput.get(Calendar.HOUR_OF_DAY));
 		calForTimeComparison.set(Calendar.MINUTE, calDateInput.get(Calendar.MINUTE));
 		calForTimeComparison.set(Calendar.SECOND, calDateInput.get(Calendar.SECOND));
 		
@@ -56,10 +56,11 @@ public class GarbCollector {
 		 
 			  
 		calNextRunTime.set(Calendar.DAY_OF_WEEK,nDay);
-		calNextRunTime.set(Calendar.HOUR,calDateInput.get(Calendar.HOUR));
+		calNextRunTime.set(Calendar.HOUR_OF_DAY,calDateInput.get(Calendar.HOUR_OF_DAY));
 		calNextRunTime.set(Calendar.MINUTE,calDateInput.get(Calendar.MINUTE));
 		calNextRunTime.set(Calendar.SECOND,calDateInput.get(Calendar.SECOND));
 		
+		UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR NEXT RUN TIME: " + calNextRunTime.getTime().toString(),Logs.STATUS1,"GC19");
 		 
 		
 		
