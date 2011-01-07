@@ -21,7 +21,7 @@ $parse_external_url = 1;
 //$url_val = 'http://www.bls.gov/lau/home.htm';
 $chars_before_after = 200;
 /*end input values */
-include ("functions.php");
+include ("../common/functions.php");
 
 
 

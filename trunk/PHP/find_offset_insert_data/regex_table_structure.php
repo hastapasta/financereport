@@ -13,7 +13,7 @@
 								Then when you select a field from the data_set drop down box, those fields which aren't
 								checked will be overwritten with the existing value from the data base. */
 
-include("functions.php");
+include("../common/functions.php");
 /* input values */
 $parse_external_url = 1;
 //$url_val = 'http://bloomberg.econoday.com/byshoweventfull.asp?fid=441986&cust=bloomberg&year=2010#top';
