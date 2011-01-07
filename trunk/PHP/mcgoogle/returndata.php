@@ -1,7 +1,7 @@
 
 <?php
 
-	include ("functions.php");
+	include ("../common/functions.php");
 	
 	db_utility::db_connect();
 	
