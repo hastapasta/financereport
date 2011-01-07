@@ -18,7 +18,7 @@ if(isset($_GET['tq'])) {
 		else 
 			writelog("vis is not null");
     $vis->addEntity('timeline', array(
-        'table' => 'table_eps_est_and_act c',
+        'table' => 'eps_est_and_act c',
         'fields' => array(
             'ticker' => array('field' => 'c.ticker', 'type' => 'text'),
             'calyear' => array('field' => 'c.calyear', 'type' => 'number'),
