@@ -268,8 +268,28 @@ public class CurrencyActivity extends Activity implements View.OnClickListener{
             {
             
                 //displaySearchResults();
-              	mDialog2.dismiss();
-              	handler2.sendEmptyMessage(0);
+            	mDialog2.dismiss();
+              	switch(msg.what){
+                case 0:
+                       /*
+                        * Success. Go display the data.
+                        */
+                		handler2.sendEmptyMessage(0);
+                       break;
+                case 1:
+                	handler2.sendEmptyMessage(1);
+                	/*alertDialog = new AlertDialog.Builder(EarningsActivity.this).create();
+                    alertDialog.setTitle("Alert");
+                    alertDialog.setMessage("Unable to retrieve data.");
+                    alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface dialog, int which) {
+                        return;
+                      }
+                    });
+                    alertDialog.show();*/
+                	
+                	break;
+              }
             }
             
         };
