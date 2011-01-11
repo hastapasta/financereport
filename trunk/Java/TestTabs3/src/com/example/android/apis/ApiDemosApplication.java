@@ -37,7 +37,7 @@ public class ApiDemosApplication extends Application {
          * This populates the default values from the preferences XML file. See
          * {@link DefaultValues} for more details.
          */
-        PreferenceManager.setDefaultValues(this, R.xml.default_values, false);
+        //PreferenceManager.setDefaultValues(this, R.xml.default_values1, false);
     }
 
     @Override
