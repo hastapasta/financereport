@@ -49,15 +49,17 @@ public class TestTabs2 extends TabActivity {
         
         
 
-        intent = new Intent().setClass(this, SongsActivity.class);
+        intent = new Intent().setClass(this, CommodityActivity.class);
         /*spec = tabHost.newTabSpec("songs").setIndicator("Songs",
                           res.getDrawable(R.drawable.ic_tab_songs))
                       .setContent(intent);*/
-        spec = tabHost.newTabSpec("songs").setIndicator("Songs")
+        spec = tabHost.newTabSpec("commodity").setIndicator("Commodity")
         .setContent(intent);
         tabHost.addTab(spec);
 
         tabHost.setCurrentTab(0);
+        
+      
     }
     
 }
