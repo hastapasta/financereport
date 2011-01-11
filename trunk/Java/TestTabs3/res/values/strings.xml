@@ -15,7 +15,7 @@
 -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="activity_sample_code">API Demos</string>
+    
 
     <!-- =============================== -->
     <!--  app/activity examples strings  -->
@@ -341,7 +341,7 @@
     <string name="email_visibility">Email visibility</string>
     <string name="email_reply">Reply</string>
     <string name="email_forward">Forward</string>
-    <string name="jump">Jump</string>
+    
     <string name="dive">Dive</string>
 
     <!-- ============================== -->
@@ -373,8 +373,8 @@
     <string name="summary_yesno_preference">An example that uses a yes/no dialog</string>
     <string name="dialog_title_yesno_preference">Do you like bananas?</string>
 
-    <string name="title_edittext_preference">Edit text preference</string>
-    <string name="summary_edittext_preference">An example that uses an edit text dialog</string>
+    <string name="title_edittext_preference">Edit connection URL</string>
+    <string name="summary_edittext_preference">URL to connect to server</string>
     <string name="dialog_title_edittext_preference">Enter your favorite animal</string>
 
     <string name="title_list_preference">List preference</string>
@@ -898,6 +898,10 @@
     <string name="reply">Reply</string>
     <string name="dismiss">Dismiss</string>
     
-    <string name="json_url">http://204.93.193.191/devjson/</string>
+    <!-- For some reason, can only get the ip address to work here. -->
+     <string name="json_url">http://204.93.193.191/devjson/</string> 
+     <string name="settings">Settings</string>
+     <string name="activity_sample_code">TestTabs3</string>
+        
 </resources>
 
