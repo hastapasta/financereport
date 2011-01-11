@@ -690,6 +690,15 @@
 <activity android:name=".view.CurrencyActivity"><intent-filter><action android:name="android.intent.action.VIEW"></action>
 </intent-filter>
 </activity>
+<activity android:name=".view.CommodityActivity"><intent-filter><action android:name="android.intent.action.VIEW"></action>
+</intent-filter>
+<intent-filter></intent-filter>
+</activity>
+<activity android:name=".view.SettingsActivity"><intent-filter><action android:name="android.intent.action.VIEW"></action>
+</intent-filter>
+</activity>
+
+
 </application>
 
     <instrumentation android:name=".app.LocalSampleInstrumentation"
