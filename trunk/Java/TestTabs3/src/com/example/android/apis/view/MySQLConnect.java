@@ -47,7 +47,7 @@ public class MySQLConnect {
 		catch(Exception e)
 		{
 			Log.e("log_tag", "Error in http connection "+e.toString());
-			throw new CustomConnectionException();
+			throw new CustomConnectionException("Unable to connect to Server.");
 		}
 		//convert response to string
 		StringBuilder sb = new StringBuilder();
@@ -66,7 +66,7 @@ public class MySQLConnect {
 		catch(Exception e)
 		{
 			Log.e("log_tag", "Error converting result "+e.toString());
-			throw new CustomConnectionException();
+			throw new CustomConnectionException("Error reading data.");
 		}
 	
 		//parse json data
@@ -87,7 +87,7 @@ public class MySQLConnect {
 		catch(JSONException e)
 		{
 			Log.e("log_tag", "Error parsing data "+e.toString());
-			throw new CustomConnectionException();
+			throw new CustomConnectionException("Invalid data format.");
 		}
 		
 		return(jArray);
@@ -99,10 +99,16 @@ public class MySQLConnect {
 class CustomConnectionException extends Exception
 {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 7938367969464733L;
+	
+	public CustomConnectionException(String msg)
+	{
+		super(msg);
+	}
+
+	
+	
 	
 }
 
