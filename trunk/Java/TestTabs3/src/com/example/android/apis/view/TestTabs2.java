@@ -19,6 +19,7 @@ public class TestTabs2 extends TabActivity {
 
         //Resources res = getResources(); // Resource object to get Drawables
         TabHost tabHost = getTabHost();  // The activity TabHost
+
         TabHost.TabSpec spec;  // Resusable TabSpec for each tab
         Intent intent;  // Reusable Intent for each tab
 
@@ -54,6 +55,14 @@ public class TestTabs2 extends TabActivity {
                           res.getDrawable(R.drawable.ic_tab_songs))
                       .setContent(intent);*/
         spec = tabHost.newTabSpec("commodity").setIndicator("Commodity")
+        .setContent(intent);
+        tabHost.addTab(spec);
+        
+        intent = new Intent().setClass(this, StockIndexActivity.class);
+        /*spec = tabHost.newTabSpec("songs").setIndicator("Songs",
+                          res.getDrawable(R.drawable.ic_tab_songs))
+                      .setContent(intent);*/
+        spec = tabHost.newTabSpec("stockIndex").setIndicator("StockIndex")
         .setContent(intent);
         tabHost.addTab(spec);
 
