@@ -6,13 +6,16 @@
       <TextView android:id="@+id/content05"
      android:padding="1dip" 
      android:text="Q1-4:2011"
+     android:textColor="@color/solid_white"
          android:singleLine="true"/>
       <TextView android:id="@+id/content020"
                      android:layout_span="2"
                      android:text="TOTAL EARNINGS"
+                     android:textColor="@color/solid_white"
          android:singleLine="true"/>
       <TextView android:id="@+id/content021"
          android:layout_span="2"
          android:text="share price"
+         android:textColor="@color/solid_white"
          android:singleLine="true"/>
       </TableRow>

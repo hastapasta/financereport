@@ -6,22 +6,27 @@
      <TextView android:id="@+id/content0"
      	 android:padding="1dip"
      	 android:text="TICKER"
+     	 android:textColor="@color/solid_white"
          android:singleLine="true"/>
      <TextView android:id="@+id/content01"
      android:padding="1dip" 
      android:text="Q1:2011"
+     android:textColor="@color/solid_white"
          android:singleLine="true"/>
      <TextView android:id="@+id/content02"
      android:padding="1dip" 
      android:text="Q2:2011"
+     android:textColor="@color/solid_white"
          android:singleLine="true"/>
      <TextView android:id="@+id/content03"
      android:padding="1dip" 
      android:text="Q3:2011"
+     android:textColor="@color/solid_white"
          android:singleLine="true"/>
      <TextView android:id="@+id/content04"
      android:padding="1dip" 
      android:text="Q4:2011"
+     android:textColor="@color/solid_white"
          android:singleLine="true"/>
      
         <!--  android:textAppearance="@style/someappearance" /> -->
