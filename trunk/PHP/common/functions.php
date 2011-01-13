@@ -54,7 +54,20 @@ class schema_arrays
     array ("field" => "column3","type" => "int", "length" =>  11),
     array ("field" => "column4","type" => "int", "length" =>  11),
     array ("field" => "column5","type" => "int", "length" =>  11),
-    array ("field" => "column6","type" => "int", "length" =>  11)
+    array ("field" => "column6","type" => "int", "length" =>  11),
+    array ("field" => "bef_code_col1","type" => "varchar", "length" =>  20),
+    array ("field" => "aft_code_col1","type" => "varchar", "length" =>  20),
+    array ("field" => "bef_code_col2","type" => "varchar", "length" =>  20),
+    array ("field" => "aft_code_col2","type" => "varchar", "length" =>  20),
+    array ("field" => "bef_code_col3","type" => "varchar", "length" =>  20),
+    array ("field" => "aft_code_col3","type" => "varchar", "length" =>  20),
+    array ("field" => "bef_code_col4","type" => "varchar", "length" =>  20),
+    array ("field" => "aft_code_col4","type" => "varchar", "length" =>  20),
+    array ("field" => "bef_code_col5","type" => "varchar", "length" =>  20),
+    array ("field" => "aft_code_col5","type" => "varchar", "length" =>  20),
+    array ("field" => "bef_code_col6","type" => "varchar", "length" =>  20),
+    array ("field" => "aft_code_col6","type" => "varchar", "length" =>  20)
+    
     );
     
     public static $table_schedule = array (
