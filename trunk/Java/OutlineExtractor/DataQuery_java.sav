@@ -1,0 +1,474 @@
+/*
+   Outline Extractor Utility
+
+	Change log:
+	OFP 4/12/2007 - Added UDA extraction logic. Changed the "Label Only" code from T
+ 	to O. Changed the formula extraction logic to replace the characters with a space
+	instead of an empty char.
+	OFP 4/12/2007 - Added cube name and app name to command line parameters. Changed
+	the format of the name of the output file to be <AS server>_<app name>_<cube name>.txt
+	OFP 4/18/2007 - Began adding code to retry essbase calls in the event of failures.
+	OFP 4/30/2007 - Performed code cleanup and added the ability to extract multiple dimensions.
+ */
+//package com.essbase.samples;
+
+import com.essbase.api.base.*;
+import com.essbase.api.session.*;
+import com.essbase.api.datasource.*;
+import com.essbase.api.dataquery.*;
+import com.essbase.api.metadata.*;
+import com.essbase.api.domain.*;
+import java.io.*;
+import java.util.*;
+
+public class DataQuery
+{
+	// NOTE: Change the following variables to suit your setup.
+	/*private static String s_userName = "system";
+	private static String s_password = "password";
+	private static String s_domainName = "essbase";
+	private static String s_prefEesSvrName = "localhost";*/
+	private static String s_userName = "admin";
+	private static String s_password = "madmax1.";
+	private static String s_domainName = "essbase";
+	private static String s_prefEesSvrName = "oracleepm";
+
+	private static IEssbase.EEssOrbPluginType s_orbType = IEssbase.EEssOrbPluginType.TCPIP;
+	private static int s_port = 5001;
+
+	//private static String s_olapSvrName = "uxsy9dbd";
+	private static String s_olapSvrName = "oracleepm";
+
+
+	private static String s_strippedOlapSvrName = "oracleepm";
+
+	/*private static String s_appName = "MGT";
+	private static String s_cubeName = "MGT";
+	private static String s_rootMemberName = "Compliance Units";*/
+
+	private static String s_appName = "Sample";
+	private static String s_cubeName = "Fed";
+	private static String s_rootMemberName = "Measures";
+	
+
+	private static IEssCube s_cube;
+	private static IEssCubeOutline s_outline;
+	private static BufferedReader s_stdin;
+	static File output;
+	static FileWriter fwoutput;
+	static int nLongestBranch;
+	static int nMemberCount;
+	static String fldSel;
+	static Hashtable members;
+  
+
+	public static void main(String[] args) 
+	{
+		IEssbase ess = null;
+		IEssCubeView cv = null;
+		try
+		{
+			acceptArgs(args);
+			
+			// Create JAPI instance.
+			ess = IEssbase.Home.create(IEssbase.JAPI_VERSION);
+			
+			//OFP 2010 - no "."s in olap Svr Name
+			//s_strippedOlapSvrName = s_olapSvrName.substring(0,s_olapSvrName.indexOf("."));
+			System.out.println(s_strippedOlapSvrName);
+	    
+			// Sign on to the domain, and perform data query operations.
+			IEssDomain dom = ess.signOn(s_userName, s_password, s_domainName,s_prefEesSvrName, s_orbType, s_port);
+			cv = dom.openCubeView("Data Query Example", s_olapSvrName, s_appName,s_cubeName, true, true, true, true);
+			
+			IEssOlapServer olapSvr = (IEssOlapServer)dom.getOlapServer(s_olapSvrName);
+			olapSvr.connect();
+			
+			System.out.println("Current Alias Table:" + cv.getAliasTable());
+	    
+			s_cube = olapSvr.getApplication(s_appName).getCube(s_cubeName);
+			System.out.println("obtained cube");
+			s_outline = s_cube.openOutline();
+			System.out.println("opened outline");
+	
+			cv.setRepeatMemberNames(false);
+			cv.setIncludeSelection(true);
+			cv.updatePropertyValues();
+	
+			fldSel = "<OutputType Binary <SelectMbrInfo (MemberName, MemberLevel, MemberGen, Consolidation, MemberFormula, MemberAlias, DimensionName, Expense,MemberNumber, DimensionNumber, ChildMemberName, ParentMemberName, PreviousMemberName, NextMemberName, UDAList,ShareOption,TimeBalance,TwoPass)";
+			
+			s_stdin = new BufferedReader( new InputStreamReader( System.in ) );
+	
+			StringTokenizer st = new StringTokenizer(s_rootMemberName,",");
+			//while (st.hasMoreTokens()) {
+         //System.out.println(st.nextToken());
+     		//}
+
+			while (st.hasMoreTokens())
+			{
+			
+				//Root Member for extract
+				String s_curRootMember = st.nextToken();
+				String mbrSel = "\"" + s_curRootMember + "\"";
+	
+				System.out.println("Processing root member: " + mbrSel);
+				IEssMember[] mbrs = cv.memberSelection(mbrSel, fldSel);	
+	
+				IEssMember mbr = mbrs[0];
+				nLongestBranch = mbr.getLevelNumber() + 1;
+				nMemberCount = 0;
+				System.out.println("Longest Branch: " + nLongestBranch);
+			
+				members = new Hashtable();
+				
+				try
+				{
+					output = new File(s_strippedOlapSvrName + "_" + s_appName + "_" + s_cubeName + "_" + s_curRootMember + ".txt");
+					fwoutput = new FileWriter(output);
+					for (int j=1;j<=nLongestBranch;j++)
+					{
+						fwoutput.write(	"Gen" + j + 
+							",AliasGen" + j +
+							",UDA1Gen" + j +
+							",UDA2Gen" + j +
+							",ConsolidationGen" + j +
+							",DataStorageGen" + j +
+							",FormulaGen" + j +
+							",TimeBalanceGen" + j +
+							",TwoPassGen" + j);
+				
+						if (j!=12)
+							fwoutput.write(",");
+					}
+				
+					fwoutput.write("\n");
+	          
+				}
+				catch (Exception e)
+				{
+					System.out.println("Problem opening output file");
+	      		System.out.println(e.getMessage());
+				}
+	
+			
+			
+				Vector vAncestor = new Vector();
+	
+		      performMemberSelection(ess, cv,mbr,vAncestor);
+	
+				try
+	   	   {
+					fwoutput.close();
+			  	}
+		   	catch (Exception e)
+		     	{
+		      	System.out.println(e.getMessage());
+		      }
+			}
+		}
+		catch (EssException x)
+		{
+	   	System.err.println("Error: " + x.getMessage());
+		} 
+		finally
+		{
+			// Close cube view.
+			try
+			{
+				if (cv != null)
+					cv.close();
+			}
+			catch (EssException x)
+			{
+				System.err.println("Error: " + x.getMessage());
+			}
+	    
+	    	try
+			{
+				if (s_outline != null)
+		    	//close the outline ignoring errors
+					s_outline.close(true);
+			}
+			catch (EssException x)
+			{
+				System.err.println("Error: " + x.getMessage());
+			}
+	
+			// Sign off from the domain.
+			try
+			{
+				if (ess != null && ess.isSignedOn() == true)
+					ess.signOff();
+			}
+			catch (EssException x)
+			{
+				System.err.println("Error: " + x.getMessage());
+			}
+		}
+	}
+
+	static void performMemberSelection(IEssbase ess, IEssCubeView cv,IEssMember mbr,Vector vAncestor)
+		throws EssException
+	{	 
+		System.out.println("------------");
+	   nMemberCount++;
+		System.out.println("Process Member #: " + nMemberCount);
+		
+		String mbrSel;
+		IEssMember[] mbrs,mbrs2;
+		IEssMember mbr2;
+		String[] arMbr,arMbr2;
+	
+		System.out.print("before Ancestor: ");
+		for (int z=0;z<vAncestor.size();z++)
+		{
+			arMbr = (String[]) vAncestor.elementAt(z);
+			System.out.print(arMbr[0] + ",");
+		}
+		System.out.println("");
+	            
+		String strAlias = mbr.getAlias("Default");
+		strAlias = (strAlias==null)?"":"'" + strAlias+ "'";
+		String strFormula = mbr.getFormula();
+		strFormula = (strFormula==null)?"":"'" + strFormula + "'";
+		String pattern = "[\n\r\t]";
+		strFormula = strFormula.replaceAll(pattern," "); 	
+		     
+		String strName = "'" + mbr.getName() + "'";
+			
+		String strTimeBalance = mbr.getTimeBalanceOption().toString();
+		if (strTimeBalance.compareTo("Last") == 0)
+			strTimeBalance = "L";
+		else if (strTimeBalance.compareTo("First") == 0)
+			strTimeBalance = "F";
+		else if (strTimeBalance.compareTo("Average") == 0)
+			strTimeBalance = "A";		
+	          
+	
+		System.out.println("Time Balance Option:" + strTimeBalance);
+	
+		if (strTimeBalance.compareTo("None") == 0)
+			strTimeBalance = "";
+		   
+		String strConsol = (String)mbr.getConsolidationType().toString();
+		strConsol = (strConsol==null)?"":"'" + strConsol.substring(0,1) + "'";
+	
+		String strDataStore =(String)mbr.getShareOption().toString();
+		if (strDataStore.compareTo("Store data") == 0)
+			strDataStore = "";
+		else if (strDataStore.compareTo("Dynamic calc (no store)") == 0)
+			strDataStore = "X";
+		else if (strDataStore.compareTo("Label only") == 0)
+			strDataStore = "O";
+		else if (strDataStore.compareTo("Shared member") == 0)
+			strDataStore = "S";
+		else if (strDataStore.compareTo("Never share") == 0)
+			strDataStore = "N";
+	
+		
+		IEssMember tmpMbr = null;	
+		boolean bDone = false;
+		String tmpStr;
+		
+		/*
+			the following code is for retrieving the member using the outline interface which has to be done to 
+			obtain the UDA.
+		*/
+			
+		/*
+			The following is also a prototype for implementing a mechanism for the program to continue even if
+			there is some sort of interruption. The program will halt waiting for some manual input, giving the
+			user an opportunity to address the cause of the interruption.
+		*/
+		System.out.println("getting member");
+		
+		while (bDone == false)
+		{
+			try
+			{
+				tmpMbr = s_outline.findMember(mbr.getName());
+				bDone = true;
+			}
+			catch (EssException	ex)
+			{
+				System.out.println("");
+				System.out.println(ex.getMessage());
+				System.out.println("Issue calling s_outline.findMember())");
+				System.out.println("Hit any key to retry");
+				try 
+				{
+					tmpStr = s_stdin.readLine();
+				}
+				catch (Exception e)
+				{
+					System.out.println(e.getMessage());
+				}
+			}		
+		}
+	
+		
+	
+		System.out.println("getting UDAs");
+		String[] arUDA = tmpMbr.getUDAs();
+		String strUDA1 = "";
+		String strUDA2 = "";
+		if (arUDA != null)
+		{
+			if (arUDA.length > 1) strUDA2 = "'" + arUDA[1] + "'";
+		
+			if (arUDA.length > 0) strUDA1 = "'" + arUDA[0] + "'";
+		}
+		System.out.println("UDAs: " + strUDA1 + strUDA2 );
+	          	
+		String strTwoPass = (mbr.isTwoPassCalculationMember())?"T":"";
+	
+		boolean bSharedMember = false;
+	
+		if (members.get(strName) != null)
+			bSharedMember = true;
+		else
+			members.put(strName,new Integer(1));
+	 			   		
+		arMbr = new String[9];
+		arMbr[0] = strName;
+		
+		//If a shared member, don't write out the Alias - AIS doesn't like this
+		if (bSharedMember == true)
+			arMbr[1] = "";
+		else
+			arMbr[1] = strAlias;
+		arMbr[2] = strUDA1;
+		arMbr[3] = strUDA2;	
+		arMbr[4] = strConsol;
+		arMbr[5] = strDataStore;
+		arMbr[6] = strFormula;
+		arMbr[7] = strTimeBalance;
+		arMbr[8] = strTwoPass;
+		
+		System.out.println("Alias: " + arMbr[1]);
+		
+		try
+		{
+			if ((mbr.getLevelNumber() == 0 || bSharedMember == true))
+			{
+	
+				int nSpaces = nLongestBranch - vAncestor.size() - 1;
+				
+				System.out.println("Size: " + vAncestor.size());
+				
+				for (int k=0;k<vAncestor.size();k++)
+				{
+					arMbr2 = (String [])vAncestor.elementAt(k);
+					
+					for (int y=0;y<arMbr2.length;y++)
+					{
+						fwoutput.write(arMbr2[y]);
+						fwoutput.write(",");
+					}	
+				}
+	
+				for (int k=0;k<nSpaces;k++)
+				{
+					for(int y=0;y<arMbr.length;y++)
+					{
+						fwoutput.write("");
+						fwoutput.write(",");
+					}	
+				
+				}
+	
+				for (int y=0;y<arMbr.length;y++)
+				{
+					fwoutput.write(arMbr[y]);
+					fwoutput.write(",");
+				}
+				
+				System.out.println("Writing out member: " + arMbr[0]);
+	
+	        	fwoutput.write("\n\r");
+				if ((nMemberCount % 100) == 0)
+				{
+					fwoutput.flush();
+					System.out.println("Flushing Buffer-------------------");
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
+		  
+	                           
+	   //Don't process children if member is shared
+		if (bSharedMember == true)
+		{
+			System.out.println("Shared Member - Skipping Children!!!!!!!!!!!!!!!!!!!!!!!!!");
+			return;
+		}
+		
+		
+		vAncestor.add(arMbr);	 
+	
+		System.out.println("Name: " + mbr.getName());
+	        
+		//essbase call
+		String nextSibling = mbr.getNextSiblingMemberName();
+	
+		mbrSel = "@ichild(\"" + mbr.getName() + "\")";
+	   //essbase call
+		mbrs = cv.memberSelection(mbrSel,fldSel);
+		
+		//have to iterate across children because of how shared members are traversed
+		int len = mbrs.length - 1;
+		String strNewCurrent;
+		
+		for (int i=0;i<len;i++)
+		{
+			
+			mbr2 = mbrs[i];
+			mbrSel = "\"" +  mbr2.getName() + "\"";
+			//essbase call	
+			mbrs2 = cv.memberSelection(mbrSel, fldSel);
+			
+			System.out.print("After Ancestor: ");
+			for (int z=0;z<vAncestor.size();z++)
+			{
+				arMbr = (String[]) vAncestor.elementAt(z);
+				System.out.print(arMbr[0] + ",");
+			}
+			System.out.println("");
+			
+			performMemberSelection(ess, cv, mbrs2[0],vAncestor);
+			
+		}
+	
+		vAncestor.remove(vAncestor.size()-1);
+		
+	}
+
+	static void acceptArgs(String[] args) throws EssException
+	{
+		if (args.length >= 10) 
+		{
+			s_userName = args[0];
+			s_password = args[1];
+			s_domainName = args[2];
+			s_prefEesSvrName = args[3];
+			s_orbType = IEssbase.EEssOrbPluginType.sm_fromString(args[4]);
+			s_port = Integer.parseInt(args[5]);
+			s_olapSvrName = args[6];
+			s_appName = args[7];
+			s_cubeName = args[8];
+			s_rootMemberName = args[9];
+			
+		} 
+		else if (args.length != 0)
+		{
+			System.err.println(
+			"Usage: java com.essbase.samples.DataQuery " +
+			"<user> <password> <domain> <prefEesSvr> <orbType> <port> <olapSvr>\n"+
+			"       java com.essbase.samples.DataQuery");
+			System.exit(1);
+		}
+	}
+}
