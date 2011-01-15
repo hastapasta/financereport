@@ -3,13 +3,13 @@ $q=$_GET["q"];
 
 //$con = mysql_connect('localhost', 'peter', 'abc123');
 $con = mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
-mysql_select_db("mydb") or die(mysql_error());
+mysql_select_db("findata") or die(mysql_error());
 if (!$con)
   {
   die('Could not connect: ' . mysql_error());
   }
 
-mysql_select_db("mydb", $con);
+mysql_select_db("findata", $con);
 
 $sql="SELECT * FROM company WHERE ticker = '".$q."'";
 

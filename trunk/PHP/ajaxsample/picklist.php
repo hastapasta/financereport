@@ -9,13 +9,14 @@
 	
 
 	$con = mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
-mysql_select_db("mydb") or die(mysql_error());
+	mysql_select_db("findata") or die(mysql_error());
+	
 if (!$con)
   {
   die('Could not connect: ' . mysql_error());
   }
 
-mysql_select_db("mydb", $con);
+mysql_select_db("findata", $con);
 
 $sql="SELECT * FROM company order by ticker";
 
@@ -26,7 +27,7 @@ $i = 0;
 while($row = mysql_fetch_array($result))
   {
 
-  echo "companyArray[".$i."]=\"".$row[ticker]."\";";
+  echo "companyArray[".$i."]=\"".$row['ticker']."\";";
   $i++;
   }
 ?>
@@ -84,7 +85,7 @@ xmlhttp.send();
 
 function test1()
 {
-	
+
 	//var x=document.getElementById('company');
 	var z=document.getElementById('company2');
 	
@@ -97,35 +98,39 @@ function test1()
 		z.remove(i);
 	}
 
-	
+
 	
 	for (var y=0;y<companyArray.length;y=y+1)
 	{
 		//z.add(x.options[y].text,x.options[y].text);
 		if (companyArray[y].indexOf(tmp) == 0)
 		{
+			
 			var elOptNew = document.createElement('option');
-
-    	elOptNew.text = companyArray[y];
-    	elOptNew.value = companyArray[y];
-    	z.add(elOptNew);
-    }
+	
+	    	elOptNew.text = companyArray[y];
+	    
+	    	elOptNew.value = companyArray[y];
+	    	z.appendChild(elOptNew);
+	    
+    	}
 
 		//z.add("test","test");
 	}
+
 }
 </script>
 </head>
 <body onLoad="loadfunc();">
 	<?php
 $con = mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
-mysql_select_db("mydb") or die(mysql_error());
+mysql_select_db("findata") or die(mysql_error());
 if (!$con)
   {
   die('Could not connect: ' . mysql_error());
   }
 
-mysql_select_db("mydb", $con);
+mysql_select_db("findata", $con);
 
 $sql="SELECT * FROM company order by ticker";
 
@@ -149,11 +154,11 @@ while($row = mysql_fetch_array($result))
 
 Enter text in the text box to filter the list of companies:
 <form>
-<input type="text" name="tables" size=30 maxlength="30" onkeyup="test1()">
+<input type="text" name="tables" id=tables size=30 maxlength="30" onkeyup="test1()">
 </select>
 </form>
 
-<form><select name="company2" size=10 onchange="test()">
+<form><select name="company2" id=company2 size=10 onchange="test()">
 </select>
 </form>
 
@@ -174,7 +179,7 @@ Enter text in the text box to filter the list of companies:
 
 Enter text in the text box to make an ajax call to get the current date/time:
 <form>
-<input type="text" name="tables" size=30 maxlength="30" onkeyup="test()">
+<input type="text" name="tables1" size=30 maxlength="30" onkeyup="test()">
 </select>
 </form>
 
