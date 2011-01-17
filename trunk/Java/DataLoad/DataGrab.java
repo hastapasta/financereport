@@ -31,6 +31,7 @@ public class DataGrab extends Thread
 	
 String returned_content;
 String strCurDataSet;
+
 int nBatch;
 UtilityFunctions uf;
 ProcessingFunctions pf;
@@ -53,6 +54,9 @@ DBFunctions dbf;
   	this.pf = new ProcessingFunctions(tmpUF,this);
   	strCurDataSet = strDataSet;
   	strCurrentTicker = "";
+  	
+
+  	
   	
   	UtilityFunctions.stdoutwriter.writeln("=========================================================",Logs.STATUS1,"");
   	
@@ -129,7 +133,8 @@ int regexSeekLoop(String regex, int nCount, int nCurOffset) throws TagNotFoundEx
 		if (matcher.find(nCurOffset) == false)
 		//Did not find regex
 		{
-			UtilityFunctions.stdoutwriter.writeln("Regex search exceeded.",Logs.ERROR,"DG2");
+			/*Let whoever catches this decide what to write to the logs.*/
+			//UtilityFunctions.stdoutwriter.writeln("Regex search exceeded.",Logs.ERROR,"DG2");
 			throw new TagNotFoundException();
 		}
 		
@@ -243,6 +248,9 @@ public String get_value(String local_data_set) throws IllegalStateException,TagN
   rs.next();
   
   int tables,cells,rows,divs;
+  /*
+   * This next line will throw an exception if you meant to do a table extraction but forgot to set the table_extraction flag in the db.
+   */
   tables = rs.getInt("Table_Count");
   cells = rs.getInt("Cell_Count");
   rows = rs.getInt("Row_Count");
@@ -378,6 +386,12 @@ public String get_value(String local_data_set) throws IllegalStateException,TagN
 
 public ArrayList<String[]> get_table_with_headers(String strTableSet) throws SQLException,TagNotFoundException
 {
+	String query = "select extract_key_colhead,extract_key_rowhead,multiple_tables from job_info where data_set='"+strTableSet+"'";
+	ResultSet rs = dbf.db_run_query(query);
+	rs.next();
+	
+
+		
 	
 	
 	
@@ -385,10 +399,7 @@ public ArrayList<String[]> get_table_with_headers(String strTableSet) throws SQL
 
 	
 	
-	
-	String query = "select extract_key_colhead,extract_key_rowhead from job_info where data_set='"+strTableSet+"'";
-	ResultSet rs = dbf.db_run_query(query);
-	rs.next();
+
 	
 	if (!((rs.getString("extract_key_colhead") == null) || rs.getString("extract_key_colhead").isEmpty()))
 	{
@@ -396,6 +407,8 @@ public ArrayList<String[]> get_table_with_headers(String strTableSet) throws SQL
 		
 		tabledatabody.add(0,tabledatacol.get(0));
 	}
+	else
+		tabledatabody.add(0,null);
 	
 	//strTmpTableSet = strTableSet.replace("_body","_rowhead");
 	
@@ -621,11 +634,35 @@ public ArrayList<String[]> get_table(String strTableSet, String strSection) thro
 		if (rs.getInt("column_th_tags") != 1)
 			bColTHtags=false;
 		
-		int nCurOffset = 0;
+	
 		//seek to the top corner of the table
-		UtilityFunctions.stdoutwriter.writeln("Before table searches.",Logs.STATUS2,"DG27");
 		
-		nCurOffset = regexSeekLoop("(?i)(<TABLE[^>]*>)",rs.getInt("table_count"),nCurOffset);
+		String strTableCount = rs.getString("table_count");
+		int nBeginTable,nEndTable;
+		
+		if (strTableCount.contains(","))
+		{
+			nBeginTable = Integer.parseInt(strTableCount.substring(0,strTableCount.indexOf(",")));
+			nEndTable = Integer.parseInt(strTableCount.substring(strTableCount.indexOf(",")+1,strTableCount.length()));
+		}
+		else
+		{
+			nBeginTable = nEndTable = Integer.parseInt(strTableCount);
+		}
+		
+		
+		
+		for (int nCurTable=nBeginTable;nCurTable<=nEndTable;nCurTable++)
+			
+		{
+		
+		int nCurOffset = 0;
+		
+		UtilityFunctions.stdoutwriter.writeln("Searching table count: " + nCurTable,Logs.STATUS2,"DG27");
+		
+		
+		
+		nCurOffset = regexSeekLoop("(?i)(<TABLE[^>]*>)",nCurTable,nCurOffset);
 		
 		nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",rs.getInt("top_corner_row"),nCurOffset);
 
@@ -705,15 +742,16 @@ public ArrayList<String[]> get_table(String strTableSet, String strSection) thro
 			
 			tabledata.add(rowdata);
 			
-			nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",nRowInterval,nCurOffset);
+			
 			nRowCount++;
 			
 			/*
-			 * Identified 3 table exit types
+			 * Identified 4 table exit types
 			 * 1) fixed size (fixed # of rows & columns) (handled below)
 			 * -dynamic
 			 * 2) end table tag (handled below)
 			 * 3) end cell value (come across a cell value that is invalid or otherwise marks
+			 * 4) 
 			 * that there is no more data) (handled above with strEndDataMarker)
 			 */
 			if (nDataRows > 0)
@@ -721,10 +759,24 @@ public ArrayList<String[]> get_table(String strTableSet, String strSection) thro
 				if (nDataRows==nRowCount)
 					break;
 			}
-			else if (nEndTableOffset < nCurOffset)
-				break;
+			else 
+			{
+				try
+				{
+					nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",nRowInterval,nCurOffset);
+				}
+				catch(TagNotFoundException tnfe)
+				{
+					//No more TR tags in the file - we'll assume it's the  end of the table
+					break;
+				}
+				
+				if (nEndTableOffset < nCurOffset)
+					break;
+			}
 			
-			
+		}
+		
 		}
   	   
 	
@@ -820,6 +872,15 @@ public void grab_data_set()
 		rs.next();
 		String group = rs.getString("companygroup");
 		
+		boolean bTableExtraction = true;
+		
+	 	query = "select table_extraction from job_info where data_set='" + strCurDataSet + "'";
+	 	rs = dbf.db_run_query(query);
+	 	rs.next();
+	 	if (rs.getInt("table_extraction")==0)
+	 		bTableExtraction = false;
+	 		
+		
 		pf.preJobProcessing(strCurDataSet);
 		
 		//This should be handled in DataLoad.java
@@ -829,7 +890,8 @@ public void grab_data_set()
 		if (group.compareTo("none") == 0)
 		{
 			//this extract process is not associated with a group of companies.
-			if ((strCurDataSet.substring(0,5)).compareTo("table") == 0)
+			//if ((strCurDataSet.substring(0,5)).compareTo("table") == 0)
+			if (bTableExtraction==true)
 			{
 				try
 				{
@@ -849,13 +911,17 @@ public void grab_data_set()
 					rs2.next();
 					
 					//if (strCurDataSet.equals("table_sandp_co_list") != true) //already imported data in the processing function
-					if (rs2.getInt("custom_insert") != 1)	
+					/*
+					 * Insert directly into fact_data now.
+					 */
+					dbf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);
+					/*if (rs2.getInt("custom_insert") != 1)	
 					{
 						if (strCurDataSet.contains("xrateorg"))
 							dbf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);
 						else
 							dbf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
-					}
+					}*/
 					
 				}
 				catch (MalformedURLException mue)
@@ -936,10 +1002,14 @@ public void grab_data_set()
 				rs2.next();
 				if (rs2.getInt("custom_insert") != 1)
 				{
-					if (this.strCurDataSet.equals("exchrate_yen_dollar"))
+					/*
+					 * Import directly into fact_data now.
+					 */
+					dbf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);
+					/*if (this.strCurDataSet.equals("exchrate_yen_dollar"))
 						dbf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);	
 					else
-						dbf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+						dbf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);*/
 					
 				}
 				
@@ -988,7 +1058,8 @@ public void grab_data_set()
 					
 				
 				
- 					if ((strCurDataSet.substring(0,5)).equals("table"))
+ 					//if ((strCurDataSet.substring(0,5)).equals("table"))
+					if (bTableExtraction == true)
 					{
 						try
 						{
@@ -1122,10 +1193,16 @@ public void grab_data_set()
 								if (rs2.getInt("custom_insert") != 1)
 									//uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
 									//mainlining the data right into the femoral artery
-									if (strCurDataSet.equals("yahoo_share_price_new"))
+									
+									/*
+									 * we're going to insert directly into fact_data now
+									 */
+									/*if (strCurDataSet.equals("yahoo_share_price_new"))
 										dbf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);
 									else
-										dbf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
+										dbf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);*/
+								
+									dbf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);
 								
 								/*{
 			
