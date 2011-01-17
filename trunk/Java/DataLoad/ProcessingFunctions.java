@@ -214,7 +214,12 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Stri
 	
 		String query = "select post_process_func_name from job_info where Data_Set='" + strDataSet + "'";
 		
-		strDataValue = tabledata.get(0)[0];
+		/*
+		 * This is for non-table extraction. However this will throw a nullpointerexception if no column header
+		 * data is extracted during a table extraction.
+		 */
+		if (tabledata.get(0) != null)
+			strDataValue = tabledata.get(0)[0];
 
 	
 		try
@@ -985,6 +990,123 @@ public void postProcessNasdaqEPSTable() throws SQLException
 
 	
 }
+
+public void postProcessBloombergCommodities()
+{
+	String[] tmpArray = {"data_set","value","date_collected","ticker"};
+	
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	String[] rowdata, newrow;
+	//String[] colheaders = propTableData.get(0);
+	String[] rowheaders = propTableData.get(1);
+	
+	//newTableData.add(tmpArray);
+	
+	for (int row=2;row<propTableData.size();row++)
+	{
+		rowdata = propTableData.get(row);
+		
+		if (rowdata[0].contains("N.A."))
+			continue;
+		
+		newrow = new String[tmpArray.length];
+		
+		newrow[0] = propStrTableDataSet;
+		//newrow[2] = "FUNCTION";
+		newrow[1] = rowdata[0].replace(",", "");
+		//newrow[4] = "VARCHAR";
+		newrow[2] = "NOW()";
+		//newrow[6] = "INTEGER";
+		
+		/*
+		 * If there are 2 sets of parens for the row header, we want to cutoff at the 2nd left paren.
+		 */
+		
+		String tmp = rowheaders[row-2];
+		int i = tmp.indexOf("(");
+	
+		if (tmp.indexOf("(",i+1)==-1)
+			newrow[3] = tmp.substring(0,i);
+		else
+			newrow[3] = tmp.substring(0,tmp.indexOf("(",i+1));
+		
+			
+		
+		//newrow[3] = rowheaders[row-2].substring(0,rowheaders[row-2].indexOf("("));
+		newrow[3] = newrow[3].trim();
+		/*newrow[3] = tmp.substring(tmp.indexOf(">")+1,tmp.indexOf("</"));
+		newrow[3] = newrow[3].replace("&amp;", "&");
+		newrow[3] = newrow[3].replace("&#x80;", "€");*/
+		
+		
+		
+		newTableData.add(newrow);
+		
+		
+			
+			
+		
+		
+	}
+	
+	newTableData.add(0, tmpArray);
+	propTableData = newTableData;
+	
+	
+
+}
+
+
+
+public void postProcessBloombergIndexes()
+{
+	String[] tmpArray = {"data_set","value","date_collected","ticker"};
+	
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	String[] rowdata, newrow;
+	//String[] colheaders = propTableData.get(0);
+	String[] rowheaders = propTableData.get(1);
+	
+	//newTableData.add(tmpArray);
+	
+	for (int row=2;row<propTableData.size();row++)
+	{
+		rowdata = propTableData.get(row);
+		
+		if (rowdata[0].contains("N.A."))
+			continue;
+		
+		newrow = new String[tmpArray.length];
+		
+		newrow[0] = propStrTableDataSet;
+		//newrow[2] = "FUNCTION";
+		newrow[1] = rowdata[0].replace(",", "");
+		//newrow[4] = "VARCHAR";
+		newrow[2] = "NOW()";
+		//newrow[6] = "INTEGER";
+		String tmp = rowheaders[row-2];
+		newrow[3] = tmp.substring(tmp.indexOf(">")+1,tmp.indexOf("</"));
+		newrow[3] = newrow[3].replace("&amp;", "&");
+		newrow[3] = newrow[3].replace("&#x80;", "€");
+		
+		
+		
+		newTableData.add(newrow);
+		
+		
+			
+			
+		
+		
+	}
+	
+	newTableData.add(0, tmpArray);
+	propTableData = newTableData;
+	
+	
+
+}
+
 
 
 
