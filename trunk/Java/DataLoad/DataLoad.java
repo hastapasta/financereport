@@ -557,13 +557,22 @@ class DataLoad extends Thread //implements Stopable
 		  //loop through the schedules associated with this notification
 		  while (rs.next())
 		  {
+			  
+			  if (rs.getInt("disabled")>0)
+				  continue;
+			  
 			  //String strType = rs.getString("type");
 			  String strTicker = rs.getString("ticker");
 			  String strFrequency = rs.getString("frequency");
 			  String strEmail = rs.getString("email");
-			  BigDecimal dLimit = rs.getBigDecimal("limit_value");
+			 
+			  
+			  //Add the base limit adjustment to the base limit value
+			  BigDecimal dLimit = rs.getBigDecimal("limit_value").add(rs.getBigDecimal("limit_adjustment"));
+			  
 			  int nFactKey = rs.getInt("fact_data_key");
 			  int nNotifyKey = rs.getInt("primary_key");
+			  int nAlertCount = rs.getInt("alert_count");
 			  
 			  //try to find the fact key in fact_data
 			  String query2 = "select * from fact_data where primary_key=" + nFactKey;
@@ -629,6 +638,10 @@ class DataLoad extends Thread //implements Stopable
 					  {
 						  calLastRun.add(Calendar.MINUTE,1);
 					  }
+					  else if (strFrequency.equals("ALLTIME"))
+					  {
+						  //don't add any time
+					  }
 					  else
 					  {
 						  UtilityFunctions.stdoutwriter.writeln("Notify frequency not found, skipping job notification",Logs.ERROR,"DL2.735");
@@ -648,13 +661,24 @@ class DataLoad extends Thread //implements Stopable
 						  			  
 						  BigDecimal dChange = dJustCollectedValue.subtract(dLastRunValue).divide(dLastRunValue,BigDecimal.ROUND_HALF_UP);
 						  
-						 /* For now, if an alert is triggered, we will automatically reset the initial value.
-						  * In the future, we will mark link as triggered and then provide a link to an interface to:
-						  * a) up the limit but keep the initial value the same.
-						  * b) Reset the initial value to the current value.
+						  String query6 = "select max_alerts from account where email='" + strEmail + "'";
+						  ResultSet rs6 = dbf.db_run_query(query6);
+						  
+						  if (!rs6.next())
+						  {
+							  UtilityFunctions.stdoutwriter.writeln("Email " + strEmail + " not found in account table.",Logs.ERROR,"DL2.738");
+							  continue;
+						  }
+						  
+						  
+						 /* The old protocol was if an alert was triggered, we will automatically reset the initial value.
+						  * The new protocol is to include a link to a form to increase the value. 
+						  * Alerts will continue to be sent until max_alerts in the account table is reached OR
+						  * the an alert adjustment is submitted.
+						  * 
 						  */
-						  String query4 = "update notify set fact_data_key=" + rs3.getInt("primary_key") + " where primary_key=" + nNotifyKey;
-						  if (dChange.abs().compareTo(dLimit) > 0)
+						 // String query4 = "update notify set fact_data_key=" + rs3.getInt("primary_key") + " where primary_key=" + nNotifyKey;
+						  if ((dChange.abs().compareTo(dLimit) > 0) && (nAlertCount<rs6.getInt("max_alerts")))
 						  {
 							  //send notification
 							  //System.out.println("ALERT: Send mail!");
@@ -663,7 +687,7 @@ class DataLoad extends Thread //implements Stopable
 							  
 							  
 							  strMsg = "ALERT\r\n";
-							  strMsg = strMsg + "Data Set: " + strDataSet + "\r\n";
+							  
 							  if (strTicker != null && !(strTicker.isEmpty()))
 									  strMsg = strMsg + "Ticker: " + strTicker + "\r\n";
 							  
@@ -672,12 +696,12 @@ class DataLoad extends Thread //implements Stopable
 							  ResultSet rs5 = dbf.db_run_query(query5);
 							  
 							  if (rs5.next())
-								  strMsg = strMsg + "Full Description: US Dollar / " + rs5.getString("full_name") + " cross\r\n";
+								  strMsg = strMsg + "Full Description: " + rs5.getString("full_name") +" \r\n";
 							  else
 								  strMsg = strMsg + "Full Description: \r\n";
 							  
 							  
-							  
+							  strMsg = strMsg + "Data Set: " + strDataSet + "\r\n";
 							  strMsg = strMsg + "Amount: " + dChange.multiply(new BigDecimal(100)).toString() + "%\r\n";
 							  strMsg = strMsg + "Previous Value: " + dLastRunValue.toString() + "\r\n";
 							  strMsg = strMsg + "Current Value : " + dJustCollectedValue.toString() + "\r\n";
@@ -691,15 +715,26 @@ class DataLoad extends Thread //implements Stopable
 							  strMsg = strMsg + "Current Timestamp : " + sdf.format(calJustCollected.getTime()) + "\r\n";
 							  strMsg = strMsg + "Frequency: " + strFrequency + "\r\n";
 							  
+							  //Add link for Increase Alert Limit form
+							  strMsg = strMsg + "Increase Alert Limit: " + (String)props.getProperty("formbaseurl") + "?pkey=" + nNotifyKey + "&currentvalue=" + dJustCollectedValue;
+							  
 							  UtilityFunctions.mail(strEmail,strMsg,(String)props.get("subjecttext"),(String)props.get("fromaddy"));
-								  
-							  dbf.db_update_query(query4);
+								
+							  // this was the old way of updating alert values, now we are using the form 
+							  //dbf.db_update_query(query4);
 					  
 						  }
 						  
+						  
+						  /*
+						   * This is the check to see if the alert period has ended and time to update the initial value and reset the adjustment to zero.
+						   */
 						  if (calJustCollected.after(calLastRun))
 						  {
+							  String query4 = "update notify set fact_data_key=" + rs3.getInt("primary_key") + ", limit_adjustment=0 where primary_key=" + nNotifyKey;
 							  dbf.db_update_query(query4);
+							  
+							  						 
 						  }
 						  
 						  
@@ -723,7 +758,7 @@ class DataLoad extends Thread //implements Stopable
 			  {
 				 
 				  if (rs3.next())
-				  {
+				  { 
 					  query2 = "update notify set fact_data_key=" + rs3.getInt("primary_key") + " where primary_key=" + nNotifyKey;
 					  dbf.db_update_query(query2);
 				  }
@@ -731,7 +766,7 @@ class DataLoad extends Thread //implements Stopable
 				  else
 				  //didn't find a fact_data_key with which to populate this notification and there should be at least one there
 				  //print a message
-					  UtilityFunctions.stdoutwriter.writeln("Attempting to populate notify table and did not find fact_data entry",Logs.ERROR,"DL2.75");
+					  UtilityFunctions.stdoutwriter.writeln("Attempting to populate row with primary key " + nKey + " in notify table but did not find fact_data entry",Logs.ERROR,"DL2.75");
 			  }
 			  
 			  
