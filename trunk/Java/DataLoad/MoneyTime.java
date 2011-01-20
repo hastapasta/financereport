@@ -134,12 +134,12 @@ public class MoneyTime {
 		/*Adjusted quarter starts with the first quarter of calendar year 2000 as being 1*/
 		
 		/*May need to review this calculation*/
-		String query="select begin_fiscal_calendar, company.ticker,";
+		String query="select begin_fiscal_calendar, entities.ticker,";
 	    query = query + " (case when begin_fiscal_calendar in ('February','March','April') then 3";
 	    query = query + " when begin_fiscal_calendar in ('May','June','July') then 2 when";
 	    query = query + " begin_fiscal_calendar in ('August','September','October') then 1";
-	    query = query + " else 0 end) as qtr_code_adjusted from company where";
-	    query = query + " company.ticker='" + strTicker + "'";
+	    query = query + " else 0 end) as qtr_code_adjusted from entities where";
+	    query = query + " entities.ticker='" + strTicker + "'";
 		
 	    
 	    Integer unadjustedqtr;
@@ -178,7 +178,7 @@ public class MoneyTime {
 	{
 		int calquarter=0;
 		int calyear=fiscalyear;
-		String query = "select begin_fiscal_calendar from company where ticker='" + strTicker +"'";
+		String query = "select begin_fiscal_calendar from entities where ticker='" + strTicker +"'";
 		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
 		int nBeginFiscalYear = convertMonthStringtoInt(rs.getString("begin_fiscal_calendar"));
@@ -246,7 +246,7 @@ public class MoneyTime {
 		//try
 		//{
 			Integer nBeginFiscalYear=0;
-			String query = "select begin_fiscal_calendar from company where ticker='" + strTicker +"'";
+			String query = "select begin_fiscal_calendar from entities where ticker='" + strTicker +"'";
 			ResultSet rs = dbf.db_run_query(query);
 			rs.next();
 			String strBeginFiscalYear = rs.getString("begin_fiscal_calendar");

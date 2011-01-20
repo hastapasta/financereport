@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 /*
  * GENERAL COMMENTS ON PROCESSING FUNCTIONS
  * OFP 12/13/2010: Since the data_group field was removed from the fact_table (because it can be referenced in
- * the job_info table through the data_set), it was removed from all processing functions that were inserting it
+ * the jobs table through the data_set), it was removed from all processing functions that were inserting it
  * into the fact_table.
  * 
  */
@@ -59,7 +59,7 @@ class ProcessingFunctions
 			else
 				query = "select pre_nodata_check_func from extract_info where Data_Set='" + strDataSet + "'";*/
 			
-			query = "select pre_nodata_check_func from job_info where data_set='" + strDataSet + "'";
+			query = "select pre_nodata_check_func from jobs where data_set='" + strDataSet + "'";
 			
 			ResultSet rs = dbf.db_run_query(query);
 			rs.next();
@@ -87,7 +87,7 @@ class ProcessingFunctions
 	
 	public boolean preJobProcessing(String strDataSet)
 	{
-		String query = "select pre_job_process_func_name from job_info where Data_Set='" + strDataSet + "'";
+		String query = "select pre_job_process_func_name from jobs where Data_Set='" + strDataSet + "'";
 		
 		
 		
@@ -126,7 +126,7 @@ class ProcessingFunctions
 	
 	public boolean postJobProcessing(String strDataSet)
 	{
-		String query = "select post_job_process_func_name from job_info where Data_Set='" + strDataSet + "'";
+		String query = "select post_job_process_func_name from jobs where Data_Set='" + strDataSet + "'";
 		
 		
 		
@@ -170,7 +170,7 @@ public boolean preProcessing(String strDataSet, String strTicker)
 	  
 	
 
-		String query = "select pre_process_func_name from job_info where Data_Set='" + strDataSet + "'";
+		String query = "select pre_process_func_name from jobs where Data_Set='" + strDataSet + "'";
 		
 		
 		
@@ -212,7 +212,7 @@ public boolean preProcessing(String strDataSet, String strTicker)
 public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , String strDataSet) throws SkipLoadException
 {
 	
-		String query = "select post_process_func_name from job_info where Data_Set='" + strDataSet + "'";
+		String query = "select post_process_func_name from jobs where Data_Set='" + strDataSet + "'";
 		
 		/*
 		 * This is for non-table extraction. However this will throw a nullpointerexception if no column header
@@ -288,7 +288,7 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Stri
 	  
 		//UtilityFunctions.stdoutwriter.writeln("TEST5",Logs.ERROR);
 
-		String query = "select pre_process_func_name from job_info where Data_Set='" + strDataSet + "'";
+		String query = "select pre_process_func_name from jobs where Data_Set='" + strDataSet + "'";
 		
 		try
 		{
@@ -325,7 +325,7 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Stri
 
 public ArrayList<String[]> postProcessingTable(ArrayList<String[]> tabledata,String strDataSet) throws SkipLoadException
 {
-	String query = "select post_process_func_name from job_info where Data_Set='" + strDataSet + "'";
+	String query = "select post_process_func_name from jobs where Data_Set='" + strDataSet + "'";
 
 	try
 	{
@@ -405,7 +405,7 @@ public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomReg
 	String ticker;
 	//try
 	//{
-		query = "select url_dynamic from job_info where job_info.data_set='" + dg.strCurDataSet + "'";
+		query = "select url_dynamic from jobs where jobs.data_set='" + dg.strCurDataSet + "'";
 		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
 		ticker = rs.getString("url_dynamic");
@@ -422,7 +422,7 @@ public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomReg
 	while (!done)
 	{
 		UtilityFunctions.stdoutwriter.writeln("Row Count: " + curRowCount,Logs.STATUS2,"PF21");
-		query = "update extract_info,job_info set extract_info.Row_Count=" + curRowCount + ",job_info.url_dynamic='" + ticker + "' where job_info.extract_key=data_info.primary_key and job_info.data_set='nasdaq_eps_est_quarter'";
+		query = "update extract_info,jobs set extract_info.Row_Count=" + curRowCount + ",jobs.url_dynamic='" + ticker + "' where jobs.extract_key=data_info.primary_key and jobs.data_set='nasdaq_eps_est_quarter'";
 		
 		//try
 		//{
@@ -528,12 +528,12 @@ public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRege
 {
 	//try
 	//{
-		String query = "select url_dynamic from job_info where job_info.Data_Set='" + dg.strCurDataSet + "'";
+		String query = "select url_dynamic from jobs where jobs.Data_Set='" + dg.strCurDataSet + "'";
 		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
 		//String strTicker = rs.getString("url_dynamic");
 		UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + rs.getString("url_dynamic"),Logs.STATUS2,"PF27");
-		query = "update job_info set url_dynamic='" + rs.getString("url_dynamic") + "' where job_info.data_set='nasdaq_current_fiscal_year'";
+		query = "update jobs set url_dynamic='" + rs.getString("url_dynamic") + "' where jobs.data_set='nasdaq_current_fiscal_year'";
 		//have to save the value here because the get_value() call wipes it out.
 		String tmpStaticDataSet = dg.strCurDataSet;
 		dbf.db_update_query(query);
@@ -549,7 +549,7 @@ public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRege
 		if ((strCurValue.compareTo("2010") == 0) && (nDataSetYear != 10))
 		{
 			//need to shift things over one.
-			query = "select extract_info.Cell_Count,job_info.url_static from extract_info,job_info where job_info.extract_key=extract_info.primary_key and job_info.Data_Set='" + tmpStaticDataSet + "'";
+			query = "select extract_info.Cell_Count,jobs.url_static from extract_info,jobs where jobs.extract_key=extract_info.primary_key and jobs.Data_Set='" + tmpStaticDataSet + "'";
 
 			rs = dbf.db_run_query(query);
 			rs.next();
@@ -559,11 +559,11 @@ public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRege
 			
 			if (nDataSetYear == 7)
 			{
-				query = "update extract_info,job_info set job_info.url_static='http://fundamentals.nasdaq.com/redpage.asp?page=2&selected=', Cell_Count=2 where job_info.extract_key=extract_info.primary_key and job_info.Data_Set='" + tmpStaticDataSet + "'";
+				query = "update extract_info,jobs set jobs.url_static='http://fundamentals.nasdaq.com/redpage.asp?page=2&selected=', Cell_Count=2 where jobs.extract_key=extract_info.primary_key and jobs.Data_Set='" + tmpStaticDataSet + "'";
 			}
 			else 
 			{
-				query = "update extract_info,job_info set extract_info.Cell_Count=" + String.valueOf(nCellCount + 1) + " where job_info.extract_key=extract_info.primary_key and job_info.Data_Set='" + tmpStaticDataSet + "'";
+				query = "update extract_info,jobs set extract_info.Cell_Count=" + String.valueOf(nCellCount + 1) + " where jobs.extract_key=extract_info.primary_key and jobs.Data_Set='" + tmpStaticDataSet + "'";
 			}
 			dbf.db_update_query(query);
 			
@@ -602,13 +602,13 @@ public void postNasdaqEPS()
 		//restore URL static
 		if (strTemp1.compareTo("") != 0)
 		{
-			dbf.db_update_query("update extract_info,job_info set extract_info.url_static='" + strTemp1 + "' where job_info.extract_key=extract_info.primary_key and job_info.Data_Set = '" + dg.strCurDataSet + "'");
+			dbf.db_update_query("update extract_info,jobs set extract_info.url_static='" + strTemp1 + "' where jobs.extract_key=extract_info.primary_key and jobs.Data_Set = '" + dg.strCurDataSet + "'");
 			strTemp1 = "";
 		}
 		//restore Cell Count
 		if (strTemp2.compareTo("") != 0)
 		{
-			dbf.db_update_query("update extract_info,job_info set extract_info.Cell_Count='" + strTemp2 + "' where job_info.extract_key=extract_info.primary_key and job_info.Data_Set = '" + dg.strCurDataSet + "'");
+			dbf.db_update_query("update extract_info,jobs set extract_info.Cell_Count='" + strTemp2 + "' where jobs.extract_key=extract_info.primary_key and jobs.Data_Set = '" + dg.strCurDataSet + "'");
 			strTemp2 = "";
 		}
 	}
@@ -658,10 +658,10 @@ public void postProcessYahooSharePrice() throws SQLException
 public void postProcessNasdaqSharesOut() throws SQLException
 {
 	
-	//query = "LOCK TABLES repeat_types WRITE, schedule WRITE";
+	//query = "LOCK TABLES repeat_types WRITE, schedules WRITE";
 	//dbf.db_update_query(query);
 	strDataValue.replace(",", "");
-	String query = "update company set shares_outstanding=" + this.propTableData.get(0)[0] + " where ticker='" + this.strTicker + "'";
+	String query = "update entities set shares_outstanding=" + this.propTableData.get(0)[0] + " where ticker='" + this.strTicker + "'";
 	dbf.db_update_query(query);
 	
 	//finally
@@ -673,9 +673,9 @@ public void postProcessNasdaqSharesOut() throws SQLException
 public void postNasdaqFiscalYear()
 {
 	/*
-	 * This is the main data set for populating the company->begin_fiscal_calendar field. 
+	 * This is the main data set for populating the entities->begin_fiscal_calendar field. 
 	 * Some tickers have to be corrected with the sec_fiscal_calendar_field. These are designated with
-	 * the nasdaq_begin_fiscal_year_correct group in the company table.
+	 * the nasdaq_begin_fiscal_year_correct group in the entities table.
 	 */
 	UtilityFunctions.stdoutwriter.writeln("Inside postNasdaqFiscalYear function",Logs.STATUS2,"PF34");
 	
@@ -707,7 +707,7 @@ public void postNasdaqFiscalYear()
 	/* Use the following update statement for populating fiscal_calendar_begin */
 	try
 	{
-		//String query = "UPDATE company set begin_fiscal_calendar='" + strDataValue + "' where ticker=(select url_dynamic from extract_info where data_set='nasdaq_fiscal_year_begin')";
+		//String query = "UPDATE entities set begin_fiscal_calendar='" + strDataValue + "' where ticker=(select url_dynamic from extract_info where data_set='nasdaq_fiscal_year_begin')";
 		//dbf.db_update_query(query);
 		
 		String[] tmp = {"ticker","begin_fiscal_calendar"};
@@ -755,12 +755,12 @@ public void processTableSAndPCoList(ArrayList<String[]> tabledata,String strData
 
 			/*End custom processing logic */
 			
-			/*Determine if ticker is already in company table, if not, add it*/
-			query = "select * from company where ticker='" + rowdata[0] + "'";
+			/*Determine if ticker is already in entities table, if not, add it*/
+			query = "select * from entities where ticker='" + rowdata[0] + "'";
 			rs = dbf.db_run_query(query);
 			if (rs.next() == false)
 			{
-				query = "insert into company (ticker, groups) values ('" + rowdata[0] + "','sandp')";
+				query = "insert into entities (ticker, groups) values ('" + rowdata[0] + "','sandp')";
 				dbf.db_update_query(query);
 			}
 			else
@@ -769,7 +769,7 @@ public void processTableSAndPCoList(ArrayList<String[]> tabledata,String strData
 				if (groups.indexOf("sandp") == -1)
 				{
 					groups = groups + ",sandp";
-					query = "update company set groups='" + groups + "' where ticker='" + rowdata[0] + "'";
+					query = "update entities set groups='" + groups + "' where ticker='" + rowdata[0] + "'";
 					dbf.db_update_query(query);
 				}
 				
@@ -802,7 +802,7 @@ public boolean preProcessNasdaqEPSTable()
 		 * from the same URL.
 		 */
 		
-		String query = "update job_info set url_dynamic='" + strTicker + "' where job_info.data_set='" + dg.strCurDataSet + "'";
+		String query = "update jobs set url_dynamic='" + strTicker + "' where jobs.data_set='" + dg.strCurDataSet + "'";
 		dbf.db_update_query(query);
 		return(true);
 		
@@ -1088,6 +1088,7 @@ public void postProcessBloombergIndexes()
 		newrow[3] = tmp.substring(tmp.indexOf(">")+1,tmp.indexOf("</"));
 		newrow[3] = newrow[3].replace("&amp;", "&");
 		newrow[3] = newrow[3].replace("&#x80;", "€");
+		newrow[3] = newrow[3].replace("&#x83;", "ƒ");
 		
 		
 		
@@ -1141,7 +1142,7 @@ public void postProcessNasdaqEPSEstTable()
 	
 	try
 	{
-		String query = "select url_dynamic from job_info where job_info.Data_Set='" + propStrTableDataSet + "'";
+		String query = "select url_dynamic from jobs where jobs.Data_Set='" + propStrTableDataSet + "'";
 
 		ResultSet rs = dbf.db_run_query(query);
 
@@ -1273,13 +1274,13 @@ public void postProcessTableYahooBeginYearVerify() throws CustomEmptyStringExcep
 { 
 	/* The purpose of this function is to verify that the quarter end months
 	 * reported in yahoo match the begin_fiscal_calendar property stated in the
-	 * company table.
+	 * entities table.
 	 * 
 	 * It can be swapped into the 'table_yahoo_q_eps_est_body' data_set
 	 */
 	String[] colheaders = propTableData.get(0);
 	String strQEndMonth = colheaders[0];
-	String query = "select begin_fiscal_calendar from company where ticker='" + this.strTicker + "'";
+	String query = "select begin_fiscal_calendar from entities where ticker='" + this.strTicker + "'";
 	ResultSet rs = dbf.db_run_query(query);
 	rs.next();
 	int nBeginFiscalCal = MoneyTime.convertMonthStringtoInt(rs.getString("begin_fiscal_calendar"));
@@ -1486,7 +1487,7 @@ public void postProcessDescriptionXrateorg()
 				continue;
 		}
 		
-		query = "insert into company (ticker,full_name) values ('" + ticker + "','" + strTmp +"')";
+		query = "insert into entities (ticker,full_name) values ('" + ticker + "','" + strTmp +"')";
 		
 		try
 		{
@@ -1494,7 +1495,7 @@ public void postProcessDescriptionXrateorg()
 		}
 		catch (SQLException sqle)
 		{
-			UtilityFunctions.stdoutwriter.writeln("Failed to insert ticker " + ticker + " into company table",Logs.STATUS2,"PF43.49");
+			UtilityFunctions.stdoutwriter.writeln("Failed to insert ticker " + ticker + " into entities table",Logs.STATUS2,"PF43.49");
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 		}
 		
@@ -1932,7 +1933,7 @@ public boolean preProcessSECFiscalYear() throws SQLException
 
 public void postProcessSECFiscalYearEndRaw()
 {
-	/* This is for populating actual_fiscal_year_end in the company table */
+	/* This is for populating actual_fiscal_year_end in the entities table */
 
 	
 	String[] tmp = {"ticker","actual_fiscal_year_end"};
@@ -1945,13 +1946,13 @@ public void postProcessSECFiscalYearEndRaw()
 	propTableData.remove(1);
 	propTableData.add(values);
 		
-	dbf.updateTableIntoDB(propTableData,"company");
+	dbf.updateTableIntoDB(propTableData,"entities");
 	
 }
 
 public void postProcessSECBeginCalendarYear()
 {
-	/* This is for populating begin_fiscal_calendar in the company table */
+	/* This is for populating begin_fiscal_calendar in the entities table */
 	String strNewDataValue="";
 	int nMonth = Integer.parseInt(strDataValue.substring(0,2));
 	
@@ -2033,7 +2034,7 @@ public void postProcessSECBeginCalendarYear()
 		propTableData.remove(1);
 		propTableData.add(values);
 		
-		dbf.updateTableIntoDB(propTableData,"company");
+		dbf.updateTableIntoDB(propTableData,"entities");
 		
 	
 }
@@ -2074,7 +2075,7 @@ public void postProcessYahooBeginCalendarYear()
 	propTableData.remove(1);
 	propTableData.add(values);
 	
-	dbf.updateTableIntoDB(propTableData,"company");
+	dbf.updateTableIntoDB(propTableData,"entities");
 	
 	
 	
@@ -2091,7 +2092,7 @@ public void postProcessYahooCompanyName()
 	propTableData.remove(1);
 	propTableData.add(values);
 	
-	dbf.updateTableIntoDB(propTableData, "company");
+	dbf.updateTableIntoDB(propTableData, "entities");
 	
 }
 
@@ -2111,7 +2112,7 @@ public void postProcessYahooFiscalYearEndRaw()
 	propTableData.remove(1);
 	propTableData.add(values);
 		
-	dbf.updateTableIntoDB(propTableData,"company");
+	dbf.updateTableIntoDB(propTableData,"entities");
 	
 
 }

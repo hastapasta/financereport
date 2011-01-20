@@ -115,9 +115,9 @@ class DataLoad extends Thread //implements Stopable
 	ResultSet rs2=null;
 	try
 	{
-		//query = "LOCK TABLES repeat_types WRITE, schedule WRITE";
+		//query = "LOCK TABLES repeat_types WRITE, schedules WRITE";
 		//dbf.db_update_query(query);
-		//query = "LOCK TABLES schedule WRITE";
+		//query = "LOCK TABLES schedules WRITE";
 		//dbf.db_update_query(query);
 		
 	
@@ -141,7 +141,7 @@ class DataLoad extends Thread //implements Stopable
 					&& (rs.getString("type").equals("NONE") != true))
 			{
 				//listTriggeredEvents.add(Integer.toString(rs.getInt("primary_key")));
-				query = "select * from schedule where repeat_type=" + Integer.toString(rs.getInt("primary_key"));
+				query = "select * from schedules where repeat_type=" + Integer.toString(rs.getInt("primary_key"));
 				rs2 = dbf.db_run_query(query);
 				/*
 				 * Data_set is guaranteed to be unique because of db constraint
@@ -152,12 +152,15 @@ class DataLoad extends Thread //implements Stopable
 					boolean bInQ=false;
 					for (int i=0;i<listWaitingJobs.size();i++)
 					{
-						if (listWaitingJobs.get(i).equals(rs2.getString("data_set")))
+						//if (listWaitingJobs.get(i).equals(rs2.getString("data_set")))
+						if (listWaitingJobs.get(i).equals(rs2.getString("task")))
 							bInQ=true;
 										
 					}
+					
 					if (!bInQ)
-						listWaitingJobs.add(rs2.getString("data_set"));
+						//listWaitingJobs.add(rs2.getString("data_set"));
+						listWaitingJobs.add(rs2.getString("task"));
 				
 					//turn off run once after job is in queue, 4 is the primary key for run type 'NONE'
 					if (rs.getString("type").equals("RUNONCE"))
@@ -165,7 +168,7 @@ class DataLoad extends Thread //implements Stopable
 						query = "select primary_key from repeat_types where type='NONE'";
 						ResultSet rs3 = dbf.db_run_query(query);
 						rs3.next();
-						query = "update schedule set repeat_type=" + rs3.getInt("primary_key") + " where data_set='" + rs2.getString("data_set") + "'";
+						query = "update schedules set repeat_type=" + rs3.getInt("primary_key") + " where primary_key='" + rs2.getString("primary_key") + "'";
 						dbf.db_update_query(query);
 					}
 				}
@@ -193,6 +196,9 @@ class DataLoad extends Thread //implements Stopable
   
   public void writeJobQueueIntoDB()
   {
+	  /*
+	   * Have to revisit converting this over from data_set to task.
+	   */
 	  
 	  String query;
 	  query = "delete from job_queue";
@@ -204,7 +210,7 @@ class DataLoad extends Thread //implements Stopable
 		  {
 			  if (arrayRunningJobs[i] != null)
 			  {
-				  query = "insert into job_queue (data_set,status) values ('" + arrayRunningJobs[i].strCurDataSet + "','" +
+				  query = "insert into job_queue (data_set,status) values ('" + arrayRunningJobs[i].strCurTask + "','" +
 				  arrayRunningJobs[i].getState().toString() + "')";
 				  dbf.db_update_query(query);
 				  UtilityFunctions.stdoutwriter.writeln("Status of thread " + arrayRunningJobs[i].getName() + ": " + 
@@ -230,16 +236,17 @@ class DataLoad extends Thread //implements Stopable
   
   public DataGrab initiateJob() throws SQLException
   {
-	  String strDataSet;
+	  //String strDataSet;
+	  String strTask;
 	  DataGrab dg;
 	  //Calendar cal;
 	 
 	  if (listWaitingJobs.size() > 0)
 	  {
 		  //try LOCK TABLES
-		  strDataSet = listWaitingJobs.get(0);
+		  strTask = listWaitingJobs.get(0);
 		  DBFunctions tmpdbf = new DBFunctions((String)props.get("dbhost"),(String)props.get("dbport"),(String)props.get("database"),(String)props.get("dbuser"),(String)props.get("dbpass"));
-		  dg = new DataGrab(DataLoad.uf,tmpdbf,strDataSet);
+		  dg = new DataGrab(DataLoad.uf,tmpdbf,strTask);
 		  dg.startThread();
 		  UtilityFunctions.stdoutwriter.writeln("Initiated DataGrab thread " + dg.getName(),Logs.THREAD,"DL4");
 		  
@@ -250,7 +257,7 @@ class DataLoad extends Thread //implements Stopable
 		  {
 
 			  strDate = formatter.format(dg.getStartTime().getTime());
-			  String query = "update schedule set last_run='" + strDate + "' where data_set='" + strDataSet + "'";
+			  String query = "update schedules set last_run='" + strDate + "' where data_set='" + strDataSet + "'";
 			  dbf.db_update_query(query);
 		  }
 		  catch (CustomGenericException cge)
@@ -316,10 +323,15 @@ class DataLoad extends Thread //implements Stopable
   
   public void updateJobStats(DataGrab dg)
   {
+	  
+	  /* Have DataGrab store an area of all of the data_sets it processed, along with start time and end time.
+	   * Write to job stats table task time and individual data_set times.
+	   */
 
 	  try
 	  {
-		  String strDataSet = dg.strCurDataSet;
+		  //String strDataSet = dg.strCurDataSet;
+		  String strTask = dg.nCurTask + "";
 		  Calendar endCal = dg.getEndTime();
 		  Calendar startCal = dg.getStartTime();
 		 
@@ -328,10 +340,12 @@ class DataLoad extends Thread //implements Stopable
 		  //String strDate = formatter.format(endCal.getTime());
 		  
 		  //strDate = formatter.format(dg.getStartTime().getTime());
-		  String query = "update schedule set last_run='" + formatter.format(endCal.getTime())+ "' where data_set='" + strDataSet + "'";
+		  String query = "update schedules set last_run='" + formatter.format(endCal.getTime())+ "' where task=" + strTask;
 		  dbf.db_update_query(query);
 		  
-		  query = "select * from job_stats where data_set='" + strDataSet + "'";
+		  //query = "select * from job_stats where data_set='" + strDataSet + "'";
+		  query = "select * from job_stats where task_primary_key=" + strTask;
+		  
 		  ResultSet rs = dbf.db_run_query(query);
 		  
 		  Long lStart = startCal.getTimeInMillis();
@@ -362,7 +376,7 @@ class DataLoad extends Thread //implements Stopable
 			  ",avg_run_duration=" + lAvg.toString() + 
 			  ",last_run_dur_converted='" + UtilityFunctions.getElapsedTimeHoursMinutesSecondsString(lDiff) + "'" +
 			  ",avg_run_dur_converted='" + UtilityFunctions.getElapsedTimeHoursMinutesSecondsString(lAvg) + "'" +
-			  " where data_set='" + strDataSet + "'";
+			  " where data_set='" + strTask + "'";
 			  dbf.db_update_query(query);
 		  }
 		  else
@@ -370,7 +384,7 @@ class DataLoad extends Thread //implements Stopable
 		  {
 			 
 			  query = "insert into job_stats (data_set,run_count,avg_run_duration,last_run_duration,avg_run_dur_converted,last_run_dur_converted) VALUES ('" +
-			  strDataSet + "',1," +
+			  strTask + "',1," +
 			  lDiff.toString() + "," +
 			  lDiff.toString() + ",'" +
 			  UtilityFunctions.getElapsedTimeHoursMinutesSecondsString(lDiff) + "','" +
@@ -398,7 +412,7 @@ class DataLoad extends Thread //implements Stopable
   {
 	 try
 	 {
-		 //String query = "LOCK TABLES repeat_types WRITE,schedule WRITE";
+		 //String query = "LOCK TABLES repeat_types WRITE,schedules WRITE";
 		// dbf.db_update_query(query);
 		 String query = "select * from repeat_types";
 		 ResultSet rs = dbf.db_run_query(query);
@@ -545,14 +559,15 @@ class DataLoad extends Thread //implements Stopable
   
   public void checkNotifications(DataGrab dg) throws SQLException
   {
-	  String strDataSet = dg.strCurDataSet;
+	  //String strDataSet = dg.strCurDataSet;
+	  String strTask = dg.strCurTask;
 	  
-	  String query = "select * from schedule where data_set='" + strDataSet + "'";
+	  String query = "select * from schedules where task='" + strTask + "'";
 	  ResultSet rs = dbf.db_run_query(query);
 	  if (rs.next())
 	  {
 		  int nKey = rs.getInt("primary_key");
-		  query = "select * from notify where schedule=" + nKey;
+		  query = "select * from alerts where schedule=" + nKey;
 		  rs = dbf.db_run_query(query);
 		  //loop through the schedules associated with this notification
 		  while (rs.next())
@@ -580,11 +595,11 @@ class DataLoad extends Thread //implements Stopable
 			  
 			  String query3;
 			  if (!(strTicker==null) && !(strTicker.isEmpty()))
-				  query3 = "select * from fact_data where data_set='" + strDataSet + "' and ticker='" + strTicker + "' and batch=" +
-				  "(select max(batch) from fact_data where data_set='" + strDataSet + "' and ticker='" + strTicker + "')";
+				  query3 = "select * from fact_data where task='" + strTask + "' and ticker='" + strTicker + "' and batch=" +
+				  "(select max(batch) from fact_data where task='" + strTask + "' and ticker='" + strTicker + "')";
 			  else
-				  query3 = "select * from fact_data where data_set='" + strDataSet + "' and batch=" +
-				  "(select max(batch) from fact_data where data_set='" + strDataSet + "')";
+				  query3 = "select * from fact_data where task='" + strTask + "' and batch=" +
+				  "(select max(batch) from fact_data where task='" + strTask + "')";
 			  
 			  ResultSet rs3 = dbf.db_run_query(query3);
 			
@@ -644,7 +659,7 @@ class DataLoad extends Thread //implements Stopable
 					  }
 					  else
 					  {
-						  UtilityFunctions.stdoutwriter.writeln("Notify frequency not found, skipping job notification",Logs.ERROR,"DL2.735");
+						  UtilityFunctions.stdoutwriter.writeln("alerts frequency not found, skipping job notification",Logs.ERROR,"DL2.735");
 						  continue;
 					  }
 					  
@@ -654,7 +669,11 @@ class DataLoad extends Thread //implements Stopable
 					  //{
 					  
 					  //Check if limit is exceeded, if so then send alert.
-						  rs3.next();
+						  if (!rs3.next())
+	                      {
+	                          UtilityFunctions.stdoutwriter.writeln("Attempting to check for an alert but did not find fact_data entry",Logs.ERROR,"DL2.7355");
+	                          continue;
+	                      }
 						  
 						  BigDecimal dJustCollectedValue = rs3.getBigDecimal("value");
 						  BigDecimal dLastRunValue = rs2.getBigDecimal("value");
@@ -692,7 +711,7 @@ class DataLoad extends Thread //implements Stopable
 									  strMsg = strMsg + "Ticker: " + strTicker + "\r\n";
 							  
 							  //Get the full ticker description
-							  String query5 = "select full_name from company where ticker='"+ strTicker + "'";
+							  String query5 = "select full_name from entities where ticker='"+ strTicker + "'";
 							  ResultSet rs5 = dbf.db_run_query(query5);
 							  
 							  if (rs5.next())
@@ -701,7 +720,7 @@ class DataLoad extends Thread //implements Stopable
 								  strMsg = strMsg + "Full Description: \r\n";
 							  
 							  
-							  strMsg = strMsg + "Data Set: " + strDataSet + "\r\n";
+							  strMsg = strMsg + "Task: " + strTask + "\r\n";
 							  strMsg = strMsg + "Amount: " + dChange.multiply(new BigDecimal(100)).toString() + "%\r\n";
 							  strMsg = strMsg + "Previous Value: " + dLastRunValue.toString() + "\r\n";
 							  strMsg = strMsg + "Current Value : " + dJustCollectedValue.toString() + "\r\n";
@@ -731,7 +750,7 @@ class DataLoad extends Thread //implements Stopable
 						   */
 						  if (calJustCollected.after(calLastRun))
 						  {
-							  String query4 = "update notify set fact_data_key=" + rs3.getInt("primary_key") + ", limit_adjustment=0 where primary_key=" + nNotifyKey;
+							  String query4 = "update alerts set fact_data_key=" + rs3.getInt("primary_key") + ", limit_adjustment=0 where primary_key=" + nNotifyKey;
 							  dbf.db_update_query(query4);
 							  
 							  						 
@@ -759,14 +778,14 @@ class DataLoad extends Thread //implements Stopable
 				 
 				  if (rs3.next())
 				  { 
-					  query2 = "update notify set fact_data_key=" + rs3.getInt("primary_key") + " where primary_key=" + nNotifyKey;
+					  query2 = "update alerts set fact_data_key=" + rs3.getInt("primary_key") + " where primary_key=" + nNotifyKey;
 					  dbf.db_update_query(query2);
 				  }
 					  
 				  else
 				  //didn't find a fact_data_key with which to populate this notification and there should be at least one there
 				  //print a message
-					  UtilityFunctions.stdoutwriter.writeln("Attempting to populate row with primary key " + nKey + " in notify table but did not find fact_data entry",Logs.ERROR,"DL2.75");
+					  UtilityFunctions.stdoutwriter.writeln("Attempting to populate row with primary key " + nKey + " in alerts table but did not find fact_data entry",Logs.ERROR,"DL2.75");
 			  }
 			  
 			  
@@ -919,7 +938,7 @@ class DataLoad extends Thread //implements Stopable
     * The worker thread.
     * Get the socket input stream and echos bytes read
   */    
-  class Echo extends Thread
+  /*class Echo extends Thread
   {              
     Socket s;
     Echo( Socket s )
@@ -941,7 +960,7 @@ class DataLoad extends Thread //implements Stopable
       } catch (Exception e)
       {}
     }
-  }    
+  } */   
      
   public static void paramtest( String[] arg)
   {
@@ -990,7 +1009,7 @@ class DataLoad extends Thread //implements Stopable
     props = new WindowsCompatibleProperties();
     props.load( new FileInputStream(inifile) );
     
-    System.out.println( props );
+    //System.out.println( props );
     
   
     
@@ -1012,7 +1031,7 @@ class DataLoad extends Thread //implements Stopable
   {
 
 	  ArrayList<String> tmpList = new ArrayList<String>();
-	  String query = "select next_trigger,data_set from repeat_types,schedule where repeat_types.primary_key=schedule.Repeat_Type";
+	  String query = "select next_trigger,data_set from repeat_types,schedules where repeat_types.primary_key=schedules.Repeat_Type";
 	  ResultSet rs = dbf.db_run_query(query);
 	  Calendar cal = Calendar.getInstance();
 	  while(rs.next())

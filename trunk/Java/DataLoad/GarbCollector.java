@@ -111,7 +111,7 @@ public class GarbCollector {
 			 * Check if record is referenced in the notify table. If it is, don't remove it.
 			 */
 			
-			query = "select * from notify where fact_data_key=" + nKey;
+			query = "select * from alerts where fact_data_key=" + nKey;
 			
 			rs2 = DataLoad.dbf.db_run_query(query);
 			
