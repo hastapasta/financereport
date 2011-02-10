@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content"
+     android:id="@+id/tablerow00"
+     android:background="@drawable/item_color_selector"
+     >
+          
+     <TextView android:id="@+id/eticker"
+     	  android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+     	 android:padding="5px"
+     	 android:paddingRight="15px"	 
+     	 android:text="TICKER"
+     	 android:width="50px"
+     	 android:textColor="@color/solid_white"
+     	 
+         />
+     <TextView android:id="@+id/q1_2011"
+     	android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+     	android:padding="5px" 
+     	android:width="65px"
+     	android:layout_toRightOf="@id/eticker"
+     	android:text="Q1:2011"
+     	android:textColor="@color/solid_white"
+         />
+     <TextView android:id="@+id/q2_2011"
+     android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+     android:padding="5px" 
+     android:width="65px"
+     android:layout_toRightOf="@id/q1_2011"
+     android:text="Q2:2011"
+     android:textColor="@color/solid_white"
+         />
+     <TextView android:id="@+id/q3_2011"
+     android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+     android:padding="5px" 
+     android:width="65px"
+     android:layout_toRightOf="@id/q2_2011"
+     android:text="Q3:2011"
+     android:textColor="@color/solid_white"
+         />
+     <TextView android:id="@+id/q4_2011"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content"
+     android:padding="5px" 
+     android:text="Q4:2011"
+     android:width="65px"     
+     android:textColor="@color/solid_white"
+     android:gravity="right"
+         />
+     
+        <!--  android:textAppearance="@style/someappearance" /> -->
+</RelativeLayout> 
+

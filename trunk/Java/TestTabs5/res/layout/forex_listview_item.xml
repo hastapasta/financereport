@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:background="@drawable/item_color_selector">	
+	<TextView android:id="@+id/ticker"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Ticker"
+		android:width="90px"
+		android:paddingRight="25px"
+		android:layout_margin="10px"	
+		/>
+	<TextView android:id="@+id/value"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Value"
+		android:width="50px"				
+		android:layout_toRightOf="@id/ticker"
+		android:layout_margin="10px"	
+		/>
+	<TextView android:id="@+id/value2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Value 2"
+		android:width="50px"		
+		android:layout_toRightOf="@id/value"
+		android:layout_margin="10px"	
+		/>
+	<TextView android:id="@+id/changeval"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:text="Change Val"
+		android:width="75px"
+		android:gravity="right"
+		android:layout_margin="10px"	/>
+</RelativeLayout>

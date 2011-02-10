@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/tablerow01">
+    <TextView android:id="@+id/total_eps"
+      	android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+     	android:padding="3dip" 
+     	android:text="Q1-4:2011"
+     	android:textColor="@color/solid_white"
+        />
+	<TextView android:id="@+id/earnings"
+    	android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_span="2"
+        android:text="TOTAL EARNINGS"
+        android:textColor="@color/solid_white"
+        android:padding="3dip"
+        android:layout_marginLeft="25px"
+        />
+    <TextView android:id="@+id/share_price"
+    	android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_span="2"
+        android:text="share price"
+        android:padding="3dip"
+        android:textColor="@color/solid_white"
+        android:gravity="right"
+        />
+</LinearLayout>
