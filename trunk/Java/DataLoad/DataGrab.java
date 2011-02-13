@@ -107,9 +107,7 @@ DBFunctions dbf;
 
   	
   	
-  	UtilityFunctions.stdoutwriter.writeln("=========================================================",Logs.STATUS1,"");
   	
-  	UtilityFunctions.stdoutwriter.writeln("PROCESSING TASK " + strCurTask,Logs.STATUS1,"DG37");
 	calJobProcessingStart = Calendar.getInstance();
 
 	
@@ -165,7 +163,10 @@ DBFunctions dbf;
 	
 	public void run()
 	 {
-	
+			UtilityFunctions.stdoutwriter.writeln("=========================================================",Logs.STATUS1,"");
+	  	
+	  		UtilityFunctions.stdoutwriter.writeln("PROCESSING TASK " + strCurTask,Logs.STATUS1,"DG37");
+	  		
 	 		if (bContinue == false)
 	 			return;
 	 		
