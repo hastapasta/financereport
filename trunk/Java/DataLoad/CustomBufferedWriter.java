@@ -53,16 +53,25 @@ public class CustomBufferedWriter
 	
 	
 	
-	CustomBufferedWriter(String strFullLog, String strErrorLog, String strSQLLog, String strThreadLog, boolean bSQL, boolean bStatus, boolean bThread)
+	CustomBufferedWriter(String strThreadID)
 	{
-		//try
-		//{
+		/*
+		 * 2/3/2011 - Current thought process on logging:
+		 * I was just about to implement different log files for each thread but now I'm thinking
+		 * a better way to approach this is to keep the existing logging structure and then use 
+		 * a log4j viewer to filter the data.
+		 */
+		
+		
+		
+		
 
 			sqllogger = Logger.getLogger("SQLLogging");
 			threadlogger = Logger.getLogger("ThreadLogging");
 			fulllogger = Logger.getLogger("FullLogging");
 			errorlogger = Logger.getLogger("ErrorLogging");
 			consolelogger = Logger.getLogger("ConsoleLogging");
+			//uniquethreadlogger = Logger.getLogger("");
 			/*try
 			{
 				FileUtils.copyFile(new File(strFullLog), new File("archive_" + strFullLog));
@@ -79,11 +88,16 @@ public class CustomBufferedWriter
 			sqlfilewriter = new PrintWriter( new FileWriter(strSQLLog,false),true);
 			threadfilewriter = new PrintWriter( new FileWriter(strThreadLog,false),true);*/
 			
+			/*
+			 * 
+			 * Ulitmately I need to remove these completely since the amount of log information
+			 * being generated will be controlled from the properties file.
+			 */
 		
 			
-			bStaticStatus = bStatus;
-			bStaticSQL = bSQL;
-			bStaticThread = bThread;
+			bStaticStatus = true;
+			bStaticSQL = true;
+			bStaticThread = true;
 		//}
 		/*catch (IOException ioe)
 		{
