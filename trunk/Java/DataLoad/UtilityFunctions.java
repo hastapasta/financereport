@@ -26,18 +26,18 @@ import javax.mail.PasswordAuthentication;
 public class UtilityFunctions
 {
 	
-	public static Connection con;
+	//public static Connection con;
 	static public boolean bCalledByJsp;
 	String strCapturedOutput;
 	static CustomBufferedWriter stdoutwriter;
 	
 
 	
-	public Connection getConnection()
+	/*public Connection getConnection()
 	{
 		return(UtilityFunctions.con);
 		
-	}
+	}*/
 	
 	
 		
@@ -48,7 +48,7 @@ public class UtilityFunctions
 
 		
 	
-	public UtilityFunctions(String strFullLog, String strErrorLog, String strSQLLog, String strThreadLog)
+	public UtilityFunctions(String strThreadID)
 	{
 	
 		//try
@@ -60,7 +60,7 @@ public class UtilityFunctions
 			String url = "jdbc:mysql://" + strDBHost + ":" + strDBPort + "/" + strDatabase;
 			UtilityFunctions.con = DriverManager.getConnection(url,strUser, strPass);*/
 			//this.bCalledByJsp = bCalled;
-			UtilityFunctions.stdoutwriter = new CustomBufferedWriter(strFullLog, strErrorLog, strSQLLog,strThreadLog, true, true, true);
+			UtilityFunctions.stdoutwriter = new CustomBufferedWriter(strThreadID);
 	
 
 		}
@@ -660,6 +660,12 @@ public class UtilityFunctions
 	  	props.put("mail.smtp.auth", "true");
 	  	props.put("mail.smtp.starttls.enable", "true");
 	  	props.put("mail.debug", "false");
+	  	
+	  	/*
+	  	 * Setting these timeout values since sending mail sometimes hangs.
+	  	 */
+	  	props.put("mail.smtp.timeout", 60000);
+	  	props.put("mail.smtp.connectiontimeout", 60000);
 
 
 	  	//Session session = Session.getInstance(props);
@@ -687,7 +693,10 @@ public class UtilityFunctions
 
 
 	  	} catch (MessagingException e) {
-	  	    throw new RuntimeException(e);
+	  		
+	  	    //throw new RuntimeException(e);
+	  		stdoutwriter.writeln("Problem sending email.",Logs.STATUS2,"UF28.5");
+	  		stdoutwriter.writeln(e);
 	  	}
 	  }
 
