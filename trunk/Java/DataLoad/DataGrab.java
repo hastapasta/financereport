@@ -21,6 +21,7 @@ import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*; 
 import org.apache.http.protocol.HTTP;
 import java.util.Arrays;
+import org.apache.log4j.NDC;
 
 
 
@@ -31,12 +32,12 @@ public class DataGrab extends Thread
 	
 String returned_content;
 String strCurDataSet;
-String strCurTask;
+String strCurTask="";
 int nCurTask;
 ArrayList<String> jobsArray;
 
 /* Need to make this a constant*/
-public static int nMaxJobs=10;
+//public static int nMaxJobs=10;
 
 
 int nTaskBatch;
@@ -48,14 +49,18 @@ int nJobBatch;
 UtilityFunctions uf;
 ProcessingFunctions pf;
 boolean bContinue;
-Calendar calStart =null;
-Calendar calEnd = null;
+Calendar calJobProcessingStart =null;
+Calendar calJobProcessingEnd = null;
+Calendar calAlertProcessingStart=null;
+Calendar calAlertProcessingEnd=null;
 
 /*Variable to filter tickers for quicker debugging.*/
 String strStaticTickerLimit = "";
 
 String strOriginalTicker;
+int nCurrentEntityId;
 String strCurrentTicker;
+
 DBFunctions dbf;
 
 
@@ -68,21 +73,23 @@ DBFunctions dbf;
   	nCurTask = Integer.parseInt(strTask);
   	try
   	{
-	  	String strQuery = "select * from tasks where primary_key=" + strTask;
+  	
+	  	String strQuery = "select jobs_tasks.job_id,tasks.name from jobs_tasks,tasks where tasks.id=jobs_tasks.task_id and jobs_tasks.task_id=" + strTask;
 	  	ResultSet rs = dbf.db_run_query(strQuery);
-	  	rs.next();
+	  	
 	  	
 	  	jobsArray = new ArrayList<String>();
 	  	
-	  	this.strCurTask=rs.getString("name");
-	  	String tmp = "job_primary_key";
+	  	//this.strCurTask=rs.getString("tasks.name");
+	  	//String tmp = "job_primary_key";
 
-	  	for(int i=0;i<nMaxJobs;i++)
+	  	while(rs.next())
 	  	{
-	  		if (rs.getInt(tmp + (i+1)) != 0)
-	  			jobsArray.add(rs.getInt(tmp + (i+1)) + "");
-	  			
-	  	}
+	  		if (strCurTask.isEmpty())
+	  			this.strCurTask=rs.getString("tasks.name");
+	  		jobsArray.add(rs.getInt("jobs_tasks.job_id")+"");
+	   	}
+	  	NDC.push("Task: " + strCurTask);
   	}
   	catch (SQLException sqle)
   	{
@@ -103,23 +110,39 @@ DBFunctions dbf;
   	UtilityFunctions.stdoutwriter.writeln("=========================================================",Logs.STATUS1,"");
   	
   	UtilityFunctions.stdoutwriter.writeln("PROCESSING TASK " + strCurTask,Logs.STATUS1,"DG37");
-	calStart = Calendar.getInstance();
+	calJobProcessingStart = Calendar.getInstance();
 
-	UtilityFunctions.stdoutwriter.writeln("TASK START TIME: " + calStart.getTime().toString(),Logs.STATUS1,"DG38");
+	
   }
   
-  public Calendar getStartTime() throws CustomGenericException
+  public Calendar getJobProcessingStartTime() throws CustomGenericException
   {
-	  if (calStart != null)
-		  return(calStart);
+	  if (calJobProcessingStart != null)
+		  return(calJobProcessingStart);
 	  else
 		  throw new CustomGenericException();
   }
   
-  public Calendar getEndTime() throws CustomGenericException
+  public Calendar getJobProcessingEndTime() throws CustomGenericException
   {
-	  if (calEnd != null)
-		  return(calEnd);
+	  if (calJobProcessingEnd != null)
+		  return(calJobProcessingEnd);
+	  else
+		 throw new CustomGenericException();
+  }
+  
+  public Calendar getAlertProcessingStartTime() throws CustomGenericException
+  {
+	  if (calAlertProcessingStart != null)
+		  return(calAlertProcessingStart);
+	  else
+		  throw new CustomGenericException();
+  }
+  
+  public Calendar getAlertProcessingEndTime() throws CustomGenericException
+  {
+	  if (calAlertProcessingEnd != null)
+		  return(calAlertProcessingEnd);
 	  else
 		 throw new CustomGenericException();
   }
@@ -146,6 +169,8 @@ DBFunctions dbf;
 	 		if (bContinue == false)
 	 			return;
 	 		
+	 		UtilityFunctions.stdoutwriter.writeln("JOB PROCESSING START TIME: " + calJobProcessingStart.getTime().toString(),Logs.STATUS1,"DG38");
+	 		
 	 		UtilityFunctions.stdoutwriter.writeln("INITIATING THREAD",Logs.STATUS1,"DG1");
 	 		
 	 		try
@@ -158,6 +183,7 @@ DBFunctions dbf;
 	 			UtilityFunctions.stdoutwriter.writeln("Problem generating batch number. Aborting.",Logs.ERROR,"DG11.5");
 	 			UtilityFunctions.stdoutwriter.writeln(sqle);
 	 			dbf.closeConnection();
+	 			NDC.pop();
 	 			return;
 	 		}
 	 		
@@ -166,9 +192,31 @@ DBFunctions dbf;
 	 			grab_data_set(jobsArray.get(i));
 	 		}
 	 		
-	 		calEnd = Calendar.getInstance();
-	 		UtilityFunctions.stdoutwriter.writeln("TASK END TIME: " + calEnd.getTime().toString(),Logs.STATUS1,"DG54");
+	 		calJobProcessingEnd = Calendar.getInstance();
+	 		UtilityFunctions.stdoutwriter.writeln("JOB PROCESSING END TIME: " + calJobProcessingEnd.getTime().toString(),Logs.STATUS1,"DG38.15");
+	 		
+	 		calAlertProcessingStart = Calendar.getInstance();
+	 		UtilityFunctions.stdoutwriter.writeln("ALERT PROCESSING START TIME: " + calAlertProcessingStart.getTime().toString(),Logs.STATUS1,"DG38.25");
+	 		
+	 		Alerts al = new Alerts();
+	 		try
+	 		{
+	 			al.checkAlerts(this);
+	 		}
+	 		catch(SQLException sqle)
+	 		{
+	 			UtilityFunctions.stdoutwriter.writeln("Problem process alerts.",Logs.ERROR,"DG11.52");
+	 			UtilityFunctions.stdoutwriter.writeln(sqle);
+	 			//dbf.closeConnection();
+	 			//return;
+	 			
+	 		}
+	 		
+	 		
+	 		calAlertProcessingEnd = Calendar.getInstance();
+	 		UtilityFunctions.stdoutwriter.writeln("ALERT PROCESSING END TIME: " + calAlertProcessingEnd.getTime().toString(),Logs.STATUS1,"DG54");
 	 		dbf.closeConnection();
+	 		NDC.pop();
 
 	 
 	 	
@@ -271,7 +319,10 @@ String regexSnipValue(String strBeforeUniqueCode, String strAfterUniqueCode, int
 	
 }
 
-public void clear_run_once()
+/*
+ * This should be now obsolete.
+ */
+/*public void clear_run_once()
 {
 	try
 	{
@@ -286,7 +337,7 @@ public void clear_run_once()
 		UtilityFunctions.stdoutwriter.writeln(sqle);
 		
 	}
-}
+}*/
 
 
 public String get_value(String local_data_set) throws IllegalStateException,TagNotFoundException,SQLException,CustomRegexException
@@ -300,7 +351,7 @@ public String get_value(String local_data_set) throws IllegalStateException,TagN
 	//run sql to get info about the data_set
 	//Connection con = UtilityFunctions.db_connect();
 	
-	String query = "select extract_info.* from extract_info,jobs where extract_info.primary_key=jobs.extract_key and jobs.Data_Set='" + local_data_set + "'";
+	String query = "select extract_info.* from extract_info,jobs where extract_info.id=jobs.extract_key and jobs.Data_Set='" + local_data_set + "'";
 	
   //Statement stmt = con.createStatement();
   ResultSet rs = dbf.db_run_query(query);
@@ -516,7 +567,7 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 		
 		 if ((rs2.getInt("input_source") != 0))
 		 {
-			 query = "select * from input_source where primary_key=" + rs2.getInt("input_source");
+			 query = "select * from input_source where id=" + rs2.getInt("input_source");
 			 ResultSet rs3 = dbf.db_run_query(query);
 			 rs3.next();
 			 String strStProperties = rs3.getString("form_static_properties");
@@ -666,15 +717,15 @@ public ArrayList<String[]> get_table(String strTableSet, String strSection) thro
 	String query;
 		if (strSection.equals("body"))
 		{
-			query = "select extract_table.* from extract_table,jobs where extract_table.primary_key=jobs.extract_key and jobs.data_set='" + strTableSet + "'";
+			query = "select extract_table.* from extract_table,jobs where extract_table.id=jobs.extract_key and jobs.data_set='" + strTableSet + "'";
 		}
 		else if (strSection.equals("colhead"))
 		{
-			query = "select extract_table.* from extract_table,jobs where extract_table.primary_key=jobs.extract_key_colhead and jobs.data_set='" + strTableSet + "'";
+			query = "select extract_table.* from extract_table,jobs where extract_table.id=jobs.extract_key_colhead and jobs.data_set='" + strTableSet + "'";
 		}
 		else if (strSection.equals("rowhead"))
 		{
-			query = "select extract_table.* from extract_table,jobs where extract_table.primary_key=jobs.extract_key_rowhead and jobs.data_set='" + strTableSet + "'";
+			query = "select extract_table.* from extract_table,jobs where extract_table.id=jobs.extract_key_rowhead and jobs.data_set='" + strTableSet + "'";
 		}
 		else
 		{
@@ -928,14 +979,16 @@ public void grab_data_set(String strJobPrimaryKey)
 		
 				
 		
-		String query = "select companygroup from schedules where task=" + this.nCurTask;
+		//String query = "select companygroup from schedules where task_id=" + nCurTask;
+		String query = "select entity_groups.name,tasks.use_group_for_reading from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id=" + nCurTask;
 		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
-		String group = rs.getString("companygroup");
+		String group = rs.getString("entity_groups.name");
+		boolean bUseGroupForReading = rs.getBoolean("tasks.use_group_for_reading");
 		
 		boolean bTableExtraction = true;
 		
-	 	query = "select * from jobs where primary_key='" + strJobPrimaryKey + "'";
+	 	query = "select * from jobs where id='" + strJobPrimaryKey + "'";
 	 	rs = dbf.db_run_query(query);
 	 	rs.next();
 	 	
@@ -954,7 +1007,8 @@ public void grab_data_set(String strJobPrimaryKey)
 		//query = "update schedule set last_run=NOW() where data_set='" + strCurDataSet + "'";
 		//dbf.db_update_query(query);
 		
-		if (group.compareTo("none") == 0)
+		//if (group.compareTo("none") == 0)
+		if (bUseGroupForReading == false)
 		{
 			//this extract process is not associated with a group of companies.
 			//if ((strCurDataSet.substring(0,5)).compareTo("table") == 0)
@@ -1108,7 +1162,14 @@ public void grab_data_set(String strJobPrimaryKey)
 			{
 				try
 				{
+					/* 
+					 * Have to maintain original ticker and current ticker since some websites use a different format
+					 * for certain tickers, i.e BRK/A vs BRK-A. 
+					 * "Original Ticker" is the format that is stored in the entity table.
+					 * "Current Ticker" gets modified to the format that the website uses.
+					 */
 					this.strOriginalTicker = this.strCurrentTicker = rs.getString("ticker");
+					this.nCurrentEntityId = rs.getInt("id");
 					
 					UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + this.strCurrentTicker,Logs.STATUS1,"DG39");
 					
