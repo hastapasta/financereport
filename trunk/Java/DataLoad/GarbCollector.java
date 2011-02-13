@@ -94,7 +94,7 @@ public class GarbCollector {
 		 * Data_Set xrateorg
 		 */
 		int nDaysPrior=3;
-		String query = "select primary_key from fact_data where primary_key not in (select primary_key from" +
+		String query = "select id from fact_data where id not in (select id from" +
 				" fact_data a, (select max(batch) maxb, ticker from fact_data where" +
 				" dateDiff(date_collected,NOW())<-" + nDaysPrior + " and data_set like '%xrateorg%' group by ticker," +
 				" HOUR(date_collected)) as b where a.batch=b.maxb and a.ticker=b.ticker) and data_set " +
@@ -106,7 +106,7 @@ public class GarbCollector {
 		ResultSet rs2;
 		while(rs1.next())
 		{
-			nKey = rs1.getInt("primary_key");
+			nKey = rs1.getInt("id");
 			/*
 			 * Check if record is referenced in the notify table. If it is, don't remove it.
 			 */
@@ -123,7 +123,7 @@ public class GarbCollector {
 				else
 					query = "update fact_data set garbage_collect=1 where ";
 			
-				query = query + "primary_key='" + rs1.getInt("primary_key") + "'";
+				query = query + "id='" + rs1.getInt("id") + "'";
 				DataLoad.dbf.db_update_query(query);
 				nCount++;
 			}
