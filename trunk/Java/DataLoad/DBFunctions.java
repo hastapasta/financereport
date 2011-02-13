@@ -29,11 +29,11 @@ public class DBFunctions {
 
 	//UtilityFunctions uf;
 	
-	public Connection getConnection()
+	/*public Connection getConnection()
 	{
 		return(UtilityFunctions.con);
 		
-	}
+	}*/
 	
 	public void closeConnection()
 	{
@@ -179,7 +179,7 @@ public class DBFunctions {
 		
 	}
 	
-	public void importTableIntoDB(ArrayList<String[]> tabledata, String tablename, Integer nBatch,Integer nTask)
+	public void importTableIntoDB(ArrayList<String[]> tabledata, String tablename, Integer nBatch,int nTask)
 	{
 		/* This function expects an arraylist with 2X of the number of values to be inserted with each value
 		preceeded by the datatype with the current 3 datatypes being VARCHAR, FUNCTIONS, INT */
@@ -203,7 +203,7 @@ public class DBFunctions {
 		if (tablename.equals("fact_data_stage") || tablename.equals("fact_data"))
 		{
 				columnnames = UtilityFunctions.extendArray(columnnames);
-				columnnames[columnnames.length - 1] = "task";
+				columnnames[columnnames.length - 1] = "task_id";
 				columnnames = UtilityFunctions.extendArray(columnnames);
 				columnnames[columnnames.length - 1] = "batch";
 				
@@ -221,7 +221,13 @@ public class DBFunctions {
 			int nCount=0;
 			for (int j=0;j<columnnames.length;j++)
 			{	
-	
+			  /*
+			   * This is code to deal with the legacy database schema. Data_set column was 
+			   * replace with task column and task is now automatically added along with batch. 
+			   */
+				if (columnnames[j].equalsIgnoreCase("data_set"))
+					continue;
+					
 			  rsColumns = meta.getColumns(null, null, tablename, null);
 
 			  nCount=0;
@@ -281,7 +287,14 @@ public class DBFunctions {
 			for (int y=0;y<columnnames.length;y++)
 			{
 				
-				if (y!=0)
+				/*
+				   * This is code to deal with the legacy database schema. Data_set column was 
+				   * replace with task column and task is now automatically added along with batch. 
+				   */
+				if (columnnames[y].equalsIgnoreCase("data_set"))
+					continue;
+				
+				if (!values.isEmpty())
 				{
 					values = values + ",";
 					strColumns = strColumns + ",";
