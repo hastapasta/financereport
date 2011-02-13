@@ -422,7 +422,7 @@ public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomReg
 	while (!done)
 	{
 		UtilityFunctions.stdoutwriter.writeln("Row Count: " + curRowCount,Logs.STATUS2,"PF21");
-		query = "update extract_info,jobs set extract_info.Row_Count=" + curRowCount + ",jobs.url_dynamic='" + ticker + "' where jobs.extract_key=data_info.primary_key and jobs.data_set='nasdaq_eps_est_quarter'";
+		query = "update extract_info,jobs set extract_info.Row_Count=" + curRowCount + ",jobs.url_dynamic='" + ticker + "' where jobs.extract_key=data_info.id and jobs.data_set='nasdaq_eps_est_quarter'";
 		
 		//try
 		//{
@@ -524,7 +524,9 @@ public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomReg
 /*
  * I think these next 2 are obsolete
  */
-public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRegexException
+
+
+/*public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRegexException
 {
 	//try
 	//{
@@ -542,7 +544,7 @@ public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRege
 		int nDataSetYear = Integer.parseInt(tmpStaticDataSet.substring(9,11));
 		
 		if 	((strCurValue.compareTo("2009") == 0) && (nDataSetYear == 10))
-		/* Data not available yet...return false (skip) */
+		//Data not available yet...return false (skip) 
 			throw new CustomRegexException();
 	
 		
@@ -575,7 +577,7 @@ public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRege
 		
 		
 	//}
-	/*catch (SQLException sqle)
+	catch (SQLException sqle)
 	{
 		UtilityFunctions.stdoutwriter.writeln("preNasdaqEPS2 failed...",Logs.ERROR,"PF29");
 		UtilityFunctions.stdoutwriter.writeln(sqle);
@@ -587,12 +589,12 @@ public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRege
 		UtilityFunctions.stdoutwriter.writeln(cre);
 		return(false);
 		
-	}*/
+	}
 	
-}
+}*/
 
 
-public void postNasdaqEPS()
+/*public void postNasdaqEPS()
 {
 	UtilityFunctions.stdoutwriter.writeln("Inside postNasdaqEPS...",Logs.ERROR,"PF30");
 	
@@ -617,7 +619,7 @@ public void postNasdaqEPS()
 		UtilityFunctions.stdoutwriter.writeln("Problem updating fields for Data Set " + dg.strCurDataSet + "in postNasdaqEPS! Fields may be corrupted...",Logs.ERROR,"PF31");
 		UtilityFunctions.stdoutwriter.writeln(sqle);
 	}
-}
+}*/
 
 /*
  * end obsolete
@@ -633,13 +635,13 @@ public void postProcessYahooSharePrice() throws SQLException
 	strTmpValue[0] = strTmpValue[0].substring(strTmpValue[0].indexOf(">")+1,strTmpValue[0].length());
 	
 	
-	String[] tmpArray = {"data_set","value","date_collected","ticker"};
+	String[] tmpArray = {"value","date_collected","entity_id"};
 	String[] rowdata = new String[tmpArray.length];
 	
-	rowdata[0] = dg.strCurDataSet;
-	rowdata[1] = strTmpValue[0];
-	rowdata[2] = "NOW()";
-	rowdata[3] = dg.strOriginalTicker;
+	//rowdata[0] = dg.nCurTask + "";
+	rowdata[0] = strTmpValue[0];
+	rowdata[1] = "NOW()";
+	rowdata[2] = dg.nCurrentEntityId + "";
 	//rowdata[4] = "share_price";
 	
 	
@@ -993,7 +995,7 @@ public void postProcessNasdaqEPSTable() throws SQLException
 
 public void postProcessBloombergCommodities()
 {
-	String[] tmpArray = {"data_set","value","date_collected","ticker"};
+	String[] tmpArray = {"value","date_collected","entity_id"};
 	
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
 	String[] rowdata, newrow;
@@ -1011,11 +1013,11 @@ public void postProcessBloombergCommodities()
 		
 		newrow = new String[tmpArray.length];
 		
-		newrow[0] = propStrTableDataSet;
+		//newrow[0] = propStrTableDataSet;
 		//newrow[2] = "FUNCTION";
-		newrow[1] = rowdata[0].replace(",", "");
+		newrow[0] = rowdata[0].replace(",", "");
 		//newrow[4] = "VARCHAR";
-		newrow[2] = "NOW()";
+		newrow[1] = "NOW()";
 		//newrow[6] = "INTEGER";
 		
 		/*
@@ -1026,17 +1028,39 @@ public void postProcessBloombergCommodities()
 		int i = tmp.indexOf("(");
 	
 		if (tmp.indexOf("(",i+1)==-1)
-			newrow[3] = tmp.substring(0,i);
+			tmp = tmp.substring(0,i);
 		else
-			newrow[3] = tmp.substring(0,tmp.indexOf("(",i+1));
+			tmp = tmp.substring(0,tmp.indexOf("(",i+1));
 		
 			
 		
 		//newrow[3] = rowheaders[row-2].substring(0,rowheaders[row-2].indexOf("("));
-		newrow[3] = newrow[3].trim();
+		tmp = tmp.trim();
 		/*newrow[3] = tmp.substring(tmp.indexOf(">")+1,tmp.indexOf("</"));
-		newrow[3] = newrow[3].replace("&amp;", "&");
-		newrow[3] = newrow[3].replace("&#x80;", "€");*/
+		newrow[3] = newrow[3].replace("&amp;", "&");*/
+		
+		//remove single quotes e.g. (coffee 'c')
+		tmp = tmp.replace("'", "");
+		
+		String query = "select * from entities where ticker='"+tmp+"'";
+		
+		try
+		{
+			ResultSet rs = dbf.db_run_query(query);
+			rs.next();
+			newrow[2] = rs.getInt("id") + "";
+			newTableData.add(newrow);
+			
+		}
+		catch (SQLException sqle)
+		{
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + tmp + ",row skipped",Logs.ERROR,"PF43.55");
+			
+			/*
+			 * This is not a fatal error so we won't display the full exception.
+			 */
+			//UtilityFunctions.stdoutwriter.writeln(sqle);
+		}
 		
 		
 		
@@ -1060,7 +1084,7 @@ public void postProcessBloombergCommodities()
 
 public void postProcessBloombergIndexes()
 {
-	String[] tmpArray = {"data_set","value","date_collected","ticker"};
+	String[] tmpArray = {"value","date_collected","entity_id"};
 	
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
 	String[] rowdata, newrow;
@@ -1078,21 +1102,50 @@ public void postProcessBloombergIndexes()
 		
 		newrow = new String[tmpArray.length];
 		
-		newrow[0] = propStrTableDataSet;
+		//newrow[0] = propStrTableDataSet;
 		//newrow[2] = "FUNCTION";
-		newrow[1] = rowdata[0].replace(",", "");
+		newrow[0] = rowdata[0].replace(",", "");
 		//newrow[4] = "VARCHAR";
-		newrow[2] = "NOW()";
+		newrow[1] = "NOW()";
 		//newrow[6] = "INTEGER";
 		String tmp = rowheaders[row-2];
-		newrow[3] = tmp.substring(tmp.indexOf(">")+1,tmp.indexOf("</"));
-		newrow[3] = newrow[3].replace("&amp;", "&");
-		newrow[3] = newrow[3].replace("&#x80;", "€");
-		newrow[3] = newrow[3].replace("&#x83;", "ƒ");
+		
+		String ticker = tmp.substring(tmp.indexOf(">")+1,tmp.indexOf("</"));
+		ticker = ticker.replace("&amp;", "&");
+		ticker = ticker.replace("&#x80;", "€");
+		ticker = ticker.replace("&#x83;", "ƒ");
+		
+		String query = "select * from entities where ticker='"+ticker+"'";
+		
+		try
+		{
+			ResultSet rs = dbf.db_run_query(query);
+			rs.next();
+			newrow[2] = rs.getInt("id") + "";
+			newTableData.add(newrow);
+			
+		}
+		catch (SQLException sqle)
+		{
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + ticker + ",row skipped",Logs.ERROR,"PF42.5");
+			
+			/*
+			 * This is not a fatal error so we won't display the full exception.
+			 */
+			//UtilityFunctions.stdoutwriter.writeln(sqle);
+		}
 		
 		
 		
-		newTableData.add(newrow);
+		
+		
+		/*newrow[2] = tmp.substring(tmp.indexOf(">")+1,tmp.indexOf("</"));
+		newrow[2] = newrow[2].replace("&amp;", "&");
+		newrow[2] = newrow[2].replace("&#x80;", "€");
+		newrow[2] = newrow[2].replace("&#x83;", "ƒ");*/
+		
+		
+		
 		
 		
 			
@@ -1119,7 +1172,7 @@ public void postProcessNasdaqEPSEstTable()
 	//int nQuarter=0;
 	//int nYear=0;
 	//int nMonth=0;
-	String[] tmpArray = {"ticker","date_collected","data_set","value","fiscalyear"};
+	String[] tmpArray = {"entity_id","date_collected","value","fiscalyear"};
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
 	
 	/*OFP 10/17/2010 - For Ticker T there is currently redundant data being displayed */
@@ -1159,13 +1212,13 @@ public void postProcessNasdaqEPSEstTable()
 			rowdata = propTableData.get(x);
 			newrow = new String[tmpArray.length];
 			//newrow[0] = "VARCHAR";
-			newrow[0] = strTicker;
+			newrow[0] = dg.nCurrentEntityId + "";
 			//newrow[2] = "FUNCTION";
 			newrow[1] = "NOW()";
 			//newrow[4] = "VARCHAR";
-			newrow[2] = propStrTableDataSet;
+			//newrow[2] = propStrTableDataSet;
 			//newrow[6] = "INTEGER";
-			newrow[3] = rowdata[0];
+			newrow[2] = rowdata[0];
 			//newrow[8] = "INTEGER";
 			
 			MoneyTime mt = new MoneyTime(rowheaders[x-2].substring(0,3),
@@ -1189,14 +1242,14 @@ public void postProcessNasdaqEPSEstTable()
 			//newrow[10] = "VARCHAR";
 			//newrow[4] = "eps_est";
 			
-			newrow[4] = mt.strFiscalYear;
+			newrow[3] = mt.strFiscalYear;
 			
 			
 			if (propStrTableDataSet.contains("_q_") == true)
 			{
-				newrow[5] = Integer.toString(mt.nCalAdjYear);
-				newrow[6] = mt.strFiscalQtr;
-				newrow[7] = Integer.toString(mt.nCalQtr);
+				newrow[4] = Integer.toString(mt.nCalAdjYear);
+				newrow[5] = mt.strFiscalQtr;
+				newrow[6] = Integer.toString(mt.nCalQtr);
 				
 			}
 			//newrow[12] = "INTEGER";
@@ -1421,7 +1474,7 @@ public void postProcessTableXrateorg()
 	
 
 
-	String[] tmpArray = {"data_set","value","date_collected","ticker"};
+	String[] tmpArray = {"value","date_collected","entity_id"};
 	
 	newTableData.add(tmpArray);
 	
@@ -1440,12 +1493,32 @@ public void postProcessTableXrateorg()
 				strTmp = "EURGBP";
 		}
 		String[] tmpA = new String[tmpArray.length];
-		tmpA[0] = propStrTableDataSet;
-		tmpA[1] = propTableData.get(i+2)[0];
-		tmpA[2] = "NOW()";
+		//tmpA[0] = propStrTableDataSet;
+		tmpA[0] = propTableData.get(i+2)[0];
+		tmpA[1] = "NOW()";
+		
+		String query = "select * from entities where ticker='"+strTmp+"'";
+		
+		try
+		{
+			ResultSet rs = dbf.db_run_query(query);
+			rs.next();
+			tmpA[2] = rs.getInt("id") + "";
+			newTableData.add(tmpA);
+			
+		}
+		catch (SQLException sqle)
+		{
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + strTmp + ",row skipped",Logs.ERROR,"PF42.5");
+			
+			/*
+			 * This is not a fatal error so we won't display the full exception.
+			 */
+			//UtilityFunctions.stdoutwriter.writeln(sqle);
+		}
 		//tmpA[3] = "forex";
-		tmpA[3] = strTmp;
-		newTableData.add(tmpA);
+	
+
 		
 	}
 	
@@ -2195,7 +2268,8 @@ public void postProcessMWatchEPSEstTable() throws SQLException
 		 * As of 12/15/2010 there is no data for RAND nor VIA and no obvious string to key off of for a no data check.
 		 */
 
-		String strTicker = dg.strOriginalTicker;
+		//String strTicker = dg.strOriginalTicker;
+		
 
 		String[] rowdata, newrow;
 		String[] colheaders = propTableData.get(0);
@@ -2206,7 +2280,7 @@ public void postProcessMWatchEPSEstTable() throws SQLException
 		
 		ArrayList<String[]> newTableData = new ArrayList<String[]>();
 		
-		String[] tmpArray = {"data_set","value","date_collected","ticker","fiscalyear"};
+		String[] tmpArray = {"value","date_collected","entity_id","fiscalyear"};
 		
 		if (propStrTableDataSet.contains("q"))
 		{
@@ -2232,23 +2306,24 @@ public void postProcessMWatchEPSEstTable() throws SQLException
 				if (rowdata[col].compareTo("void") != 0)
 				{
 				
-					newrow[0] = propStrTableDataSet;
+					//newrow[0] = propStrTableDataSet;
+					//newrow[0] = dg.nCurTask + "";
 					
 					tmpVal = rowdata[col];
 					
 					if (tmpVal.contains("span"))
 					//this is a negative number
-						newrow[1] = tmpVal.substring(tmpVal.indexOf(">-")+1,tmpVal.indexOf("</"));
+						newrow[0] = tmpVal.substring(tmpVal.indexOf(">-")+1,tmpVal.indexOf("</"));
 					else
-						newrow[1] = tmpVal;
+						newrow[0] = tmpVal;
 					
 					//Berkshire tends to be the only company with an EPS in the thousands.
-					newrow[1] = newrow[1].replace(",", "");
+					newrow[0] = newrow[0].replace(",", "");
 			
 				
-					newrow[2] = "NOW()";
+					newrow[1] = "NOW()";
 					
-					newrow[3] = strTicker;
+					newrow[2] = dg.nCurrentEntityId + "";
 					
 					//newrow[4] = "eps_exc_xtsra";
 					
@@ -2275,7 +2350,7 @@ public void postProcessMWatchEPSEstTable() throws SQLException
 					
 					
 					
-					newrow[4] = nFiscalYear + "";
+					newrow[3] = nFiscalYear + "";
 					//newrow[4] = colheaders[col].substring(5,7);//Integer.toString(row-1);
 					
 					
@@ -2284,9 +2359,9 @@ public void postProcessMWatchEPSEstTable() throws SQLException
 					{
 						String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, nFiscalQuarter, nFiscalYear,dbf);
 					
-						newrow[5] = nFiscalQuarter + "";
-						newrow[6] = strCalYearQuarter.substring(0,1);
-						newrow[7] = strCalYearQuarter.substring(1,5);
+						newrow[4] = nFiscalQuarter + "";
+						newrow[5] = strCalYearQuarter.substring(0,1);
+						newrow[6] = strCalYearQuarter.substring(1,5);
 					}
 						
 					newTableData.add(newrow);
