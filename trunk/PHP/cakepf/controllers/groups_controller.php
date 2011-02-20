@@ -3,9 +3,10 @@ class GroupsController extends AppController {
 
 	var $name = 'Groups';
 
+
 	function beforeFilter() {
-	    parent::beforeFilter(); 
-	    //$this->Auth->allow(array('*'));
+		parent::beforeFilter();
+		//$this->Auth->allow(array('*'));
 	}
 
 
@@ -35,20 +36,23 @@ class GroupsController extends AppController {
 	}
 
 	function edit($id = null) {
-		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid group', true));
-			$this->redirect(array('action' => 'index'));
-		}
+		$record = $this->Session->read('Record');
 		if (!empty($this->data)) {
-			if ($this->Group->save($this->data)) {
+			if ($this->Group->saveAll($this->data['Group'])) {
 				$this->Session->setFlash(__('The group has been saved', true));
+				$this->Session->delete('Record');
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The group could not be saved. Please, try again.', true));
 			}
 		}
+		if (!empty($record)) {
+			$this->data = $this->toMulti($this->Group->find('all',array('conditions'=>array('Group.id'=>$record))));
+				
+		}
 		if (empty($this->data)) {
-			$this->data = $this->Group->read(null, $id);
+			$this->Session->setFlash(__('Invalid user', true));
+			$this->redirect(array('action' => 'index'));
 		}
 	}
 
