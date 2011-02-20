@@ -1,17 +1,28 @@
 <?php
 class AppController extends Controller {
     var $components = array('Acl', 'Auth', 'Session');
-    var $helpers = array('Html', 'Form', 'Session');
+    var $helpers = array('Html', 'Form', 'Session','Javascript');
 
     function beforeFilter() {
         //Configure AuthComponent
+        
+
+       
         $this->Auth->authorize = 'actions';
-	$this->Auth->actionPath = 'controllers/';
+		$this->Auth->actionPath = 'controllers/';
+		
+		
+
+		
         $this->Auth->loginAction = array('controller' => 'users', 'action' => 'login');
         $this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login');
-        $this->Auth->loginRedirect = array('controller' => 'alerts', 'action' => 'add');
-        $this->Auth->loginRedirect = array('controller' => 'schedules', 'action' => 'add');
-	$this->Auth->allowedActions = array('display');
+
+        $this->Auth->loginRedirect = array('controller' => 'alerts', 'action' => 'index');
+        //$this->Auth->loginRedirect = array('controller' => 'alerts', 'action' => 'add');
+        //$this->Auth->loginRedirect = array('controller' => 'schedules', 'action' => 'index');
+		$this->Auth->allowedActions = array('display');
+		
+	
 
 	
     }
@@ -20,7 +31,7 @@ class AppController extends Controller {
 	* Remove this from the production instance.
 	*/
 
-	function build_acl() {
+	/*function build_acl() {
 		if (!Configure::read('debug')) {
 			return $this->_stop();
 		}
@@ -103,7 +114,7 @@ class AppController extends Controller {
 		if(count($log)>0) {
 			debug($log);
 		}
-	}
+	}*/
 
 	function _getClassMethods($ctrlName = null) {
 		App::import('Controller', $ctrlName);
@@ -216,6 +227,78 @@ class AppController extends Controller {
 	/*
 	* End 'Remove this from the production instance'
 	*/
+	
+	function action_process(){
+		debug('here',true);
+		/*$this->log('in action process',LOG_DEBUG);
+		debug($this->data, true);
+		debug('here', true);*/
+
+
+		$this->autoRender = false;
+		/*
+		 * code of 1 for delete
+		 */
+		if(1 == $this->data[$this->modelClass]['action_value']){
+			unset($this->data[$this->modelClass]['action_value']);
+			$this->delete_multiple($this->data);
+		}
+		/*
+		 * code of 2 for edit
+		 */
+		if(2 == $this->data[$this->modelClass]['action_value']){
+			unset($this->data[$this->modelClass]['action_value']);
+			$ids = array();
+			//debug($record,true);
+			 foreach($this->data[$this->modelClass] as $record) {
+				if($record != 0)
+					$ids[] = $record;
+			}			
+			$this->Session->write('Record',$ids);
+			$this->redirect(array('action'=>'edit'));
+		}
+		/*
+		 *  code 3 for filter
+		 */
+		if(3 == $this->data[$this->modelClass]['action_value']){
+			debug('here 3', true);
+			unset($this->data[$this->modelClass]['action_value']);
+			//debug('in action_process', true);
+			
+			$this->Session->write('FilterValues', $this->data);
+			
+			$this->redirect(array('action'=>'index'));
+		}
+	}
+	function delete_multiple($id = null){
+        foreach($this->data[$this->modelClass] as $record) {
+			if($record != 0)
+				$this->{$this->modelClass}->delete($record);
+		}
+		$this->Session->setFlash('The records were successfully deleted');
+		$this->redirect($this->referer());
+    }
+	function toMulti($data){
+		$this->log('in toMulti 1',LOG_DEBUG);
+        $result = array();
+        	if (is_array($data)){
+        		$this->log('in toMulti 2',LOG_DEBUG);
+        		//debug($data,true);
+        		$i =  0;
+                foreach ($data as $record) {
+                	
+                    if ($ar = @each($record)){
+                    	$result[$ar["key"]][$i] = $ar["value"];
+                    	$i++;
+                    }
+                }
+            }
+        return $result;
+   	} 
+
+	/*function edit(){
+		//Abstract method
+	}*/
 
 }
 ?>
