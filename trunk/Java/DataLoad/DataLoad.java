@@ -10,7 +10,6 @@
  * and have all threads write to that?
  */
 
-import java.math.BigDecimal;
 import java.net.*;
 import java.io.*; 
 import java.sql.*;
@@ -346,20 +345,33 @@ class DataLoad extends Thread //implements Stopable
 	  try
 	  {
 		  //String strDataSet = dg.strCurDataSet;
-		  String strTask = dg.nCurTask + "";
+		  /*String strTask = dg.nCurTask + "";
 		  Calendar endCal = dg.getAlertProcessingEndTime();
-		  Calendar startCal = dg.getJobProcessingStartTime();
+		  Calendar startCal = dg.getJobProcessingStartTime();*/
 		 
 		  
 		  DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		  //String strDate = formatter.format(endCal.getTime());
 		  
 		  //strDate = formatter.format(dg.getStartTime().getTime());
-		  String query = "update schedules set last_run='" + formatter.format(endCal.getTime())+ "' where task_id=" + strTask;
-		  dbf.db_update_query(query);
 		  
+		  String query = "insert into log_tasks (task_id,job_process_start,job_process_end,alert_process_start,alert_process_end) values (" + dg.nCurTask + ",'"
+		  + formatter.format(dg.getJobProcessingStartTime().getTime()) + "','" 
+		  + formatter.format(dg.getJobProcessingEndTime().getTime()) + "','"
+		  + formatter.format(dg.getAlertProcessingStartTime().getTime()) + "','"
+		  + formatter.format(dg.getAlertProcessingEndTime().getTime()) +"')";
+		  /*String query = "update schedules set last_run='" + formatter.format(endCal.getTime())+ "' where task_id=" + strTask;
+		  dbf.db_update_query(query);*/
+		  
+		  dbf.db_update_query(query);
+	  }
+	  
+	  /*
+	   * All this code is now obsolete since we are saving detailed entries and run counts and averages can
+	   * be calculated from these entries.
+	   */
 		  //query = "select * from job_stats where data_set='" + strDataSet + "'";
-		  query = "select * from job_stats where task_id=" + strTask;
+		 /* query = "select * from job_stats where task_id=" + strTask;
 		  
 		  ResultSet rs = dbf.db_run_query(query);
 		  
@@ -408,7 +420,7 @@ class DataLoad extends Thread //implements Stopable
 			  dbf.db_update_query(query);
 		  }
 	
-	  }
+	  }*/
 	  catch (CustomGenericException cge)
 	  {
 		  UtilityFunctions.stdoutwriter.writeln("Problem retrieving start or end time",Logs.ERROR,"DL2.5");
@@ -416,7 +428,7 @@ class DataLoad extends Thread //implements Stopable
 	  }
 	  catch (SQLException sqle)
 	  {
-		  UtilityFunctions.stdoutwriter.writeln("Problem with sql statement while updating job stats.",Logs.ERROR,"DL2.7");
+		  UtilityFunctions.stdoutwriter.writeln("Problem with sql statement while updating log_tasks table",Logs.ERROR,"DL2.7");
 		  UtilityFunctions.stdoutwriter.writeln(sqle);
 	  }
 
@@ -508,6 +520,12 @@ class DataLoad extends Thread //implements Stopable
 	  
 	  try
 	  {
+		
+		  /*
+		   * One thing about this logic is that the log_tasks table won't get update with the completed tasks
+		   * until the gc finishes. 
+		   * The alerts will be sent out though, so maybe this isn't a major concern, but it could cause some confusion.
+		   */
 		  
 		  
 		  
@@ -529,7 +547,7 @@ class DataLoad extends Thread //implements Stopable
 				  sleep(10000);
 				  
 			  }
-			  //when get here, no jobs are running
+			  //when we get here, no jobs are running
 			  
 			  gc.takeOutTrash();
 			  
@@ -612,7 +630,7 @@ class DataLoad extends Thread //implements Stopable
 	}
 	try
 	{
-		gc = new GarbCollector((String)props.get("gcday"),(String)props.get("gctime"),false);
+		gc = new GarbCollector((String)props.get("gcday"),(String)props.get("gctime"),false,(String)props.getProperty("gcenabled"));
 	}
 	catch(ParseException pe)
 	{
