@@ -939,7 +939,7 @@ public void postProcessNasdaqEPSTable() throws SQLException
 		rowheaders[3] = rowheaders[3].replace("(FYE)","");
 		
 		ArrayList<String[]> newTableData = new ArrayList<String[]>();
-		String[] tmpArray = {"data_set","value","date_collected","ticker","fiscalquarter","fiscalyear","calquarter","calyear"};
+		String[] tmpArray = {"value","date_collected","entity_id","fiscalquarter","fiscalyear","calquarter","calyear"};
 		newTableData.add(tmpArray);
 	
 		for (int row=2;row<propTableData.size();row++)
@@ -952,7 +952,7 @@ public void postProcessNasdaqEPSTable() throws SQLException
 				if (rowdata[col].compareTo("void") != 0)
 				{
 					//newrow[0] = "VARCHAR";
-					newrow[0] = propStrTableDataSet;
+					//newrow[0] = propStrTableDataSet;
 					//newrow[2] = "INTEGER";
 					
 					if ((rowdata[col].contains("N/A") == true) || (rowdata[col].isEmpty() == true))
@@ -961,24 +961,26 @@ public void postProcessNasdaqEPSTable() throws SQLException
 						continue;
 					}
 					else if (rowdata[col].contains("(") == true)
-						newrow[1]=rowdata[col].substring(0,rowdata[col].indexOf("("));
+						newrow[0]=rowdata[col].substring(0,rowdata[col].indexOf("("));
 					else
 						UtilityFunctions.stdoutwriter.writeln("Problem with data value formatting",Logs.ERROR,"PF40");
 					
 				
-					newrow[2] = "NOW()";
+					newrow[1] = "NOW()";
 					
-					newrow[3] = strTicker;
+					String query = "select * from entities where ticker='"+strTicker+"'";
+					
+					newrow[2] = dg.nCurrentEntityId + "";
 					
 					//newrow[4] = "eps_exc_xtra";
 				
-					newrow[4] = Integer.toString(row-1);
+					newrow[3] = Integer.toString(row-1);
 				
-					newrow[5] = colheaders[col];
-					String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, Integer.parseInt(newrow[4]), Integer.parseInt(newrow[5]),dbf);
+					newrow[4] = colheaders[col];
+					String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, Integer.parseInt(newrow[3]), Integer.parseInt(newrow[4]),dbf);
 					
-					newrow[6] = strCalYearQuarter.substring(0,1);
-					newrow[7] = strCalYearQuarter.substring(1,5);
+					newrow[5] = strCalYearQuarter.substring(0,1);
+					newrow[6] = strCalYearQuarter.substring(1,5);
 						
 					newTableData.add(newrow);
 					
@@ -2202,7 +2204,7 @@ public void postProcessGoogleEPSTable() throws SQLException
 		
 		
 		ArrayList<String[]> newTableData = new ArrayList<String[]>();
-		String[] tmpArray = {"data_set","value","date_collected","ticker","fiscalquarter","fiscalyear","calquarter","calyear"};
+		String[] tmpArray = {"value","date_collected","entity_id","fiscalquarter","fiscalyear","calquarter","calyear"};
 		newTableData.add(tmpArray);
 		String tmpVal;
 		for (int row=2;row<propTableData.size();row++)
@@ -2215,23 +2217,23 @@ public void postProcessGoogleEPSTable() throws SQLException
 				if (rowdata[col].compareTo("void") != 0)
 				{
 				
-					newrow[0] = propStrTableDataSet;
+					//newrow[0] = propStrTableDataSet;
 					
 					tmpVal = rowdata[col];
 					
 					if (tmpVal.contains("span"))
 					//this is a negative number
-						newrow[1] = tmpVal.substring(tmpVal.indexOf(">-")+1,tmpVal.indexOf("</"));
+						newrow[0] = tmpVal.substring(tmpVal.indexOf(">-")+1,tmpVal.indexOf("</"));
 					else
-						newrow[1] = tmpVal;
+						newrow[0] = tmpVal;
 					
 					//Berkshire tends to be the only company with an EPS in the thousands.
-					newrow[1] = newrow[1].replace(",", "");
+					newrow[0] = newrow[0].replace(",", "");
 			
 				
-					newrow[2] = "NOW()";
+					newrow[1] = "NOW()";
 					
-					newrow[3] = strTicker;
+					newrow[2] = dg.nCurrentEntityId + "";
 					
 					//newrow[4] = "eps_exc_xtsra";
 					
@@ -2239,15 +2241,15 @@ public void postProcessGoogleEPSTable() throws SQLException
 					String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, Integer.parseInt(strFiscalYearQuarter.substring(0,1)), Integer.parseInt(strFiscalYearQuarter.substring(1,5)),dbf);
 					
 					//newrow[4] = colheaders[col].substring(5,7);//Integer.toString(row-1);
-					newrow[4] = strFiscalYearQuarter.substring(0,1);
+					newrow[3] = strFiscalYearQuarter.substring(0,1);
 					
 					/*don't use they year returned from getFiscalYearAndQuarter - use the one retrieved from the web page*/
 				
-					newrow[5] = strFiscalYearQuarter.substring(1,5);
+					newrow[4] = strFiscalYearQuarter.substring(1,5);
 					
 					
-					newrow[6] = strCalYearQuarter.substring(0,1);
-					newrow[7] = strCalYearQuarter.substring(1,5);
+					newrow[5] = strCalYearQuarter.substring(0,1);
+					newrow[6] = strCalYearQuarter.substring(1,5);
 						
 					newTableData.add(newrow);
 					
