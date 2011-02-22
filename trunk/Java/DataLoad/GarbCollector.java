@@ -17,50 +17,61 @@ public class GarbCollector {
 	 * If 1, take that sucker out immediately.
 	 */
 	boolean bDeleteNow;
+	boolean bEnabled;
 	//DBFunctions dbf;
 	Calendar calNextRunTime;
 	
 	
     	
-	public GarbCollector(String strDay, String strTime, Boolean bNow) throws ParseException
+	public GarbCollector(String strDay, String strTime, Boolean bNow, String strEnabled) throws ParseException
 	{
-		
-	    bDeleteNow = bNow;
-		 
-		nDay = Integer.parseInt(strDay);
-		DateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-		dateInput = sdf.parse(strTime);
-		Calendar calDateInput = Calendar.getInstance();
-		calDateInput.setTime(dateInput);
-		 		 
-		//dbf = dbfparam;
-		calNextRunTime = Calendar.getInstance();
-		
-		Calendar calForTimeComparison = (Calendar)calNextRunTime.clone();
-		calForTimeComparison.set(Calendar.HOUR_OF_DAY, calDateInput.get(Calendar.HOUR_OF_DAY));
-		calForTimeComparison.set(Calendar.MINUTE, calDateInput.get(Calendar.MINUTE));
-		calForTimeComparison.set(Calendar.SECOND, calDateInput.get(Calendar.SECOND));
-		
-		if (nDay == calNextRunTime.get(Calendar.DAY_OF_WEEK))
+		bEnabled = true;
+		if (strEnabled.toUpperCase().equals("FALSE"))
 		{
-			if (calNextRunTime.after(calForTimeComparison))
-				  calNextRunTime.add(Calendar.WEEK_OF_YEAR,1);
-				  
+			//garbage collector completely disabled
+			bEnabled=false;
+			UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR DISABLED",Logs.STATUS1,"GC19.5");
+			
 		}
-		else 
+		else
 		{
-			if (nDay < calNextRunTime.get(Calendar.DAY_OF_WEEK))
-				calNextRunTime.add(Calendar.WEEK_OF_YEAR, 1);
-		}
-		  
-		 
+		    bDeleteNow = bNow;
+			 
+			nDay = Integer.parseInt(strDay);
+			DateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+			dateInput = sdf.parse(strTime);
+			Calendar calDateInput = Calendar.getInstance();
+			calDateInput.setTime(dateInput);
+			 		 
+			//dbf = dbfparam;
+			calNextRunTime = Calendar.getInstance();
+			
+			Calendar calForTimeComparison = (Calendar)calNextRunTime.clone();
+			calForTimeComparison.set(Calendar.HOUR_OF_DAY, calDateInput.get(Calendar.HOUR_OF_DAY));
+			calForTimeComparison.set(Calendar.MINUTE, calDateInput.get(Calendar.MINUTE));
+			calForTimeComparison.set(Calendar.SECOND, calDateInput.get(Calendar.SECOND));
+			
+			if (nDay == calNextRunTime.get(Calendar.DAY_OF_WEEK))
+			{
+				if (calNextRunTime.after(calForTimeComparison))
+					  calNextRunTime.add(Calendar.WEEK_OF_YEAR,1);
+					  
+			}
+			else 
+			{
+				if (nDay < calNextRunTime.get(Calendar.DAY_OF_WEEK))
+					calNextRunTime.add(Calendar.WEEK_OF_YEAR, 1);
+			}
 			  
-		calNextRunTime.set(Calendar.DAY_OF_WEEK,nDay);
-		calNextRunTime.set(Calendar.HOUR_OF_DAY,calDateInput.get(Calendar.HOUR_OF_DAY));
-		calNextRunTime.set(Calendar.MINUTE,calDateInput.get(Calendar.MINUTE));
-		calNextRunTime.set(Calendar.SECOND,calDateInput.get(Calendar.SECOND));
-		
-		UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR NEXT RUN TIME: " + calNextRunTime.getTime().toString(),Logs.STATUS1,"GC19");
+			 
+				  
+			calNextRunTime.set(Calendar.DAY_OF_WEEK,nDay);
+			calNextRunTime.set(Calendar.HOUR_OF_DAY,calDateInput.get(Calendar.HOUR_OF_DAY));
+			calNextRunTime.set(Calendar.MINUTE,calDateInput.get(Calendar.MINUTE));
+			calNextRunTime.set(Calendar.SECOND,calDateInput.get(Calendar.SECOND));
+			
+			UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR NEXT RUN TIME: " + calNextRunTime.getTime().toString(),Logs.STATUS1,"GC19");
+		}
 		 
 		
 		
@@ -70,6 +81,9 @@ public class GarbCollector {
 	
 	public boolean shouldRun()
 	{
+		if (bEnabled==false)
+			return false;
+		
 		Calendar calNow = Calendar.getInstance();
 		//Calendar calCompare = Calendar.getInstance();
 		  
