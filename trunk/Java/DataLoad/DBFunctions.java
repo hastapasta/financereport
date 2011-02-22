@@ -432,7 +432,7 @@ public class DBFunctions {
 		
 		String query = "select max(batch) from ";
 		query = query + "(select batch from fact_data union all ";
-		query = query + "select batch from fact_data_stage union all ";
+		//query = query + "select batch from fact_data_stage union all ";
 		query = query + "select batch from fact_data_stage_est) t1";
 		ResultSet rs = db_run_query(query);
 		rs.next();
