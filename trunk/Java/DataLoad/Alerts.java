@@ -1,6 +1,7 @@
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -56,6 +57,7 @@ public class Alerts {
 				  
 				  //String strType = rs.getString("type");
 				  String strTicker = rs.getString("ticker");
+				  int nAlertId = rs.getInt("alerts.id");
 				  int nEntityId = rs.getInt("entities.id");
 				  String strFrequency = rs.getString("frequency");
 				  //String strEmail = rs.getString("email");
@@ -71,7 +73,7 @@ public class Alerts {
 				  
 				  //try to find the fact key in fact_data
 				  String query2 = "select * from fact_data where id=" + nFactKey;
-				  ResultSet rs2 = dg.dbf.db_run_query(query2);
+				  ResultSet rsPrevFactData = dg.dbf.db_run_query(query2);
 				  
 				  String query3;
 				  if (!(strTicker==null) && !(strTicker.isEmpty()))
@@ -81,9 +83,9 @@ public class Alerts {
 					  query3 = "select * from fact_data where task_id=" + nCurTask + " and batch=" + nMaxBatch;
 					//  "(select max(batch) from fact_data where task=" + nCurTask + ")";
 				  
-				  ResultSet rs3 = dg.dbf.db_run_query(query3);
+				  ResultSet rsCurFactData = dg.dbf.db_run_query(query3);
 				
-				  if (rs2.next())
+				  if (rsPrevFactData.next())
 				  {
 					  //if (strFrequency.equals("HOURLY"))
 					  //{
@@ -107,8 +109,8 @@ public class Alerts {
 						  /*
 						   * resultSet.getDate() drops the time value
 						   */
-						 //calLastRun.setTime(rs2.getDate("date_collected"));
-						  calLastRun.setTime(rs2.getTimestamp("date_collected"));
+						 //calLastRun.setTime(rsPrevFactData.getDate("date_collected"));
+						  calLastRun.setTime(rsPrevFactData.getTimestamp("date_collected"));
 						  if (strFrequency.equals("HOURLY"))
 						  {
 							  calLastRun.add(Calendar.HOUR,1);
@@ -149,15 +151,15 @@ public class Alerts {
 						  //{
 						  
 						  //Check if limit is exceeded, if so then send alert.
-							  if (!rs3.next())
+							  if (!rsCurFactData.next())
 		                      {
 		                          UtilityFunctions.stdoutwriter.writeln("Attempting to check for an alert but did not find fact_data entry",Logs.ERROR,"A2.7355");
 		                          UtilityFunctions.stdoutwriter.writeln("Error occured processing task: " + strTask + ",entity_id: " + nEntityId + ",ticker: " + strTicker,Logs.ERROR,"A2.7356");
 		                          continue;
 		                      }
 							  
-							  BigDecimal dJustCollectedValue = rs3.getBigDecimal("value");
-							  BigDecimal dLastRunValue = rs2.getBigDecimal("value");
+							  BigDecimal dJustCollectedValue = rsCurFactData.getBigDecimal("value");
+							  BigDecimal dLastRunValue = rsPrevFactData.getBigDecimal("value");
 							  			  
 							  BigDecimal dChange;
 							  
@@ -191,7 +193,7 @@ public class Alerts {
 							  * the an alert adjustment is submitted.
 							  * 
 							  */
-							 // String query4 = "update notify set fact_data_key=" + rs3.getInt("primary_key") + " where primary_key=" + nNotifyKey;
+							 // String query4 = "update notify set fact_data_key=" + rsCurFactData.getInt("primary_key") + " where primary_key=" + nNotifyKey;
 							  if ((dChange.abs().compareTo(dLimit) > 0) && (nAlertCount<rs6.getInt("max_alerts")))
 							  {
 								  //send notification
@@ -223,8 +225,8 @@ public class Alerts {
 								  
 								  SimpleDateFormat sdf = new SimpleDateFormat("MMM d,yyyy HH:mm:ss Z");
 
-								  //strMsg = strMsg + "Previous Timestamp: " + rs2.getTimestamp("date_collected").toString() + "\r\n";
-								  strMsg = strMsg + "Previous Timestamp: " + sdf.format(rs2.getTimestamp("date_collected")) + "\r\n";
+								  //strMsg = strMsg + "Previous Timestamp: " + rsPrevFactData.getTimestamp("date_collected").toString() + "\r\n";
+								  strMsg = strMsg + "Previous Timestamp: " + sdf.format(rsPrevFactData.getTimestamp("date_collected")) + "\r\n";
 								  //strMsg = strMsg + "Current Timestamp: " + calJustCollected.toString() + "\r\n";
 								  strMsg = strMsg + "Current Timestamp : " + sdf.format(calJustCollected.getTime()) + "\r\n";
 								  strMsg = strMsg + "Frequency: " + strFrequency + "\r\n";
@@ -236,14 +238,29 @@ public class Alerts {
 								  strMsg += "\r\n2) The user modifies the alert adjustment value (configurable in the alert properties)";
 								  strMsg += "\r\n3) The alert condition is no longer true.";
 								  
+								  String strSubject = (String)DataLoad.props.get("subjecttext") + ": " + strTicker;
 								  
 								  
 								  
-								  UtilityFunctions.mail(strEmail,strMsg,(String)DataLoad.props.get("subjecttext"),(String)DataLoad.props.get("fromaddy"));
+								  DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+								  
+								  String query8 = "insert into log_alerts (alert_id,date_time_fired,bef_fact_data_id,aft_fact_data_id) values (" + nAlertId + 
+								  ",'" + formatter.format(calJustCollected.getTime()) + "'," + rsCurFactData.getInt("id") + "," +rsPrevFactData.getInt("id") +")";
+								  
+								  dg.dbf.db_update_query(query8);
+								  
+								  query8 = "update alerts set alert_count=" + (nAlertCount+1) + " where id=" + nAlertId;
+								  
+								  dg.dbf.db_update_query(query8);
+								  
+						
+								  
+								  
+								  
+								  UtilityFunctions.mail(strEmail,strMsg,strSubject,(String)DataLoad.props.get("fromaddy"));
 					
 									
-								  // this was the old way of updating alert values, now we are using the form 
-								  //dbf.db_update_query(query4);
+	
 						  
 							  }
 							  
@@ -251,9 +268,9 @@ public class Alerts {
 							  /*
 							   * This is the check to see if the alert period has ended and time to update the initial value and reset the adjustment to zero.
 							   */
-							  if (calJustCollected.after(calLastRun))
+							  if (calJustCollected.after(calLastRun) && !strFrequency.equals("ALLTIME"))
 							  {
-								  String query4 = "update alerts set fact_data_key=" + rs3.getInt("id") + ", limit_adjustment=0 where id=" + nNotifyKey;
+								  String query4 = "update alerts set fact_data_key=" + rsCurFactData.getInt("id") + ", alert_count=0,limit_adjustment=0 where id=" + nNotifyKey;
 								  dg.dbf.db_update_query(query4);
 								  
 								  						 
@@ -279,9 +296,9 @@ public class Alerts {
 					  //if I base this off of the batch #, have to be very careful with how it is maintained.
 				  {
 					 
-					  if (rs3.next())
+					  if (rsCurFactData.next())
 					  { 
-						  query2 = "update alerts set fact_data_key=" + rs3.getInt("id") + " where id=" + nNotifyKey;
+						  query2 = "update alerts set fact_data_key=" + rsCurFactData.getInt("id") + " where id=" + nNotifyKey;
 						  dg.dbf.db_update_query(query2);
 					  }
 						  
