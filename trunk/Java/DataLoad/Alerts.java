@@ -27,14 +27,18 @@ public class Alerts {
 		  
 		  String query = "select schedules.*,tasks.name from schedules,tasks where schedules.task_id=" + nCurTask + " and schedules.task_id=tasks.id";
 		  
-		  ResultSet rs = dg.dbf.db_run_query(query);
-		  if (rs.next())
+		  ResultSet rsSchedule = dg.dbf.db_run_query(query);
+		  if (rsSchedule.next())
 		  {
-			  int nKey = rs.getInt("schedules.id");
-			  strTask = rs.getString("tasks.name");
+			  int nKey = rsSchedule.getInt("schedules.id");
+			  strTask = rsSchedule.getString("tasks.name");
+			  
+			  String strLockQuery = "lock table alerts write";
+			  dg.dbf.db_update_query(strLockQuery);
+			  
 			  
 			  query = "select alerts.*,entities.ticker,entities.id from alerts,entities where alerts.entity_id=entities.id and alerts.schedule_id=" + nKey;
-			  rs = dg.dbf.db_run_query(query);
+			  ResultSet rsAlert = dg.dbf.db_run_query(query);
 			  //loop through the schedules associated with this notification
 			  int nRow=0;
 			  
@@ -49,27 +53,29 @@ public class Alerts {
 			  
 			  
 			
-			  while (rs.next())
+			  while (rsAlert.next())
 			  {
+				  
+				 
 				  nRow++;
-				  if (rs.getInt("disabled")>0)
+				  if (rsAlert.getInt("disabled")>0)
 					  continue;
 				  
-				  //String strType = rs.getString("type");
-				  String strTicker = rs.getString("ticker");
-				  int nAlertId = rs.getInt("alerts.id");
-				  int nEntityId = rs.getInt("entities.id");
-				  String strFrequency = rs.getString("frequency");
-				  //String strEmail = rs.getString("email");
-				  int nUserId = rs.getInt("user_id");
+				  //String strType = rsAlert.getString("type");
+				  String strTicker = rsAlert.getString("ticker");
+				  int nAlertId = rsAlert.getInt("alerts.id");
+				  int nEntityId = rsAlert.getInt("entities.id");
+				  String strFrequency = rsAlert.getString("frequency");
+				  //String strEmail = rsAlert.getString("email");
+				  int nUserId = rsAlert.getInt("user_id");
 				 
 				  
 				  //Add the base limit adjustment to the base limit value
-				  BigDecimal dLimit = rs.getBigDecimal("limit_value").add(rs.getBigDecimal("limit_adjustment"));
+				  BigDecimal dLimit = rsAlert.getBigDecimal("limit_value").add(rsAlert.getBigDecimal("limit_adjustment"));
 				  
-				  int nFactKey = rs.getInt("fact_data_key");
-				  int nNotifyKey = rs.getInt("id");
-				  int nAlertCount = rs.getInt("alert_count");
+				  int nFactKey = rsAlert.getInt("fact_data_key");
+				  int nNotifyKey = rsAlert.getInt("id");
+				  int nAlertCount = rsAlert.getInt("alert_count");
 				  
 				  //try to find the fact key in fact_data
 				  String query2 = "select * from fact_data where id=" + nFactKey;
@@ -244,8 +250,15 @@ public class Alerts {
 								  
 								  DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 								  
-								  String query8 = "insert into log_alerts (alert_id,date_time_fired,bef_fact_data_id,aft_fact_data_id) values (" + nAlertId + 
-								  ",'" + formatter.format(calJustCollected.getTime()) + "'," + rsCurFactData.getInt("id") + "," +rsPrevFactData.getInt("id") +")";
+								  String query8 = "insert into log_alerts (alert_id,date_time_fired,bef_fact_data_id,aft_fact_data_id,frequency,limit_value,limit_adjustment,entity_id,user_id) values (" 
+									  + nAlertId + ",'"
+									  + formatter.format(calJustCollected.getTime()) + "',"
+									  + rsCurFactData.getInt("id") + ","
+									  + rsPrevFactData.getInt("id") + ","
+									  + rsAlert.getBigDecimal("limit_value") + ","
+									  + rsAlert.getBigDecimal("limit_adjustment") + ","
+									  + rsAlert.getInt("entity_id") + ","
+									  + rsAlert.getInt("user_id") + ")";
 								  
 								  dg.dbf.db_update_query(query8);
 								  
@@ -313,6 +326,9 @@ public class Alerts {
 				  
 				  
 			  }
+			  
+			  strLockQuery = "unlock tables";
+			  dg.dbf.db_update_query(strLockQuery);
 			  
 			  
 			  
