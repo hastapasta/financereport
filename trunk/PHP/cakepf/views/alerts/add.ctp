@@ -13,25 +13,47 @@
 
 <div class="alerts form">
 <script type="text/javascript">
+function get_type(thing){     if(thing===null)return "[object Null]"; 
+// special case   
+ return Object.prototype.toString.call(thing); }
+
+function dumpProps(obj, parent) {
+	   // Go through all the properties of the passed-in object 
+	   for (var i in obj) {
+	      // if a parent (2nd parameter) was passed in, then use that to 
+	      // build the message. Message includes i (the object's property name) 
+	      // then the object's property value on a new line 
+	      if (parent) { var msg = parent + "." + i + "\n" + obj[i]; } else { var msg = i + "\n" + obj[i]; }
+	      // Display the message. If the user clicks "OK", then continue. If they 
+	      // click "CANCEL" then quit this level of recursion 
+	      if (!confirm(msg)) { return; }
+	      // If this property (i) is an object, then recursively process the object 
+	      if (typeof obj[i] == "object") { 
+	         if (parent) { dumpProps(obj[i], parent + "." + i); } else { dumpProps(obj[i], i); }
+	      }
+	   }
+	}
+
+
+
 	function submitFunc()
 	{
 	
-		var myselect = document.getElementById("hiddenTicker");
+		var myselect = document.getElementById("AlertEntityId");
 			//document.createElement("select");
-		myselect.setAttribute("name","data[Alert][entity_id]");
+		//myselect.setAttribute("name","data[Alert][entity_id]");
 		//var theOption=document.createElement("OPTION");
 		
 
 		//theText=document.createTextNode("OptionText");
 		//theOption.appendChild(theText);
 
-		
 		var hiLit = tree.getNodesByProperty('highlightState',1);
 
 		/*
 		* Have to do an id lookup now. Tried saving the id in the treenode along with the ticker, but the id field wasn't coming through.
 		*/
-		alert(hiLit.length);
+	
 		for (k=0;k<hiLit.length;k++)
 		//for(k=0;k<1;k++)
 		{
@@ -48,6 +70,7 @@
 				if (jsondata[i].ticker==hiLit[k].label)
 				{
 					theOption.setAttribute("value",jsondata[i].id);
+					theOption.setAttribute("selected","selected");
 					//alert(jsondata[i].id);
 					break;
 				}
@@ -56,7 +79,7 @@
 			myselect.appendChild(theOption);
 		}
 
-		alert(myselect.length);
+		
 
 		//theOption.setAttribute("value",hiLit[0].id);
 
@@ -75,9 +98,12 @@
 		{
 			
 		//document.write("The field name is: " + document.FormName.elements[i].name + " and it’s value is: " + document.FormName.elements[i].value + ".<br />");
-			if (document.testForm.elements[i].name=="data[Alert][entity_id]")
+			if (document.testForm.elements[i].name=="data[Alert][entity_id][]")
 			{
+				
 				selRef= document.testForm.elements[i];
+				//dumpProps(selRef);
+				//alert(get_type(selRef));
 				for (var z=selRef.options.length-1; z >= 0;z--) 
 				{
 					document.getElementById("testdiv").innerHTML += "The value name is: " + selRef.options[z].value + ".<br />";	
@@ -87,10 +113,8 @@
 				document.getElementById("testdiv").innerHTML += "The field name is: " + document.testForm.elements[i].name + " and it’s value is: " + document.testForm.elements[i].value + ".<br />";
 		}
 
-		alert("here");
-
+	
 		
-			
 
 
 		return true;
@@ -317,8 +341,9 @@
 		//echo $this->Form->input('schedule_id');
 
 		echo "<div style=\"display:none\" id=\"hiddenselect\" >";
-		echo "<select id=\"hiddenTicker\" multiple=\"multiple\" >";
-		echo "</select>";
+		//echo "<select id=\"hiddenTicker\" name=\"data[Alert][entity_id]\" multiple=\"multiple\" >";
+		//echo "</select>";
+		echo $this->Form->input('Alert.entity_id',array('type'=>'select','multiple'=> true));
 		echo "</div>";
 		//$group_id = $session->read('Auth.User.group_id');
 		
@@ -343,10 +368,4 @@
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
-<div class="actions">
-	<h3><?php __('Actions'); ?></h3>
-	<ul>
-
-		<li><?php echo $this->Html->link(__('List Alerts', true), array('action' => 'index'));?></li>
-	</ul>
-</div>
+<?php echo $this->element('actions'); ?>
