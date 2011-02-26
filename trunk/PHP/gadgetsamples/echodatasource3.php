@@ -1,0 +1,9 @@
+<?php
+echo "google.visualization.Query.setResponse({\"reqId\":\"0\",\"status\":\"ok\",\"table\":{\"cols\":[{\"id\":\"balsht item\",\"label\":\"balsht item\",\"type\":\"string\"},{\"id\":\"value\",\"label\":\"% change\",\"type\":\"number\"}],\"rows\":[{\"c\":[{\"v\":\" Gold certificate account\"},{\"f\":\"0\",\"v\":0}]},{\"c\":[{\"v\":\" Special drawing rights certificate account\"},{\"f\":\"0\",\"v\":0}]},{\"c\":[{\"v\":\" Coin\"},{\"f\":\"-0.87\",\"v\":-0.87}]},{\"c\":[{\"v\":\"Bills\"},{\"f\":\"0\",\"v\":0}]},{\"c\":[{\"v\":\"Notes and bonds\"},{\"f\":\"2.02\",\"v\":2.02}]},{\"c\":[{\"v\":\" Federal agency debt securities\"},{\"f\":\"-0.18\",\"v\":-0.18}]},{\"c\":[{\"v\":\" Mortgage-backed securities\"},{\"f\":\"-0.69\",\"v\":-0.69}]},{\"c\":[{\"v\":\" Repurchase agreements\"},{\"f\":\"0\",\"v\":0}]},{\"c\":[{\"v\":\" Term auction credit\"},{\"f\":\"0\",\"v\":0}]},{\"c\":[{\"v\":\" Other loans\"},{\"f\":\"-0.15\",\"v\":-0.15}]},{\"c\":[{\"v\":\" Net portfolio holdings of Commercial Paper Funding Facility LLC\"},{\"f\":\"0\",\"v\":0}]},{\"c\":[{\"v\":\" Net portfolio holdings of Maiden Lane LLC\"},{\"f\":\"-2.01\",\"v\":-2.01}]},{\"c\":[{\"v\":\" Net portfolio holdings of Maiden Lane II LLC\"},{\"f\":\"0.03\",\"v\":0.03}]},{\"c\":[{\"v\":\" Net portfolio holdings of Maiden Lane III LLC\"},{\"f\":\"-0.93\",\"v\":-0.93}]},{\"c\":[{\"v\":\" Net portfolio holdings of TALF LLC\"},{\"f\":\"0\",\"v\":0}]},{\"c\":[{\"v\":\" Preferred interests in AIA Aurora LLC and ALICO Holdings LLC\"},{\"f\":\"0\",\"v\":0}]},{\"c\":[{\"v\":\" Items in process of collection\"},{\"f\":\"863.3300000000003\",\"v\":863.3300000000003}]},{\"c\":[{\"v\":\" Bank premises\"},{\"f\":\"0.05\",\"v\":0.05}]},{\"c\":[{\"v\":\" Central bank liquidity swaps\"},{\"f\":\"0\",\"v\":0}]},{\"c\":[{\"v\":\" Other assets\"},{\"f\":\"-6.01\",\"v\":-6.01}]},{\"c\":[{\"v\":\" Interdistrict settlement account\"},{\"f\":\"0\",\"v\":0}]}]},\"version\":\"0.5\"});"; 
+
+
+
+?> 
+
+
+
