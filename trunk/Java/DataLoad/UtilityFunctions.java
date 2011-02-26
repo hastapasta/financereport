@@ -3,6 +3,9 @@
 
 import java.sql.*;
 import java.util.ArrayList;
+//import java.util.Calendar;
+import java.util.HashMap;
+//import java.util.List;
 import java.util.Properties;
 //import java.util.Calendar;
 import java.io.*;
@@ -48,7 +51,7 @@ public class UtilityFunctions
 
 		
 	
-	public UtilityFunctions(String strThreadID)
+	public UtilityFunctions()
 	{
 	
 		//try
@@ -60,7 +63,7 @@ public class UtilityFunctions
 			String url = "jdbc:mysql://" + strDBHost + ":" + strDBPort + "/" + strDatabase;
 			UtilityFunctions.con = DriverManager.getConnection(url,strUser, strPass);*/
 			//this.bCalledByJsp = bCalled;
-			UtilityFunctions.stdoutwriter = new CustomBufferedWriter(strThreadID);
+			UtilityFunctions.stdoutwriter = new CustomBufferedWriter();
 	
 
 		}
@@ -383,6 +386,176 @@ public class UtilityFunctions
 		
 	}*/
 	
+	/*public static void getColumnNames(ResultSet rs) throws SQLException {
+	    if (rs == null) {
+	      return;
+	    }
+	    ResultSetMetaData rsMetaData = rs.getMetaData();
+	    int numberOfColumns = rsMetaData.getColumnCount();
+
+	    // get the column names; column indexes start from 1
+	    for (int i = 1; i < numberOfColumns + 1; i++) {
+	      String columnName = rsMetaData.getColumnName(i);
+	      // Get the name of the column's table name
+	      String tableName = rsMetaData.getTableName(i);
+	      System.out.println("column name=" + columnName + " table=" + tableName + "");
+	    }
+	  }*/
+	
+	public static HashMap<String,HashMap<String,String>> convertResultSetToHashMap(ResultSet rs,String strColumnKey) throws SQLException
+	{
+		HashMap<String,HashMap<String,String>> parentHash = null;
+	
+		ResultSetMetaData rsMetaData = rs.getMetaData();
+		int numberOfColumns = rsMetaData.getColumnCount();
+		String strHashKey=null;
+		
+		while (rs.next())
+		{
+			if (parentHash==null)
+				parentHash = new HashMap<String,HashMap<String,String>>();
+			//String[] tmpArray = new String[numberOfColumns];
+			HashMap<String,String> childHash = new HashMap<String,String>();
+		
+			for (int i=1;i<=numberOfColumns;i++)
+			{
+				int j = rsMetaData.getColumnType(i);
+				String strValue="";
+				switch(j)
+				{
+				
+			
+					case java.sql.Types.BIT:
+						strValue = "false";
+						if (rs.getInt(i) != 0)
+							strValue = "true";
+						break;
+						
+						
+						
+					case java.sql.Types.INTEGER:
+						strValue = rs.getInt(i) + "";
+						break;
+						
+					case java.sql.Types.VARCHAR:
+						strValue = rs.getString(i);
+						break;
+						
+					case java.sql.Types.DECIMAL:
+						if (rs.getBigDecimal(i) == null)
+							strValue = null;
+						else
+							strValue = rs.getBigDecimal(i).toString();
+						break;
+					
+					case java.sql.Types.TIMESTAMP:
+						if (rs.getDate(i) == null)
+							strValue = null;
+						else
+						{
+							//rs.getData() drops the time						
+							strValue = rs.getTimestamp(i).toString();
+						}
+						break;
+						
+					default:
+						stdoutwriter.writeln("Problem converting ResultSet to HashMap - unhandled column type",Logs.ERROR,"UF18.5");
+						throw new SQLException("Custom SQL Exception - Unable to convert ResultSet to HashMap");
+						
+						
+				}
+				if (rsMetaData.getColumnName(i).equals(strColumnKey))
+					strHashKey = strValue;
+					
+				childHash.put(rsMetaData.getTableName(i)+"."+rsMetaData.getColumnName(i), strValue);
+				//tmpArray[i-1] = strValue;
+			
+			}
+			if (strHashKey == null)
+			{
+				stdoutwriter.writeln("Problem converting ResultSet to HashMap - column for hash key not found",Logs.ERROR,"UF18.7");
+				throw new SQLException("Custom SQL Exception - Unable to convert ResultSet to HashMap");
+			}
+			parentHash.put(strHashKey,childHash);
+		}
+		
+		return(parentHash);
+	}
+	
+	public static ArrayList<HashMap<String,String>> convertResultSetToArrayList(ResultSet rs) throws SQLException
+	{
+		
+		ArrayList<HashMap<String,String>> tmpArrayList = null;
+		ResultSetMetaData rsMetaData = rs.getMetaData();
+		int numberOfColumns = rsMetaData.getColumnCount();
+		int nRow=0;
+		//int ntmp = 200;
+		while (rs.next())
+		{
+			if (tmpArrayList == null)
+				tmpArrayList = new ArrayList<HashMap<String,String>>();
+			
+			HashMap<String,String> tmpHash = new HashMap<String,String>();
+			for (int i=1;i<=numberOfColumns;i++)
+			{
+				int j = rsMetaData.getColumnType(i);
+				String strValue="";
+				switch(j)
+				{
+				
+			
+					case java.sql.Types.BIT:
+						strValue = "false";
+						if (rs.getInt(i) != 0)
+							strValue = "true";
+						break;
+						
+					case java.sql.Types.INTEGER:
+						strValue = rs.getInt(i) + "";
+						break;
+						
+					case java.sql.Types.VARCHAR:
+						strValue = rs.getString(i);
+						break;
+						
+					case java.sql.Types.DECIMAL:
+						if (rs.getBigDecimal(i) == null)
+							strValue = null;
+						else
+							strValue = rs.getBigDecimal(i).toString();
+						break;
+						  
+						  //try to find the fact key in fact_data
+					case java.sql.Types.TIMESTAMP:
+						if (rs.getDate(i) == null)
+							strValue = null;
+						else
+							strValue = rs.getTimestamp(i).toString();
+						break;
+						
+					default:
+						stdoutwriter.writeln("Problem converting ResultSet to ArrayList - unhandled column type",Logs.ERROR,"UF18.5");
+						throw new SQLException("Custom SQL Exception - Unable to convert ResultSet to ArrayList");
+						
+						
+				}
+				tmpHash.put(rsMetaData.getTableName(i)+"."+rsMetaData.getColumnName(i), strValue);
+				
+			}
+			tmpArrayList.add(tmpHash);
+			nRow++;
+			/*if (nRow==ntmp)
+			{
+				String tmp = "blap";
+			}*/
+		}
+		
+		
+		return(tmpArrayList);
+	}
+	
+	
+	
 	
 	public static void createCSV(ArrayList<String[]> tabledata,String filename,boolean append)
 	{
@@ -687,8 +860,9 @@ public class UtilityFunctions
 		    //transport.connect(host,username,password);
 		    
 		    
-
-		    Transport.send(message);
+		    //emails are disabled for testing
+		    if (DataLoad.bDisableEmails == false)
+		    	Transport.send(message);
 
 
 
