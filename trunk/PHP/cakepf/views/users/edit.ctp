@@ -1,26 +1,42 @@
-<div class="users form">
-<?php echo $this->Form->create('User');?>
-	<fieldset>
- 		<legend><?php __('Edit User'); ?></legend>
-	<?php
-		echo $this->Form->input('id');
-		echo $this->Form->input('username');
-		echo $this->Form->input('password');
-		echo $this->Form->input('email');
-		echo $this->Form->input('group_id');
+<div class="users form"><?php echo $this->Form->create('User');	 
+if ($this->getVar('administrator') == true)
+{
+	for($i = 0; $i < sizeof($this->data['User']); $i++)
+	{
 	?>
-	</fieldset>
-<?php echo $this->Form->end(__('Submit', true));?>
-</div>
-<div class="actions">
-	<h3><?php __('Actions'); ?></h3>
-	<ul>
+<fieldset><legend><?php __('Edit User '.$i); ?></legend> <?php
+echo $this->Form->hidden('User.'.$i.'.id');
+echo $this->Form->input('User.'.$i.'.username');
+echo $this->Form->input('User.'.$i.'.password');
+echo $this->Form->input('User.'.$i.'.email');
+echo $this->Form->input('User.'.$i.'.max_alerts');
+echo $this->Form->input('User.'.$i.'.group_id');
+?></fieldset>
+<?php }
+ }
+ else 
+ {
+ for($i = 0; $i < sizeof($this->data['User']); $i++)
+ {
+ 	/*
+ 	 * Need to add more security here. Techincally someone could overwrite the hidden id parameter
+ 	 * and modify another users password.
+ 	 * 
+ 	 */
+	?>
+<fieldset><legend><?php __('Edit User '.$i); ?></legend> <?php
+echo $this->Form->hidden('User.'.$i.'.id');
+echo $this->Form->input('User.'.$i.'.username',array('disabled' => true));
+echo $this->Form->input('User.'.$i.'.password');
+echo $this->Form->input('User.'.$i.'.email',array('disabled' => true));
+//echo $this->Form->input('User.'.$i.'.max_alerts');
+//echo $this->Form->input('User.'.$i.'.group_id',array('disabled' => true));
+?></fieldset>
+<?php }
+ 	
+ }
+ 
+ ?> 
 
-		<li><?php echo $this->Html->link(__('Delete', true), array('action' => 'delete', $this->Form->value('User.id')), null, sprintf(__('Are you sure you want to delete # %s?', true), $this->Form->value('User.id'))); ?></li>
-		<li><?php echo $this->Html->link(__('List Users', true), array('action' => 'index'));?></li>
-		<li><?php echo $this->Html->link(__('List Groups', true), array('controller' => 'groups', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Group', true), array('controller' => 'groups', 'action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Alerts', true), array('controller' => 'alerts', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Alert', true), array('controller' => 'alerts', 'action' => 'add')); ?> </li>
-	</ul>
-</div>
+<?php echo $this->Form->end(__('Submit', true));?></div>
+<?php echo $this->element('actions'); ?>
