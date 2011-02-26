@@ -229,10 +229,7 @@ class AppController extends Controller {
 	*/
 	
 	function action_process(){
-		debug('here',true);
-		/*$this->log('in action process',LOG_DEBUG);
-		debug($this->data, true);
-		debug('here', true);*/
+	
 
 
 		$this->autoRender = false;
@@ -261,7 +258,7 @@ class AppController extends Controller {
 		 *  code 3 for filter
 		 */
 		if(3 == $this->data[$this->modelClass]['action_value']){
-			debug('here 3', true);
+	
 			unset($this->data[$this->modelClass]['action_value']);
 			//debug('in action_process', true);
 			
