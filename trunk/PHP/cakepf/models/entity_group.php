@@ -1,6 +1,6 @@
 <?php
-class Task extends AppModel {
-	var $name = 'Task';
+class EntityGroup extends AppModel {
+	var $name = 'EntityGroup';
 	var $validate = array(
 		'name' => array(
 			'notempty' => array(
@@ -15,29 +15,12 @@ class Task extends AppModel {
 	);
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 
-	var $hasMany = array(
-		'Schedule' => array(
-			'className' => 'Schedule',
-			'foreignKey' => 'task_id',
-			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
-			)
-			);
-
-
-			var $hasAndBelongsToMany = array(
-		'EntityGroup' => array(
-			'className' => 'EntityGroup',
-			'joinTable' => 'entity_groups_tasks',
-			'foreignKey' => 'task_id',
-			'associationForeignKey' => 'entity_group_id',
+	var $hasAndBelongsToMany = array(
+		'Entity' => array(
+			'className' => 'Entity',
+			'joinTable' => 'entities_entity_groups',
+			'foreignKey' => 'entity_group_id',
+			'associationForeignKey' => 'entity_id',
 			'unique' => true,
 			'conditions' => '',
 			'fields' => '',
@@ -48,11 +31,11 @@ class Task extends AppModel {
 			'deleteQuery' => '',
 			'insertQuery' => ''
 			),
-		'Job' => array(
-			'className' => 'Job',
-			'joinTable' => 'jobs_tasks',
-			'foreignKey' => 'task_id',
-			'associationForeignKey' => 'job_id',
+		'Task' => array(
+			'className' => 'Task',
+			'joinTable' => 'entity_groups_tasks',
+			'foreignKey' => 'entity_group_id',
+			'associationForeignKey' => 'task_id',
 			'unique' => true,
 			'conditions' => '',
 			'fields' => '',

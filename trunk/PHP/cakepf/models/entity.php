@@ -5,13 +5,13 @@ class Entity extends AppModel {
 		'ticker' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
+	//'message' => 'Your custom message here',
+	//'allowEmpty' => false,
+	//'required' => false,
+	//'last' => false, // Stop validation after this rule
+	//'on' => 'create', // Limit validation to 'create' or 'update' operations
+	),
+	),
 	);
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 
@@ -28,34 +28,8 @@ class Entity extends AppModel {
 			'exclusive' => '',
 			'finderQuery' => '',
 			'counterQuery' => ''
-		),
-		'EntityGroup' => array(
-			'className' => 'EntityGroup',
-			'foreignKey' => 'entity_id',
-			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
-		),
-		'FactDatum' => array(
-			'className' => 'FactDatum',
-			'foreignKey' => 'entity_id',
-			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
-		)
-	);
+			)
+			);
 
 }
 ?>
