@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="lib" path="/home/ollie/tools/hyperion/products/Essbase/EssbaseClient/JavaAPI/lib/ess_es_server.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/tools/hyperion/products/Essbase/EssbaseClient/JavaAPI/lib/ess_japi.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/googleapi_samples/gdata/java/lib/gdata-client-1.0.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/googleapi_samples/gdata/java/lib/gdata-spreadsheet-3.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/home/ollie/dev/java/googleapi_samples/gdata/java/doc"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/googleapi_samples/gdata/java/sample/util/lib/sample-util.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/apache-log4j-1.2.16/log4j-1.2.16.jar" sourcepath="/home/ollie/dev/java/libraries/apache-log4j-1.2.16/src/main/java"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/commons-io-1.4/commons-io-1.4.jar" sourcepath="/DataGrab2/C:/dev/java/libraries/commons-io-1.4/commons-io-1.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/dev/java/libraries/commons-io-1.4/commons-io-1.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/json-rpc-1.0.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>
