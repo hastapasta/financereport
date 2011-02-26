@@ -1,5 +1,4 @@
-<div class="alerts form">
-<script type="text/javascript">
+<div class="alerts form"><script type="text/javascript">
 	function showUser(str)
 	{
 	
@@ -63,56 +62,51 @@
 		xmlhttp.open("POST","http://localhost/PHP/ajaxsample/cakeajax.php?q="+str+"&timestamp="+currentTime,true);
 		xmlhttp.send();
 	}
-	</script>
-<?php echo $this->Form->create('Alert');?>
+	</script> <?php echo $this->Form->create('Alert');?>
 
-	<fieldset>
- 		<legend><?php __('Add Alert'); ?></legend>
-	<?php
+<fieldset><legend><?php __('Add Alert'); ?></legend> <?php
 
-		//debug($this->validationErrors,true);
-		//debug($this->data,true);
-		//debug($this->getVar('usernames'),true);
-		//debug($this->getVar('task_names'),true);
-		//debug($this->getVar('frequencies'),true);
-		
-		
+//debug($this->validationErrors,true);
+//debug($this->data,true);
+//debug($this->getVar('usernames'),true);
+//debug($this->getVar('task_names'),true);
+//debug($this->getVar('frequencies'),true);
 
-		//echo $this->Form->input('id');
-		//echo $this->Form->input('type');
-		
-		//debug($this);	
-		//array('onChange'=>'showFields(this)')
-		
-		//echo $this->Form->input('schedule_id',array('label'=>'Schedule Name','options' => $this->getVar('task_names')));
-		echo $this->Form->input('schedule_id',array('label'=>'Schedule Name','onChange'=>'showUser(this.value)','options' => $this->getVar('task_names')));
-		
-		echo $this->Form->input('ticker',array('label'=>'Financial Enitity','options' => $this->getVar('entity_descs')));
-		//echo $this->Form->input('schedule_id');
 
-	
-		//$group_id = $session->read('Auth.User.group_id');
-		
-		//debug($this->Form,true);
-		echo $this->Form->input('Alert.user_id',array('label'=>'User Name','options' => $this->getVar('usernames')));
-		echo $this->Form->input('Alert.frequency',array('label'=>'Frequency','options' => $this->getVar('frequencies')));
-		echo $this->Form->input('limit_value');
-		//echo $this->Form->input('limit_adjustment');
-		echo $this->Form->input('limit_adjustment',array('value'=>0,'type'=>'hidden'));
-		echo $this->Form->input('type',array('value'=>'LIMIT','type'=>'hidden'));
-		//echo $this->Form->input('fact_data_key');
-		
-		//echo $this->Form->input('alert_count');
-		echo $this->Form->input('disabled');
-		//echo $this->Form->input('user_id');
-	?>
-	</fieldset>
-<?php echo $this->Form->end(__('Submit', true));?>
-</div>
+
+//echo $this->Form->input('id');
+//echo $this->Form->input('type');
+
+//debug($this);
+//array('onChange'=>'showFields(this)')
+
+//echo $this->Form->input('schedule_id',array('label'=>'Schedule Name','options' => $this->getVar('task_names')));
+echo $this->Form->input('schedule_id',array('label'=>'Schedule Name','onChange'=>'showUser(this.value)','options' => $this->getVar('task_names')));
+
+echo $this->Form->input('ticker',array('label'=>'Financial Enitity','options' => $this->getVar('entity_descs')));
+//echo $this->Form->input('schedule_id');
+
+
+//$group_id = $session->read('Auth.User.group_id');
+
+//debug($this->Form,true);
+echo $this->Form->input('Alert.user_id',array('label'=>'User Name','options' => $this->getVar('usernames')));
+echo $this->Form->input('Alert.frequency',array('label'=>'Frequency','options' => $this->getVar('frequencies')));
+echo $this->Form->input('limit_value');
+//echo $this->Form->input('limit_adjustment');
+echo $this->Form->input('limit_adjustment',array('value'=>0,'type'=>'hidden'));
+echo $this->Form->input('type',array('value'=>'LIMIT','type'=>'hidden'));
+//echo $this->Form->input('fact_data_key');
+
+//echo $this->Form->input('alert_count');
+echo $this->Form->input('disabled');
+//echo $this->Form->input('user_id');
+?></fieldset>
+<?php echo $this->Form->end(__('Submit', true));?></div>
 <div class="actions">
-	<h3><?php __('Actions'); ?></h3>
-	<ul>
+<h3><?php __('Actions'); ?></h3>
+<ul>
 
-		<li><?php echo $this->Html->link(__('List Alerts', true), array('action' => 'index'));?></li>
-	</ul>
+	<li><?php echo $this->Html->link(__('List Alerts', true), array('action' => 'index'));?></li>
+</ul>
 </div>
