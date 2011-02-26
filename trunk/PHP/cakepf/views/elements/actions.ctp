@@ -32,7 +32,7 @@
 	</li>
 	<li><?php echo $this->Html->link(__('List Alerts', true), array('controller' => 'alerts', 'action' => 'index')); ?>
 	</li>
-	<li><?php echo $this->Html->link(__('Edit User', true), array('controller' => 'users', 'action' => 'edit')); ?>
+	<li><?php echo $this->Html->link(__('Change Password', true), array('controller' => 'users', 'action' => 'edit')); ?>
 	</li>
 	<?php endif; ?>
 </ul>
