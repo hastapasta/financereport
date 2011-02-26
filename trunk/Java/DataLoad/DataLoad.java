@@ -48,6 +48,7 @@ class DataLoad extends Thread //implements Stopable
   static UtilityFunctions uf;
   static int nMaxThreads = 2;
   static Properties props;
+  static boolean bDisableEmails;
   //Hashtable<String,Hashtable<String,String>> hashScheduleTable;
   ArrayList<String> listWaitingJobs;
   DataGrab[] arrayRunningJobs;
@@ -602,7 +603,7 @@ class DataLoad extends Thread //implements Stopable
   {	
 	 
 	//NDC.push("DataLoad");
-	uf = new UtilityFunctions(Calendar.getInstance().getTimeInMillis()+"");
+	uf = new UtilityFunctions();
 	
 	UtilityFunctions.stdoutwriter.writeln("PROPERTIES LOADED FROM DATALOAD.INI",Logs.STATUS1,"DL11");
 	UtilityFunctions.stdoutwriter.writeln("DATABASE SERVER: " + (String)props.get("dbhost"),Logs.STATUS1,"DL12");
@@ -613,6 +614,14 @@ class DataLoad extends Thread //implements Stopable
 	UtilityFunctions.stdoutwriter.writeln("KEEP ALIVE FILE LOCATION: " + (String)props.get("filelocation"),Logs.STATUS1,"DL17");
 	//UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR DAY: " + (String)props.get("gcday"),Logs.STATUS1,"DL17");
 	//UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR TIME: " + (String)props.get("gctime"),Logs.STATUS1,"DL18");
+	
+	DataLoad.bDisableEmails= Boolean.parseBoolean((String)props.getProperty("emaildisable"));
+	if (DataLoad.bDisableEmails)
+		UtilityFunctions.stdoutwriter.writeln("EMAIL NOTIFICATIONS ARE DISABLED",Logs.STATUS1,"DL18");
+	else
+		UtilityFunctions.stdoutwriter.writeln("EMAIL NOTIFICATIONS ARE ENABLED",Logs.STATUS1,"DL19");
+		
+	
 	
 	/*
 	 * This dbf is for just the DataLoad thread. Because of a memory leak issue, we will create a separte dbf for each job thread, and then
