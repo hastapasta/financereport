@@ -968,7 +968,7 @@ public void postProcessNasdaqEPSTable() throws SQLException
 				
 					newrow[1] = "NOW()";
 					
-					String query = "select * from entities where ticker='"+strTicker+"'";
+					//String query = "select * from entities where ticker='"+strTicker+"'";
 					
 					newrow[2] = dg.nCurrentEntityId + "";
 					
@@ -1099,8 +1099,9 @@ public void postProcessBloombergIndexes()
 	{
 		rowdata = propTableData.get(row);
 		
-		if (rowdata[0].contains("N.A."))
-			continue;
+		
+		
+		
 		
 		newrow = new String[tmpArray.length];
 		
@@ -1116,6 +1117,14 @@ public void postProcessBloombergIndexes()
 		ticker = ticker.replace("&amp;", "&");
 		ticker = ticker.replace("&#x80;", "€");
 		ticker = ticker.replace("&#x83;", "ƒ");
+		
+		if (rowdata[0].contains("N.A."))
+		{	
+			UtilityFunctions.stdoutwriter.writeln("N.A. value for ticker " + ticker,Logs.WARN,"PF2.75");
+			continue;
+		}
+		
+		
 		
 		String query = "select * from entities where ticker='"+ticker+"'";
 		
