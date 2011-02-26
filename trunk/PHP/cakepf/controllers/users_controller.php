@@ -47,6 +47,11 @@ class UsersController extends AppController {
 	}
 
 	function edit($id = null) {
+		/* Distinguish between administrators and regular users */
+	
+		$userprops = $this->Auth->user();
+		
+		
 		$record = $this->Session->read('Record');
 		if (!empty($this->data)) {
 			for($i = 0; $i < sizeof($this->data['User']); $i++){
@@ -55,22 +60,37 @@ class UsersController extends AppController {
 			if ($this->User->saveAll($this->data['User'])) {
 				$this->Session->setFlash(__('The user has been saved', true));
 				$this->Session->delete('Record');
-				$this->redirect(array('action' => 'index'));
+				//$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The user could not be saved. Please, try again.', true));
 			}
 		}
 		if (!empty($record)) {
 			//$this->data = $this->User->read(null, $id);
-			$this->data = $this->toMulti($this->User->find('all',array('conditions'=>array('User.id'=>$record))));
+			if($userprops['User']['group_id'] == 1)
+			{
+				$this->data = $this->toMulti($this->User->find('all',array('conditions'=>array('User.id'=>$record))));
+				$groups = $this->User->Group->find('list');
+				$this->set(compact('groups'));
+				$this->set('administrator', true);
+			}
+			else 
+			{
+				$this->data = $this->toMulti($this->User->find('all',array('conditions'=>array('User.id'=>$userprops['User']['id']))));
+				$this->set('administrator', false);
+			}
+				
 				
 		}
 		if (empty($this->data)) {
 			$this->Session->setFlash(__('Invalid user', true));
 			$this->redirect(array('action' => 'index'));
 		}
-		$groups = $this->User->Group->find('list');
-		$this->set(compact('groups'));
+		//$groups = $this->User->Group->find('list');
+		//$this->set(compact('groups'));
+		
+		
+		
 	}
 
 	function delete($id = null) {

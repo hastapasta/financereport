@@ -8,6 +8,8 @@ class AlertsController extends AppController {
 		$this->log('in alerts_controller beforeFilter', LOG_DEBUG);
 		parent::beforeFilter();
 		
+		
+		
 
 		
 		//$this->log(debug_backtrace(), LOG_DEBUG);
@@ -93,6 +95,9 @@ class AlertsController extends AppController {
 					{
 						if ($filtervalues['Alert']['schedule_id']!="All")
 							$conditions['Schedule.id'] = $filtervalues['Alert']['schedule_id'];
+							
+						if ($filtervalues['Alert']['frequency']!="All")
+							$conditions['Alert.frequency'] = $filtervalues['Alert']['frequency'];
 			
 						if (!empty($filtervalues['Entity']['ticker']))
 							$conditions['Entity.ticker LIKE'] = $filtervalues['Entity']['ticker'];
@@ -101,7 +106,7 @@ class AlertsController extends AppController {
 				}
 			/*if ($th['Alert']['schedule_id']!="All")
 			{
-				debug('Filter schedules',true);
+				//debug('Filter schedules',true);
 				$conditions['Schedule.id'] = $this->data['Alert']['schedule_id'];
 			}
 			
@@ -123,6 +128,8 @@ class AlertsController extends AppController {
 			$tmp[$key] = $task_names2[$key];
 		}
 		$task_names2 = $tmp;
+		
+		$this->set('frequencies',array('All'=>'All','HOURLY'=>'HOURLY','DAILY'=>'DAILY','WEEKLY'=>'WEEKLY','MONTHLY'=>'MONTHLY','YEARLY'=>'YEARLY','ALLTIME'=>'ALLTIME'));
 
 		$this->set('task_names2', $task_names2);
 
