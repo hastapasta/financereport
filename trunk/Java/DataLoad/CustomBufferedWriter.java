@@ -2,15 +2,15 @@
 
 
 //import java.io.BufferedWriter; 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+//import java.io.File;
+//import java.io.FileNotFoundException;
+//import java.io.FileWriter;
+//import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.concurrent.locks.ReentrantLock; 
-import org.apache.commons.io.FileUtils;
+//import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.apache.log4j.NDC;
+//import org.apache.log4j.NDC;
 
 /*Level 	Description
  * FATAL 	Severe errors that cause premature termination. Expect these to be 
@@ -53,7 +53,7 @@ public class CustomBufferedWriter
 	
 	
 	
-	CustomBufferedWriter(String strThreadID)
+	CustomBufferedWriter()
 	{
 		/*
 		 * 2/3/2011 - Current thought process on logging:
@@ -125,6 +125,10 @@ public class CustomBufferedWriter
 				fulllogger.error(code + ":" + str);
 				//consolelogger.error(code + ":" + str);
 
+				break;
+				
+			case WARN:
+				fulllogger.warn(code + ":" +str);
 				break;
 
 			case SQL:
