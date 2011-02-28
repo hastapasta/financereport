@@ -665,10 +665,10 @@ class DataLoad extends Thread //implements Stopable
 			{ 
 				
 				writeKeepAlive();
+				updateTimeEvents();
 				getTriggeredJobs();
 				executeJobs();
-				writeJobQueueIntoDB();
-				
+				writeJobQueueIntoDB();			
 				sleep(nsleepinterval*1000);
 				//updateEventTimes();
 				garbageCollectionFunction();
@@ -843,6 +843,82 @@ class DataLoad extends Thread //implements Stopable
 	  
 	  
   }
+  
+	public void updateTimeEvents() throws SQLException
+	{
+		
+		String query = "select * from time_events";
+		
+		ResultSet rsTimeEvents = dbf.db_run_query(query);
+		
+		while (rsTimeEvents.next())
+		{
+			//Calendar calStart = Calendar.getInstance();
+			Calendar calNext = Calendar.getInstance();
+			Calendar calLast = Calendar.getInstance();
+			Calendar calCurrent = Calendar.getInstance();
+			
+			int nYears = rsTimeEvents.getInt("years");
+			int nMonths = rsTimeEvents.getInt("months");
+			int nDays = rsTimeEvents.getInt("days");
+			int nHours = rsTimeEvents.getInt("hours");
+			
+			if ((nYears==0) && (nMonths==0) && (nDays==0) && (nHours==0))
+			{
+				
+				UtilityFunctions.stdoutwriter.writeln("Problem with time event " + rsTimeEvents.getInt("id"),Logs.ERROR,"DL5.3");
+				UtilityFunctions.stdoutwriter.writeln("All time increment values are set to zero, skipping",Logs.ERROR,"DL5.3");
+				continue;
+			}
+				
+			
+			/*
+			 * First time being populated
+			 */
+			if (rsTimeEvents.getTimestamp("next_datetime") == null)
+			{
+				calNext.setTime(rsTimeEvents.getTimestamp("start_datetime"));
+				calLast.setTime(rsTimeEvents.getTimestamp("start_datetime"));
+			}
+			else
+			{
+				calNext.setTime(rsTimeEvents.getTimestamp("next_datetime"));
+				calLast.setTime(rsTimeEvents.getTimestamp("next_datetime"));
+			}
+			
+			if (!calNext.after(calCurrent) || (rsTimeEvents.getTimestamp("next_datetime") == null))
+			{
+				
+				//Keep adding cycles until next is after current
+				while (!calNext.after(calCurrent))
+				{
+					calNext.add(Calendar.YEAR,nYears);
+					calNext.add(Calendar.MONTH, nMonths);
+					calNext.add(Calendar.DAY_OF_YEAR,nDays);
+					calNext.add(Calendar.HOUR,nHours);
+				}
+				
+				DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				
+				String strUpdate = "update time_events set ";
+				strUpdate += "last_datetime='" + formatter.format(calLast.getTime()) + "',";
+				strUpdate += "next_datetime='" + formatter.format(calNext.getTime()) + "' ";
+				strUpdate += "where ";
+				strUpdate += "id=" + rsTimeEvents.getInt("id");
+				
+				dbf.db_update_query(strUpdate);
+			}
+				
+				
+			
+		}
+		
+		
+		
+		
+		
+		
+	}
   
   public void writeKeepAlive()
   {
