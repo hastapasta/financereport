@@ -12,7 +12,16 @@ class Alert extends AppModel {
 	        	),
 	        'Entity' => array(
 	        	'className' => 'Entity',
-	        	'foreignKey' => 'entity_id')
+	        	'foreignKey' => 'entity_id'),
+	        'TimeEvent' => array(
+	        	'className' => 'TimeEvent',
+	        	'foreignKey' => 'time_event_id'),
+	        'InitialFactDatum' => array(
+	        	'className' => 'FactDatum',
+	        	'foreignKey' => 'initial_fact_data_id'),
+	        'CurrentFactDatum' => array(
+	        	'className' => 'FactDatum',
+	        	'foreignKey' => 'current_fact_data_id'),
 
 	        	);
 	        	 
@@ -52,7 +61,17 @@ class Alert extends AppModel {
 	        	//'on' => 'create', // Limit validation to 'create' or 'update' operations
 	        	),
 	        	),
-		'fact_data_key' => array(
+		'initial_fact_data_id' => array(
+			'numeric' => array(
+				'rule' => array('numeric'),
+	        	//'message' => 'Your custom message here',
+	        	//'allowEmpty' => false,
+	        	//'required' => false,
+	        	//'last' => false, // Stop validation after this rule
+	        	//'on' => 'create', // Limit validation to 'create' or 'update' operations
+	        	),
+	        	),
+	       'current_fact_data_id' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
 	        	//'message' => 'Your custom message here',
