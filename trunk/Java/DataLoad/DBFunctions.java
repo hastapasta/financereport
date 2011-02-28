@@ -129,7 +129,7 @@ public class DBFunctions {
 			Statement stmt = con.createStatement();
 			stmt.execute(strUpdateStmt);
 			if (strUpdateStmt.substring(0,6).equals("update") && stmt.getUpdateCount() == 0)
-				UtilityFunctions.stdoutwriter.writeln("No rows were updated",Logs.ERROR,"DBF2.5");
+				UtilityFunctions.stdoutwriter.writeln("No rows were updated for query " + strUpdateStmt,Logs.ERROR,"DBF2.5");
 			
 				
 			
