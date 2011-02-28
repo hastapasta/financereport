@@ -402,8 +402,10 @@ public class UtilityFunctions
 	    }
 	  }*/
 	
+	//public static HashMap<String,HashMap<String,String>> convertResultSetToHashMap(ResultSet rs,String strColumnKey) throws SQLException
 	public static HashMap<String,HashMap<String,String>> convertResultSetToHashMap(ResultSet rs,String strColumnKey) throws SQLException
 	{
+		//HashMap<String,HashMap<String,String>> parentHash = null;
 		HashMap<String,HashMap<String,String>> parentHash = null;
 	
 		ResultSetMetaData rsMetaData = rs.getMetaData();
@@ -413,7 +415,9 @@ public class UtilityFunctions
 		while (rs.next())
 		{
 			if (parentHash==null)
+				//parentHash = new HashMap<String,HashMap<String,String>>();
 				parentHash = new HashMap<String,HashMap<String,String>>();
+				
 			//String[] tmpArray = new String[numberOfColumns];
 			HashMap<String,String> childHash = new HashMap<String,String>();
 		
@@ -482,9 +486,11 @@ public class UtilityFunctions
 		return(parentHash);
 	}
 	
+	//public static ArrayList<HashMap<String,String>> convertResultSetToArrayList(ResultSet rs) throws SQLException
 	public static ArrayList<HashMap<String,String>> convertResultSetToArrayList(ResultSet rs) throws SQLException
 	{
 		
+		//ArrayList<HashMap<String,String>> tmpArrayList = null;
 		ArrayList<HashMap<String,String>> tmpArrayList = null;
 		ResultSetMetaData rsMetaData = rs.getMetaData();
 		int numberOfColumns = rsMetaData.getColumnCount();
@@ -493,8 +499,10 @@ public class UtilityFunctions
 		while (rs.next())
 		{
 			if (tmpArrayList == null)
+				//tmpArrayList = new ArrayList<HashMap<String,String>>();
 				tmpArrayList = new ArrayList<HashMap<String,String>>();
 			
+			//HashMap<String,String> tmpHash = new HashMap<String,String>();
 			HashMap<String,String> tmpHash = new HashMap<String,String>();
 			for (int i=1;i<=numberOfColumns;i++)
 			{
