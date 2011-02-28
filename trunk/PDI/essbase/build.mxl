@@ -1,0 +1,7 @@
+spool on to "$3/essbase/buildmaxl.log";
+import database $1.$2 dimensions
+from data_file "$3/fed_bs_date.csv"
+using server rules_file 'add_year.rul'
+on error append to "$3/essbase/dimbuild.log";
+spool off;
+logout;
