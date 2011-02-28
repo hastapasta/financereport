@@ -34,7 +34,7 @@ if(isset($jsIncludes))
 {     
 	foreach($jsIncludes as $js)
 	{         
-		debug($js,true);
+		//debug($js,true);
 		echo $javascript->codeBlock($js,array("inline" => false));     
 	}
 } 
