@@ -1,0 +1,8 @@
+spool on to "$8/essbase/setmaxl.log";
+login $1 identified by $2 on $3;
+alter database $4.$5
+set variable prevperiod "\"$6\"";
+alter database $4.$5
+set variable curperiod "\"$7\"";
+spool off;
+logout;

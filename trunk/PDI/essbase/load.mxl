@@ -1,0 +1,14 @@
+/*login $1 $2;*/
+spool on to "$3/essbase/loadmaxl.log";
+import database $1.$2 data
+from local text data_file "$3/fed_bs_output.csv"
+using server rules_file 'fed_bs'
+to load_buffer with buffer_id 1
+on error abort;
+/*execute calculation
+  'SET MSG ERROR;
+   CALC ALL EXCEPT MBR("Reverse repurchase agreements");'
+on Sample.Fed;*/
+execute calculation $1.$2.testcalc;
+spool off;
+logout;

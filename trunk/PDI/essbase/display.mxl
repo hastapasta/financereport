@@ -1,0 +1,5 @@
+spool stdout on to "$3/essbase/variable.txt";
+spool stderr on to "$3/essbase/display.log";
+display variable $1.$2.curperiod;
+spool off;
+logout;
