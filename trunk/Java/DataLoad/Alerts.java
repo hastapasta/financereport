@@ -16,14 +16,26 @@ public class Alerts {
 		
 	}
 	
+	/*
+	 * 
+	 * PLEASE READ THIS!!!!
+	 * Notes on Boolean.parseBoolean(String) - There is an issue with using this method since if the String parameter
+	 * is null, parseBoolean accepts it and returns false. This can cause a problem in a line like the following:
+	 *  boolean bAutoResetPeriod = Boolean.parseBoolean(hmAlert.get("alerts.auto_reset_period"));
+	 *  
+	 *  where a typo in the string "alerts.auto_reset_period" will cause the variable to be set to false and no runtimeexception
+	 *  will be thrown. This situation can be extremely difficult to diagnose. Because of this, it is recommended to
+	 *  use the customParseBoolean() function instead. This isn't an issue for the other datatypes (int,date,BigDecimal) since
+	 *  they will cause Runtimeexceptions to be thrown. Strings will be set to null which will also eventually result in a
+	 *  nullpointerexception being thrown.
+	 *  
+	 * 
+	 */
 	
 	public void checkAlerts(DataGrab dg) throws SQLException
 	  {
 		  
-		  /*
-		   * Ulitmately I'm going to have to move this function out of the parent thread since it will delay the initiating of tasks.
-		   * 
-		   */
+	
 		  //String strDataSet = dg.strCurDataSet;
 		  int nCurTask = dg.nCurTask;
 		  String strTask;
@@ -40,19 +52,24 @@ public class Alerts {
 			  //dg.dbf.db_update_query(strLockQuery);
 			  
 			  
-			  query = "select alerts.disabled,alerts.id,alerts.frequency,alerts.initial_fact_data_id,alerts.alert_count,alerts.user_id,alerts.limit_value,alerts.limit_adjustment,";
+			  query = "select alerts.disabled,alerts.id,alerts.initial_fact_data_id,";
+			  query += "alerts.notification_count,alerts.user_id,alerts.limit_value,";
+			  query += "alerts.auto_reset_period,alerts.auto_reset_fired,alerts.fired,";
 			  query += "entities.ticker,entities.id,entities.full_name,";
-			  query += "users.id,users.username,users.max_alerts,users.email,";
-			  query += "fact_data.value,fact_data.id,fact_data.date_collected ";
+			  query += "users.id,users.username,users.max_notifications,users.email,";
+			  query += "fact_data.value,fact_data.id,fact_data.date_collected,";
+			  query += "time_events.next_datetime ";
 			  query += "from alerts ";
 			  query += "LEFT JOIN entities ON alerts.entity_id=entities.id ";
 			  query += "LEFT JOIN users ON alerts.user_id=users.id ";
 			  query += "LEFT JOIN fact_data ON alerts.initial_fact_data_id=fact_data.id ";
+			  query += "LEFT JOIN time_events ON alerts.time_event_id=time_events.id ";
 			  query +=	"where alerts.schedule_id=" + nKey;
 			  
 			 
 			  ResultSet rsAlert1 = dg.dbf.db_run_query(query);
 			  
+			  //ArrayList<HashMap<String,String>> arrayListAlerts = UtilityFunctions.convertResultSetToArrayList(rsAlert1);
 			  ArrayList<HashMap<String,String>> arrayListAlerts = UtilityFunctions.convertResultSetToArrayList(rsAlert1);
 			  
 			  //check if there are any alerts to process
@@ -81,6 +98,8 @@ public class Alerts {
 			  
 			  ResultSet rsCurFactData1 = dg.dbf.db_run_query(query3);
 			  
+			 // HashMap<String,HashMap<String,String>> hmCurFactData = UtilityFunctions.convertResultSetToHashMap(rsCurFactData1,"entity_id");
+			  
 			  HashMap<String,HashMap<String,String>> hmCurFactData = UtilityFunctions.convertResultSetToHashMap(rsCurFactData1,"entity_id");
 			  
 			  if (hmCurFactData == null)
@@ -94,6 +113,7 @@ public class Alerts {
 			  //while (rsAlert.next())
 			  while (nAlertIndex<arrayListAlerts.size())
 			  {
+				  //HashMap<String,String> hmAlert = arrayListAlerts.get(nAlertIndex);
 				  HashMap<String,String> hmAlert = arrayListAlerts.get(nAlertIndex);
 				  nAlertIndex++;
 				  nRow++;
@@ -102,18 +122,82 @@ public class Alerts {
 				  
 				  
 				  
-				  boolean bDisabled = Boolean.parseBoolean(hmAlert.get("alerts.disabled"));
+				  //boolean bDisabled = Boolean.parseBoolean(hmAlert.get("alerts.disabled"));
+					  boolean bDisabled = customParseBoolean(hmAlert.get("alerts.disabled"));
+				  
+				  
 				  
 				  
 				  //if (rsAlert.getInt("disabled")>0)
 				  if (bDisabled)
 					  continue;
 				  
+				  SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				  
+				  int nEntityId = Integer.parseInt(hmAlert.get("entities.id"));//rsAlert.getInt("entities.id");
+				  int nAlertId = Integer.parseInt(hmAlert.get("alerts.id"));//rsAlert.getInt("alerts.id");
+				  /*boolean bAutoResetPeriod = Boolean.parseBoolean(hmAlert.get("alerts.auto_reset_period"));
+				  boolean bAutoResetFired = Boolean.parseBoolean(hmAlert.get("alerts.auto_reset_fired"));
+				  boolean bAlreadyFired = Boolean.parseBoolean(hmAlert.get("alerts.fired"));*/
+				  
+				  boolean bAutoResetPeriod = customParseBoolean(hmAlert.get("alerts.auto_reset_period"));
+				  boolean bAutoResetFired = customParseBoolean(hmAlert.get("alerts.auto_reset_fired"));
+				  boolean bAlreadyFired = customParseBoolean(hmAlert.get("alerts.fired"));
+				 
+				  
+				  
+				  Calendar calJustCollected;
+					
+				  try
+				  {
+					  calJustCollected = dg.getJobProcessingEndTime();
+				  }
+				  catch (CustomGenericException cge)
+				  //added this exception for multi-threading purposes - this should be populated by here
+				  {
+					  UtilityFunctions.stdoutwriter.writeln("Attempted to read empty end time, terminating alerts processing",Logs.ERROR,"A2.73");
+					  UtilityFunctions.stdoutwriter.writeln(cge);
+					  return;
+					  
+				  }
+				  
+				
+				  Calendar calNext = Calendar.getInstance();
+				  calNext.setTime(inputFormat.parse(hmAlert.get("time_events.next_datetime")));
+				  
+				  
+				  //calOrigRun.setTime(inputFormat.parse(hmAlert.get("fact_data.date_collected")));
+				  
+				  /*
+				   * This is the check to see if the alert period has ended and time to update the initial value and reset the adjustment to zero.
+				   */
+				  if (calJustCollected.after(calNext))
+				  {
+					  if (bAutoResetPeriod)
+					  {
+						  String query4 = "update alerts set ";
+						  query4 += "initial_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + ", ";
+						  query4 += "current_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + ", ";
+						  query4 += "notification_count=0,";
+						  query4 += "fired=0";
+						  query4 += "where id=" + nAlertId;
+						  
+						  dg.dbf.db_update_query(query4);
+					  }
+					  
+					  /*
+					   * We're past the end of the time period so don't do anything else and proceed to the next alert.
+					   */
+					  continue;
+					  
+					  						 
+				  }
+				  
 				  //String strType = rsAlert.getString("type");
 				  String strTicker = hmAlert.get("entities.ticker");//rsAlert.getString("ticker");
-				  int nAlertId = Integer.parseInt(hmAlert.get("alerts.id"));//rsAlert.getInt("alerts.id");
-				  int nEntityId = Integer.parseInt(hmAlert.get("entities.id"));//rsAlert.getInt("entities.id");
-				  String strFrequency = hmAlert.get("alerts.frequency");//sAlert.getString("frequency");
+				
+				
+				  //String strFrequency = hmAlert.get("alerts.frequency");//sAlert.getString("frequency");
 				  //String strEmail = rsAlert.getString("email");
 				  int nUserId = Integer.parseInt(hmAlert.get("alerts.user_id"));//rsAlert.getInt("user_id");
 				  
@@ -125,13 +209,13 @@ public class Alerts {
 				  //Add the base limit adjustment to the base limit value
 				  
 				  BigDecimal bdLimitValue = new BigDecimal(hmAlert.get("alerts.limit_value"));
-				  BigDecimal bdLimitAdjustment = new BigDecimal(hmAlert.get("alerts.limit_adjustment"));
+				  //BigDecimal bdLimitAdjustment = new BigDecimal(hmAlert.get("alerts.limit_adjustment"));
 				 
-				  BigDecimal dLimit = bdLimitValue.add(bdLimitAdjustment);//rsAlert.getBigDecimal("limit_value").add(rsAlert.getBigDecimal("limit_adjustment"));
+				  //BigDecimal dLimit = bdLimitValue.add(bdLimitAdjustment);//rsAlert.getBigDecimal("limit_value").add(rsAlert.getBigDecimal("limit_adjustment"));
 				  
 				  //int nFactKey = Integer.parseInt(hmAlert.get("alerts.initial_fact_data_id"));//rsAlert.getInt("fact_data_key");
 				 // int nNotifyKey = Integer.parseInt(hmAlert.get("alerts.id"));//rsAlert.getInt("id");
-				  int nAlertCount = Integer.parseInt(hmAlert.get("alerts.alert_count"));//rsAlert.getInt("alert_count");
+				  int nNotificationCount = Integer.parseInt(hmAlert.get("alerts.notification_count"));//rsAlert.getInt("alert_count");
 				  
 				  //try to find the fact key in fact_data
 				  /*String query2 = "select * from fact_data where id=" + nFactKey;
@@ -158,7 +242,9 @@ public class Alerts {
 					  /*Calendar startthis = Calendar.getInstance();
 					  SimpleDateFormat inputFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 					  startthis.setTime(inputFormat.parse(temp)); */
-					  SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+					  
+					
+					 
 					  Calendar calOrigRun = Calendar.getInstance();
 					  //Another variable since calOrigRun is modified
 					  Calendar calOrigRunSaved = Calendar.getInstance();
@@ -167,20 +253,7 @@ public class Alerts {
 				
 						  
 					
-						  Calendar calJustCollected;
-						
-						  try
-						  {
-							  calJustCollected = dg.getJobProcessingEndTime();
-						  }
-						  catch (CustomGenericException cge)
-						  //added this exception for multi-threading purposes - this should be populated by here
-						  {
-							  UtilityFunctions.stdoutwriter.writeln("Attempted to read empty end time, terminating alerts processing",Logs.ERROR,"A2.73");
-							  UtilityFunctions.stdoutwriter.writeln(cge);
-							  return;
-							  
-						  }
+					
 						  
 						
 						//get the date
@@ -189,7 +262,8 @@ public class Alerts {
 						   */
 						 //calLastRun.setTime(rsPrevFactData.getDate("date_collected"));
 						  //calLastRun.setTime(rsPrevFactData.getTimestamp("date_collected"));
-						  if (strFrequency.equals("HOURLY"))
+						  /*OFP 2/27/2011
+						   * if (strFrequency.equals("HOURLY"))
 						  {
 							  calOrigRun.add(Calendar.HOUR,1);
 						  }
@@ -221,7 +295,7 @@ public class Alerts {
 						  {
 							  UtilityFunctions.stdoutwriter.writeln("alerts frequency not found, skipping alert processing for alert id " + nAlertId,Logs.WARN,"A2.735");
 							  continue;
-						  }
+						  }*/
 						  
 						
 						  
@@ -271,7 +345,7 @@ public class Alerts {
 							  }
 							  
 							  String strEmail = hmAlert.get("users.email");
-							  int nMaxAlerts = Integer.parseInt(hmAlert.get("users.max_alerts"));
+							  int nMaxNotifications = Integer.parseInt(hmAlert.get("users.max_notifications"));
 							  
 							 /* The old protocol was if an alert was triggered, we will automatically reset the initial value.
 							  * The new protocol is to include a link to a form to increase the value. 
@@ -280,70 +354,80 @@ public class Alerts {
 							  * 
 							  */
 							 // String query4 = "update notify set fact_data_key=" + rsCurFactData.getInt("primary_key") + " where primary_key=" + nNotifyKey;
-							  if ((dChange.abs().compareTo(dLimit) > 0) && (nAlertCount<nMaxAlerts))
+							  if ((dChange.abs().compareTo(bdLimitValue) > 0) && (bAlreadyFired == false))
 							  {
 								  //send notification
 								  //System.out.println("ALERT: Send mail!");
-								  String strMsg;
 								  
-								  
-								  
-								  strMsg = "ALERT\r\n";
-								  
-								  if (strTicker != null && !(strTicker.isEmpty()))
-										  strMsg = strMsg + "Ticker: " + strTicker + "\r\n";
-								  
-								  //Get the full ticker description
-								  //String query5 = "select full_name from entities where ticker='"+ strTicker + "'";
-								  //ResultSet rs5 = dg.dbf.db_run_query(query5);
-								  
-								  if (hmAlert.get("entities.full_name") != null)
-									  strMsg = strMsg + "Full Description: " + hmAlert.get("entities.full_name") +" \r\n";
-								  else
-									  strMsg = strMsg + "Full Description: \r\n";
-								  
-								  
-								  strMsg = strMsg + "Task: " + strTask + "\r\n";
-								  strMsg = strMsg + "Amount: " + dChange.multiply(new BigDecimal(100)).toString() + "%\r\n";
-								  strMsg = strMsg + "Previous Value: " + dLastRunValue.toString() + "\r\n";
-								  strMsg = strMsg + "Current Value : " + dJustCollectedValue.toString() + "\r\n";
-								 
-								  
-								  SimpleDateFormat sdf = new SimpleDateFormat("MMM d,yyyy HH:mm:ss Z");
-
-								 
-								  //strMsg = strMsg + "Previous Timestamp: " + sdf.format(rsPrevFactData.getTimestamp("date_collected")) + "\r\n";
-								  strMsg = strMsg + "Previous Timestamp: " + sdf.format(calOrigRunSaved.getTime()) + "\r\n";
-								  strMsg = strMsg + "Current Timestamp : " + sdf.format(calJustCollected.getTime()) + "\r\n";
-								  strMsg = strMsg + "Frequency: " + strFrequency + "\r\n";
-								  
-								  //Add link for Increase Alert Limit form
-								  strMsg = strMsg + "Increase Alert Limit: " + (String)DataLoad.props.getProperty("formbaseurl") + nAlertId;
-								  
-								  
-								  
-								  //strMsg += "\r\n\r\nNote: The alert system will continue to send email alerts until 1 of the following conditions is met:";
-								  //strMsg += "\r\n1) The maximum alert notification count of " + rs6.getInt("max_alerts") + " is reached (configurable in the user properties).";
-								  //strMsg += "\r\n2) The user modifies the alert adjustment value (configurable in the alert properties)";
-								  //strMsg += "\r\n3) The alert condition is no longer true.";
-								  
-								  String strSubject = (String)DataLoad.props.get("subjecttext") + ": " + strTicker;
+								  if (nNotificationCount<nMaxNotifications)
+								  {
+									  String strMsg;
+									  
+									  
+									  
+									  strMsg = "ALERT\r\n";
+									  
+									  if (strTicker != null && !(strTicker.isEmpty()))
+											  strMsg = strMsg + "Ticker: " + strTicker + "\r\n";
+									  
+									  //Get the full ticker description
+									  //String query5 = "select full_name from entities where ticker='"+ strTicker + "'";
+									  //ResultSet rs5 = dg.dbf.db_run_query(query5);
+									  
+									  if (hmAlert.get("entities.full_name") != null)
+										  strMsg = strMsg + "Full Description: " + hmAlert.get("entities.full_name") +" \r\n";
+									  else
+										  strMsg = strMsg + "Full Description: \r\n";
+									  
+									  
+									  strMsg = strMsg + "Task: " + strTask + "\r\n";
+									  strMsg = strMsg + "Amount: " + dChange.multiply(new BigDecimal(100)).toString() + "%\r\n";
+									  strMsg = strMsg + "Previous Value: " + dLastRunValue.toString() + "\r\n";
+									  strMsg = strMsg + "Current Value : " + dJustCollectedValue.toString() + "\r\n";
+									 
+									  
+									  SimpleDateFormat sdf = new SimpleDateFormat("MMM d,yyyy HH:mm:ss Z");
+	
+									 
+									  //strMsg = strMsg + "Previous Timestamp: " + sdf.format(rsPrevFactData.getTimestamp("date_collected")) + "\r\n";
+									  strMsg = strMsg + "Previous Timestamp: " + sdf.format(calOrigRunSaved.getTime()) + "\r\n";
+									  strMsg = strMsg + "Current Timestamp : " + sdf.format(calJustCollected.getTime()) + "\r\n";
+									  //strMsg = strMsg + "Frequency: " + strFrequency + "\r\n";
+									  
+									  //Add link for Increase Alert Limit form
+									  strMsg = strMsg + "Increase Alert Limit: " + (String)DataLoad.props.getProperty("formbaseurl") + nAlertId;
+									  
+									  
+									  
+									  //strMsg += "\r\n\r\nNote: The alert system will continue to send email alerts until 1 of the following conditions is met:";
+									  //strMsg += "\r\n1) The maximum alert notification count of " + rs6.getInt("max_alerts") + " is reached (configurable in the user properties).";
+									  //strMsg += "\r\n2) The user modifies the alert adjustment value (configurable in the alert properties)";
+									  //strMsg += "\r\n3) The alert condition is no longer true.";
+									  
+									  String strSubject = (String)DataLoad.props.get("subjecttext") + ": " + strTicker;
+									  
+									  UtilityFunctions.mail(strEmail,strMsg,strSubject,(String)DataLoad.props.get("fromaddy"));
+									  
+									  String query9 = "update alerts set notification_count=" + (nNotificationCount+1) + " where id=" + nAlertId;
+									  
+									  dg.dbf.db_update_query(query9);
+								  }
 								  
 								  
 								  
 								  DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 								  
-								  String query8 = "insert into log_alerts (alert_id,date_time_fired,bef_fact_data_id,aft_fact_data_id,frequency,limit_value,limit_adjustment,entity_id,user_id) values (" 
+								  String query8 = "insert into log_alerts (alert_id,date_time_fired,bef_fact_data_id,aft_fact_data_id,limit_value,entity_id,user_id) values (" 
 									  + nAlertId + ",'"
 									  + formatter.format(calJustCollected.getTime()) + "',"
 									  //+ rsCurFactData.getInt("id") + ","
 									  + hmAlert.get("fact_data.id") + ","
 									  + hmCurFactData.get(nEntityId+"").get("fact_data.id") + ","		
-									  + "'" + strFrequency + "',"
+									  //+ "'" + strFrequency + "',"
 									  //+ rsAlert.getBigDecimal("limit_value") + ","
 									  + hmAlert.get("alerts.limit_value") + ","
 									  //+ rsAlert.getBigDecimal("limit_adjustment") + ","
-									  + hmAlert.get("alerts.limit_adjustment") + ","
+									  //+ hmAlert.get("alerts.limit_adjustment") + ","
 									  //+ rsAlert.getInt("entity_id") + ","
 									  + hmAlert.get("entities.id") + ","
 									  //+ rsAlert.getInt("user_id") + ")";
@@ -351,15 +435,26 @@ public class Alerts {
 								  
 								  dg.dbf.db_update_query(query8);
 								  
-								  query8 = "update alerts set alert_count=" + (nAlertCount+1) + " where id=" + nAlertId;
+								  if (bAutoResetFired)
+								  {
+									  query8 = "update alerts set notification_count=0,initial_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + " where id=" + nAlertId;
+								  }
+								  else
+								  {
+									  query8 = "update alerts set fired=1 where id=" + nAlertId;
+								  }
+									  
+					
 								  
 								  dg.dbf.db_update_query(query8);
+								  
+								 
 								  
 						
 								  
 								  
 								  
-								  UtilityFunctions.mail(strEmail,strMsg,strSubject,(String)DataLoad.props.get("fromaddy"));
+								 
 					
 									
 	
@@ -367,16 +462,7 @@ public class Alerts {
 							  }
 							  
 							  
-							  /*
-							   * This is the check to see if the alert period has ended and time to update the initial value and reset the adjustment to zero.
-							   */
-							  if (calJustCollected.after(calOrigRun) && !strFrequency.equals("ALLTIME"))
-							  {
-								  String query4 = "update alerts set initial_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + ", alert_count=0,limit_adjustment=0 where id=" + nAlertId;
-								  dg.dbf.db_update_query(query4);
-								  
-								  						 
-							  }
+						
 							  
 							  
 							  
@@ -435,6 +521,17 @@ public class Alerts {
 		  
 	  
 	  }
+	
+	private boolean customParseBoolean(String str)
+	{
+		if (str.toUpperCase().equals("FALSE"))
+			return false;
+		else if (str.toUpperCase().equals("TRUE"))
+			return true;
+		else
+			throw new RuntimeException("Problem Parsing Boolean");
+		
+	}
 	  
 
 }
