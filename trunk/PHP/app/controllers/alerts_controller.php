@@ -146,6 +146,15 @@ class AlertsController extends AppController {
 		$this->Alert->recursive = 2;
 		$this->set('alert', $this->Alert->read(null, $id));
 	}
+	
+	function fullview($id = null) {
+		if (!$id) {
+			$this->Session->setFlash(__('Invalid alert', true));
+			$this->redirect(array('action' => 'index'));
+		}
+		$this->Alert->recursive = 2;
+		$this->set('alert', $this->Alert->read(null, $id));
+	}
 
 
 
