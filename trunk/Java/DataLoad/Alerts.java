@@ -39,6 +39,7 @@ public class Alerts {
 		  //String strDataSet = dg.strCurDataSet;
 		  int nCurTask = dg.nCurTask;
 		  String strTask;
+		  DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		  
 		  String query = "select schedules.*,tasks.name from schedules,tasks where schedules.task_id=" + nCurTask + " and schedules.task_id=tasks.id";
 		  
@@ -51,6 +52,12 @@ public class Alerts {
 			  //String strLockQuery = "lock table alerts write";
 			  //dg.dbf.db_update_query(strLockQuery);
 			  
+			  /*
+			   * NOTE: YOU CURRENTLY CANNOT USE TABLE ALIASES (i.e as <table name>) IN THIS QUERY!
+			   * It has to with how the resultset is getting converted to a hash map and the fact
+			   * that java returns the actual table name and not the alias.
+			   */
+			  
 			  
 			  query = "select alerts.disabled,alerts.id,alerts.initial_fact_data_id,";
 			  query += "alerts.notification_count,alerts.user_id,alerts.limit_value,";
@@ -58,13 +65,14 @@ public class Alerts {
 			  query += "entities.ticker,entities.id,entities.full_name,";
 			  query += "users.id,users.username,users.max_notifications,users.email,";
 			  query += "fact_data.value,fact_data.id,fact_data.date_collected,";
-			  query += "time_events.next_datetime ";
+			  query += "time_events.id,time_events.next_datetime,time_events.last_datetime ";
 			  query += "from alerts ";
 			  query += "LEFT JOIN entities ON alerts.entity_id=entities.id ";
 			  query += "LEFT JOIN users ON alerts.user_id=users.id ";
 			  query += "LEFT JOIN fact_data ON alerts.initial_fact_data_id=fact_data.id ";
 			  query += "LEFT JOIN time_events ON alerts.time_event_id=time_events.id ";
-			  query +=	"where alerts.schedule_id=" + nKey;
+			  query += "where alerts.schedule_id=" + nKey;
+			  query += " order by time_events.id";
 			  
 			 
 			  ResultSet rsAlert1 = dg.dbf.db_run_query(query);
@@ -88,7 +96,10 @@ public class Alerts {
 			  int nMaxBatch = rs7.getInt("max(batch)");
 			  
 			  String query3;
-			  query3 = "select * from fact_data where task_id=" + nCurTask + " and batch=" + nMaxBatch;
+			  query3 = "select * ";
+			  query3 += "from fact_data ";
+			  query3 += "where task_id=" + nCurTask;
+			  query3 += " and batch=" + nMaxBatch;
 			  /*if (!(strTicker==null) && !(strTicker.isEmpty()))
 				  query3 = "select * from fact_data where task_id=" + nCurTask + " and entity_id='" + nEntityId + "' and batch=" + nMaxBatch;
 				//  "(select max(batch) from fact_data where task=" + nCurTask + " and ticker='" + strTicker + "')";
@@ -104,7 +115,7 @@ public class Alerts {
 			  
 			  if (hmCurFactData == null)
               {
-                  UtilityFunctions.stdoutwriter.writeln("No fact_data entries found for task " + nCurTask + "and batch " + nMaxBatch + ". Alert processing terminated.",Logs.ERROR,"A4.0");
+                  UtilityFunctions.stdoutwriter.writeln("No fact_data entries found for task " + nCurTask + "and batch " + nMaxBatch + ". Alert processing terminated.",Logs.WARN,"A4.0");
                   return;
               }
 			  
@@ -127,71 +138,114 @@ public class Alerts {
 				  
 				  
 				  
-				  
-				  //if (rsAlert.getInt("disabled")>0)
-				  if (bDisabled)
-					  continue;
-				  
-				  SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				  
-				  int nEntityId = Integer.parseInt(hmAlert.get("entities.id"));//rsAlert.getInt("entities.id");
-				  int nAlertId = Integer.parseInt(hmAlert.get("alerts.id"));//rsAlert.getInt("alerts.id");
-				  /*boolean bAutoResetPeriod = Boolean.parseBoolean(hmAlert.get("alerts.auto_reset_period"));
-				  boolean bAutoResetFired = Boolean.parseBoolean(hmAlert.get("alerts.auto_reset_fired"));
-				  boolean bAlreadyFired = Boolean.parseBoolean(hmAlert.get("alerts.fired"));*/
-				  
-				  boolean bAutoResetPeriod = customParseBoolean(hmAlert.get("alerts.auto_reset_period"));
-				  boolean bAutoResetFired = customParseBoolean(hmAlert.get("alerts.auto_reset_fired"));
-				  boolean bAlreadyFired = customParseBoolean(hmAlert.get("alerts.fired"));
-				 
-				  
-				  
-				  Calendar calJustCollected;
-					
-				  try
-				  {
-					  calJustCollected = dg.getJobProcessingEndTime();
-				  }
-				  catch (CustomGenericException cge)
-				  //added this exception for multi-threading purposes - this should be populated by here
-				  {
-					  UtilityFunctions.stdoutwriter.writeln("Attempted to read empty end time, terminating alerts processing",Logs.ERROR,"A2.73");
-					  UtilityFunctions.stdoutwriter.writeln(cge);
-					  return;
 					  
-				  }
+					  //if (rsAlert.getInt("disabled")>0)
+					  if (bDisabled)
+						  continue;
+					  
+					  SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+					  
+					  int nEntityId = Integer.parseInt(hmAlert.get("entities.id"));//rsAlert.getInt("entities.id");
+					  int nAlertId = Integer.parseInt(hmAlert.get("alerts.id"));//rsAlert.getInt("alerts.id");
+					  /*boolean bAutoResetPeriod = Boolean.parseBoolean(hmAlert.get("alerts.auto_reset_period"));
+					  boolean bAutoResetFired = Boolean.parseBoolean(hmAlert.get("alerts.auto_reset_fired"));
+					  boolean bAlreadyFired = Boolean.parseBoolean(hmAlert.get("alerts.fired"));*/
+					  
+					  boolean bAutoResetPeriod = customParseBoolean(hmAlert.get("alerts.auto_reset_period"));
+					  boolean bAutoResetFired = customParseBoolean(hmAlert.get("alerts.auto_reset_fired"));
+					  boolean bAlreadyFired = customParseBoolean(hmAlert.get("alerts.fired"));
+					  
+					  if ((hmCurFactData.get(nEntityId+"") == null))
+					  {
+						  UtilityFunctions.stdoutwriter.writeln("No recent fact data collected for: " + nEntityId + " and batch: " + nMaxBatch + "Skipping alert processing",Logs.WARN,"A2.7358");
+						  continue;
+					  }
+					  
+					  Calendar calJustCollected = Calendar.getInstance();
+					  Calendar calInitialFactDataCollected = Calendar.getInstance();
+					  
+					  Calendar calObservationPeriodBegin = Calendar.getInstance();
+					  Calendar calObservationPeriodEnd = Calendar.getInstance();
+			
+
+					  boolean bPopulateInitialFactDataId = false;
+					  if (hmAlert.get("fact_data.value") == null)
+					  {
+						  bPopulateInitialFactDataId = true;
+					  }
+					  else
+					  {
+						  calInitialFactDataCollected.setTime(inputFormat.parse(hmAlert.get("fact_data.date_collected")));
+					  }
 				  
-				
-				  Calendar calNext = Calendar.getInstance();
-				  calNext.setTime(inputFormat.parse(hmAlert.get("time_events.next_datetime")));
+				  
+					  calJustCollected.setTime(inputFormat.parse(hmCurFactData.get(nEntityId+"").get("fact_data.date_collected")));
+					  calObservationPeriodBegin.setTime(inputFormat.parse(hmAlert.get("time_events.last_datetime")));
+					  calObservationPeriodEnd.setTime(inputFormat.parse(hmAlert.get("time_events.next_datetime")));
+					
+					  //calCurrentFactDataCollected.setTime(inputFormat.parse(hmAlert.get("current_fact_data.date_collected")));
 				  
 				  
 				  //calOrigRun.setTime(inputFormat.parse(hmAlert.get("fact_data.date_collected")));
 				  
 				  /*
 				   * This is the check to see if the alert period has ended and time to update the initial value and reset the adjustment to zero.
+				   * If the last data value collected is before the beginning of the observation period, then we need a new initial_fact_data_id.
 				   */
-				  if (calJustCollected.after(calNext))
-				  {
-					  if (bAutoResetPeriod)
+
+				
+					  if (calObservationPeriodBegin.after(calInitialFactDataCollected) || (bPopulateInitialFactDataId == true))
 					  {
-						  String query4 = "update alerts set ";
-						  query4 += "initial_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + ", ";
-						  query4 += "current_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + ", ";
-						  query4 += "notification_count=0,";
-						  query4 += "fired=0";
-						  query4 += "where id=" + nAlertId;
+						  if (bAutoResetPeriod)
+						  {
+							  
+							  
+							  /*
+							   * Here we should retrieve the earliest fact_data.id that is after ObservationPeriodBegin.
+							   * Most likely this will be the same fact_data.id as the one just collected, but there may be a reason, like 
+							   * the schedule hasn't been run for awhile, that it could be a different id.
+							   * 
+							   */
+							  
+							  /*
+							   * The following query is really slow. One idea to speed it up is since for a give time_event.id, and a given task.id, all entities
+							   * should have the same batch #. So we should only have to run this query once for all alerts that share the same schedule.id (thus task.id) and time_events.id.
+							   * Or the other thing is we could just set the initial_fact_data_id to the recently collected id rather than
+							   * going out and trying to find the earliest one for the observation period.
+							   * 
+							   * 
+							   */
+							  
+							  String strQuery = "select id from fact_data";
+							  strQuery += " where task_id=" + nCurTask + " AND entity_id=" + nEntityId + " AND date_collected>'" + formatter.format(calObservationPeriodBegin.getTime()) +"'";
+							  strQuery += " order by date_collected asc";
+							  
+							  ResultSet rsFactData = dg.dbf.db_run_query(strQuery);
+							  
+							  if (!rsFactData.next())
+							  {
+								  //we should never get here, but you never know.
+								  UtilityFunctions.stdoutwriter.writeln("No fact_data entry found to populate initial_fact_data_id. Skipping Alert.",Logs.ERROR,"A10.3");
+								  continue;
+								  
+							  }
+							  
+							  String query4 = "update alerts set ";
+							  //query4 += "initial_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + ", ";
+							  query4 += "initial_fact_data_id=" +rsFactData.getInt("id") + ",";
+							  query4 += "current_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + ", ";
+							  query4 += "notification_count=0,";
+							  query4 += "fired=0 ";
+							  query4 += " where id=" + nAlertId;
+							  
+							  dg.dbf.db_update_query(query4);
+						  }
 						  
-						  dg.dbf.db_update_query(query4);
+						  /*
+						   * We're past the end of the time period so don't do anything else and proceed to the next alert.
+						   */
+						  continue;
 					  }
-					  
-					  /*
-					   * We're past the end of the time period so don't do anything else and proceed to the next alert.
-					   */
-					  continue;
-					  
-					  						 
-				  }
 				  
 				  //String strType = rsAlert.getString("type");
 				  String strTicker = hmAlert.get("entities.ticker");//rsAlert.getString("ticker");
@@ -234,8 +288,7 @@ public class Alerts {
 				  
 				  //HashMap<String,HashMap<String,String>> hmCurFactData = UtilityFunctions.convertResultSetToHashMap(rsCurFactData1,nEntityId+"");
 				
-				  if (hmAlert.get("fact_data.value") != null)
-				  {
+			
 					  //if (strFrequency.equals("HOURLY"))
 					  //{
 					  
@@ -245,11 +298,11 @@ public class Alerts {
 					  
 					
 					 
-					  Calendar calOrigRun = Calendar.getInstance();
+					  //Calendar calOrigRun = Calendar.getInstance();
 					  //Another variable since calOrigRun is modified
-					  Calendar calOrigRunSaved = Calendar.getInstance();
-					  calOrigRun.setTime(inputFormat.parse(hmAlert.get("fact_data.date_collected")));
-					  calOrigRunSaved.setTime(inputFormat.parse(hmAlert.get("fact_data.date_collected")));
+					  //Calendar calOrigRunSaved = Calendar.getInstance();
+					  //calOrigRun.setTime(inputFormat.parse(hmAlert.get("fact_data.date_collected")));
+					  //calOrigRunSaved.setTime(inputFormat.parse(hmAlert.get("fact_data.date_collected")));
 				
 						  
 					
@@ -304,12 +357,12 @@ public class Alerts {
 						  
 						  //Check if limit is exceeded, if so then send alert.
 							  //if (!rsCurFactData.next())
-						  	if (hmCurFactData.get(nEntityId+"") == null)
+						  	/*if (hmCurFactData.get(nEntityId+"") == null)
 		                      {
 		                          UtilityFunctions.stdoutwriter.writeln("Attempting to check for an alert but did not find fact_data entry for entity id: " + nEntityId + " and batch: " + nMaxBatch,Logs.WARN,"A2.7358");
 		                          UtilityFunctions.stdoutwriter.writeln("Problem occured processing alert id: " + nAlertId,Logs.WARN,"A2.7358");
 		                          continue;
-		                      }
+		                      }*/
 						  	
 						  	String strUpdateQuery = "update alerts set current_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + " where alerts.id=" + nAlertId;
 						  	dg.dbf.db_update_query(strUpdateQuery);
@@ -318,13 +371,13 @@ public class Alerts {
 						  	//BigDecimal dJustCollectedValue = rsCurFactData.getBigDecimal("value");
 							  BigDecimal dJustCollectedValue = new BigDecimal(hmCurFactData.get(nEntityId+"").get("fact_data.value"));		  
 							  //BigDecimal dLastRunValue = rsPrevFactData.getBigDecimal("value");
-							  BigDecimal dLastRunValue = new BigDecimal(hmAlert.get("fact_data.value"));
+							  BigDecimal dInitialFactDataValue = new BigDecimal(hmAlert.get("fact_data.value"));
 							  			  
 							  BigDecimal dChange;
 							  
 							  try
 							  {
-								  dChange = dJustCollectedValue.subtract(dLastRunValue).divide(dLastRunValue,BigDecimal.ROUND_HALF_UP);
+								  dChange = dJustCollectedValue.subtract(dInitialFactDataValue).divide(dInitialFactDataValue,BigDecimal.ROUND_HALF_UP);
 							  }
 							  catch (ArithmeticException ae)
 							  {
@@ -382,7 +435,7 @@ public class Alerts {
 									  
 									  strMsg = strMsg + "Task: " + strTask + "\r\n";
 									  strMsg = strMsg + "Amount: " + dChange.multiply(new BigDecimal(100)).toString() + "%\r\n";
-									  strMsg = strMsg + "Previous Value: " + dLastRunValue.toString() + "\r\n";
+									  strMsg = strMsg + "Previous Value: " + dInitialFactDataValue.toString() + "\r\n";
 									  strMsg = strMsg + "Current Value : " + dJustCollectedValue.toString() + "\r\n";
 									 
 									  
@@ -390,12 +443,20 @@ public class Alerts {
 	
 									 
 									  //strMsg = strMsg + "Previous Timestamp: " + sdf.format(rsPrevFactData.getTimestamp("date_collected")) + "\r\n";
-									  strMsg = strMsg + "Previous Timestamp: " + sdf.format(calOrigRunSaved.getTime()) + "\r\n";
+									  strMsg = strMsg + "Previous Timestamp: " + sdf.format(calInitialFactDataCollected.getTime()) + "\r\n";
 									  strMsg = strMsg + "Current Timestamp : " + sdf.format(calJustCollected.getTime()) + "\r\n";
 									  //strMsg = strMsg + "Frequency: " + strFrequency + "\r\n";
 									  
+									  
+									  /*Calendar calObservationBegin = Calendar.getInstance();
+									  Calendar calObservationEnd = Calendar.getInstance();
+									  calObservationBegin.setTime(inputFormat.parse(hmAlert.get("time_events.last_datetime")));
+									  calObservationEnd.setTime(inputFormat.parse(hmAlert.get("time_events.next_datetime")));*/
+									  strMsg += "Observation Period Begin: " + sdf.format(calObservationPeriodBegin.getTime()) + "\r\n";
+									  strMsg += "Observation Period End: " + sdf.format(calObservationPeriodEnd.getTime()) + "\r\n";
+									  
 									  //Add link for Increase Alert Limit form
-									  strMsg = strMsg + "Increase Alert Limit: " + (String)DataLoad.props.getProperty("formbaseurl") + nAlertId;
+									  strMsg = strMsg + "Modify/View Alert Properties: " + (String)DataLoad.props.getProperty("formbaseurl") + nAlertId;
 									  
 									  
 									  
@@ -415,7 +476,7 @@ public class Alerts {
 								  
 								  
 								  
-								  DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+								 
 								  
 								  String query8 = "insert into log_alerts (alert_id,date_time_fired,bef_fact_data_id,aft_fact_data_id,limit_value,entity_id,user_id) values (" 
 									  + nAlertId + ",'"
@@ -478,9 +539,9 @@ public class Alerts {
 						  
 						
 					 // }  
-				  }
-				  else
-					  //fact_data_key not found, assume this is the first time this notification has been used and needs to be populated
+				 // }
+				 /* else
+					  //fact_data_key not found, assume this is the first time this alert has been used and needs to be populated
 					  //if I base this off of the batch #, have to be very careful with how it is maintained.
 				  {
 					 
@@ -494,8 +555,8 @@ public class Alerts {
 					  else
 					  //didn't find a fact_data_key with which to populate this notification and there should be at least one there
 					  //print a message
-						  UtilityFunctions.stdoutwriter.writeln("Attempting to initially populate alert id " + nAlertId + " but did not find fact_data entry for entity id: " + nEntityId + " and batch: " + nMaxBatch,Logs.WARN,"A2.75");
-				  }
+						  UtilityFunctions.stdoutwriter.writeln("Attempting to initially populate alert id " + nAlertId + " but no recent fact data collected for entity id: " + nEntityId + " and batch: " + nMaxBatch,Logs.WARN,"A2.75");
+				  }*/
 				  
 				  
 				 
@@ -532,6 +593,29 @@ public class Alerts {
 			throw new RuntimeException("Problem Parsing Boolean");
 		
 	}
+	
+	/*private ResultSet retrieveInitialFactDataId(DataGrab dg,int nCurTask,int nEntityId,DateFormat formatter) throws SQLException
+	{
+		  String strQuery = "select id from fact_data";
+		  strQuery += "where task_id=" + nCurTask + " AND entity_id=" + nEntityId + "AND date_collected>" + formatter.format(calObservationPeriodBegin.getTime());
+		  strQuery += " order by date_collected asc";
+		  
+		  ResultSet rsFactData = this.dg.dbf.db_run_query(strQuery);
+		  
+		  return(rsFactData);
+		  
+		  if (!rsFactData.next())
+		  {
+			  //we should never get here, but you never know.
+			  UtilityFunctions.stdoutwriter.writeln("No fact_data entry found to populate initial_fact_data_id. Skipping Alert.",Logs.ERROR,"A10.3");
+			  continue;
+			  
+		  }
+		
+		
+		
+		
+	}*/
 	  
 
 }
