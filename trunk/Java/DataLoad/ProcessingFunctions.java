@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.regex.Matcher;
@@ -1117,6 +1118,8 @@ public void postProcessBloombergIndexes()
 		ticker = ticker.replace("&amp;", "&");
 		ticker = ticker.replace("&#x80;", "€");
 		ticker = ticker.replace("&#x83;", "ƒ");
+		//Next line condenses multiple spaces down to one.
+		ticker = ticker.replaceAll("\\s+", " "); 
 		
 		if (rowdata[0].contains("N.A."))
 		{	
@@ -1816,6 +1819,102 @@ public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQ
 	}
 	
 	propTableData = newTableData;
+}
+
+public void postProcessImfGdpEst() throws SQLException
+{
+	
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	String[] rowdata, newrow;
+	//String[] colheaders = propTableData.get(0);
+	String[] rowheaders = propTableData.get(1);
+	
+	//newTableData.add(tmpArray);
+	
+	for (int row=2;row<propTableData.size();row++)
+	{
+		rowdata = propTableData.get(row);
+		
+		String strCountry = rowheaders[row-2];
+		newrow = new String[tmpArray.length];
+		
+		if (rowdata[0].equals("n/a"))
+		{
+			UtilityFunctions.stdoutwriter.writeln("Retrieved n/a value, skipping processing for entity " + strCountry,Logs.WARN,"PF44");
+			continue;
+		}
+		
+		newrow[0] = rowdata[0].replace(",", "");
+		BigDecimal bdTmp = new BigDecimal(newrow[0]);
+		bdTmp = bdTmp.multiply(new BigDecimal(1000000000));
+		newrow[0] = bdTmp.toBigInteger().toString();
+		//newrow[0] = rowdata[0].replace(",", "");
+		//newrow[4] = "VARCHAR";
+		newrow[1] = "NOW()";
+		//newrow[6] = "INTEGER";
+	
+		
+		/*
+		 * If there are 2 sets of parens for the row header, we want to cutoff at the 2nd left paren.
+		 */
+		
+		
+		/*int i = tmp.indexOf("(");
+	
+		if (tmp.indexOf("(",i+1)==-1)
+			tmp = tmp.substring(0,i);
+		else
+			tmp = tmp.substring(0,tmp.indexOf("(",i+1));*/
+		
+			
+		
+		//newrow[3] = rowheaders[row-2].substring(0,rowheaders[row-2].indexOf("("));
+		strCountry = strCountry.trim();
+		/*newrow[3] = tmp.substring(tmp.indexOf(">")+1,tmp.indexOf("</"));
+		newrow[3] = newrow[3].replace("&amp;", "&");*/
+		
+		//remove single quotes e.g. (coffee 'c')
+		strCountry = strCountry.replace("'", "\\'");
+		
+		String query = "select * from entities where ticker='"+strCountry+"'";
+		
+		try
+		{
+			ResultSet rs = dbf.db_run_query(query);
+			rs.next();
+			newrow[2] = rs.getInt("id") + "";
+			newTableData.add(newrow);
+			
+		}
+		catch (SQLException sqle)
+		{
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + strCountry + ",row skipped",Logs.ERROR,"PF43.55");
+			
+			/*
+			 * This is not a fatal error so we won't display the full exception.
+			 */
+			//UtilityFunctions.stdoutwriter.writeln(sqle);
+		}
+		
+		
+		
+		newTableData.add(newrow);
+		
+		
+			
+			
+		
+		
+	}
+	
+	newTableData.add(0, tmpArray);
+	propTableData = newTableData;
+	
+	
+	
+	
 }
 
 public void postProcessTableBLSUERate() throws CustomEmptyStringException, SQLException
