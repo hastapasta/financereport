@@ -46,7 +46,7 @@ class DataLoad extends Thread //implements Stopable
   ServerSocket ss;
   static boolean pause=false;
   static UtilityFunctions uf;
-  static int nMaxThreads = 2;
+  static int nMaxThreads;
   static Properties props;
   static boolean bDisableEmails;
   //Hashtable<String,Hashtable<String,String>> hashScheduleTable;
@@ -620,6 +620,10 @@ class DataLoad extends Thread //implements Stopable
 		UtilityFunctions.stdoutwriter.writeln("EMAIL NOTIFICATIONS ARE DISABLED",Logs.STATUS1,"DL18");
 	else
 		UtilityFunctions.stdoutwriter.writeln("EMAIL NOTIFICATIONS ARE ENABLED",Logs.STATUS1,"DL19");
+	
+	DataLoad.nMaxThreads = Integer.parseInt((String)props.get("max_threads"));
+	UtilityFunctions.stdoutwriter.writeln("MAXIMUM # OF DATAGRAB THREADS: " + DataLoad.nMaxThreads,Logs.STATUS1,"DL19");
+	
 		
 	
 	
