@@ -15,11 +15,8 @@
 		<th><?php echo $this->Paginator->sort('Schedule Name','Schedule.Task.name');?></th>
 		<th><?php echo $this->Paginator->sort('Ticker','Entity.ticker');?></th>
 		<th><?php echo $this->Paginator->sort('Description','Entity.full_name');?></th>
-		<th><?php echo $this->Paginator->sort('frequency');?></th>
 		<th><?php echo $this->Paginator->sort('limit_value');?></th>
-		<th><?php echo $this->Paginator->sort('limit_adjustment');?></th>
-		
-		<th><?php echo $this->Paginator->sort('alert_count');?></th>
+		<th><?php echo $this->Paginator->sort('notification_count');?></th>
 		<th><?php echo $this->Paginator->sort('disabled');?></th>
 		<th><?php echo $this->Paginator->sort('user');?></th>
 		<th class="actions"><?php __('Actions');?></th>
@@ -50,13 +47,8 @@
 		} ?>&nbsp;</td>
 		<td><?php echo $alert['Entity']['ticker']; ?>&nbsp;</td>
 		<td><?php echo $alert['Entity']['full_name']; ?>&nbsp;</td>
-	
-		<td><?php echo $alert['Alert']['frequency']; ?>&nbsp;</td>
 		<td><?php echo $alert['Alert']['limit_value']; ?>&nbsp;</td>
-		<td><?php echo $alert['Alert']['limit_adjustment']; ?>&nbsp;</td>
-
-		
-		<td><?php echo $alert['Alert']['alert_count']; ?>&nbsp;</td>
+		<td><?php echo $alert['Alert']['notification_count']; ?>&nbsp;</td>
 		<td><?php echo $alert['Alert']['disabled']; ?>&nbsp;</td>
 		<td><?php echo $alert['User']['username']; ?>&nbsp;</td>
 		<td class="actions"><?php echo $this->Html->link(__('View', true), array('action' => 'view', $alert['Alert']['id'])); ?>
