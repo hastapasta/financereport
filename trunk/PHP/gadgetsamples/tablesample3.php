@@ -50,7 +50,7 @@
         
         function loadChart() {
         	
-         	//alert('here 1');
+         	alert('here 1');
             var metric1 = document.getElementById('metric-1').value;
       		count++;
          	var str = '' + count;
@@ -80,7 +80,7 @@
                 }
                 else
                 {
-                    //alert('here 2.07');
+                    alert('here 2.07');
                     if(table_chart === null)
                     {
 		     			//alert('here 2.1');
