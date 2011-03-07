@@ -12,6 +12,8 @@
 <%
 String strTicker = request.getParameter("ticker");
 String strEntityId = request.getParameter("entityid");
+String strEndDate = request.getParameter("enddate");
+String strBeginDate = request.getParameter("begindate"); 
 
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
@@ -52,7 +54,10 @@ if (strTicker != null)
 	query += " where entities.ticker LIKE '" + strTicker + "' ";
 else
 	query += " where entities.id=" + strEntityId;
-query += " order by fact_data.date_collected ASC limit 10";
+query += " AND date_collected>'" + strBeginDate + "' ";
+if (strEndDate!=null && !strEndDate.isEmpty())
+	query += " AND date_collected<'" + strEndDate + "' ";
+query += " order by fact_data.date_collected";
 
 //out.println(query); if (1==1) return;
 
