@@ -10,12 +10,24 @@
 
 
 <% 
-String strFrequency = request.getParameter("frequency");
+String strTimeEventId = request.getParameter("timeeventid");
 String strUserId = request.getParameter("userid");
 String strTaskId = request.getParameter("taskid") ; 
 
-if (strFrequency.equals("all"))
-	strFrequency = "%";
+String strTqx = request.getParameter("tqx");
+String strReqId=null;
+if (strTqx!=null)
+{
+	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
+	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
+}
+else
+	strReqId="0";
+
+//out.println(strTimeEventId + "," + strUserId + "," + strTaskId + "," + strReqId); if (1==1) return;
+
+if (strTimeEventId.equals("all"))
+	strTimeEventId = "%";
 
 if (strUserId.equals("all"))
 	strUserId = "%";
@@ -27,15 +39,20 @@ UtilityFunctions uf = new UtilityFunctions();
 
 ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 //String[] columns = tmpArrayList.get(0);
+
+
+
 String[] blap1 = {"task name","task name","string"};
 String[] blap2 = {"ticker","ticker","string"};
-String[] blap3 = {"frequency","frequency","string"};
+String[] blap3 = {"time event name","time event name","string"};
 String[] blap4 = {"username","username","string"};
 String[] blap5 = {"initial value","initial value","number"};
 String[] blap6 = {"current value","current value","number"};
 String[] blap7 = {"% change","% change","number"};
 String[] blap8 = {"date initial","date initial","datetime"};
 String[] blap9 = {"date current","date current","datetime"};
+String[] blap10 = {"te period last","te period last","datetime"};
+String[] blap11 = {"te period next","te period next","datetime"};
 
 
 arrayListCols.add(blap1);
@@ -47,22 +64,25 @@ arrayListCols.add(blap6);
 arrayListCols.add(blap7);
 arrayListCols.add(blap8);
 arrayListCols.add(blap9);
+arrayListCols.add(blap10);
+arrayListCols.add(blap11);
 
 DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
 
 
 
-String query = "select tasks.name,entities.ticker,alerts.frequency,users.username,fd1.value, fd2.value, (if (fd1.value=0,fd1.value,round(((fd2.value - fd1.value)/fd1.value),3))) * 100 as pctchange,  ";
-query += "fd1.date_collected,fd2.date_collected ";
+String query = "select tasks.name,entities.ticker,time_events.name,users.username,fd1.value, fd2.value, (if (fd1.value=0,fd1.value,round(((fd2.value - fd1.value)/fd1.value),3))) * 100 as pctchange,  ";
+query += "fd1.date_collected,fd2.date_collected,time_events.last_datetime,time_events.next_datetime ";
 query += "from alerts ";
 query += "JOIN schedules on alerts.schedule_id=schedules.id ";
 query += "JOIN users on alerts.user_id=users.id ";
 query += "JOIN entities on alerts.entity_id=entities.id ";
 query += "JOIN tasks on schedules.task_id=tasks.id ";
+query += "JOIN time_events on alerts.time_event_id=time_events.id ";
 query += "LEFT JOIN fact_data as fd1 on alerts.initial_fact_data_id=fd1.id ";
 query += "LEFT JOIN fact_data as fd2 on alerts.current_fact_data_id=fd2.id ";
-//query += "where !isnull(fd1.value) AND !isnull(fd2.value)";
-query += "where alerts.frequency LIKE '" + strFrequency + "' ";
+query += "where !isnull(fd1.value) AND !isnull(fd2.value)";
+query += " AND time_events.id LIKE '" + strTimeEventId + "' ";
 query += " AND users.id LIKE '" + strUserId +"' ";
 query += " AND tasks.id LIKE '" + strTaskId +"' ";
 query += " order by pctchange";
@@ -79,16 +99,18 @@ try
 {
 	rs = dbf.db_run_query(query);
 	while (rs.next()) {
-		String [] tmp = new String[18];
+		String [] tmp = new String[22];
 		tmp[0] = tmp[1] = rs.getString("tasks.name");
 		tmp[2] = tmp[3] = rs.getString("entities.ticker");
-		tmp[4] = tmp[5] = rs.getString("alerts.frequency");
+		tmp[4] = tmp[5] = rs.getString("time_events.name");
 		tmp[6] = tmp[7] = rs.getString("users.username");
 		tmp[8] = tmp[9] = rs.getString("fd1.value");
 		tmp[10] = tmp[11] = rs.getString("fd2.value");
 		tmp[12] = tmp[13] = rs.getString("pctchange");
 		tmp[14] = tmp[15] = rs.getString("fd1.date_collected");
 		tmp[16] = tmp[17] = rs.getString("fd2.date_collected");
+		tmp[18] = tmp[19] = rs.getString("time_events.last_datetime");
+		tmp[20] = tmp[21] = rs.getString("time_events.next_datetime");
 		
 		
 		arrayListRows.add(tmp);
@@ -194,7 +216,7 @@ for (int i=0;i<arrayListRows.size();i++)
 
 
 
-out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows));
+out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId));
 
 
 //google.visualization.Query.setResponse({version:'0.6',reqId:'0',status:'ok',sig:'5982206968295329967',table:{cols:[{id:'Col1',label:'label1',type:'number'},{id:'Col2',label:'label2',type:'number'},
