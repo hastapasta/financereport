@@ -94,13 +94,14 @@ public class PopulateSpreadsheet {
 	}
 	
 
-	public static String createGoogleJSON(ArrayList<String[]> arrayListCols, ArrayList<String[]> arrayListRows)
+	public static String createGoogleJSON(ArrayList<String[]> arrayListCols, ArrayList<String[]> arrayListRows,String strReqId)
 	{
 		UtilityFunctions.stdoutwriter.writeln("This is a test from inside createGoogleJSON.",Logs.STATUS1,"A2.73");
 		
 		JSONObject jsonTop = new JSONObject(); 
 		jsonTop.put("version","0.5");
-		jsonTop.put("reqId","0");
+		//jsonTop.put("reqId","0");
+		jsonTop.put("reqId", strReqId);
 		jsonTop.put("status","ok");
 
 		JSONObject jsonTable = new JSONObject();
