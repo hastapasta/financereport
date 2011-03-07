@@ -11,6 +11,17 @@
 
 <%
 String strTicker = request.getParameter("ticker");
+String strEntityId = request.getParameter("entityid");
+
+String strTqx = request.getParameter("tqx");
+String strReqId=null;
+if (strTqx!=null)
+{
+	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
+	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
+}
+else
+	strReqId="0";
 
 
 
@@ -37,7 +48,10 @@ String query = "select fact_data.value,fact_data.date_collected  ";
 query += "from fact_data ";
 query += "JOIN entities on fact_data.entity_id=entities.id ";
 query += "JOIN tasks on fact_data.task_id=tasks.id ";
-query += " where entities.ticker LIKE '" + strTicker + "' ";
+if (strTicker != null)
+	query += " where entities.ticker LIKE '" + strTicker + "' ";
+else
+	query += " where entities.id=" + strEntityId;
 query += " order by fact_data.date_collected ASC limit 10";
 
 //out.println(query); if (1==1) return;
@@ -163,7 +177,7 @@ for (int i=0;i<arrayListRows.size();i++)
 
 
 
-out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows));
+out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId));
 
 
 //google.visualization.Query.setResponse({version:'0.6',reqId:'0',status:'ok',sig:'5982206968295329967',table:{cols:[{id:'Col1',label:'label1',type:'number'},{id:'Col2',label:'label2',type:'number'},
