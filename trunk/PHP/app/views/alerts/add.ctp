@@ -349,10 +349,10 @@ function dumpProps(obj, parent) {
 		
 		 
 		
-		
+		echo $this->Form->input('Alert.time_event_id',array('label'=>'Observation Period','options' => $this->getVar('timeeventnames')));
 		//debug($this->Form,true);
 		echo $this->Form->input('Alert.user_id',array('label'=>'User Name','options' => $this->getVar('usernames')));
-		echo $this->Form->input('Alert.frequency',array('label'=>'Frequency','options' => $this->getVar('frequencies')));
+		//echo $this->Form->input('Alert.frequency',array('label'=>'Frequency','options' => $this->getVar('frequencies')));
 		echo $this->Form->input('limit_value');
 		//echo $this->Form->input('limit_adjustment');
 		echo $this->Form->input('limit_adjustment',array('value'=>0,'type'=>'hidden'));
