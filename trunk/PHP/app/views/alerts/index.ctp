@@ -6,6 +6,7 @@
 
 	</script> <?php
 	//debug($this,true);
+	//debug(print_r($_SERVER),true);
 	echo $form->create('Alert',array('controller'=>'alerts','action'=>'action_process','class'=>'recordForm'));
 	echo $form->hidden('Alert.action_value',array('id'=>'actionValue'));
 	?>
