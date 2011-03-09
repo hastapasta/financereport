@@ -2,7 +2,7 @@
 class AlertsController extends AppController {
 
 	var $name = 'Alerts';
-	var $uses = array('Alert','Schedule','Task', 'User','EntityGroup','Entity');
+	var $uses = array('Alert','Schedule','Task', 'User','EntityGroup','Entity','TimeEvent');
 
 	function beforeFilter() {
 		$this->log('in alerts_controller beforeFilter', LOG_DEBUG);
@@ -159,6 +159,7 @@ class AlertsController extends AppController {
 
 
 	function add() {
+		//debug($this,true);
 		if (!empty($this->data)) {
 			
 			//restructure the data
@@ -193,6 +194,9 @@ class AlertsController extends AppController {
 	
 		$task_names = $this->Task->find('list', array('fields'=> 'description',    'order'=>'Task.description ASC',  'conditions'=> array('1' => '1'),'group'=>'description'));
 		$this->set('task_names', $task_names);
+		
+		$time_event_names = $this->TimeEvent->find('list', array('fields'=> 'name'));
+		$this->set('timeeventnames', $time_event_names);
 
 		$entity_descs = $this->Entity->find('list', array('fields'=> 'full_name',    'order'=>'Entity.full_name ASC'));
 		$this->set('entity_descs', $entity_descs);
@@ -207,8 +211,8 @@ class AlertsController extends AppController {
 			$this->set('usernames',array('1'=>$userprops['User']['username']));
 		}
 
-		$frequencies = $this->Alert->find('list', array(   'fields'=> 'frequency',    'group'=>'frequency'));
-		$this->set('frequencies',array('HOURLY'=>'HOURLY','DAILY'=>'DAILY','WEEKLY'=>'WEEKLY','MONTHLY'=>'MONTHLY','YEARLY'=>'YEARLY','ALLTIME'=>'ALLTIME'));
+		//$frequencies = $this->Alert->find('list', array(   'fields'=> 'frequency',    'group'=>'frequency'));
+		//$this->set('frequencies',array('HOURLY'=>'HOURLY','DAILY'=>'DAILY','WEEKLY'=>'WEEKLY','MONTHLY'=>'MONTHLY','YEARLY'=>'YEARLY','ALLTIME'=>'ALLTIME'));
 		//$this->set('limit_adjustment',.2);
 		$this->set('fact_data_key',0);
 		$this->set('alert_count',0);
