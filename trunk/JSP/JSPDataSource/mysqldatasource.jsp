@@ -9,7 +9,15 @@
 
 
 
-<% 
+<%
+/*
+* This data source pulls from the fact_data table using alerts (using alerts.initial_fact_data_id and
+* alerts.current_fact_data_id)
+*/
+
+
+
+
 String strTimeEventId = request.getParameter("timeeventid");
 String strUserId = request.getParameter("userid");
 String strTaskId = request.getParameter("taskid") ; 
@@ -26,13 +34,13 @@ else
 
 //out.println(strTimeEventId + "," + strUserId + "," + strTaskId + "," + strReqId); if (1==1) return;
 
-if (strTimeEventId.equals("all"))
+if ((strTimeEventId==null) || (strTimeEventId.equals("all")))
 	strTimeEventId = "%";
 
-if (strUserId.equals("all"))
+if ((strUserId==null) || (strUserId.equals("all")))
 	strUserId = "%";
 
-if (strTaskId.equals("all"))
+if ((strTaskId==null) || (strTaskId.equals("all")))
 	strTaskId = "%";
 
 UtilityFunctions uf = new UtilityFunctions();
