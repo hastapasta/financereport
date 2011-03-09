@@ -21,6 +21,13 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 
+import twitter4j.Status;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.RequestToken;
+
 
 
 
@@ -645,7 +652,7 @@ public class UtilityFunctions
 					continue;*/
 					
 				rowarraylist = new ArrayList<String>();
-				/*was using string tokenizer, switch to split() since it returns tokens for adjacent delimiters*/
+				/*was using string tokenizer, switch to split() since it returns tokens for consecutive delimiters, e.g ,, */
 				//st = new StringTokenizer(nTmp, strDelimiter);
 				String[] tokens = nTmp.split(strDelimiter);
 				nTokenCount = 0;
@@ -881,6 +888,78 @@ public class UtilityFunctions
 	  		stdoutwriter.writeln(e);
 	  	}
 	  }
+	
+	//public static void tweet(String strEmail, String strMessage, String strSubject, String strFromAddy)
+	public static void tweet(String strTweet)
+	{	
+	  	//String host = "smtp.gmail.com";
+	  	//int port = 587;
+	  	//String username = "hastapasta99";
+	  	//String password = "madmax1.";
+		try
+		{
+			Twitter twitter = new TwitterFactory().getInstance();
+			try
+			{
+				RequestToken requestToken = twitter.getOAuthRequestToken();
+				/*AccessToken accessToken = null;
+				while (null == accessToken)
+				{
+					#*System.out.println("Open the following URL and grant access to your account:");
+					System.out.println(requestToken.getAuthorizationURL());
+					System.out.print("Enter the PIN(if available) and hit enter after you granted access.[PIN]:");
+					String pin = br.readLine();*#
+					String pin = "ginger1.";
+					try
+					{
+						if (pin.length() > 0)
+						{
+						    accessToken = twitter.getOAuthAccessToken(requestToken, pin);
+						} 
+						else
+						{
+						    accessToken = twitter.getOAuthAccessToken(requestToken);
+						}
+					} 
+					catch (TwitterException te)
+					{
+						stdoutwriter.writeln("Problem authenticating with twitter",Logs.ERROR,"UF45.5");
+						stdoutwriter.writeln(te);
+						#*if (401 == te.getStatusCode()) {
+						    System.out.println("Unable to get the access token.");
+						} else {
+						    te.printStackTrace();
+						}*#
+					}
+				}	*/
+			  
+			}
+			catch (IllegalStateException ie)
+			{
+			    // access token is already available, or consumer key/secret is not set.
+				if (!twitter.getAuthorization().isEnabled())
+				{
+				    //System.out.println("OAuth consumer key/secret is not set.");
+					stdoutwriter.writeln("OAuth consumer key/secret is not set.",Logs.ERROR,"UF47.5");
+				        //System.exit(-1);
+				}
+			}
+			/*Status status = */twitter.updateStatus(strTweet);
+		
+		}
+		catch (TwitterException te)
+		{
+		    //te.printStackTrace();
+		    //System.out.println("Failed to get timeline: " + te.getMessage());
+		    //System.exit(-1);
+			stdoutwriter.writeln("Problem sending tweet",Logs.ERROR,"UF48.5");
+			stdoutwriter.writeln(te);
+		}
+		    
+	}
+	  	
+	  
+
 
 	
 	
