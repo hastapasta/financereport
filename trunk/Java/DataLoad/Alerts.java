@@ -150,6 +150,7 @@ public class Alerts {
 					  
 					  int nEntityId = Integer.parseInt(hmAlert.get("entities.id"));//rsAlert.getInt("entities.id");
 					  int nAlertId = Integer.parseInt(hmAlert.get("alerts.id"));//rsAlert.getInt("alerts.id");
+					  String strTicker = hmAlert.get("entities.ticker");//rsAlert.getString("ticker");
 					  /*boolean bAutoResetPeriod = Boolean.parseBoolean(hmAlert.get("alerts.auto_reset_period"));
 					  boolean bAutoResetFired = Boolean.parseBoolean(hmAlert.get("alerts.auto_reset_fired"));
 					  boolean bAlreadyFired = Boolean.parseBoolean(hmAlert.get("alerts.fired"));*/
@@ -162,7 +163,7 @@ public class Alerts {
 					  
 					  if ((hmCurFactData.get(nEntityId+"") == null))
 					  {
-						  UtilityFunctions.stdoutwriter.writeln("No recent fact data collected for: " + nEntityId + " and batch: " + nMaxBatch + "Skipping alert processing",Logs.WARN,"A2.7358");
+						  UtilityFunctions.stdoutwriter.writeln("No recent fact data collected for ticker: " + strTicker  + ", batch: " + nMaxBatch + ",alert id: "+ nAlertId + ",entity id: " + nEntityId + ". Skipping alert processing",Logs.WARN,"A2.7358");
 						  continue;
 					  }
 					  
@@ -230,7 +231,7 @@ public class Alerts {
 							  if (!rsFactData.next())
 							  {
 								  //we should never get here, but you never know.
-								  UtilityFunctions.stdoutwriter.writeln("No fact_data entry found to populate initial_fact_data_id. Skipping Alert.",Logs.ERROR,"A10.3");
+								  UtilityFunctions.stdoutwriter.writeln("No fact_data entry found to populate initial_fact_data_id for Alert id: " + nAlertId + ". Skipping Alert.",Logs.ERROR,"A10.3");
 								  continue;
 								  
 							  }
@@ -253,7 +254,7 @@ public class Alerts {
 					  }
 				  
 				  //String strType = rsAlert.getString("type");
-				  String strTicker = hmAlert.get("entities.ticker");//rsAlert.getString("ticker");
+				  
 				
 				
 				  //String strFrequency = hmAlert.get("alerts.frequency");//sAlert.getString("frequency");
