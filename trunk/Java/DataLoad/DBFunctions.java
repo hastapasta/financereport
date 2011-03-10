@@ -245,6 +245,12 @@ public class DBFunctions {
 					}
 					nCount++;
 				}
+		    	if (datatypes[j] == null)
+		    	{
+		    		//column name wasn't found, most likely a typo. Fatal error.
+		    		UtilityFunctions.stdoutwriter.writeln("Column name " + columnnames[j] + " not found in database. Fatal error. Data not loaded into db.",Logs.ERROR,"DBF10.5");
+		    		return;
+		    	}
 			}
 		}
 		catch (SQLException sqle)
