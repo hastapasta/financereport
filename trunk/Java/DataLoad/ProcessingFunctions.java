@@ -1824,7 +1824,7 @@ public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQ
 public void postProcessImfGdpEst() throws SQLException
 {
 	
-	String[] tmpArray = {"value","date_collected","entity_id","calyear"};
+	String[] tmpArray = {"value","date_collected","entity_id","calyear","scale"};
 	
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
 	String[] rowdata, newrow;
@@ -1853,8 +1853,9 @@ public void postProcessImfGdpEst() throws SQLException
 		
 		newrow[0] = rowdata[col].replace(",", "");
 		BigDecimal bdTmp = new BigDecimal(newrow[0]);
-		bdTmp = bdTmp.multiply(new BigDecimal(1000000000));
-		newrow[0] = bdTmp.toBigInteger().toString();
+		//bdTmp = bdTmp.multiply(new BigDecimal(1000000000));
+		//newrow[0] = bdTmp.toBigInteger().toString();
+		newrow[0] = bdTmp.toString();
 		//newrow[0] = rowdata[0].replace(",", "");
 		//newrow[4] = "VARCHAR";
 		newrow[1] = "NOW()";
@@ -1903,6 +1904,7 @@ public void postProcessImfGdpEst() throws SQLException
 		}
 		
 		newrow[3] = colheaders[col];
+		newrow[4] = "9";
 		
 		
 		
