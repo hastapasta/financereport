@@ -1824,20 +1824,25 @@ public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQ
 public void postProcessImfGdpEst() throws SQLException
 {
 	
-	String[] tmpArray = {"value","date_collected","entity_id"};
+	String[] tmpArray = {"value","date_collected","entity_id","calyear"};
 	
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
 	String[] rowdata, newrow;
 	//String[] colheaders = propTableData.get(0);
-	String[] rowheaders = propTableData.get(1);
+	
+	String[] colheaders = propTableData.remove(0);
+	String[] rowheaders = propTableData.remove(0);
 	
 	//newTableData.add(tmpArray);
 	
-	for (int row=2;row<propTableData.size();row++)
+	for (int row=0;row<propTableData.size();row++)
 	{
 		rowdata = propTableData.get(row);
 		
-		String strCountry = rowheaders[row-2];
+		for (int col=0;col<colheaders.length;col++)
+		{
+		
+		String strCountry = rowheaders[row];
 		newrow = new String[tmpArray.length];
 		
 		if (rowdata[0].equals("n/a"))
@@ -1846,7 +1851,7 @@ public void postProcessImfGdpEst() throws SQLException
 			continue;
 		}
 		
-		newrow[0] = rowdata[0].replace(",", "");
+		newrow[0] = rowdata[col].replace(",", "");
 		BigDecimal bdTmp = new BigDecimal(newrow[0]);
 		bdTmp = bdTmp.multiply(new BigDecimal(1000000000));
 		newrow[0] = bdTmp.toBigInteger().toString();
@@ -1885,7 +1890,6 @@ public void postProcessImfGdpEst() throws SQLException
 			ResultSet rs = dbf.db_run_query(query);
 			rs.next();
 			newrow[2] = rs.getInt("id") + "";
-			newTableData.add(newrow);
 			
 		}
 		catch (SQLException sqle)
@@ -1898,13 +1902,15 @@ public void postProcessImfGdpEst() throws SQLException
 			//UtilityFunctions.stdoutwriter.writeln(sqle);
 		}
 		
+		newrow[3] = colheaders[col];
+		
 		
 		
 		newTableData.add(newrow);
 		
 		
 			
-			
+		}
 		
 		
 	}
