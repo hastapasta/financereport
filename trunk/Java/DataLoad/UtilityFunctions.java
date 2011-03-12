@@ -839,8 +839,8 @@ public class UtilityFunctions
 	  {	
 	  	//String host = "smtp.gmail.com";
 	  	//int port = 587;
-	  	String username = "hastapasta99";
-	  	String password = "madmax1.";
+	  	String username = "pikefin1";
+	  	String password = "ginger1.";
 
 	  	Properties props = new Properties();
 	  	props.put("mail.smtp.port","587");
@@ -944,6 +944,14 @@ public class UtilityFunctions
 				        //System.exit(-1);
 				}
 			}
+			
+			if (strTweet.length() > 140)
+			{
+				stdoutwriter.writeln("Tweet longer than 140 characters; tweet truncated.",Logs.WARN,"UF49.5");
+				stdoutwriter.writeln(strTweet,Logs.WARN,"UF49.5");
+			}
+				
+			
 			/*Status status = */twitter.updateStatus(strTweet);
 		
 		}
