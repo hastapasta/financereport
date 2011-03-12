@@ -488,8 +488,14 @@ public class Alerts {
 								  
 								  if (bTwitterAlert == true)
 								  {
-									  String strTweet = dChange.multiply(new BigDecimal(100)).toString() + "% " + hmAlert.get("time_events.name") + " move in " + strTicker;
+									  dChange = dChange.multiply(new BigDecimal(100)).setScale(2);
+									  String strTweet = dChange.toString() + "% ";
+									  strTweet += hmAlert.get("time_events.name");
+									  strTweet += " move in " + strTicker;
+									  if (hmAlert.get("entities.full_name") != null)
+										  strTweet += " (" + hmAlert.get("entities.full_name") + ") ";
 									  
+									  strTweet += " #" + strTicker.replace(" ","").replace("(","").replace(")","").replace(".", "").replace("-", "");								  
 									  
 									  UtilityFunctions.tweet(strTweet);
 									  
