@@ -270,15 +270,33 @@ class DataLoad extends Thread //implements Stopable
 			  if (bAlreadyRunning==false)
 			  {
 				  
-				  strTask = listWaitingJobs.get(0);
+				 /*
+				  * OFP 3/12/2011 - Bug here that was resulting in the same TaskId being executed concurrently. If there
+				  * was more than 1 job in the waiting queue but the first job in the waiting queue was already running, it
+				  * would still be initiated because we were always taking the first job at the head of the waiting queue, instead
+				  * of the one just checked (index i).
+				  */
+				  //strTask = listWaitingJobs.get(0);
+				  strTask = listWaitingJobs.get(i);
 				  DBFunctions tmpdbf = new DBFunctions((String)props.get("dbhost"),(String)props.get("dbport"),(String)props.get("database"),(String)props.get("dbuser"),(String)props.get("dbpass"));
 				  dg = new DataGrab(DataLoad.uf,tmpdbf,strTask);
+				  /*
+				   * OFP 3/12/2011 - move the writeKeepAlive function call here because we were running into instances were the DataLoad thread was running
+				   * fine but the DataGrab threads were locked up and no new DataGrab threads were being initiated.
+				   */
+				  writeKeepAlive();
 				  dg.startThread();
 				  UtilityFunctions.stdoutwriter.writeln("Initiated DataGrab thread " + dg.getName(),Logs.THREAD,"DL4");
 				  
 				  
-			
-				 listWaitingJobs.remove(0);
+				 //listWaitingJobs.remove(0);
+				 listWaitingJobs.remove(i);
+				 
+				 /*
+				  * OFP - We're going to keep it simple by only initiating one job per call of this function. This get a little
+				  * funky since we are looping through a list and we are modifying the list (remove(i)) in the loop.
+				  */
+				 
 				  
 				 return(dg);
 				  
@@ -668,7 +686,7 @@ class DataLoad extends Thread //implements Stopable
 			try 
 			{ 
 				
-				writeKeepAlive();
+				//writeKeepAlive();
 				updateTimeEvents();
 				getTriggeredJobs();
 				executeJobs();
@@ -923,6 +941,8 @@ class DataLoad extends Thread //implements Stopable
 		
 		
 	}
+	
+
   
   public void writeKeepAlive()
   {
