@@ -16,8 +16,8 @@ include ("../includes/sitecommon.php");
 
 <div id="jq-header">
 <?php
-logo();
-primaryNav("alerts");
+IncFunc::logo();
+IncFunc::primaryNav("alerts");
 ?>
 </div> <!-- header -->
 
