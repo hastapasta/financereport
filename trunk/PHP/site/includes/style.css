@@ -57,7 +57,7 @@ body#jq-interior #jq-header {
 }
 #jq-siteLogo {
 	display: block;
-	Code://top: 59px;
+	/*top: 59px; */
 	top: 48px;
 	position: absolute;
 	border: 0 !important;
@@ -311,11 +311,11 @@ background-position: 0 -36px;
 
 /*content*/
 #jq-content {
-Code://background: #181c21 url(http://static.jquery.com/files/rocker/images/bg_home_content.gif) top repeat-x;
+/*background: #181c21 url(http://static.jquery.com/files/rocker/images/bg_home_content.gif) top repeat-x;*/
 background: #ffffff top repeat-x;
 padding: 4em 40px;
 border-bottom: 1px solid #000;
-Code://margin-left: 100px;
+/*margin-left: 100px;*/
 }
 
 
@@ -910,9 +910,10 @@ color: #666;
 
 
 
-ul li, ul.menu li, .item-list ul li, li.leaf {
+/*ul li, ul.menu li, .item-list ul li, li.leaf {
 background: none !important;
-}
+}*/
+
 .fieldset-wrapper .project-terms li {
 font-size: 1.3em;
 
@@ -1266,11 +1267,29 @@ html.js #jq-download input {
     display: none;
 }
 
+/* adjust font of google table gadget */
 #fontblack {
 	color: #000;
 }
 
-#jq-chartcontain {
 
+
+#jq-chartcontain {
 margin-left: 100px;
 }
+
+
+
+/* modify style of yui drop down menu */
+#productsandservices {
+     width: 500px;
+     font-size: 1.4em;
+}
+
+/*modify style of blogger feed*/
+.gfc-resultsHeader .gfc-title {
+	color: #FFF;
+	font-size: 17px;
+	}
+
+
