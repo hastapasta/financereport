@@ -680,6 +680,12 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 							Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z", "EEE, dd MMM yyyy HH:mm:ss z"));
 				}
 		
+				
+			/*
+			 * OFP 3/12/2011 - Need to keep an eye on this next line. There was an issue where because of a bug in DataLoad initiateJob() the same task
+			 * showed up in the running queue and there was a thread lock on this line. Not exactly sure if this method is thread safe. I wouldn't think that
+			 * it's thread-safedness (?) would depend on if you are issuing the same url, i.e. I would think that thread locks would occur even with different urls.
+			 */
 					  
 			response = httpclient.execute(httpget);
 			//urlFinal = new URL(strURL);
