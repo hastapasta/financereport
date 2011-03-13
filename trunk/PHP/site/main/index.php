@@ -7,49 +7,84 @@ include ("../includes/sitecommon.php");
 <!DOCTYPE HTML>
 <HTML>
 <HEAD>
+
+<?php IncFunc::blogFeedJavaScript();?>
+
+<?php IncFunc::incJquery(); ?>
+
+
+<script src="http://widgets.twimg.com/j/2/widget.js" type="text/javascript"></script>
+
 <link rel="stylesheet" href="../includes/style.css" type="text/css" />
-<script src="https://www.google.com/jsapi?key=ABQIAAAAxIClsZ3ToqpAEYJ0xpbYDBQvMn8QNL-nLRnNjyJkuSEqYss18BSxvSrpXIIMYm_A6P2cdVBEmC64UA" type="text/javascript"></script>
-<script language="Javascript" type="text/javascript">    
-/*
- *  How to use the Feed Control to grab, parse and display feeds.
-*/
-    
-google.load("feeds", "1");
-    
-function OnLoad() {
-	// Create a feed control
-	var feedControl = new google.feeds.FeedControl();
-	    
-	// Add two feeds.
-	feedControl.addFeed("http://pikefin.blogspot.com/feeds/posts/default", "Pikefin Blog");
-	    
-	// Draw it.
-	feedControl.draw(document.getElementById("blogcontrol"))
+
+<script language="Javascript" type="text/javascript"> 
+
+function getElementsByClass(searchClass,node,tag) {
+	var classElements = new Array();
+	if ( node == null )
+		node = document;
+	if ( tag == null )
+		tag = '*';
+	var els = node.getElementsByTagName(tag);
+	var elsLen = els.length;
+	var pattern = new RegExp("(^|\\s)"+searchClass+"(\\s|$)");
+	for (i = 0, j = 0; i < elsLen; i++) {
+		if ( pattern.test(els[i].className) ) {
+			classElements[j] = els[i];
+			j++;
+		}
 	}
-    
-google.setOnLoadCallback(OnLoad);
+	return classElements;
+}
+
+//var obj= document.getElementById(obj);
+//obj.style.visibility = "visible";
+
+//var obj = getElementsByClass("gfc-title",null,null);
+
+//obj[0].style.color = "#FFFFFF";
+
+function findFirstDescendant(parent, tagname)
+{
+   parent = document.getElementById(parent);
+   var descendants = parent.getElementsByTagName(tagname);
+   if ( descendants.length )
+      return descendants[0];
+   return null;
+}
+
+var element = null;
+
+function get_type(thing)
+{
+	if(thing===null)return "[object Null]"; 
+	return Object.prototype.toString.call(thing); 
+}
+
+//special case 
+
+
+
+
+
+//var element = $('.twtr-hdr h3');
+//alert(element.type);
+//alert(get_type(element));
+//element.style.fontSize="17px";
+
 </script>
-
-<script src="http://widgets.twimg.com/j/2/widget.js"></script>
-
-
-
-
 
 </HEAD>
 
 <BODY>
 <div id="jq-siteContain">
 
-<div id="jq-header">
-
 
 
 <?php
-logo();
-primaryNav("home");
+IncFunc::header1("home");
 ?>
-</div> <!-- header -->
+
 <!-- <div id="jq-content"> -->
 <div id="jq-intro"> 
 
@@ -59,8 +94,8 @@ primaryNav("home");
 <BR/><BR/>
 <p>Providing financial data analysis and alerting services.</p>
 </div> <!-- intro -->
-<div id="blogcontrol" style="float:right;border: 2px solid #fff; width: 200px;font-size: 16px;margin: 25px 0 20px 10px">Loading...</div>
-<div id="twittercontrol" style="float:right;clear:right">
+<div id="blogcontrol" style="float:right;border: 2px solid #fff; background: #000; width: 250px;font-size: 15px;margin: 25px 0 20px 10px">Loading...</div>
+<div id="twittercontrol" style="float:right;clear:right"> 
 <script>
 new TWTR.Widget({
   version: 2,
@@ -92,7 +127,7 @@ new TWTR.Widget({
 }).render().setUser('pikefindotcom').start();
 </script> 
 </div>
-<div id="disclaimer" style="float:left; clear:both; margin: 20px 0 0 0">
+<div id="disclaimer" style="float:left; clear:both; margin: 20px 0 20px 0">
 Disclaimer:
 "The content on this site is provided as general information only and
  should not be taken as investment advice. All site content, including
@@ -108,6 +143,7 @@ Disclaimer:
            before making any investment decisions. "
 
 </div>
+
 <!-- </div> --><!-- content -->
 </div><!--  siteContain -->
 </BODY>
