@@ -34,37 +34,34 @@ else if ($frame == 'internaldata')
 	if(isset($_POST['submit_internal'])) 
 	{
 		
-		$selected_data_set = $_POST['data_set'];
+		$selected_job_key = $_POST['job_key'];
 		$selected_ticker = $_POST['ticker'];
 		
 		echo "here 2<BR>";
-		echo $selected_data_set."<BR>";
+		echo $selected_job_key."<BR>";
 		echo $selected_ticker."<BR>";
 		
-		/*if (substr($selected_data_set,0,5) == "table")
-		{
-			$query1 = 	"SELECT view_fact_data.data_set, ticker, value, url_static, fiscalquarter, fiscalyear
-		FROM view_fact_data, extract_table
-		WHERE view_fact_data.data_set = extract_table.Data_Set
-		AND view_fact_data.data_set = '".$selected_data_set."' 
-		AND view_fact_data.ticker = '".$selected_ticker."'";
-		}
-		else
-		{
-		$query1 = 
-		"SELECT view_fact_data.data_set, ticker, value, url_static, fiscalquarter, fiscalyear
-		FROM view_fact_data, extract_info
-		WHERE view_fact_data.data_set = extract_info.Data_Set
-		AND view_fact_data.data_set = '".$selected_data_set."' 
-		AND view_fact_data.ticker = '".$selected_ticker."'";
-		}*/
+	
 		
 
-		$query1 = 	"SELECT view_fact_data.data_set, ticker, value, url_static, fiscalquarter, fiscalyear
+		/*$query1 = 	"SELECT view_fact_data.data_set, ticker, value, url_static, fiscalquarter, fiscalyear
 		FROM view_fact_data, job_info
 		WHERE view_fact_data.data_set = job_info.Data_Set
 		AND view_fact_data.data_set = '".$selected_data_set."' 
-		AND view_fact_data.ticker = '".$selected_ticker."'";
+		AND view_fact_data.ticker = '".$selected_ticker."'";*/
+		
+		$query1 = 	"SELECT tasks.name, entities.ticker, fact_data.value, jobs.url_static, fact_data.fiscalquarter, fact_data.fiscalyear
+		FROM fact_data, jobs, tasks, entities, jobs_tasks
+		where fact_data.entity_id=entities.id AND
+		fact_data.task_id=tasks.id AND
+		jobs_tasks.task_id=tasks.id AND 
+		jobs_tasks.job_id=jobs.id AND 
+		jobs.id=".$selected_job_key." AND
+		entities.ticker='".$selected_ticker."'";
+		
+		
+		
+		
 		
 		
 		
@@ -129,7 +126,7 @@ else if ($frame == 'form')
 	
 
 
-$sql="SELECT * FROM company order by ticker";
+$sql="SELECT * FROM entities order by ticker";
 
 $result = mysql_query($sql);
 
@@ -146,13 +143,15 @@ while($row = mysql_fetch_array($result))
 }
 function test1()
 {
-	
+	alert("here");
 	//var x=document.getElementById('company');
 	var z=document.getElementById('ticker');
 	
 	var a=document.getElementById('tables');
 	
 	var tmp = a.value.toUpperCase();
+
+	alert(a.value);
 	
 	for(var i=z.options.length-1;i>=0;i--)
 	{
@@ -185,27 +184,29 @@ function test1()
 					<table border="1">
 						<tr><td>
 							<!-- <select name="data_set" onchange="alert(this.value);" onchange="UpdateField(this.selectedIndex);"> -->
-							<select name="data_set">
+							<select name="job_key">
 								<?php
-									$query2 = "select distinct data_set from view_fact_data order by data_set";
+									//$query2 = "select distinct data_set from view_fact_data order by data_set";
+									
+									$query2 = "select distinct tasks.name as task_name, jobs.id as jobs_id from tasks,jobs,jobs_tasks where tasks.id=jobs_tasks.task_id AND jobs.id=jobs_tasks.job_id";
 				
 									$result2 = mysql_query($query2) or die("Failed Query of " . $query2);
 									
 									for ($j=0;$j<mysql_num_rows($result2);$j++)
 									{
 										$row2 = mysql_fetch_array($result2);
-										echo "<option value=\"".$row2[data_set]."\">".$row2[data_set]."</option>";
+										echo "<option value=\"".$row2['jobs_id']."\">".$row2['task_name']."</option>";
 									}
 								
 								?>
 							</select>
 						</td>
 						<td>
-							<input type="text" name="tables" size=30 maxlength="30" onkeyup="test1()">
+							<input type="text" name="ticker" size=30 maxlength="30" onkeyup="test1()">
 						</td>
-						<td>
+						<!--  <td>
 							<select name="ticker" size=5></select>
-						</td>
+						</td> -->
 						<td>
 							<input type="submit" value="Submit" name="submit_internal" 
 							onclick="SelectFactData.action='VerifyData.php?frame=internaldata'; return true" >

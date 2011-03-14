@@ -12,8 +12,8 @@
 
 if(isset($_POST['submit_table_switch'])) 
 {
-		$query1 = "select count(primary_key) from view_fact_data";
-		$query2 = "select count(primary_key) from fact_data_stage";
+		$query1 = "select count(id) from view_fact_data";
+		$query2 = "select count(id) from fact_data_stage";
 		
 		$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 		$row1 = mysql_fetch_array($result1);
@@ -56,8 +56,8 @@ else if (isset($_POST['submit_clear_stage']))
 					<table>
 						<tr><td>
 <?php
-		$query1 = "select count(primary_key) from view_fact_data";
-		$query2 = "select count(primary_key) from fact_data_stage";
+		$query1 = "select count(id) from view_fact_data";
+		$query2 = "select count(id) from fact_data_stage";
 		
 		$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 		$row1 = mysql_fetch_array($result1);
@@ -89,23 +89,24 @@ else if (isset($_POST['submit_clear_stage']))
 <tr>
 <td>
 <form name="ObtainURL" action="toggleview.php" method=POST>
-	<select name="data_set">
+	<select name="task_id">
 	<?php
-	$query1 = "select data_set from job_info where !(data_set like '%colhead%') and !(data_set like '%rowhead%')";
+	//$query1 = "select data_set from job_info where !(data_set like '%colhead%') and !(data_set like '%rowhead%')";
+	$query1 = "select name,id from tasks";
 	$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 	for ($j=0;$j<mysql_num_rows($result1);$j++)
 	{
 		$row1 = mysql_fetch_array($result1);
-		echo "<option value=\"".$row1[data_set]."\">".$row1[data_set]."</option>";
+		echo "<option value=\"".$row1['id']."\">".$row1['name']."</option>";
 	}
 	
-	$query1 = "select data_set from job_info";
+	/*$query1 = "select data_set from job_info";
 	$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 	for ($j=0;$j<mysql_num_rows($result1);$j++)
 	{
 		$row1 = mysql_fetch_array($result1);
 		echo "<option value=\"".$row1[data_set]."\">".$row1[data_set]."</option>";
-	}
+	}*/
 
 	?>
 </select>
@@ -116,15 +117,19 @@ else if (isset($_POST['submit_clear_stage']))
 <?php
 	if(isset($_POST['show_url'])) 
 	{
-	$dataset = $_POST['data_set'];
-	if (substr($dataset,0,5) == "table")
+	$taskid = $_POST['task_id'];
+	/*if (substr($dataset,0,5) == "table")
 	{
 		$query1 = "select url_dynamic, url_static from job_info where data_set='".$dataset."'";
 	}
 	else
 	{
 		$query1 = "select url_dynamic, url_static from job_info where data_set='".$dataset."'";
-	}
+	}*/
+	$query1 = "select url_dynamic,url_static from jobs,tasks,jobs_tasks where tasks.id=".$taskid;
+	$query1.= " AND tasks.id=jobs_tasks.task_id AND jobs.id=jobs_tasks.job_id";
+	
+	echo $query1;
 	$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 	$row1 = mysql_fetch_array($result1);
 	echo "<A href=\"".$row1[url_static].$row1[url_dynamic]."\" target=\"_blank\">".$row1[url_static].$row1[url_dynamic]."</A>";
