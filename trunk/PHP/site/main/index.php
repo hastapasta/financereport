@@ -93,6 +93,10 @@ IncFunc::header1("home");
 
 <BR/><BR/>
 <p>Providing financial data analysis and alerting services.</p>
+<br/><br/>
+<p>Note: This is website is an alpha release. Please bear with us as we expand the functionality of the site over the coming days and weeks. Thank you for your patience.</p>
+<br/>
+<p>For questions or requests please contact <a href="mailto:pikefin1@gmail.com">pikefin1@gmail.com</a></p>
 </div> <!-- intro -->
 <div id="blogcontrol" style="float:right;border: 2px solid #fff; background: #000; width: 250px;font-size: 15px;margin: 25px 0 20px 10px">Loading...</div>
 <div id="twittercontrol" style="float:right;clear:right"> 
