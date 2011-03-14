@@ -24,8 +24,8 @@ function yuiCallBack() {
        id: "equities", 
        itemdata: [ 
            { text: "Equities Most Gainers/Losers", url: rootpath + "/charts/equities/tablesample3A.php" },
-           { text: "Equities Individual Charts", url: "http://360.yahoo.com" },
-           { text: "Global Indexes", url: "http://360.yahoo.com" }
+           { text: "Equities Individual Charts", url: rootpath + "/charts/comingsoon.php" },
+           { text: "Global Indexes", url: rootpath + "/charts/comingsoon.php" }
            
        ]
     },
@@ -33,8 +33,8 @@ function yuiCallBack() {
     {
        id: "commodities", 
        itemdata: [
-           { text: "Commodities Most Gainers/Losers", url: "http://auctions.shopping.yahoo.com" },
-           { text: "Commodities Individual Charts", url: "http://auctions.shopping.yahoo.com" }
+           { text: "Commodities Most Gainers/Losers", url: rootpath + "/charts/comingsoon.php" },
+           { text: "Commodities Individual Charts", url: rootpath + "/charts/comingsoon.php" }
                  
        ]    
     },
@@ -42,16 +42,16 @@ function yuiCallBack() {
     {
        id: "forex", 
        itemdata: [
-           { text: "Forex Most Gainers/Losers", url: "http://fantasysports.yahoo.com" },
-           { text: "Forex Individual Charts", url: "http://auctions.shopping.yahoo.com" }
+           { text: "Forex Most Gainers/Losers", url: rootpath + "/charts/comingsoon.php" },
+           { text: "Forex Individual Charts", url: rootpath + "/charts/comingsoon.php" }
        ] 
     },
 
     {
        id: "miscellaneous",
        itemdata: [
-           { text: "Federal Reserve Balance Sheet", url: "http://downloads.yahoo.com" },
-           { text: "Federal Reserve Change WOW", url: "http://downloads.yahoo.com" },
+           { text: "Federal Reserve Balance Sheet", url: rootpath + "/charts/comingsoon.php" },
+           { text: "Federal Reserve Change WOW", url: rootpath + "/charts/comingsoon.php" },
            { text: "GDP Growth Estimates", url: rootpath + "/charts/gdp/motionchart.php" },
            { text: "All Assets - Inidivdual Line Charts", url: rootpath + "/charts/allassets/linechart.php?a=660" }
          
