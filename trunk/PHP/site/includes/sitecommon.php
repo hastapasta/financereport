@@ -78,7 +78,7 @@ class IncFunc
 		echo "<!-- Combo-handled YUI JS files: -->";
 		echo "<script type=\"text/javascript\" src=\"http://yui.yahooapis.com/combo?2.8.2r1/build/yuiloader-dom-event/yuiloader-dom-event.js&2.8.2r1/build/container/container_core-min.js&2.8.2r1/build/menu/menu-min.js&2.8.2r1/build/element/element-min.js&2.8.2r1/build/button/button-min.js\"></script>";
 		
-		echo "<script type=\"text/javascript\" src=\"../../site/includes/yuiDropDown.js\"></script>";
+		echo "<script type=\"text/javascript\" src=\"".self::$ROOT_PATH."/site/includes/yuiDropDown.js\"></script>";
 		
 		echo "<script type=\"text/javascript\">";
 		
