@@ -18,7 +18,7 @@ $username = 'root';
 $password = 'madmax1.';
 
 //$db = new PDO("mysql:host=win-d2sjsg6emdd;dbname=mydb", $username, $password);
-$db = new PDO("mysql:host=testdataload;dbname=findata", $username, $password);
+$db = new PDO("mysql:host=localhost;dbname=findata", $username, $password);
 //$db = new PDO('sqlite:example.db');
 writelog2("before new MC_Google_Vis");
 $vis = new MC_Google_Visualization($db);
