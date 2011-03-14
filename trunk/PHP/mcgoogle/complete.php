@@ -1,5 +1,5 @@
 <?php
-require_once 'init.php';
+require_once './init.php';
 
 function writelog($the_string)
 {
@@ -12,11 +12,11 @@ fclose( $fi );
 }
 
 if(isset($_GET['tq'])) {
-	  writelog('here 5');
+	  writelog2('here 5');
 		if ($vis == null)
-			writelog("vis is null");
+			writelog2("vis is null");
 		else 
-			writelog("vis is not null");
+			writelog2("vis is not null");
     $vis->addEntity('timeline', array(
         'table' => 'countries c',
         'fields' => array(
@@ -39,9 +39,9 @@ if(isset($_GET['tq'])) {
     $vis->setDefaultEntity('timeline');
     
     $vis->handleRequest(); 
-    writelog('before die'); 
+    writelog2('before die'); 
     die();
-    writelog('after die');
+    writelog2('after die');
 }
 ?>
 <html>
@@ -64,28 +64,28 @@ if(isset($_GET['tq'])) {
             
             //var query = new google.visualization.Query('complete.php');
 	    var query = new google.visualization.Query('http://devdataload/mcgoogle/complete.php');
-            alert('here 1');
+            //alert('here 1');
             query.setQuery(str);
-            alert('here 2');
+            //alert('here 2');
             query.send(function(res) {
-               writelog('here 10');
-               alert('here 3');
+ 
+               //alert('here 3');
                 if(res.isError()) {
              
                     alert(res.getDetailedMessage());
                 } else {
-		   alert('here 4');
+		   //alert('here 4');
                     if(motion_chart === null)
                     {
                      motion_chart = new google.visualization.MotionChart(document.getElementById('chart-div'));
-                     alert('here 5');
+                     //alert('here 5');
                    }
                     motion_chart.draw(res.getDataTable(), {'height': 600, 'width': 800});
-                    alert('here 6');
+                    //alert('here 6');
                 }
-		alert('here 7');
+		//alert('here 7');
             });
-           alert('here 8');
+           //alert('here 8');
             
         }
     </script>
@@ -115,7 +115,7 @@ if(isset($_GET['tq'])) {
     </div>
     <div id="chart-div"></div>
     <?php
-    writelog("here");
+    writelog2("here");
     ?>
 </body>
 </html>
