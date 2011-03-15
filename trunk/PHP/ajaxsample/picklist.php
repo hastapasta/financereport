@@ -1,6 +1,8 @@
 <html>
 <head>
 
+<!-- I think the first example is not using ajax; it's just using php and javascript. -->
+
 <script type="text/javascript">
 	var companyArray;
 	function loadfunc()
@@ -18,7 +20,7 @@ if (!$con)
 
 mysql_select_db("findata", $con);
 
-$sql="SELECT * FROM company order by ticker";
+$sql="SELECT ticker from entities,entity_groups where entity_groups.entity_id=entities.id and entity_groups.name='sandp' order by ticker";
 
 $result = mysql_query($sql);
 
@@ -35,29 +37,33 @@ while($row = mysql_fetch_array($result))
 }
 function showUser(str)
 {
-if (str=="")
-  {
-  document.getElementById("txtHint").innerHTML="";
-  return;
-  } 
-if (window.XMLHttpRequest)
-  {// code for IE7+, Firefox, Chrome, Opera, Safari
-  xmlhttp=new XMLHttpRequest();
-  }
-else
-  {// code for IE6, IE5  
-  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-  }
-xmlhttp.onreadystatechange=function()
-  {
-  if (xmlhttp.readyState==4 && xmlhttp.status==200)
-    {
-    document.getElementById("txtCompany").innerHTML=xmlhttp.responseText;
-    }
-  }
-var currentTime = new Date()
-xmlhttp.open("POST","picklist1.php?q="+str+"&timestamp="+currentTime,true);
-xmlhttp.send();
+	if (str=="")
+	{
+		document.getElementById("txtHint").innerHTML="";
+		return;
+	} 
+	
+	if (window.XMLHttpRequest)
+	{// code for IE7+, Firefox, Chrome, Opera, Safari
+		xmlhttp=new XMLHttpRequest();
+	}
+	else
+	{// code for IE6, IE5  
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	
+	xmlhttp.onreadystatechange=function()
+	{
+		if (xmlhttp.readyState==4 && xmlhttp.status==200)
+		{
+			document.getElementById("txtCompany").innerHTML=xmlhttp.responseText;
+		}
+	}
+	
+	var currentTime = new Date()
+	//alert("here");
+	xmlhttp.open("POST","picklist1.php?q="+str+"&timestamp="+currentTime,true);
+	xmlhttp.send();
 }
 
 function test()
@@ -79,6 +85,7 @@ xmlhttp.onreadystatechange=function()
     }
   }
 var currentTime = new Date();
+alert("here2");
 xmlhttp.open("GET","picklist2.php?timestamp="+currentTime,true);
 xmlhttp.send();
 }
@@ -155,7 +162,7 @@ while($row = mysql_fetch_array($result))
 Enter text in the text box to filter the list of companies:
 <form>
 <input type="text" name="tables" id=tables size=30 maxlength="30" onkeyup="test1()">
-</select>
+
 </form>
 
 <form><select name="company2" id=company2 size=10 onchange="test()">

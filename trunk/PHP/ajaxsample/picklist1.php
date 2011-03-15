@@ -11,7 +11,7 @@ if (!$con)
 
 mysql_select_db("findata", $con);
 
-$sql="SELECT * FROM company WHERE ticker = '".$q."'";
+$sql="SELECT * FROM entities WHERE ticker = '".$q."'";
 
 $result = mysql_query($sql);
 
