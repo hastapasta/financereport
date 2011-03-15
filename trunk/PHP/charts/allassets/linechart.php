@@ -112,7 +112,7 @@ $row = mysql_fetch_array($result);
 
   
 	<div style="font-size:20" id="chart-title"></div>
-	</BR>
+	<BR/>
 	<div style="font-size:15" id="chart-description"></div>
     <div id="chart-div"></div>
 
