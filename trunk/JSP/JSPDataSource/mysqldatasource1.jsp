@@ -22,6 +22,27 @@ if (strEntityId!=null)
 String strEndDate = request.getParameter("enddate");
 String strBeginDate = request.getParameter("begindate"); 
 
+if (strBeginDate==null)
+{
+	out.println("No begindate request parameter.");
+	return;
+}
+
+if (!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19"))
+{
+	out.println("begindate format needs to be yyyy-mm-dd");
+	return;
+}
+
+if (strEndDate!=null)
+{
+	if (!strEndDate.startsWith("20") && !strEndDate.startsWith("19"))
+	{
+		out.println("enddate format needs to be yyyy-mm-dd");
+		return;
+	}
+}
+
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
 if (strTqx!=null)
@@ -63,16 +84,16 @@ DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1."
 
 //ideally i'd like to use last() here but mysql doesn't support it - it would have to be 
 //coded by hand - so going with max() instead.
-String query = "select max(fact_data.value) as fdvalue,fact_data.date_collected,entities.ticker  ";
+String query = "select max(fact_data.value) as fdvalue,date_format(fact_data.date_collected,'%m-%d-%Y') as date_col,entities.ticker  ";
 query += "from fact_data ";
 query += "JOIN entities on fact_data.entity_id=entities.id ";
 query += "JOIN tasks on fact_data.task_id=tasks.id ";
 query += " where entities.id " + strInClause;
-query += " AND date_collected>'" + strBeginDate + "' ";
+query += " AND date_format(fact_data.date_collected,'%Y-%m_%d')>'" + strBeginDate + "' ";
 if (strEndDate!=null && !strEndDate.isEmpty())
-	query += " AND date_collected<'" + strEndDate + "' ";
-query += " group by day(fact_data.date_collected),entities.ticker ";
-query += " order by fact_data.date_collected ASC";
+	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
+query += " group by date_format(fact_data.date_collected,'%Y-%m-%d'),entities.ticker ";
+query += " order by date_format(fact_data.date_collected,'%Y-%m-%d') ASC";
 
 //out.println(query); if (1==1) return;
 
@@ -88,7 +109,7 @@ try
 	rs = dbf.db_run_query(query);
 	while (rs.next()) {
 		String [] tmp = new String[3];
-		tmp[0] = rs.getString("fact_data.date_collected");
+		tmp[0] = rs.getString("date_col");
 		tmp[1] = rs.getString("entities.ticker");
 		tmp[2] = rs.getString("fdvalue");
 		
