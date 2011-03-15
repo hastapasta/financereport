@@ -46,7 +46,7 @@
 
   <body>
     <div id='table_div'></div>
-    This is some text.
+	Here is the raw data:
     <div id='jsondata'>a</div>
   </body>
 </html>
