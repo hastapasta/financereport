@@ -62,7 +62,7 @@
  			
            
           
-            var query = new google.visualization.Query('http://www.pikefin.com/devjsp/JSPEssbase2/mysqldatasource.jsp');
+            var query = new google.visualization.Query('http://www.pikefin.com/devjsp/JSPDataSource/mysqldatasource.jsp?userid=16&timeeventid=5');
             //alert('here 2');
             
             query.setQuery(str);
