@@ -5,9 +5,11 @@
 class IncFunc
 {
 	
-	//static public $ROOT_PATH="/PHP";
-	static public $ROOT_PATH="/phptest";
-	static public $JSP_ROOT_PATH="http://www.pikefin.com/testjsp/JSPDataSource";
+	static public $ROOT_PATH="/PHP";
+	static public $JSP_ROOT_PATH="http://localhost:8080/JSPDataSource";
+	
+	//static public $ROOT_PATH="/phptest";
+	//static public $JSP_ROOT_PATH="http://www.pikefin.com/testjsp/JSPDataSource";
 	
 	static function linkStyleCSS()
 	{
