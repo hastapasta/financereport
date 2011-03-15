@@ -173,7 +173,7 @@ if ($form_properties == '')
 	}
 }
 	
-echo '<td><input type="text" name="web_page" value="'. $url_val . '" size=100 maxlength="100"></td></tr>';
+echo '<td><input type="text" name="web_page" value="'. $url_val . '" size=100 maxlength="3000"></td></tr>';
 ?>
 					<tr><td><br></td></tr>
 					<tr><td> Form properties: </td>
