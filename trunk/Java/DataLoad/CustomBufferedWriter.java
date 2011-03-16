@@ -198,7 +198,7 @@ public class CustomBufferedWriter
 	
 	public void writeln (Exception e)
 	{
-			System.out.println("EXCEPTION THROWN, check error.log");
+			fulllogger.error("EXCEPTION THROWN, check logs");
 			try
 			{
 				lock.lock();
