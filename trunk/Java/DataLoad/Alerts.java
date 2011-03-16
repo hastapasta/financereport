@@ -387,8 +387,8 @@ public class Alerts {
 							  }
 							  catch (ArithmeticException ae)
 							  {
-								  UtilityFunctions.stdoutwriter.writeln("Error doing BigDecimal arithmetic",Logs.WARN,"A2.7385");
-								  UtilityFunctions.stdoutwriter.writeln("Error occured processing alert id: " + nAlertId,Logs.WARN,"A2.7386");
+								  UtilityFunctions.stdoutwriter.writeln("Error doing BigDecimal arithmetic",Logs.ERROR,"A2.7385");
+								  UtilityFunctions.stdoutwriter.writeln("Error occured processing alert id: " + nAlertId,Logs.ERROR,"A2.7386");
 								  UtilityFunctions.stdoutwriter.writeln(ae);
 								  continue;
 							  }
@@ -430,7 +430,7 @@ public class Alerts {
 										  strMsg = "ALERT\r\n";
 										  
 										  if (strTicker != null && !(strTicker.isEmpty()))
-												  strMsg = strMsg + "Ticker: " + strTicker + "\r\n";
+												  strMsg = strMsg + "Entity: " + strTicker + "\r\n";
 										  
 										  //Get the full ticker description
 										  //String query5 = "select full_name from entities where ticker='"+ strTicker + "'";
@@ -463,11 +463,14 @@ public class Alerts {
 										  Calendar calObservationEnd = Calendar.getInstance();
 										  calObservationBegin.setTime(inputFormat.parse(hmAlert.get("time_events.last_datetime")));
 										  calObservationEnd.setTime(inputFormat.parse(hmAlert.get("time_events.next_datetime")));*/
-										  strMsg += "Observation Period Begin: " + sdf.format(calObservationPeriodBegin.getTime()) + "\r\n";
 										  strMsg += "Observation Period End: " + sdf.format(calObservationPeriodEnd.getTime()) + "\r\n";
+										  strMsg += "Observation Period Begin: " + sdf.format(calObservationPeriodBegin.getTime()) + "\r\n";
+										 
+										  
+										  strMsg += "Chart: " + (String)DataLoad.props.getProperty("phpbaseurl") + "charts/allassets/linechart.php?a=" + nAlertId + "\r\n";
 										  
 										  //Add link for Increase Alert Limit form
-										  strMsg = strMsg + "Modify/View Alert Properties: " + (String)DataLoad.props.getProperty("formbaseurl") + nAlertId;
+										  strMsg = strMsg + "Modify/View Alert Properties: " + (String)DataLoad.props.getProperty("cakebaseurl") + "alerts/edit?alert=" + nAlertId;
 										  
 										  
 										  
@@ -493,15 +496,17 @@ public class Alerts {
 									  strTweet += hmAlert.get("time_events.name");
 									  strTweet += " move in " + strTicker;
 									  if (hmAlert.get("entities.full_name") != null)
-										  strTweet += " (" + hmAlert.get("entities.full_name") + ") ";
+										  strTweet += " (" + hmAlert.get("entities.full_name") + ")";
+									  
+									  
+									  String strUrl = (String)DataLoad.props.getProperty("phpbaseurl") + "charts/allassets/linechart.php?a=" + nAlertId;
+									  
+									  strTweet += " " + UtilityFunctions.shortenURL(strUrl);
 									  
 									  strTweet += " #" + strTicker.replace(" ","").replace("(","").replace(")","").replace(".", "").replace("-", "");								  
 									  
 									  UtilityFunctions.tweet(strTweet);
-									  
-									  
-									  
-									  
+  
 									  
 								  }
 								  
