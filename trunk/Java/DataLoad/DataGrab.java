@@ -686,6 +686,16 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 			 * showed up in the running queue and there was a thread lock on this line. Not exactly sure if this method is thread safe. I wouldn't think that
 			 * it's thread-safedness (?) would depend on if you are issuing the same url, i.e. I would think that thread locks would occur even with different urls.
 			 */
+				
+			/*
+			 * OFP 3/15/2011 - Had another thread lock with one thread on this line:
+			 * response = httpclient.execute(httpget);
+			 * and another thread on this line:
+			 *  while ((nTmp = in.read()) != -1)
+			 *  
+			 *  Added the shutdown() call.
+			 * 
+			 */
 					  
 			response = httpclient.execute(httpget);
 			//urlFinal = new URL(strURL);
@@ -708,6 +718,8 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 	
 
 	  in.close();
+	  
+	  httpclient.getConnectionManager().shutdown();
 	
 	  UtilityFunctions.stdoutwriter.writeln("Done reading url contents",Logs.STATUS2,"DG26");
 		 
