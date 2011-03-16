@@ -54,6 +54,9 @@ class DataLoad extends Thread //implements Stopable
   DataGrab[] arrayRunningJobs;
   public static DBFunctions dbf;
   GarbCollector gc;
+  
+  public static int nMailMessageCount;
+  Calendar calMailBegin,calMailEnd;
 
   //static printwriter
                                                                  
@@ -272,7 +275,7 @@ class DataLoad extends Thread //implements Stopable
 				  
 				 /*
 				  * OFP 3/12/2011 - Bug here that was resulting in the same TaskId being executed concurrently. If there
-				  * was more than 1 job in the waiting queue but the first job in the waiting queue was already running, it
+				  * was more than 1 job in the waiting queue but the first TaskId in the waiting queue was already running, it
 				  * would still be initiated because we were always taking the first job at the head of the waiting queue, instead
 				  * of the one just checked (index i).
 				  */
@@ -620,6 +623,13 @@ class DataLoad extends Thread //implements Stopable
   public void run()
   {	
 	 
+	nMailMessageCount=0;
+	
+	calMailBegin = Calendar.getInstance();
+	calMailBegin.set(Calendar.HOUR_OF_DAY, 0);           
+	calMailBegin.set(Calendar.MINUTE, 0);                
+	calMailBegin.set(Calendar.SECOND, 1);         
+
 	//NDC.push("DataLoad");
 	uf = new UtilityFunctions();
 	
@@ -695,6 +705,7 @@ class DataLoad extends Thread //implements Stopable
 				//updateEventTimes();
 				garbageCollectionFunction();
 				cleanTerminatedJobs();
+				checkMessageCount();
 				/*
 				 * Right now we're just performing lazy database object cleanup by closing and reopening 
 				 * the connection. If connection pooling is ever utilized, then this won't work and explicit
@@ -942,6 +953,19 @@ class DataLoad extends Thread //implements Stopable
 		
 	}
 	
+	
+  public void checkMessageCount()
+  {
+	  Calendar calCurrent = Calendar.getInstance();
+	  
+	  if (calCurrent.get(Calendar.DAY_OF_YEAR) > calMailBegin.get(Calendar.DAY_OF_YEAR))
+	  {
+		  DataLoad.nMailMessageCount = 0;
+		  calMailBegin = calCurrent;
+	  }
+	  
+	  
+  }
 
   
   public void writeKeepAlive()
