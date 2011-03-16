@@ -1,6 +1,7 @@
 //package com.roeschter.jsl;
  
 
+
 import java.sql.*;
 import java.util.ArrayList;
 //import java.util.Calendar;
@@ -28,7 +29,8 @@ import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 
-
+import com.rosaloves.bitlyj.Url;
+import static com.rosaloves.bitlyj.Bitly.*;
 
 
 
@@ -839,8 +841,8 @@ public class UtilityFunctions
 	  {	
 	  	//String host = "smtp.gmail.com";
 	  	//int port = 587;
-	  	String username = "pikefin1";
-	  	String password = "ginger1.";
+	  	String username = "hastapasta99";
+	  	String password = "madmax1.";
 
 	  	Properties props = new Properties();
 	  	props.put("mail.smtp.port","587");
@@ -879,14 +881,17 @@ public class UtilityFunctions
 		    if (DataLoad.bDisableEmails == false)
 		    	Transport.send(message);
 
-
+		    DataLoad.nMailMessageCount++;	
 
 	  	} catch (MessagingException e) {
 	  		
 	  	    //throw new RuntimeException(e);
-	  		stdoutwriter.writeln("Problem sending email.",Logs.STATUS2,"UF28.5");
+	  		stdoutwriter.writeln("Problem sending email.",Logs.ERROR,"UF28.5");
+	  		stdoutwriter.writeln("Message Count: " + DataLoad.nMailMessageCount,Logs.ERROR,"UF28.52");
 	  		stdoutwriter.writeln(e);
 	  	}
+	  	
+	  	
 	  }
 	
 	//public static void tweet(String strEmail, String strMessage, String strSubject, String strFromAddy)
@@ -951,8 +956,12 @@ public class UtilityFunctions
 				stdoutwriter.writeln(strTweet,Logs.WARN,"UF49.5");
 			}
 				
-			
-			/*Status status = */twitter.updateStatus(strTweet);
+			/*
+			 * Right now we're using the same property for both emails and tweets for 
+			 * global disable.
+			 */
+			//if (DataLoad.bDisableEmails == false)
+				twitter.updateStatus(strTweet);
 		
 		}
 		catch (TwitterException te)
@@ -966,7 +975,26 @@ public class UtilityFunctions
 		    
 	}
 	  	
-	  
+	public static String shortenURL(String strInputURL)
+	{
+		
+		try
+		{
+			Url url = as("pikefin", "R_f08326b12abd18288243b65ef2c71c40").call(shorten(strInputURL));
+			return(url.getShortUrl());
+		}
+		catch (Exception ex)
+		{
+			stdoutwriter.writeln("Failed to shorten url: " + strInputURL,Logs.ERROR,"UF51.5");
+			stdoutwriter.writeln(ex);
+		}
+		
+		return("");
+
+		
+		
+		
+	}  
 
 
 	
