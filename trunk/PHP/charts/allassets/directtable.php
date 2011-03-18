@@ -4,6 +4,8 @@ include ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
+$taskid = $_GET['taskid'];
+
 
 
 
@@ -28,7 +30,8 @@ db_utility::db_connect();
            
 
    // var dataSourceUrl = 'https://spreadsheets.google.com/tq?key=rCaVQNfFDMhOM6ENNYeYZ9Q&pub=1';
-    var query;
+    var query1;
+   // var query2;
  
 
 
@@ -40,6 +43,9 @@ db_utility::db_connect();
 
       var chart = document.getElementById('orgchart1');
       chart.innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
+
+      /*var chart2 = document.getElementById('orgchart2');
+      chart2.innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";*/
       
   	
      
@@ -56,43 +62,59 @@ db_utility::db_connect();
 
       if (firstpass==true)
       {
-          taskid='0';
+          //taskid='0';
           firstpass=false;
       }
       
       var options = {};
-      options['height'] = 800;
-      options['width'] = 600;
+      options['height'] = 600;
+      options['width'] = 800;
       
 
 
 
 
      	 //queryString1 = '?userid='+userid+'&taskid='+tasks.value+'&timeeventid='+timeeventid.value;
-     	 queryString1 = '?taskid='+taskid+'&timeframe='+timeframe.value;
+     	<?php 
+     	echo "queryString1 = '?taskid=".$taskid."&timeframe='+timeframe.value + '&order=ASC';\n";
+
+     //	echo "queryString2 = '?taskid=".$taskid."&timeframe='+timeframe.value + '&order=DESC';\n";
+     	
+     	?>
+    	 
 
  
 
-      alert(dataSourceUrl + queryString1);
+      //alert(dataSourceUrl + queryString1);
+
+     // alert(dataSourceUrl + queryString2);
       
-      var container = document.getElementById('orgchart1');
+      var container1 = document.getElementById('orgchart1');
+      //var container2 = document.getElementById('orgchart2');
      
       
-      var tableChart = new google.visualization.Table(container);
+      var tableChart1 = new google.visualization.Table(container1);
+      //var tableChart2 = new google.visualization.Table(container2);
      
       
-      query && query.abort();
-      query = new google.visualization.Query(dataSourceUrl + queryString1);
-      query.setTimeout(120);
-      var queryWrapper = new QueryWrapper(query, tableChart, options, container);
-      queryWrapper.sendAndDraw();
+      query1 && query1.abort();
+      query1 = new google.visualization.Query(dataSourceUrl + queryString1);
+      query1.setTimeout(120);
+      var queryWrapper1 = new QueryWrapper(query1, tableChart1, options, container1);
+      queryWrapper1.sendAndDraw();
+
+      /*query2 && query2.abort();
+      query2 = new google.visualization.Query(dataSourceUrl + queryString2);
+      query2.setTimeout(120);
+      var queryWrapper2 = new QueryWrapper(query2, tableChart2, options, container2);
+      queryWrapper2.sendAndDraw();*/
     }
 
   </script>
 </head>
 
 <body>
-<div id="jq-siteContain">
+<div id="jq-siteContain" >
 <?php 
 	IncFunc::header1("charts"); 
 	IncFunc::yuiDropDownMenu();
@@ -103,11 +125,11 @@ db_utility::db_connect();
 
 
 <br/>
-<div id="pf-form" style="text-align:left;font-size:1.5em">
+<div id="pf-form" style="text-align:left;font-size:1.5em;">
 
 <BR>
 Time Frame: <BR>
-<select id="timeframe">
+<select id="timeframe" style="background-color: #FFFFFF">
 	<option value="hour">Last Hour</option>
 	<option value="day">Last Day</option>
 	<option value="week">Last Week</option>
@@ -116,17 +138,17 @@ Time Frame: <BR>
 	<!-- <option value="Custom">Custom</option> -->
 </select> <BR>
 <BR>
-<BR>
 
-<input type="button" value="Display Chart"
-	onclick="sendAndDraw();return false;"> <br />
+
+<input type="button" style="color: #000000;background-color: #FFFFFF" value="Display Table"	onclick="sendAndDraw();return false;"> <br />
 <br />
 <br />
 </div><!-- pf-form -->
 
 <div id="fontblack"><br />
-<div id="orgchart2" style="color: #000;float: right"> </div>
-<div id="orgchart1" style="color: #000;float: left"> </div>
+<div id="orgchart1" style="color: #000;float: left;"> </div>
+
+
 
 </div> <!--  font-black -->
 
