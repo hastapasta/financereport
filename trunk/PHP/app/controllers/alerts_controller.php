@@ -2,23 +2,16 @@
 class AlertsController extends AppController {
 
 	var $name = 'Alerts';
-	var $uses = array('Alert','Schedule','Task', 'User','EntityGroup','Entity','TimeEvent');
+	var $uses = array('Alert','Schedule','Task', 'User','EntityGroup','Entity');
+	var $paginate = array('limit'=>10);
 
 	function beforeFilter() {
 		$this->log('in alerts_controller beforeFilter', LOG_DEBUG);
 		parent::beforeFilter();
-		
-		
-		
-
-		
+	
 		//$this->log(debug_backtrace(), LOG_DEBUG);
 	  
 		//$this->log($this,LOG_DEBUG);
-	
-	  
-	  
-	  
 		//$this->set('urlrequest',$this->referer());
 		//$this->Auth->allowedActions = array('index', 'view');
 
@@ -28,14 +21,9 @@ class AlertsController extends AppController {
 		 */
 
 		//App::import('Model', 'Schedule');
-
-
-
 		/*$userprops = $this->Auth->user();
-
 		$task_names = $this->Task->find('list', array(   'fields'=> 'name',    'order'=>'Task.name ASC',  'conditions'=> array('1' => '1'),'group'=>'name'));
 		$this->set('task_names', $task_names);
-
 		if ($userprops['User']['group_id'] == 1)
 		{
 		//put the group condition here
@@ -46,7 +34,6 @@ class AlertsController extends AppController {
 		{
 		$this->set('emails',array('1'=>$userprops['User']['email']));
 		}
-
 		$frequencies = $this->Alert->find('list', array(   'fields'=> 'frequency',    'group'=>'frequency'));
 		$this->set('frequencies',$frequencies);*/
 
@@ -55,13 +42,10 @@ class AlertsController extends AppController {
 
 
 	function index() {
+		
 		$this->Alert->recursive = 2;
 		$userprops = $this->Auth->user();
 		$conditions = null;
-	
-		
-		
-		
 		/*
 		 * 2 issues:
 		 * 
@@ -71,22 +55,19 @@ class AlertsController extends AppController {
 		 * 2) If I keep the logic in app_controller.php, then I need to pass the form data with the redirect.
 		 * 
 		 */
-		
-		
-			
 		/*
 		 * If not in the administrators group, filter the data based off of user.
 		 */
 		
 		if($userprops['User']['group_id'] != 1)
-		{
+		{ 
 			$tmpuserid = $this->User->find('first', array('fields'=> 'id','conditions'=>array('User.username'=>$userprops['User']['username'])));
 			$conditions = array('Alert.user_id'  => $tmpuserid['User']['id']);
 		}
 		
-		
 		if ($this->Session->read('FilterValues') != null)
 		{
+			
 				$filtervalues = $this->Session->read('FilterValues');
 				//debug($filtervalues,true);
 				if (!empty($filtervalues))
@@ -125,16 +106,17 @@ class AlertsController extends AppController {
 		$tmp = array("All"=>"All");
 		foreach(array_keys($task_names2) as $key)
 		{
+			
 			$tmp[$key] = $task_names2[$key];
 		}
+		
 		$task_names2 = $tmp;
 		
 		$this->set('frequencies',array('All'=>'All','HOURLY'=>'HOURLY','DAILY'=>'DAILY','WEEKLY'=>'WEEKLY','MONTHLY'=>'MONTHLY','YEARLY'=>'YEARLY','ALLTIME'=>'ALLTIME'));
 
 		$this->set('task_names2', $task_names2);
-
+		//exit();
 		$this->set('alerts', $this->paginate());
-
 
 	}
 
@@ -159,9 +141,7 @@ class AlertsController extends AppController {
 
 
 	function add() {
-		//debug($this,true);
 		if (!empty($this->data)) {
-			
 			//restructure the data
 			$multiselect = $this->data['Alert']['entity_id'];
 			//$i=0;
@@ -179,7 +159,7 @@ class AlertsController extends AppController {
 			
 
 			if ($this->Alert->saveAll($this->data['Alert'])) {
-				$this->Session->setFlash(__('The alert has been saved', true));
+				$this->Session->setFlash(__('The alert has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The alert could not be saved. Please, try again.', true));
@@ -201,7 +181,8 @@ class AlertsController extends AppController {
 		$entity_descs = $this->Entity->find('list', array('fields'=> 'full_name',    'order'=>'Entity.full_name ASC'));
 		$this->set('entity_descs', $entity_descs);
 
-		//$entities = $this->Entity->find('list', array(''))
+		/*$entities = $this->Entity->find('list', array(''));
+		$this->set(compact('entities'));*/
 		$userprops = $this->Auth->user();
 		if ($userprops['User']['group_id'] == 1){
 			//put the group condition here
@@ -211,14 +192,14 @@ class AlertsController extends AppController {
 			$this->set('usernames',array('1'=>$userprops['User']['username']));
 		}
 
-		//$frequencies = $this->Alert->find('list', array(   'fields'=> 'frequency',    'group'=>'frequency'));
+		//$frequencies = $this->Alert->find('list', array(   'fields'=> 'obsolete_frequency',    'group'=>'obsolete_frequency'));
 		//$this->set('frequencies',array('HOURLY'=>'HOURLY','DAILY'=>'DAILY','WEEKLY'=>'WEEKLY','MONTHLY'=>'MONTHLY','YEARLY'=>'YEARLY','ALLTIME'=>'ALLTIME'));
 		//$this->set('limit_adjustment',.2);
 		$this->set('fact_data_key',0);
 		$this->set('alert_count',0);
 		$this->set('type','LIMIT');
 		
-		//$this->set('user',$userprops['User']['id']);
+//		$this->set('user',$userprops['User']['id']);
 	}
 
 	function edit($id = null) {
@@ -251,7 +232,7 @@ class AlertsController extends AppController {
 			}
 			
 			if ($this->Alert->saveAll($this->data['Alert'])) {
-				$this->Session->setFlash(__('The alert has been saved', true));
+				$this->Session->setFlash(__('The alert has been saved', true),'default',array('class'=>'green_message'));
 				$this->Session->delete('Record');
 				//$this->redirect(array('action' => 'index'));
 			} else {
@@ -303,11 +284,26 @@ class AlertsController extends AppController {
 			$this->redirect(array('action'=>'index'));
 		}
 		if ($this->Alert->delete($id)) {
-			$this->Session->setFlash(__('Alert deleted', true));
+			$this->Session->setFlash(__('Alert deleted', true),'default',array('class'=>'green_message'));
 			$this->redirect(array('action'=>'index'));
 		}
 		$this->Session->setFlash(__('Alert was not deleted', true));
 		$this->redirect(array('action' => 'index'));
+	}
+	
+	function getTicker(){
+		$this->autoRender = false;
+		$q='';
+		$q = $this->params['named']['q'];
+		$sql="SELECT entities.ticker,entities.id FROM entities,entity_groups,entities_entity_groups,entity_groups_tasks,schedules";
+		$sql.=" where entities.id=entities_entity_groups.entity_id and entity_groups.id=entities_entity_groups.entity_group_id and entity_groups.id=entity_groups_tasks.entity_group_id";
+		$sql.=" and entity_groups_tasks.task_id=schedules.task_id and schedules.id=".$q;
+		$data = $this->Alert->query($sql);
+		$ticker = array();
+		for($i = 0; $i <sizeof($data); $i++){
+			$ticker[] = $data[$i]['entities'];	
+		}
+		print(json_encode($ticker));
 	}
 }
 ?>
