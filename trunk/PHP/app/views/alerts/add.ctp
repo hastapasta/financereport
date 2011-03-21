@@ -1,7 +1,7 @@
 <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/fonts/fonts-min.css" /> 
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/treeview/assets/skins/sam/treeview.css" /> 
-<script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/treeview/assets/skins/sam/treeview.css" />
 
+<script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/yahoo-dom-event/yahoo-dom-event.js"></script>
 <script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/treeview/treeview-min.js"></script>
 
 <!-- Dependencies -->
@@ -10,61 +10,50 @@
 <!-- Source file -->
 <script src="http://yui.yahooapis.com/2.8.2r1/build/json/json-min.js"></script>
 
-
 <div class="alerts form">
 <script type="text/javascript">
-function get_type(thing){     if(thing===null)return "[object Null]"; 
-// special case   
- return Object.prototype.toString.call(thing); }
+	function get_type(thing){     
+		if(thing===null)return "[object Null]"; 
+	// special case   
+ 		return Object.prototype.toString.call(thing); 
+ 	}
 
-function dumpProps(obj, parent) {
-	   // Go through all the properties of the passed-in object 
-	   for (var i in obj) {
+	function dumpProps(obj, parent) {
+//		Go through all the properties of the passed-in object 
+		for (var i in obj) {
 	      // if a parent (2nd parameter) was passed in, then use that to 
 	      // build the message. Message includes i (the object's property name) 
 	      // then the object's property value on a new line 
-	      if (parent) { var msg = parent + "." + i + "\n" + obj[i]; } else { var msg = i + "\n" + obj[i]; }
+			if (parent) { var msg = parent + "." + i + "\n" + obj[i]; } else { var msg = i + "\n" + obj[i]; }
 	      // Display the message. If the user clicks "OK", then continue. If they 
 	      // click "CANCEL" then quit this level of recursion 
-	      if (!confirm(msg)) { return; }
+			if (!confirm(msg)) { return; }
 	      // If this property (i) is an object, then recursively process the object 
-	      if (typeof obj[i] == "object") { 
-	         if (parent) { dumpProps(obj[i], parent + "." + i); } else { dumpProps(obj[i], i); }
-	      }
-	   }
+			if (typeof obj[i] == "object") { 
+				if (parent) { dumpProps(obj[i], parent + "." + i); } else { dumpProps(obj[i], i); }
+			}
+		}
 	}
-
-
 
 	function submitFunc()
 	{
-	
 		var myselect = document.getElementById("AlertEntityId");
 			//document.createElement("select");
 		//myselect.setAttribute("name","data[Alert][entity_id]");
 		//var theOption=document.createElement("OPTION");
-		
-
 		//theText=document.createTextNode("OptionText");
 		//theOption.appendChild(theText);
 
 		var hiLit = tree.getNodesByProperty('highlightState',1);
-
 		/*
 		* Have to do an id lookup now. Tried saving the id in the treenode along with the ticker, but the id field wasn't coming through.
 		*/
-	
 		for (k=0;k<hiLit.length;k++)
 		//for(k=0;k<1;k++)
 		{
-
 			var theOption=document.createElement("OPTION");
-			
-
 			theText=document.createTextNode("OptionText");
 			theOption.appendChild(theText);
-
-			
 			for (i=0;i<jsondata.length;i++)
 			{
 				if (jsondata[i].ticker==hiLit[k].label)
@@ -75,20 +64,12 @@ function dumpProps(obj, parent) {
 					break;
 				}
 			}
-
 			myselect.appendChild(theOption);
 		}
 
-		
-
 		//theOption.setAttribute("value",hiLit[0].id);
-
 		//myselect.appendChild(theOption);
 		document.testForm.appendChild(myselect);
-		
-
-		
-		
 		/*var divIdName = 'my'+num+'Div';
 		newdiv.setAttribute('id',divIdName);
 		newdiv.innerHTML = 'Element Number '+num+' has been added! <a href=\'#\' onclick=\'removeElement('+divIdName+')\'>Remove the div "'+divIdName+'"</a>';
@@ -96,11 +77,9 @@ function dumpProps(obj, parent) {
 		//alert(document.testForm.elements.length);
 		for(i=0; i<document.testForm.elements.length; i++)
 		{
-			
 		//document.write("The field name is: " + document.FormName.elements[i].name + " and it’s value is: " + document.FormName.elements[i].value + ".<br />");
 			if (document.testForm.elements[i].name=="data[Alert][entity_id][]")
 			{
-				
 				selRef= document.testForm.elements[i];
 				//dumpProps(selRef);
 				//alert(get_type(selRef));
@@ -112,83 +91,43 @@ function dumpProps(obj, parent) {
 			else
 				document.getElementById("testdiv").innerHTML += "The field name is: " + document.testForm.elements[i].name + " and it’s value is: " + document.testForm.elements[i].value + ".<br />";
 		}
-
-	
-		
-
-
 		return true;
-
 	}
-	function showUser(str)
-	{
-	
-	
-		if (str=="")
-		{
-		
+	function showUser(str){
+		document.getElementById("treeDiv1").style.height = "200px" ;
+		var height = document.getElementById("treeDiv1").style.height;		
+		if (str==""){
 			document.getElementById("txtHint").innerHTML="";
 			return;
 		} 
-	
-		
-		if (window.XMLHttpRequest)
-		{// code for IE7+, Firefox, Chrome, Opera, Safari
-			
+		if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
 			xmlhttp=new XMLHttpRequest();
-		}
-		else
-		{// code for IE6, IE5  
-	
+		}else{// code for IE6, IE5  
 			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
 		}
 	
-		xmlhttp.onreadystatechange=function()
-		{
-			
-			
-			if (xmlhttp.readyState==4 && xmlhttp.status==200)
-			{
+		xmlhttp.onreadystatechange=function(){
+			if (xmlhttp.readyState==4 && xmlhttp.status==200){				
 				//alert(xmlhttp.responseText);
-
 				jsondata = YAHOO.lang.JSON.parse(xmlhttp.responseText);
-
 				//alert(data[0].ticker);
 				/*var tmpSelect = document.getElementById("AlertTicker");
-				
 				var options=tmpSelect.getElementsByTagName("option");
-			
 				var i;
-				for (i=options.length-1; i>=0; i--)
-				{
-					
+				for (i=options.length-1; i>=0; i--){
 					tmpSelect.remove(i);
 				}
-			
-				
-				for (i=0; i<10;i++)
-				{
-					
+				for (i=0; i<10;i++){
 					var y=document.createElement('option');
 					y.text=i + "";
-									
 				 	tmpSelect.add(y,null);
-
-				 	
-				 	
 				}*/
-
 				//alert("here 1");
-
 				tree = new YAHOO.widget.TreeView("treeDiv1");
-
 				tmpNode = new YAHOO.widget.TextNode("Forex", tree.getRoot(), false);
-
-				for (i=0;i<jsondata.length;i++)
-				{
+				for (i=0;i<jsondata.length;i++){
 					nodeObj=new Object();
 					nodeObj.label=jsondata[i].ticker;
-				
 					nodeObj.id=jsondata[i].id;
 					//new YAHOO.widget.TextNode(data[i].ticker, tmpNode, false);
 					new YAHOO.widget.TextNode(nodeObj, tmpNode, false);
@@ -211,16 +150,15 @@ function dumpProps(obj, parent) {
 				
 			}
 		}
-	
-	
 		var currentTime = new Date();
-		alert("http://localhost/PHP/ajaxsample/cakeajax.php?q="+str);
-		xmlhttp.open("POST","http://localhost/PHP/ajaxsample/cakeajax.php?q="+str+"&timestamp="+currentTime,true);
+		var AppPath = "<?php echo $this->base;?>/alerts/getTicker/q:" + str;
+		xmlhttp.open("POST",AppPath,true);
 		xmlhttp.send();
+		//alert("http://localhost/PHP/ajaxsample/cakeajax.php?q="+str);
+		//xmlhttp.open("POST","http://localhost/PHP/ajaxsample/cakeajax.php?q="+str+"&timestamp="+currentTime,true);
+		
 	}
-
 	var tree;
-
     function buildLargeBranch(node) {
     	new YAHOO.widget.TextNode(node.label + "-A", node, false);
     	new YAHOO.widget.TextNode(node.label + "-B", node, false);
@@ -245,7 +183,6 @@ function dumpProps(obj, parent) {
 		//Function  creates the tree and 
 		//builds between 3 and 7 children of the root node:
 	    function buildRandomTextNodeTree() {
-		
 			//instantiate the tree:
 	        tree = new YAHOO.widget.TreeView("treeDiv1");
 
@@ -299,20 +236,15 @@ function dumpProps(obj, parent) {
 	            }
 	        }*/
 	    }
-
-	    
-
 		//Add an onDOMReady handler to build the tree when the document is ready
 	    YAHOO.util.Event.onDOMReady(treeInit);
 
 	})();
 	</script>
+	<?php echo $this->element('actions'); ?>
 <?php //echo $this->Form->create('Alert');
-
-
-
-	echo $this->Form->create('Alert', array (/*'default'=>false,'action'=>'multiAdd',*/'name'=>'testForm','onsubmit'=>'submitFunc();'))?>
-
+	echo $this->Form->create('Alert', array (/*'default'=>false,'action'=>'multiAdd',*/'name'=>'testForm','onsubmit'=>'submitFunc();'))
+?>
 	<fieldset>
  		<legend><?php __('Add Alert'); ?></legend>
 	<?php
@@ -332,27 +264,26 @@ function dumpProps(obj, parent) {
 		//array('onChange'=>'showFields(this)')
 		
 		//echo $this->Form->input('schedule_id',array('label'=>'Schedule Name','options' => $this->getVar('task_names')));
-		echo $this->Form->input('schedule_id',array('label'=>'Schedule Name','onChange'=>'showUser(this.value)','options' => $this->getVar('task_names2')));
+		
 		
 		//echo $this->Form->input('ticker',array('label'=>'Financial Enitity','options' => $this->getVar('entity_descs')));
 		
-		echo "<div style=\"position:relative; left:0px; top:0px; width:400px; height:200px; background-color:#ffffff; overflow:auto;\"";
-		echo "id=\"treeDiv1\" class=\"ygtv-checkbox\"></div>";
 		//echo $this->Form->input('schedule_id');
 
-		echo "<div style=\"display:none\" id=\"hiddenselect\" >";
-		//echo "<select id=\"hiddenTicker\" name=\"data[Alert][entity_id]\" multiple=\"multiple\" >";
-		//echo "</select>";
+		echo '<div style="display:none" id="hiddenselect" >';
+		echo '<select id="hiddenTicker" name="data[Alert][entity_id]" multiple="multiple" >';
+		echo "</select>";
 		echo $this->Form->input('Alert.entity_id',array('type'=>'select','multiple'=> true));
 		echo "</div>";
-		//$group_id = $session->read('Auth.User.group_id');
-		
+		//$group_id = $session->read('Auth.User.group_id');		
 		 
 		
-		echo $this->Form->input('Alert.time_event_id',array('label'=>'Observation Period','options' => $this->getVar('timeeventnames')));
+		echo $this->Form->input('schedule_id',array('label'=>'Schedule Name','onChange'=>'showUser(this.value)','options' => $this->getVar('task_names2')));
 		//debug($this->Form,true);
+		echo "<div style=\"position:relative; left:0px; top:0px; width:400px; height:0px; background-color:#ffffff; overflow:auto;\"";
+		echo "id=\"treeDiv1\" class=\"ygtv-checkbox\"></div>";
 		echo $this->Form->input('Alert.user_id',array('label'=>'User Name','options' => $this->getVar('usernames')));
-		//echo $this->Form->input('Alert.frequency',array('label'=>'Frequency','options' => $this->getVar('frequencies')));
+		echo $this->Form->input('Alert.frequency',array('label'=>'Frequency','options' => $this->getVar('frequencies')));
 		echo $this->Form->input('limit_value');
 		//echo $this->Form->input('limit_adjustment');
 		echo $this->Form->input('limit_adjustment',array('value'=>0,'type'=>'hidden'));
@@ -368,4 +299,4 @@ function dumpProps(obj, parent) {
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
-<?php echo $this->element('actions'); ?>
+
