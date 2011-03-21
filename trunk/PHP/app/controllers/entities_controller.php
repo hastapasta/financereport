@@ -20,7 +20,7 @@ class EntitiesController extends AppController {
 		if (!empty($this->data)) {
 			$this->Entity->create();
 			if ($this->Entity->save($this->data)) {
-				$this->Session->setFlash(__('The entity has been saved', true));
+				$this->Session->setFlash(__('The entity has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The entity could not be saved. Please, try again.', true));
@@ -29,21 +29,24 @@ class EntitiesController extends AppController {
 	}
 
 	function edit($id = null) {
-		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid entity', true));
-			$this->redirect(array('action' => 'index'));
-		}
+		$this->Entity->recursive = 0;
+		$record = $this->Session->read('Record');
 		if (!empty($this->data)) {
-			if ($this->Entity->save($this->data)) {
-				$this->Session->setFlash(__('The entity has been saved', true));
+			if ($this->Entity->saveAll($this->data['Entity'])) {
+				$this->Session->setFlash(__('The Entities has been saved', true),'default',array('class'=>'green_message'));
+				$this->Session->delete('Record');
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The entity could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The Entities could not be saved. Please, try again.', true));
 			}
 		}
-		if (empty($this->data)) {
-			$this->data = $this->Entity->read(null, $id);
+		if (!empty($record)) {
+			$this->data = $this->toMulti($this->Entity->find('all',array('conditions'=>array('Entity.id'=>$record))));
 		}
+		if (empty($this->data)) {
+			$this->Session->setFlash(__('Invalid Entities', true));
+			$this->redirect(array('action' => 'index'));
+		}	
 	}
 
 	function delete($id = null) {
@@ -52,7 +55,7 @@ class EntitiesController extends AppController {
 			$this->redirect(array('action'=>'index'));
 		}
 		if ($this->Entity->delete($id)) {
-			$this->Session->setFlash(__('Entity deleted', true));
+			$this->Session->setFlash(__('Entity deleted', true),'default',array('class'=>'green_message'));
 			$this->redirect(array('action'=>'index'));
 		}
 		$this->Session->setFlash(__('Entity was not deleted', true));
