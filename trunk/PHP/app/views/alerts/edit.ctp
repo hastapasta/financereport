@@ -1,4 +1,6 @@
-<div class="alerts form"><?php echo $this->Form->create('Alert');	
+<div class="alerts form">
+<?php echo $this->element('actions'); ?>
+<?php echo $this->Form->create('Alert');	
 
 $this->log('in edit view',LOG_DEBUG);
 
@@ -35,4 +37,3 @@ echo $this->Form->input('Alert.'.$i.'.disabled');
 
 ?></fieldset>
 <?php }?> <?php echo $this->Form->end(__('Submit', true));?></div>
-<?php echo $this->element('actions'); ?>
