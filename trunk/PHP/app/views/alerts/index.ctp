@@ -1,15 +1,10 @@
 <div class="alerts index">
-<h2><?php __('Alerts');?></h2>
-<script type="text/javascript">
-
-	
-
-	</script> <?php
-	//debug($this,true);
-	//debug(print_r($_SERVER),true);
+<h2><?php __('Actions');?></h2>
+<?php echo $this->element('actions',array('title'=>'Alerts')); ?> 
+<?php
 	echo $form->create('Alert',array('controller'=>'alerts','action'=>'action_process','class'=>'recordForm'));
 	echo $form->hidden('Alert.action_value',array('id'=>'actionValue'));
-	?>
+?>
 <table cellpadding="0" cellspacing="0">
 	<tr>
 		
@@ -78,44 +73,58 @@ echo $this->Paginator->counter(array(
 ?></p>
 
 <?php echo $this->element('paginate'); ?>
+</div>
 
-<?php 
+<table class="searchTable">
+	<?php 
 	echo $this->Form->create('Alert',array('controller'=>'alerts','name' => 'SearchForm','action'=>'action_process','class'=>'filterForm'));
 	echo $this->Form->hidden('action_value',array('id'=>'actionValue','value'=>'3'));
-	
 	$tickerdefault = "";
 	$scheduledefault="";
 	$frequencydefault="";
 	$checkboxdefault=false;
 	
-	if ($this->Session->read('FilterValues') != null)
-	{
+	if ($this->Session->read('FilterValues') != null){
 			$filtervalues = $this->Session->read('FilterValues');
 			//debug($filtervalues);
-			if (!empty($filtervalues['Alert']))
-			{
-
+			if (!empty($filtervalues['Alert'])){
 				$tickerdefault = $filtervalues['Entity']['ticker'];
 				$scheduledefault = $filtervalues['Alert']['schedule_id'];
 				$frequencydefault = $filtervalues['Alert']['frequency'];
-				if ($filtervalues['Alert']['filtersenabled']=='1')
-				{
+				if ($filtervalues['Alert']['filtersenabled']=='1'){
 					$checkboxdefault=true;
 				}
 			}
-		
 	}
-	echo $this->Form->input('schedule_id',array('label'=>'Schedule Name','options' => $this->getVar('task_names2'),'selected'=>$scheduledefault));
-	echo $this->Form->input('Entity.ticker',array('label'=>'Ticker','type'=>'text','value'=>$tickerdefault));
-	echo $this->Form->input('frequency',array('label'=>'Frequency','options' => $this->getVar('frequencies'),'selected'=>$frequencydefault));
-	echo ' Filters enabled:';
-	echo $this->Form->checkbox('filtersenabled', array('value' => '0','checked'=>$checkboxdefault));
+?>
+	<tr>
+		<td><?php echo $this->Form->input('schedule_id',array('label'=>'Schedule Name','options' => $this->getVar('task_names2'),'selected'=>$scheduledefault)); ?></td>
+	</tr>
+	<tr>
+		<td><?php echo $this->Form->input('Entity.ticker',array('label'=>'Ticker','type'=>'text','value'=>$tickerdefault)); ?></td>
+	</tr>
+	<tr>
+		<td><?php echo $this->Form->input('frequency',array('label'=>'Frequency','options' => $this->getVar('frequencies'),'selected'=>$frequencydefault)); ?></td>
+	</tr>
+	<tr>
+		<td><?php echo ' Filters enabled:';?></td>
+	</tr>
+	<tr>
+		<td><?php echo $this->Form->checkbox('filtersenabled', array('value' => '0','checked'=>$checkboxdefault)); ?></td>
+	</tr>
+	<tr>
+		<td><?php echo $this->Form->end(__('Set Filters', true)); ?></td>
+	</tr>
+</table>
+<?php 	
+	
+	
 	//echo $this->Form->checkbox('filtersenabled', array('value' => 'test'));
 	/*if ($this->Session->read('FilterEnabled') == null || $this->Session->read('FilterEnabled') == false)
 		echo $this->Form->checkbox('filtersenabled', array('value' => '1','checked'=>false));
 	else
 		echo $this->Form->checkbox('filtersenabled', array('value' => '0','checked'=>true));*/
-	echo $this->Form->end(__('Set Filters', true));
+	
 	
 
 	
@@ -124,10 +133,4 @@ echo $this->Paginator->counter(array(
 	//echo $this->Form->end();
 	?> 
 
-
-</div>
-
-
-
-<?php echo $this->element('actions'); ?>
 
