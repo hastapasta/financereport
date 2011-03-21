@@ -7,16 +7,11 @@ class AppController extends Controller {
         //Configure AuthComponent
         
 
-       
+       $this->Auth->authError = 'Please Login For Access';
         $this->Auth->authorize = 'actions';
 		$this->Auth->actionPath = 'controllers/';
-		
-		
-
-		
         $this->Auth->loginAction = array('controller' => 'users', 'action' => 'login');
         $this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login');
-
         $this->Auth->loginRedirect = array('controller' => 'alerts', 'action' => 'index');
         //$this->Auth->loginRedirect = array('controller' => 'alerts', 'action' => 'add');
         //$this->Auth->loginRedirect = array('controller' => 'schedules', 'action' => 'index');
@@ -115,7 +110,7 @@ class AppController extends Controller {
 			debug($log);
 		}
 	}*/
-
+	
 	function _getClassMethods($ctrlName = null) {
 		App::import('Controller', $ctrlName);
 		if (strlen(strstr($ctrlName, '.')) > 0) {
@@ -229,9 +224,6 @@ class AppController extends Controller {
 	*/
 	
 	function action_process(){
-	
-
-
 		$this->autoRender = false;
 		/*
 		 * code of 1 for delete
@@ -244,13 +236,13 @@ class AppController extends Controller {
 		 * code of 2 for edit
 		 */
 		if(2 == $this->data[$this->modelClass]['action_value']){
-			unset($this->data[$this->modelClass]['action_value']);
+			unset($this->data[$this->modelClass]['action_value']);			
 			$ids = array();
 			//debug($record,true);
 			 foreach($this->data[$this->modelClass] as $record) {
 				if($record != 0)
 					$ids[] = $record;
-			}			
+			}
 			$this->Session->write('Record',$ids);
 			$this->redirect(array('action'=>'edit'));
 		}
@@ -272,7 +264,7 @@ class AppController extends Controller {
 			if($record != 0)
 				$this->{$this->modelClass}->delete($record);
 		}
-		$this->Session->setFlash('The records were successfully deleted');
+		$this->Session->setFlash('The records were successfully deleted','default',array('class'=>'green_message'));
 		$this->redirect($this->referer());
     }
 	function toMulti($data){
