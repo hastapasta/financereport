@@ -20,7 +20,7 @@ class TasksController extends AppController {
 		if (!empty($this->data)) {
 			$this->Task->create();
 			if ($this->Task->save($this->data)) {
-				$this->Session->setFlash(__('The task has been saved', true));
+				$this->Session->setFlash(__('The task has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The task could not be saved. Please, try again.', true));
@@ -35,7 +35,7 @@ class TasksController extends AppController {
 		}
 		if (!empty($this->data)) {
 			if ($this->Task->save($this->data)) {
-				$this->Session->setFlash(__('The task has been saved', true));
+				$this->Session->setFlash(__('The task has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The task could not be saved. Please, try again.', true));
@@ -52,7 +52,7 @@ class TasksController extends AppController {
 			$this->redirect(array('action'=>'index'));
 		}
 		if ($this->Task->delete($id)) {
-			$this->Session->setFlash(__('Task deleted', true));
+			$this->Session->setFlash(__('Task deleted', true),'default',array('class'=>'green_message'));
 			$this->redirect(array('action'=>'index'));
 		}
 		$this->Session->setFlash(__('Task was not deleted', true));

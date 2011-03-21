@@ -28,7 +28,7 @@ class SchedulesController extends AppController {
 			//debug($this->data); exit();
 			$this->Schedule->create();
 			if ($this->Schedule->save($this->data)) {
-				$this->Session->setFlash(__('The schedule has been saved', true));
+				$this->Session->setFlash(__('The schedule has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The schedule could not be saved. Please, try again.', true));
@@ -44,7 +44,7 @@ class SchedulesController extends AppController {
 		$record = $this->Session->read('Record');
 		if (!empty($this->data)) {
 			if ($this->Schedule->saveAll($this->data['Schedule'])) {
-				$this->Session->setFlash(__('The schedule has been saved', true));
+				$this->Session->setFlash(__('The schedule has been saved', true),'default',array('class'=>'green_message'));
 				$this->Session->delete('Record');
 				$this->redirect(array('action' => 'index'));
 			} else {
@@ -72,7 +72,7 @@ class SchedulesController extends AppController {
 			$this->redirect(array('action'=>'index'));
 		}
 		if ($this->Schedule->delete($id)) {
-			$this->Session->setFlash(__('Schedule deleted', true));
+			$this->Session->setFlash(__('Schedule deleted', true),'default',array('class'=>'green_message'));
 			$this->redirect(array('action'=>'index'));
 		}
 		$this->Session->setFlash(__('Schedule was not deleted', true));
