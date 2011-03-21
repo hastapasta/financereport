@@ -1,4 +1,6 @@
-<div class="users form"><?php echo $this->Form->create('User');	 
+<div class="users form">
+<?php echo $this->element('actions'); ?>
+<?php echo $this->Form->create('User');	 
 if ($this->getVar('administrator') == true)
 {
 	for($i = 0; $i < sizeof($this->data['User']); $i++)
@@ -39,4 +41,3 @@ echo $this->Form->input('User.'.$i.'.email',array('disabled' => true));
  ?> 
 
 <?php echo $this->Form->end(__('Submit', true));?></div>
-<?php echo $this->element('actions'); ?>

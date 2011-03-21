@@ -1,5 +1,6 @@
 <div class="users index">
-<h2><?php __('Users');?></h2>
+<h2><?php __('Actions');?></h2>
+<?php echo $this->element('actions',array('title'=>'Users')); ?>
 <?php echo $form->create('User',array('controller'=>'users','action'=>'action_process','class'=>'recordForm')) ?>
 <?php echo $form->hidden('User.action_value',array('id'=>'actionValue')); ?>
 <table cellpadding="0" cellspacing="0">
@@ -9,8 +10,6 @@
 		<th><?php echo $this->Paginator->sort('password');?></th>
 		<th><?php echo $this->Paginator->sort('email');?></th>
 		<th><?php echo $this->Paginator->sort('group_id');?></th>
-		<th><?php echo $this->Paginator->sort('created');?></th>
-		<th><?php echo $this->Paginator->sort('modified');?></th>
 		<th class="actions"><?php __('Actions');?></th>
 		<th class="actions"><?php __('Edit/Delete');?></th>
 
@@ -31,8 +30,7 @@
 		<td><?php echo $user['User']['email']; ?>&nbsp;</td>
 		<td><?php echo $this->Html->link($user['Group']['name'], array('controller' => 'groups', 'action' => 'view', $user['Group']['id'])); ?>
 		</td>
-		<td><?php echo $user['User']['created']; ?>&nbsp;</td>
-		<td><?php echo $user['User']['modified']; ?>&nbsp;</td>
+		
 		<td class="actions"><?php echo $this->Html->link(__('View', true), array('action' => 'view', $user['User']['id'])); ?>
 		</td>
 		<td style="text-align: center"><?php
@@ -56,4 +54,3 @@ echo $this->Paginator->counter(array(
 ?></p>
 
 <?php echo $this->element('paginate'); ?></div>
-<?php echo $this->element('actions'); ?>
