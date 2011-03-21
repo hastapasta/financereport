@@ -1,5 +1,6 @@
 <div class="groups view">
-<h2><?php  __('Group');?></h2>
+<h2><?php  __('Actions');?></h2>
+<?php echo $this->element('actions',array('title'=>'Group')); ?>
 <dl>
 <?php $i = 0; $class = ' class="altrow"';?>
 	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Id'); ?></dt>
@@ -16,5 +17,3 @@
 	&nbsp;</dd>
 </dl>
 </div>
-
-<?php echo $this->element('actions'); ?>
