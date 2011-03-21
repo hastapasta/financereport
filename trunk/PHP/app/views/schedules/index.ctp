@@ -1,5 +1,6 @@
 <div class="schedules index">
-<h2><?php __('Schedules');?></h2>
+<h2><?php __('Actions');?></h2>
+<?php echo $this->element('actions',array('title'=>'Schedules')); ?>
 <?php echo $form->create('Schedule',array('controller'=>'schedules','action'=>'action_process','class'=>'recordForm')) ?>
 <?php echo $form->hidden('Schedule.action_value',array('id'=>'actionValue')); ?>
 <table cellpadding="0" cellspacing="0">
@@ -59,4 +60,3 @@ echo $this->Paginator->counter(array(
 ?></p>
 
 <?php echo $this->element('paginate'); ?></div>
-<?php echo $this->element('actions'); ?>

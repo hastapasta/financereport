@@ -1,5 +1,6 @@
 <div class="schedules view">
-<h2><?php  __('Schedule');?></h2>
+<h2><?php  __('Actions');?></h2>
+<?php echo $this->element('actions',array('title'=>'Schedule')); ?>
 <dl>
 <?php $i = 0; $class = ' class="altrow"';?>
 	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Obsolete Data Set'); ?></dt>
@@ -15,7 +16,7 @@
 	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $schedule['RepeatType']['type']; ?>
 	&nbsp;</dd>
 	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Last Run'); ?></dt>
-	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $schedule['Schedule']['last_run']; ?>
+	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $schedule['Schedule']['obsolete_last_run']; ?>
 	&nbsp;</dd>
 	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Id'); ?></dt>
 	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $schedule['Schedule']['id']; ?>
@@ -37,4 +38,3 @@
 	&nbsp;</dd>
 </dl>
 </div>
-<?php echo $this->element('actions'); ?>

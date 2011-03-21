@@ -1,4 +1,6 @@
-<div class="schedules form"><?php echo $this->Form->create('Schedule');
+<div class="schedules form">
+<?php echo $this->element('actions'); ?>
+<?php echo $this->Form->create('Schedule');
 for($i = 0; $i < sizeof($this->data['Schedule']); $i++){
 	?>
 <fieldset><legend><?php __('Edit Schedule'); ?></legend> <?php
@@ -17,4 +19,3 @@ echo $this->Form->input('Schedule.'.$i.'.priority');
 //echo $this->Form->input('referencegroup');
 ?></fieldset>
 <?php } ?> <?php echo $this->Form->end(__('Submit', true));?></div>
-<?php echo $this->element('actions'); ?>
