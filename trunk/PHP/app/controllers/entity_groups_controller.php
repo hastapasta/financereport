@@ -20,7 +20,7 @@ class EntityGroupsController extends AppController {
 		if (!empty($this->data)) {
 			$this->EntityGroup->create();
 			if ($this->EntityGroup->save($this->data)) {
-				$this->Session->setFlash(__('The entity group has been saved', true));
+				$this->Session->setFlash(__('The entity group has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The entity group could not be saved. Please, try again.', true));
@@ -39,7 +39,7 @@ class EntityGroupsController extends AppController {
 		}
 		if (!empty($this->data)) {
 			if ($this->EntityGroup->save($this->data)) {
-				$this->Session->setFlash(__('The entity group has been saved', true));
+				$this->Session->setFlash(__('The entity group has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The entity group could not be saved. Please, try again.', true));
@@ -60,7 +60,7 @@ class EntityGroupsController extends AppController {
 			$this->redirect(array('action'=>'index'));
 		}
 		if ($this->EntityGroup->delete($id)) {
-			$this->Session->setFlash(__('Entity group deleted', true));
+			$this->Session->setFlash(__('Entity group deleted', true),'default',array('class'=>'green_message'));
 			$this->redirect(array('action'=>'index'));
 		}
 		$this->Session->setFlash(__('Entity group was not deleted', true));
