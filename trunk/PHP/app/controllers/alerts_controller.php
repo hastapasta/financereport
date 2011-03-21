@@ -2,7 +2,7 @@
 class AlertsController extends AppController {
 
 	var $name = 'Alerts';
-	var $uses = array('Alert','Schedule','Task', 'User','EntityGroup','Entity');
+	var $uses = array('Alert','Schedule','Task', 'User','EntityGroup','Entity','TimeEvent');
 	var $paginate = array('limit'=>10);
 
 	function beforeFilter() {
