@@ -1,5 +1,6 @@
 <div class="entities view">
-<h2><?php  __('Entity');?></h2>
+<h2><?php  __('Action');?></h2>
+<?php echo $this->element('actions',array('title'=>'Entity'))?>
 <dl>
 <?php $i = 0; $class = ' class="altrow"';?>
 	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Id'); ?></dt>
@@ -35,30 +36,6 @@
 </dl>
 </div>
 <div class="actions">
-<h3><?php __('Actions'); ?></h3>
-<ul>
-	<li><?php echo $this->Html->link(__('Edit Entity', true), array('action' => 'edit', $entity['Entity']['id'])); ?>
-	</li>
-	<li><?php echo $this->Html->link(__('Delete Entity', true), array('action' => 'delete', $entity['Entity']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $entity['Entity']['id'])); ?>
-	</li>
-	<li><?php echo $this->Html->link(__('List Entities', true), array('action' => 'index')); ?>
-	</li>
-	<li><?php echo $this->Html->link(__('New Entity', true), array('action' => 'add')); ?>
-	</li>
-	<li><?php echo $this->Html->link(__('List Alerts', true), array('controller' => 'alerts', 'action' => 'index')); ?>
-	</li>
-	<li><?php echo $this->Html->link(__('New Alert', true), array('controller' => 'alerts', 'action' => 'add')); ?>
-	</li>
-	<li><?php echo $this->Html->link(__('List Entity Groups', true), array('controller' => 'entity_groups', 'action' => 'index')); ?>
-	</li>
-	<li><?php echo $this->Html->link(__('New Entity Group', true), array('controller' => 'entity_groups', 'action' => 'add')); ?>
-	</li>
-	<li><?php echo $this->Html->link(__('List Fact Data', true), array('controller' => 'fact_data', 'action' => 'index')); ?>
-	</li>
-	<li><?php echo $this->Html->link(__('New Fact Datum', true), array('controller' => 'fact_data', 'action' => 'add')); ?>
-	</li>
-</ul>
-</div>
 <div class="related">
 <h3><?php __('Related Alerts');?></h3>
 <?php if (!empty($entity['Alert'])):?>
@@ -68,7 +45,7 @@
 		<th><?php __('Type'); ?></th>
 		<th><?php __('Schedule Id'); ?></th>
 		<th><?php __('Obsolete Email'); ?></th>
-		<th><?php __('Frequency'); ?></th>
+		<th><?php __('Frequency','obsolete_frequency'); ?></th>
 		<th><?php __('Limit Value'); ?></th>
 		<th><?php __('Limit Adjustment'); ?></th>
 		<th><?php __('Fact Data Key'); ?></th>
@@ -94,12 +71,12 @@
 		<td><?php echo $alert['type'];?></td>
 		<td><?php echo $alert['schedule_id'];?></td>
 		<td><?php echo $alert['obsolete_email'];?></td>
-		<td><?php echo $alert['frequency'];?></td>
+		<td><?php echo $alert['obsolete_frequency'];?></td>
 		<td><?php echo $alert['limit_value'];?></td>
-		<td><?php echo $alert['limit_adjustment'];?></td>
-		<td><?php echo $alert['fact_data_key'];?></td>
+		<td><?php echo $alert['obsolete_limit_adjustment'];?></td>
+		<td><?php echo $alert['initial_fact_data_id'];?></td>
 		<td><?php echo $alert['obsolete_ticker'];?></td>
-		<td><?php echo $alert['alert_count'];?></td>
+		<td><?php echo $alert['notification_count'];?></td>
 		<td><?php echo $alert['disabled'];?></td>
 		<td><?php echo $alert['obsolete_user'];?></td>
 		<td><?php echo $alert['user_id'];?></td>
@@ -127,8 +104,7 @@
 <table cellpadding="0" cellspacing="0">
 	<tr>
 		<th><?php __('Id'); ?></th>
-		<th><?php __('Name'); ?></th>
-		<th><?php __('Entity Id'); ?></th>
+		<th><?php __('Name'); ?></th>		
 		<th class="actions"><?php __('Actions');?></th>
 	</tr>
 	<?php
@@ -142,7 +118,6 @@
 	<tr <?php echo $class;?>>
 		<td><?php echo $entityGroup['id'];?></td>
 		<td><?php echo $entityGroup['name'];?></td>
-		<td><?php echo $entityGroup['entity_id'];?></td>
 		<td class="actions"><?php echo $this->Html->link(__('View', true), array('controller' => 'entity_groups', 'action' => 'view', $entityGroup['id'])); ?>
 		<?php echo $this->Html->link(__('Edit', true), array('controller' => 'entity_groups', 'action' => 'edit', $entityGroup['id'])); ?>
 		<?php echo $this->Html->link(__('Delete', true), array('controller' => 'entity_groups', 'action' => 'delete', $entityGroup['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $entityGroup['id'])); ?>
