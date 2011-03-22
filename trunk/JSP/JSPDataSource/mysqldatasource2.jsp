@@ -151,7 +151,7 @@ query += " fd1.batch=(select min(batch) from fact_data where date_format(date_co
 query += " order by pctchange " + strOrder;
 
 
-out.println(query); if (1==1) return;
+//out.println(query); if (1==1) return;
 
 
 
