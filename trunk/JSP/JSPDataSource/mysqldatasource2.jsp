@@ -2,6 +2,9 @@
     pageEncoding="UTF-8"%>
 <%@ page import="pikefin.*" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.Calendar" %>
+<%@ page import="java.text.DateFormat" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="org.json.*" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
@@ -12,7 +15,6 @@
 <% 
 
 /*
-!!!This Data Source needs to be updated.
 
 This datasource pulls from the fact_data table  the earliest and latest values for all the entities from 
 a certain task for a certain data range. 
@@ -21,9 +23,53 @@ This is the datasource to use to figure out the maximum gainers/losers for a tas
 
 
 */
+
+DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+String strTimeFrame = request.getParameter("timeframe");
 String strBeginDate = request.getParameter("begindate"); 
 String strEndDate = request.getParameter("enddate");
 String strTaskId = request.getParameter("taskid"); 
+String strOrder = request.getParameter("order");
+
+
+Calendar calBegin = Calendar.getInstance();
+Calendar calEnd = Calendar.getInstance();
+
+String strGranularity;
+
+if (strTimeFrame.toUpperCase().equals("HOUR"))
+{
+	calBegin.add(Calendar.DAY_OF_YEAR,-1);
+}
+else if (strTimeFrame.toUpperCase().equals("DAY"))
+{
+	calBegin.add(Calendar.DAY_OF_YEAR,-1);
+}
+else if (strTimeFrame.toUpperCase().equals("WEEK"))
+{
+	calBegin.add(Calendar.WEEK_OF_YEAR,-1);
+}
+else if (strTimeFrame.toUpperCase().equals("MONTH"))
+{
+	calBegin.add(Calendar.MONTH,-1);
+}
+else if (strTimeFrame.toUpperCase().equals("YEAR"))
+{
+	calBegin.add(Calendar.YEAR,-1);
+}
+
+/*if (!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19"))
+{
+	out.println("begindate format needs to be yyyy-mm-dd");
+	return;
+}
+
+if (!strEndDate.startsWith("20") && !strEndDate.startsWith("19"))
+{
+	out.println("enddate format needs to be yyyy-mm-dd");
+	return;
+}*/
 
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
@@ -42,30 +88,30 @@ UtilityFunctions uf = new UtilityFunctions();
 
 ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 //String[] columns = tmpArrayList.get(0);
-String[] blap1 = {"task name","task name","string"};
+//String[] blap1 = {"task name","task name","string"};
 String[] blap2 = {"ticker","ticker","string"};
-String[] blap3 = {"time event name","time event name","string"};
-String[] blap4 = {"username","username","string"};
+//String[] blap3 = {"time event name","time event name","string"};
+//String[] blap4 = {"username","username","string"};
 String[] blap5 = {"initial value","initial value","number"};
 String[] blap6 = {"current value","current value","number"};
 String[] blap7 = {"% change","% change","number"};
 String[] blap8 = {"date initial","date initial","datetime"};
 String[] blap9 = {"date current","date current","datetime"};
-String[] blap10 = {"te period last","te period last","datetime"};
-String[] blap11 = {"te period next","te period next","datetime"};
+//String[] blap10 = {"te period last","te period last","datetime"};
+//String[] blap11 = {"te period next","te period next","datetime"};
 
 
-arrayListCols.add(blap1);
+//arrayListCols.add(blap1);
 arrayListCols.add(blap2);
-arrayListCols.add(blap3);
-arrayListCols.add(blap4);
+//arrayListCols.add(blap3);
+//arrayListCols.add(blap4);
 arrayListCols.add(blap5);
 arrayListCols.add(blap6);
 arrayListCols.add(blap7);
 arrayListCols.add(blap8);
 arrayListCols.add(blap9);
-arrayListCols.add(blap10);
-arrayListCols.add(blap11);
+//arrayListCols.add(blap10);
+//arrayListCols.add(blap11);
 
 DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
 
@@ -87,16 +133,25 @@ query += " AND users.id LIKE '" + strUserId +"' ";
 query += " AND tasks.id LIKE '" + strTaskId +"' ";
 query += " order by pctchange";*/
 
-String query = "select entities.ticker,fd1.value,fd1.date_collected,fd2.value,fd2.date_collected";
+String query = "select entities.ticker,";
+query += "fd1.value,";
+query += "date_format(fd1.date_collected,'%m-%d-%Y %H:%i') as date_begin,";
+query += "fd2.value,";
+query += "date_format(fd2.date_collected,'%m-%d-%Y %H:%i') as date_end, ";
+query += "tasks.name, ";
+query += "(if (fd1.value=0,fd1.value,round(((fd2.value - fd1.value)/fd1.value),3))) * 100 as pctchange ";
 query += " from fact_data as fd1";
-query += " JOIN fact_data as fd2 on fd1.entity_id=fd2.entity_id AND fd1.task_id=fd2.task_id";
+//query += " JOIN (select entity_id,task_id,value,date_collected from fact_data where batch=(select max(batch) from fact_data where date_format(date_collected,'%Y-%m-%d')<'" + strEndDate + "' and task_id=" + strTaskId + ")) as fd2 on fd1.entity_id=fd2.entity_id AND fd1.task_id=fd2.task_id";
+query += " JOIN (select entity_id,task_id,value,date_collected from fact_data where batch=(select max(batch) from fact_data where date_format(date_collected,'%Y-%m-%d %T')<'" + formatter.format(calEnd.getTime()) + "' and task_id=" + strTaskId + ")) as fd2 on fd1.entity_id=fd2.entity_id AND fd1.task_id=fd2.task_id";
 query += " JOIN entities on entities.id=fd1.entity_id ";
+query += " JOIN tasks on tasks.id=fd1.task_id ";
 query += " where ";
-query += " fd1.batch=(select min(batch) from fact_data where date_collected>'" + strBeginDate + "' and task_id=" + strTaskId + ") AND ";
-query += " fd2.batch=(select max(batch) from fact_data where date_collected<'" + strEndDate + "' and task_id=" + strTaskId + ")";
+//query += " fd1.batch=(select min(batch) from fact_data where date_format(date_collected,'%Y-%m-%d')>'" + strBeginDate + "' and task_id=" + strTaskId + ") ";
+query += " fd1.batch=(select min(batch) from fact_data where date_format(date_collected,'%Y-%m-%d %T')>'" + formatter.format(calBegin.getTime()) + "' and task_id=" + strTaskId + ") ";
+query += " order by pctchange " + strOrder;
 
 
-//out.println(query); if (1==1) return;
+out.println(query); if (1==1) return;
 
 
 
@@ -108,18 +163,18 @@ try
 {
 	rs = dbf.db_run_query(query);
 	while (rs.next()) {
-		String [] tmp = new String[22];
-		tmp[0] = tmp[1] = rs.getString("tasks.name");
-		tmp[2] = tmp[3] = rs.getString("entities.ticker");
-		tmp[4] = tmp[5] = rs.getString("time_events.name");
-		tmp[6] = tmp[7] = rs.getString("users.username");
-		tmp[8] = tmp[9] = rs.getString("fd1.value");
-		tmp[10] = tmp[11] = rs.getString("fd2.value");
-		tmp[12] = tmp[13] = rs.getString("pctchange");
-		tmp[14] = tmp[15] = rs.getString("fd1.date_collected");
-		tmp[16] = tmp[17] = rs.getString("fd2.date_collected");
-		tmp[18] = tmp[19] = rs.getString("time_events.last_datetime");
-		tmp[20] = tmp[21] = rs.getString("time_events.next_datetime");
+		String [] tmp = new String[14];
+		//tmp[0] = tmp[1] = rs.getString("tasks.name");
+		tmp[0] = tmp[1] = rs.getString("entities.ticker");
+		//tmp[4] = tmp[5] = rs.getString("time_events.name");
+		//tmp[6] = tmp[7] = rs.getString("users.username");
+		tmp[2] = tmp[3] = rs.getString("fd1.value");
+		tmp[4] = tmp[5] = rs.getString("fd2.value");
+		tmp[6] = tmp[7] = rs.getString("pctchange");
+		tmp[8] = tmp[9] = rs.getString("date_begin");
+		tmp[10] = tmp[11] = rs.getString("date_end");
+		//tmp[18] = tmp[19] = rs.getString("time_events.last_datetime");
+		//tmp[20] = tmp[21] = rs.getString("time_events.next_datetime");
 		
 		
 		arrayListRows.add(tmp);
@@ -133,63 +188,6 @@ catch (SQLException sqle)
 
 
 
-
-
-
-/*out.println("google.visualization.Query.setResponse({version:'0.6',reqId:'0',status:'ok',sig:'5982206968295329967',");
-out.println(",table:{cols:[{id:'Col1',label:'2011-01-26',type:'number'},{id:'Col2',label:'2011-01-19',type:'number'}],");
-
-out.println("google.visualization.Query.setResponse({");
-out.println("version:'0.6',");
-out.println("reqId:'0',");*/
-
-
-
-
-
-
-/*for (int i=0;i<tmpArrayList.size();i++)
-{
-	String[] tmp2 = tmpArrayList.get(i);
-	for (int j=0;j<tmp2.length;j++)
-	{
-		out.println(tmp2[j]);
-		out.println("<BR>");
-	}
-	
-	
-	
-}*/
-
-
-
-
-
-
-/*String[] blap1 = {"ticker","ticker","string"};
-String[] blap2 = {"calyear","calyear","number"};
-String[] blap3 = {"value","eps","number"};*/
-
-
-//arrayListCols.add(blap3);
-
-/*
-
-for (int i=1;i<tmpArrayList.size();i++)
-{
-	String[] blap7 = new String[4];
-	
-	blap7[0] = tmpArrayList.get(i)[0];
-	blap7[1] = "empty";
-	if (tmpArrayList.get(i)[3].equals("0.0"))
-			blap7[2] = blap7[3] = "0";
-	else
-		blap7[2] = blap7[3] = tmpArrayList.get(i)[3];
-
-	
-	arrayListRows.add(blap7);
-	
-}*/
 
 
 
