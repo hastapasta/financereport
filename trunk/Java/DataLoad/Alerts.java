@@ -217,7 +217,8 @@ public class Alerts {
 							   * The following query is really slow. One idea to speed it up is since for a give time_event.id, and a given task.id, all entities
 							   * should have the same batch #. So we should only have to run this query once for all alerts that share the same schedule.id (thus task.id) and time_events.id.
 							   * Or the other thing is we could just set the initial_fact_data_id to the recently collected id rather than
-							   * going out and trying to find the earliest one for the observation period.
+							   * going out and trying to find the earliest one for the observation period, which might be ok for hour and day Obs. Periods but not
+							   * so much for month or year.
 							   * 
 							   * 
 							   */
