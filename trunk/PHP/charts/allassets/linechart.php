@@ -20,8 +20,10 @@ $row = mysql_fetch_array($result);
 
 
 ?>
+<!DOCTYPE html>
 <html>
 <head>
+	<?php IncFunc::icon();?>
     <title>Complete visualization example</title>
     <link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
     <?php IncFunc::yuiDropDownJavaScript(); ?>
@@ -111,10 +113,10 @@ $row = mysql_fetch_array($result);
 ?>
 
   
-	<div style="font-size:20" id="chart-title"></div>
-	<BR/>
-	<div style="font-size:15" id="chart-description"></div>
-    <div id="chart-div"></div>
+	<div style="font-size:30;margin: 10px 0 0 0;" id="chart-title"></div>
+	<BR>
+	<div style="font-size:20" id="chart-description"></div>
+    <div id="chart-div" style="margin: 10px 0 20px 0;"></div>
 
  
     
