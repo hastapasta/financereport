@@ -64,13 +64,14 @@ String strCurrentTicker;
 DBFunctions dbf;
 
 
-  public DataGrab(UtilityFunctions tmpUF, DBFunctions dbfparam, String strTask/*Primary key of task but as a string.*/)
+  public DataGrab(UtilityFunctions tmpUF, DBFunctions dbfparam, String strTask/*Primary key of task but as a string.*/,int nBatchParam)
   {
   	this.uf = tmpUF;
   	this.dbf = dbfparam;
   	this.pf = new ProcessingFunctions(tmpUF,this);
   	
-  	nCurTask = Integer.parseInt(strTask);
+  	this.nCurTask = Integer.parseInt(strTask);
+	this.nTaskBatch = nBatchParam;
   	try
   	{
   	
@@ -174,7 +175,7 @@ DBFunctions dbf;
 	 		
 	 		UtilityFunctions.stdoutwriter.writeln("INITIATING THREAD",Logs.STATUS1,"DG1");
 	 		
-	 		try
+	 		/*try
 	 		{
 	 			nTaskBatch = dbf.getBatchNumber();
 	 			
@@ -186,7 +187,7 @@ DBFunctions dbf;
 	 			dbf.closeConnection();
 	 			NDC.pop();
 	 			return;
-	 		}
+	 		}*/
 	 		
 	 		for (int i=0;i<jobsArray.size();i++)
 	 		{
