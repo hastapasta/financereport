@@ -1,4 +1,5 @@
 <?php
+include ("/var/www/html/PHP/site/includes/sitecommon.php");
 /**
  *
  * PHP versions 4 and 5
@@ -75,24 +76,25 @@ echo $scripts_for_layout;
 <body>
 <div id="container">
 <div id="header">
-	<div id="innerHeader">
-		<div id="logo">
-			<?php echo $html->image('logo.jpg',array('url'=>array('controller'=>'alerts','action'=>'index'))); ?>
-		</div>
-		<div id="jq-primaryNavigation">
+	<div id="jq-siteContain">
+	<?php IncFunc::header1("alerts"); ?>
+	<!--	<div id="logo">
+			<?php //echo $html->image('logo.jpg',array('url'=>array('controller'=>'alerts','action'=>'index'))); ?>
+		</div> -->
+	<!-- <div id="jq-primaryNavigation">
 			<ul>
-<!--				<li class="jq-home jq-current"><a title="Pikefin Home" href="/phptest/site/main/index.php">Home</a></li>-->
-				<li class="jq-alerts ">
+			<li class="jq-home jq-current"><a title="Pikefin Home" href="/phptest/site/main/index.php">Home</a></li>
+				<li class="jq-alerts "> -->
 					<?php
-						if ($this->Session->check('Auth.User')):
-							echo $this->Html->link('Log Out',array('controller' => 'users','action' => 'logout'));
+						/*if ($this->Session->check('Auth.User')):
+							echo $this->Html->link('Log Out1',array('controller' => 'users','action' => 'logout'));
 						else:
-							echo $this->Html->link('Log In',array('controller' => 'users','action' => 'login'));
-						endif;
+							echo $this->Html->link('Log In1',array('controller' => 'users','action' => 'login'));
+						endif;*/
 					?>
-				</li>
+		<!--  		</li>
 			</ul>
-		</div>		
+		</div>		-->
 	</div>
 </div>
 <div id="content"><?php
