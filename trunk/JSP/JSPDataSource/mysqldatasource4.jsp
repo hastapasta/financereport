@@ -12,7 +12,8 @@
 <%
 
 /*
-* This data_source pulls from the fact_data based off of entities and a date range
+* This data_source pulls from the fact_data based off of entities and a date range and returns pctchange.
+* This data_source is similar to datasource1 but datasource1 returns actual value and this one pctchange.
 */
 
 String strEntityId = request.getParameter("entityid");
@@ -21,6 +22,18 @@ if (strEntityId!=null)
 	entityIds = strEntityId.split(",");
 String strEndDate = request.getParameter("enddate");
 String strBeginDate = request.getParameter("begindate"); 
+
+if (!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19"))
+{
+	out.println("begindate format needs to be yyyy-mm-dd");
+	return;
+}
+
+if (!strEndDate.startsWith("20") && !strEndDate.startsWith("19"))
+{
+	out.println("enddate format needs to be yyyy-mm-dd");
+	return;
+}
 
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
