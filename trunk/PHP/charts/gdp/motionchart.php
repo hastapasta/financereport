@@ -8,6 +8,7 @@ include ("../../site/includes/sitecommon.php");
 ?>
 <html>
 <head>
+	<?php IncFunc::icon();?>
     <title>Complete visualization example</title>
     <link rel="stylesheet" href="/PHP/site/includes/style.css" type="text/css" />
   <?php IncFunc::yuiDropDownJavaScript(); ?>

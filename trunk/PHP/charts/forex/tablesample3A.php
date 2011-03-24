@@ -12,6 +12,7 @@ db_utility::db_connect();
 <!DOCTYPE html>
 <html>
 <head>
+<?php IncFunc::icon();?>
  <link rel="stylesheet" href="../../site/style.css" type="text/css" /> 
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript" src="../querywrapper.js"></script>
