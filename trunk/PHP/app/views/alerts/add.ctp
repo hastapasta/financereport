@@ -293,7 +293,7 @@
 		//echo $this->Form->input('alert_count');
 		echo $this->Form->input('disabled');
 		
-		echo "<div id=\"testdiv\">This is some text</div>";
+	
 		//echo $this->Form->input('user_id');
 	?>
 	</fieldset>
