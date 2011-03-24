@@ -23,9 +23,9 @@ function yuiCallBack() {
     {
        id: "equities", 
        itemdata: [ 
-           { text: "Equities Most Gainers/Losers", url: rootpath + "/charts/equities/tablesample3A.php" },
-           { text: "Equities Individual Charts", url: rootpath + "/charts/comingsoon.php" },
-           { text: "Global Indexes", url: rootpath + "/charts/comingsoon.php" }
+           { text: "US Equities Top Gainers/Losers", url: rootpath + "/charts/allassets/directtable.php?taskid=10&title=" + escape("US%20Equities%20Top%20Gainers/Losers") },
+           { text: "Equities Individual Charts", url: rootpath + "/charts/other/comingsoon.php" },
+           { text: "Global Indexes Top Gainers/Losers", url: rootpath + "/charts/allassets/directtable.php?taskid=6&title=" + escape("Global%20Indexes%20Top%20Gainers/Losers") }
            
        ]
     },
@@ -33,8 +33,8 @@ function yuiCallBack() {
     {
        id: "commodities", 
        itemdata: [
-           { text: "Commodities Most Gainers/Losers", url: rootpath + "/charts/comingsoon.php" },
-           { text: "Commodities Individual Charts", url: rootpath + "/charts/comingsoon.php" }
+           { text: "Commodity Futures Top Gainers/Losers", url: rootpath + "/charts/allassets/directtable.php?taskid=12&title=" + escape("Commodity%20Futures%20Top%20Gainers/Losers") },
+           { text: "Commodity Futures Individual Charts", url: rootpath + "/charts/other/comingsoon.php" }
                  
        ]    
     },
@@ -42,16 +42,16 @@ function yuiCallBack() {
     {
        id: "forex", 
        itemdata: [
-           { text: "Forex Most Gainers/Losers", url: rootpath + "/charts/comingsoon.php" },
-           { text: "Forex Individual Charts", url: rootpath + "/charts/comingsoon.php" }
+           { text: "Forex Top Gainers/Losers", url: rootpath + "/charts/allassets/directtable.php?taskid=1&title=" + escape("Forex%20Top%20Gainers/Losers") },
+           { text: "Forex Individual Charts", url: rootpath + "/charts/other/comingsoon.php" }
        ] 
     },
 
     {
        id: "miscellaneous",
        itemdata: [
-           { text: "Federal Reserve Balance Sheet", url: rootpath + "/charts/comingsoon.php" },
-           { text: "Federal Reserve Change WOW", url: rootpath + "/charts/comingsoon.php" },
+           { text: "Federal Reserve Balance Sheet", url: rootpath + "/charts/fed/balsheet.php" },
+           { text: "Federal Reserve Change WOW", url: rootpath + "/charts/other/comingsoon.php" },
            { text: "GDP Growth Estimates", url: rootpath + "/charts/gdp/motionchart.php" },
            { text: "All Assets - Inidivdual Line Charts", url: rootpath + "/charts/allassets/linechart.php?a=660" }
          
