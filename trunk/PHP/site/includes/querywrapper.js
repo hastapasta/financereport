@@ -63,11 +63,12 @@ QueryWrapper.prototype.handleResponse = function(response) {
 	//alert('here 4');
   this.currentDataTable = null;
   
-	this.options = {};
-    this.options['title'] = 'Test Chart Title';
-    this.options['height'] = 400;
-    this.options['width'] = 1000;
-    this.options['showfilters'] = true;
+	//this.options = {};
+    //this.options['title'] = 'Test Chart Title';
+    //this.options['height'] = 400;
+    //this.options['width'] = 1000;
+    //this.options['showfilters'] = true;
+    //alert(this.options['width']);
    	
   if (response.isError()) {
     this.handleErrorResponse(response);
