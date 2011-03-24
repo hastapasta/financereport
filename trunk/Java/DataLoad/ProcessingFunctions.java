@@ -1067,7 +1067,7 @@ public void postProcessBloombergCommodities()
 		
 		
 		
-		newTableData.add(newrow);
+		//newTableData.add(newrow);
 		
 		
 			
@@ -1081,6 +1081,26 @@ public void postProcessBloombergCommodities()
 	
 	
 
+}
+
+public void postProcessOneTimeYahooIndex()
+{
+	String[] rowdata;
+	for (int row=1;row<propTableData.size();row++)
+	{
+		rowdata = propTableData.get(row);
+		String strInsert = "insert into entities_yahoo (ticker,full_name) values ('" + rowdata[0] + "','" + rowdata[1] + "')";
+		try
+		{
+			dbf.db_update_query(strInsert);
+		}
+		catch (SQLException sqle)
+		{
+			UtilityFunctions.stdoutwriter.writeln("Problem inserting row" + strInsert,Logs.ERROR,"PF88.1");
+		}
+	}
+	
+	
 }
 
 
