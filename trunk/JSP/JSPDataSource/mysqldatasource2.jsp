@@ -3,6 +3,7 @@
 <%@ page import="pikefin.*" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Calendar" %>
+<%@ page import="java.util.Date" %>
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="org.json.*" %>
@@ -27,14 +28,19 @@ This is the datasource to use to figure out the maximum gainers/losers for a tas
 DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 String strTimeFrame = request.getParameter("timeframe");
-String strBeginDate = request.getParameter("begindate"); 
-String strEndDate = request.getParameter("enddate");
+//String strBeginDate = request.getParameter("begindate"); 
+//String strEndDate = request.getParameter("enddate");
 String strTaskId = request.getParameter("taskid"); 
 String strOrder = request.getParameter("order");
 
-
-Calendar calBegin = Calendar.getInstance();
 Calendar calEnd = Calendar.getInstance();
+Calendar calBegin = Calendar.getInstance();
+
+
+
+
+
+
 
 String strGranularity;
 
@@ -91,7 +97,7 @@ ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 //String[] blap1 = {"task name","task name","string"};
 String[] blap2 = {"ticker","ticker","string"};
 //String[] blap3 = {"time event name","time event name","string"};
-//String[] blap4 = {"username","username","string"};
+//String[] blap4 = {"full_name","full_name","string"};
 String[] blap5 = {"initial value","initial value","number"};
 String[] blap6 = {"current value","current value","number"};
 String[] blap7 = {"% change","% change","number"};
@@ -133,13 +139,13 @@ query += " AND users.id LIKE '" + strUserId +"' ";
 query += " AND tasks.id LIKE '" + strTaskId +"' ";
 query += " order by pctchange";*/
 
-String query = "select entities.ticker,";
+String query = "select entities.ticker,entities.full_name,";
 query += "fd1.value,";
 query += "date_format(fd1.date_collected,'%m-%d-%Y %H:%i') as date_begin,";
 query += "fd2.value,";
 query += "date_format(fd2.date_collected,'%m-%d-%Y %H:%i') as date_end, ";
 query += "tasks.name, ";
-query += "(if (fd1.value=0,fd1.value,round(((fd2.value - fd1.value)/fd1.value),3))) * 100 as pctchange ";
+query += "(if (fd1.value=0,fd1.value,round(((fd2.value - fd1.value)/fd1.value * 100),2))) as pctchange ";
 query += " from fact_data as fd1";
 //query += " JOIN (select entity_id,task_id,value,date_collected from fact_data where batch=(select max(batch) from fact_data where date_format(date_collected,'%Y-%m-%d')<'" + strEndDate + "' and task_id=" + strTaskId + ")) as fd2 on fd1.entity_id=fd2.entity_id AND fd1.task_id=fd2.task_id";
 query += " JOIN (select entity_id,task_id,value,date_collected from fact_data where batch=(select max(batch) from fact_data where date_format(date_collected,'%Y-%m-%d %T')<'" + formatter.format(calEnd.getTime()) + "' and task_id=" + strTaskId + ")) as fd2 on fd1.entity_id=fd2.entity_id AND fd1.task_id=fd2.task_id";
