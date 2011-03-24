@@ -55,6 +55,8 @@ class DataLoad extends Thread //implements Stopable
   public static DBFunctions dbf;
   GarbCollector gc;
   
+  int nMaxBatch;
+  
   public static int nMailMessageCount;
   Calendar calMailBegin,calMailEnd;
 
@@ -282,7 +284,15 @@ class DataLoad extends Thread //implements Stopable
 				  //strTask = listWaitingJobs.get(0);
 				  strTask = listWaitingJobs.get(i);
 				  DBFunctions tmpdbf = new DBFunctions((String)props.get("dbhost"),(String)props.get("dbport"),(String)props.get("database"),(String)props.get("dbuser"),(String)props.get("dbpass"));
-				  dg = new DataGrab(DataLoad.uf,tmpdbf,strTask);
+				  
+				  /*
+				   * OFP 3/16/2011 - Fixing a bug where different task_ids were using the same batch # (big no-no). Before, each individual thread would call
+				   * dbf.getBatchNumber(). Now the batch number is maintained in the parent thread to avoid duplication.
+				   * 
+				   */
+				  dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,this.nMaxBatch);
+				  
+				  this.nMaxBatch++;
 				  /*
 				   * OFP 3/12/2011 - move the writeKeepAlive function call here because we were running into instances were the DataLoad thread was running
 				   * fine but the DataGrab threads were locked up and no new DataGrab threads were being initiated.
@@ -377,7 +387,9 @@ class DataLoad extends Thread //implements Stopable
 		  
 		  //strDate = formatter.format(dg.getStartTime().getTime());
 		  
-		  String query = "insert into log_tasks (task_id,job_process_start,job_process_end,alert_process_start,alert_process_end) values (" + dg.nCurTask + ",'"
+		  String query = "insert into log_tasks (task_id,batch,job_process_start,job_process_end,alert_process_start,alert_process_end) values ("
+	      + dg.nCurTask + ","
+	      + dg.nTaskBatch + ",'"
 		  + formatter.format(dg.getJobProcessingStartTime().getTime()) + "','" 
 		  + formatter.format(dg.getJobProcessingEndTime().getTime()) + "','"
 		  + formatter.format(dg.getAlertProcessingStartTime().getTime()) + "','"
@@ -662,6 +674,10 @@ class DataLoad extends Thread //implements Stopable
 	try
 	{
 		dbf = new DBFunctions((String)props.get("dbhost"),(String)props.get("dbport"),(String)props.get("database"),(String)props.get("dbuser"),(String)props.get("dbpass"));
+		
+		nMaxBatch = dbf.getBatchNumber();
+		
+		
 	}
 	catch (SQLException sqle)
 	{
