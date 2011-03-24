@@ -6,6 +6,10 @@ db_utility::db_connect();
 
 $taskid = $_GET['taskid'];
 
+$title="";
+if (isset($_GET['title']))
+	$title=urldecode($_GET['title']).":";
+
 
 
 
@@ -14,6 +18,7 @@ $taskid = $_GET['taskid'];
 <!DOCTYPE html>
 <html>
 <head>
+<?php IncFunc::icon();?>
 <link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
 <?php IncFunc::yuiDropDownJavaScript(); ?>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -41,7 +46,7 @@ $taskid = $_GET['taskid'];
 
     function sendAndDraw() {
 
-      var chart = document.getElementById('orgchart1');
+      var chart = document.getElementById('table1');
       chart.innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
 
       /*var chart2 = document.getElementById('orgchart2');
@@ -89,7 +94,7 @@ $taskid = $_GET['taskid'];
 
      // alert(dataSourceUrl + queryString2);
       
-      var container1 = document.getElementById('orgchart1');
+      var container1 = document.getElementById('table1');
       //var container2 = document.getElementById('orgchart2');
      
       
@@ -145,8 +150,9 @@ Time Frame: <BR>
 <br />
 </div><!-- pf-form -->
 
-<div id="fontblack"><br />
-<div id="orgchart1" style="color: #000;float: left;"> </div>
+<div id="tmp1" style="float: left;margin-bottom: 20px">
+<?php echo "<div id=\"chartTitle\" style=\"font-size: small\">".$title."</div>";?>
+<div id="table1" style="color: #000;"> </div>
 
 
 
