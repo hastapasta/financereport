@@ -496,7 +496,7 @@ public String get_value(String local_data_set) throws IllegalStateException,TagN
 
 }
 
-public ArrayList<String[]> get_table_with_headers(String strTableSet) throws SQLException,TagNotFoundException
+public ArrayList<String[]> get_table_with_headers(String strTableSet) throws SQLException,TagNotFoundException,PrematureEndOfDataException
 {
 	String query = "select extract_key_colhead,extract_key_rowhead,multiple_tables from jobs where data_set='"+strTableSet+"'";
 	ResultSet rs = dbf.db_run_query(query);
@@ -663,6 +663,10 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 			if (!strURL.contains(":"))
 				UtilityFunctions.stdoutwriter.writeln("WARNING: url is not preceeded with a protocol" + strURL,Logs.STATUS1,"DG25.5");
 			
+			//HttpGet chokes on the ^ character
+			
+			strURL = strURL.replace("^","%5E");
+			
 			HttpGet httpget = new HttpGet(strURL); 
 			/*
 			 * The following line fixes an issue where a non-fatal error is displayed about an invalid cookie data format.
@@ -727,7 +731,7 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 
 }
 
-public ArrayList<String[]> get_table(String strTableSet, String strSection) throws SQLException,TagNotFoundException
+public ArrayList<String[]> get_table(String strTableSet, String strSection) throws SQLException,TagNotFoundException,PrematureEndOfDataException
 {
 	//retrieve the table data_set
 	ArrayList<String[]> tabledata = new ArrayList<String[]>();
@@ -757,7 +761,10 @@ public ArrayList<String[]> get_table(String strTableSet, String strSection) thro
 		
 		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
-		int nDataRows = rs.getInt("rowsofdata");
+		/*
+		 * if nFixedDataRows is null or zero, then we are grabbing an indeterminate number of rows.
+		 */
+		int nFixedDataRows = rs.getInt("rowsofdata");
 		int nRowInterval = rs.getInt("rowinterval");
 		String strEndDataMarker = rs.getString("end_data_marker");
 		boolean bColTHtags = true;
@@ -876,19 +883,30 @@ public ArrayList<String[]> get_table(String strTableSet, String strSection) thro
 			nRowCount++;
 			
 			/*
-			 * Identified 4 table exit types
-			 * 1) fixed size (fixed # of rows & columns) (handled below)
-			 * -dynamic
-			 * 2) end table tag (handled below)
-			 * 3) end cell value (come across a cell value that is invalid or otherwise marks
-			 * 4) 
-			 * that there is no more data) (handled above with strEndDataMarker)
+			 * First part of if clause is for data sets with predefined fixed number of rows.
 			 */
-			if (nDataRows > 0)
+			if (nFixedDataRows > 0)
 			{
-				if (nDataRows==nRowCount)
+				if (nFixedDataRows==nRowCount)
 					break;
+				
+				try
+				{
+					nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",nRowInterval,nCurOffset);
+				}
+				catch(TagNotFoundException tnfe)
+				{
+					throw new PrematureEndOfDataException();
+				}
+				
+				if (nEndTableOffset < nCurOffset)
+					throw new PrematureEndOfDataException();
+				
+				
 			}
+			/*
+			 * else part is for data sets of an indeterminate size.
+			 */
 			else 
 			{
 				try
@@ -901,6 +919,7 @@ public ArrayList<String[]> get_table(String strTableSet, String strSection) thro
 					break;
 				}
 				
+				//we're past the end table tag - done collecting table.
 				if (nEndTableOffset < nCurOffset)
 					break;
 			}
@@ -999,10 +1018,11 @@ public void grab_data_set(String strJobPrimaryKey)
 				
 		
 		//String query = "select companygroup from schedules where task_id=" + nCurTask;
-		String query = "select entity_groups.name,tasks.use_group_for_reading from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id=" + nCurTask;
+		String query = "select entity_groups.id,tasks.use_group_for_reading from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id=" + nCurTask;
 		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
-		String group = rs.getString("entity_groups.name");
+		int nGroupId = rs.getInt("entity_groups.id");
+		//String strGroup = rs.getString("entity_groups.name");
 		boolean bUseGroupForReading = rs.getBoolean("tasks.use_group_for_reading");
 		
 		boolean bTableExtraction = true;
@@ -1054,7 +1074,8 @@ public void grab_data_set(String strJobPrimaryKey)
 					/*
 					 * Insert directly into fact_data now.
 					 */
-					dbf.importTableIntoDB(tabledata2,"fact_data",this.nTaskBatch,this.nCurTask);
+					if (rs2.getInt("custom_insert") != 1)	
+						dbf.importTableIntoDB(tabledata2,"fact_data",this.nTaskBatch,this.nCurTask);
 					/*if (rs2.getInt("custom_insert") != 1)	
 					{
 						if (strCurDataSet.contains("xrateorg"))
@@ -1078,6 +1099,11 @@ public void grab_data_set(String strJobPrimaryKey)
 				{
 					UtilityFunctions.stdoutwriter.writeln("Problem with I/O, processing dataset aborted",Logs.ERROR,"DG38.3");
 					UtilityFunctions.stdoutwriter.writeln(ioe);
+				}
+				catch (PrematureEndOfDataException peode)
+				{
+					UtilityFunctions.stdoutwriter.writeln("A fixed number of rows were defined for the data set but the end of the table or the end of the document was reached first.",Logs.ERROR,"DG38.35");
+					UtilityFunctions.stdoutwriter.writeln(peode);
 				}
 				catch (Exception e)
 				{
@@ -1163,7 +1189,10 @@ public void grab_data_set(String strJobPrimaryKey)
 		else
 		{
 		
-			query = "select * from entities where groups like '%" + group + "%' order by ticker";
+			//query = "select * from entities where groups like '%" + group + "%' order by ticker";
+			query = "select entities.* from entities,entities_entity_groups ";
+			query += " where entities_entity_groups.entity_group_id=" + nGroupId;
+			query += " AND entities_entity_groups.entity_id=entities.id ";
 			
 		
 			rs = dbf.db_run_query(query);
@@ -1484,6 +1513,18 @@ class CustomGenericException extends Exception
 	 * 
 	 */
 	private static final long serialVersionUID = -1323548081845621968L;
+	
+}
+
+class PrematureEndOfDataException extends Exception
+{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7980404235453739422L;
+
+	
 	
 }
 	
