@@ -13,6 +13,7 @@ class db_utility
 	static private $functions_database="findata";
 	
 	static public $datasourceurl="http://www.pikefin.com/testjsp/JSPDataSource/";
+	//static public $datasourceurl="http://localhost:8080/JSPDataSource/";
 	
 	/*static public function db_connect($host,$port,$user,$pass,$dbase)
 	{
