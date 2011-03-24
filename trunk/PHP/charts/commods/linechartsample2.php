@@ -8,6 +8,7 @@
 ?>
 <html>
 <head>
+	<?php IncFunc::icon();?>
     <title>Complete visualization example</title>
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript">

@@ -1,6 +1,6 @@
 <?php
 require_once '../../common/functions.php';
-include ("../../site/sitecommon.php");
+include ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
@@ -12,6 +12,7 @@ db_utility::db_connect();
 <!DOCTYPE html>
 <html>
 <head>
+	<?php IncFunc::icon();?>
  <link rel="stylesheet" href="../../site/style.css" type="text/css" /> 
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript" src="../querywrapper.js"></script>
@@ -148,7 +149,10 @@ chartSecondaryNav();
        </form>
 
 <br />
-<div id="orgchart"></div>
+<div id="tmp1" style="float: left;margin-bottom: 20px">
+<div id="tmp1A" style="font-size: small">Commodity Futures Top Gainers/Losers:</div>
+<div id="table1" style="color: #000;"> </div>
+</div>
 </div> <!-- who's using -->
 </div> <!--  siteContain -->
 </body>
