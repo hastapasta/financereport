@@ -12,6 +12,7 @@ db_utility::db_connect();
 <!DOCTYPE html>
 <html>
 <head>
+<?php IncFunc::icon();?>
 <link rel="stylesheet" href="/PHP/site/includes/style.css" type="text/css" />
   <?php IncFunc::yuiDropDownJavaScript(); ?>
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -94,7 +95,7 @@ db_utility::db_connect();
 <div id="pf-form" style="text-align:left;font-size:1.5em">
 <form action="">
 
-  <br /><br />
+  <br/><br/>
   		Observation Period: <BR>
     <select id="timeeventid">
    
@@ -163,7 +164,7 @@ db_utility::db_connect();
        </form>
        </div> <!-- pf-form -->
 
-<br />
+<br/>
 <div id="orgchart" style="color: #000"></div>
 <!-- </div> --> <!-- who's using -->
 </div> <!--  siteContain -->
