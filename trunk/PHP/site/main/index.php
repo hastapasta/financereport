@@ -7,6 +7,7 @@ include ("../includes/sitecommon.php");
 <!DOCTYPE HTML>
 <HTML>
 <HEAD>
+<?php IncFunc::icon();?>
 
 <?php IncFunc::blogFeedJavaScript();?>
 
@@ -98,8 +99,8 @@ IncFunc::header1("home");
 <br/>
 <p>For questions or requests please contact <a href="mailto:pikefin1@gmail.com">pikefin1@gmail.com</a></p>
 </div> <!-- intro -->
-<div id="blogcontrol" style="float:right;border: 2px solid #fff; background: #000; width: 250px;font-size: 15px;margin: 25px 0 20px 10px">Loading...</div>
-<div id="twittercontrol" style="float:right;clear:right"> 
+
+<div id="twittercontrol" style="float:right;margin: 25px 0 0 10px"> 
 <script>
 new TWTR.Widget({
   version: 2,
@@ -131,6 +132,7 @@ new TWTR.Widget({
 }).render().setUser('pikefindotcom').start();
 </script> 
 </div>
+<div id="blogcontrol" style="float:right;clear:right;border: 2px solid #fff; background: #000; width: 250px;font-size: 15px;margin: 25px 0 20px 10px">Loading...</div>
 <div id="disclaimer" style="float:left; clear:both; margin: 20px 0 20px 0">
 Disclaimer:
 "The content on this site is provided as general information only and
