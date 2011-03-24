@@ -1,5 +1,4 @@
 <div class="groups index">
-<h2><?php __('Actions');?></h2>
 <?php echo $this->element('actions',array('title'=>'Groups')); ?>
 <?php echo $form->create('Group',array('controller'=>'groups','action'=>'action_process','class'=>'recordForm')) ?>
 <?php echo $form->hidden('Group.action_value',array('id'=>'actionValue')); ?>

@@ -1,5 +1,4 @@
 <div class="schedules view">
-<h2><?php  __('Actions');?></h2>
 <?php echo $this->element('actions',array('title'=>'Schedule')); ?>
 <dl>
 <?php $i = 0; $class = ' class="altrow"';?>

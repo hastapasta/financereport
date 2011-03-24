@@ -1,5 +1,4 @@
 <div class="schedules index">
-<h2><?php __('Actions');?></h2>
 <?php echo $this->element('actions',array('title'=>'Schedules')); ?>
 <?php echo $form->create('Schedule',array('controller'=>'schedules','action'=>'action_process','class'=>'recordForm')) ?>
 <?php echo $form->hidden('Schedule.action_value',array('id'=>'actionValue')); ?>

@@ -1,5 +1,4 @@
 <div class="groups view">
-<h2><?php  __('Actions');?></h2>
 <?php echo $this->element('actions',array('title'=>'Group')); ?>
 <dl>
 <?php $i = 0; $class = ' class="altrow"';?>

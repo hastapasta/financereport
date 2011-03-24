@@ -1,5 +1,4 @@
 <div class="entities index">
-<h2><?php __('Actions');?></h2>
 <?php 
 	echo $this->element('actions',array('title'=>'Entities')); 
 	echo $form->create('Entity',array('controller'=>'entities','action'=>'action_process','class'=>'recordForm')); 
@@ -13,7 +12,7 @@
 		<th><?php echo $this->Paginator->sort('begin_fiscal_calendar');?></th>
 		<th><?php echo $this->Paginator->sort('last_reported_quarter');?></th>
 		<th><?php echo $this->Paginator->sort('next_report_date');?></th>
-		<th><?php echo $this->Paginator->sort('groups');?></th>
+		<th><?php //echo $this->Paginator->sort('groups');?></th>
 		<th><?php echo $this->Paginator->sort('actual_fiscal_year_end');?></th>
 		<th><?php echo $this->Paginator->sort('full_name');?></th>
 		<th><?php echo $this->Paginator->sort('depricated');?></th>
@@ -36,7 +35,7 @@
 		<td><?php echo $entity['Entity']['begin_fiscal_calendar']; ?>&nbsp;</td>
 		<td><?php echo $entity['Entity']['last_reported_quarter']; ?>&nbsp;</td>
 		<td><?php echo $entity['Entity']['next_report_date']; ?>&nbsp;</td>
-		<td><?php echo $entity['Entity']['groups']; ?>&nbsp;</td>
+		<td><?php //echo $entity['Entity']['groups']; ?>&nbsp;</td>
 		<td><?php echo $entity['Entity']['actual_fiscal_year_end']; ?>&nbsp;</td>
 		<td><?php echo $entity['Entity']['full_name']; ?>&nbsp;</td>
 		<td><?php echo $entity['Entity']['depricated']; ?>&nbsp;</td>

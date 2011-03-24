@@ -1,5 +1,4 @@
 <div class="alerts view">
-<h2><?php  __('Alert');?></h2>
 <?php echo $this->element('actions'); ?>
 <dl>
 <?php $this->set('jsIncludes',array('google'));   // this will link to /js/google.js ?>

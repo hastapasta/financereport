@@ -1,5 +1,4 @@
 <div class="users index">
-<h2><?php __('Actions');?></h2>
 <?php echo $this->element('actions',array('title'=>'Users')); ?>
 <?php echo $form->create('User',array('controller'=>'users','action'=>'action_process','class'=>'recordForm')) ?>
 <?php echo $form->hidden('User.action_value',array('id'=>'actionValue')); ?>

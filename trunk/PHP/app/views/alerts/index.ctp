@@ -1,5 +1,4 @@
 <div class="alerts index">
-<h2><?php __('Actions');?></h2>
 <?php echo $this->element('actions',array('title'=>'Alerts')); ?> 
 <?php
 	echo $form->create('Alert',array('controller'=>'alerts','action'=>'action_process','class'=>'recordForm'));

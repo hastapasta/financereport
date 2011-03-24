@@ -1,5 +1,4 @@
 <div class="entities view">
-<h2><?php  __('Action');?></h2>
 <?php echo $this->element('actions',array('title'=>'Entity'))?>
 <dl>
 <?php $i = 0; $class = ' class="altrow"';?>

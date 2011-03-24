@@ -49,7 +49,6 @@
             }
     </script>
 <div class="users index">
-<h2><?php __('Actions');?></h2>
 <?php echo $this->element('actions',array('title'=>'Chart')); ?>
 <form action="">
  

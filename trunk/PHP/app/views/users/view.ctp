@@ -1,5 +1,4 @@
 <div class="users view">
-<h2><?php  __('Actions');?></h2>
 <?php echo $this->element('actions',array('title'=>'User')); ?>
 <dl>
 <?php $i = 0; $class = ' class="altrow"';?>
