@@ -123,6 +123,7 @@ ul,li {
 	padding: 10px 20px 40px 20px;
 	float: left;
 	width: 100%;
+	font: 13px/1.231 arial,helvetica,clean,sans-serif;
 	
 }
 
@@ -135,7 +136,7 @@ ul,li {
 /** containers **/
 div.form,div.index,div.view {
 	float: right;
-	width: 76%;
+	width: 82%;
 	border-left: 1px solid #666;
 	padding: 10px 2%;
 }
@@ -670,20 +671,20 @@ div.code-coverage-results span.result-good {
 }
 .searchTable{
 	float: left;
-	width:220px;
+	width:150px;
 	clear: none;
 }
 .searchTable select{
-	width: 220px;
+	width: 150px;
 }
 .searchTable input[type='text']{
-	width:220px;
+	width:150px;
 }
 .searchTable tr td{
 	border:none;
 }
 .filterForm{
-	width:200px;
+	width:130px;
 }
 #ScheduleStartDateMonth, 
 #EntityNextReportDateMonth,
@@ -711,6 +712,20 @@ div.code-coverage-results span.result-good {
 	margin:0px auto;
 	height:auto;
 }
+
+#jq-siteContain {
+	width: 850px;
+	margin: 0 auto;
+}
+
+#jq-header {
+	/*rockstar removed */
+	height: 156px;
+	padding: 0 40px;
+	position: relative;
+}
+
+
 #jq-primaryNavigation {
     background: url("../img/bg_primaryNav_left.gif") no-repeat scroll left bottom #192839;
     float: right;
@@ -748,6 +763,15 @@ div.code-coverage-results span.result-good {
     border-bottom: 2px solid #4082AE;
     color: #FFFFFF;
     margin-bottom: 0;
+    
+    
+}
+#jq-siteLogo {
+	/*display: block;*/
+	/*top: 59px; */
+	top: 48px;
+	position: absolute;
+	/*border: 0 !important;*/
 }
 #topAction li a{
 	display:block;
