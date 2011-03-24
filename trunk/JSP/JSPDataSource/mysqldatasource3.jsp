@@ -14,6 +14,9 @@
 /*
 This is the same as mysqldatasource2 but the fields have been made dynamic ( the fields in the select statement
 		have been stored in an array and Row and Column array lists are populated dynamically.
+		
+NOTE: No longer exactly the same as mysqldatasource2 which uses begindate,enddate input parameters and this uses 
+timeeventid.
 
 */
 String strTimeEventId = request.getParameter("timeeventid");
