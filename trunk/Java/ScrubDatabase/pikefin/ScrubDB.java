@@ -79,7 +79,7 @@ public class ScrubDB {
 	
 	}
 	
-	public static void main(String[] args) {
+	public static void main5(String[] args) {
 		
 		try
 		{
@@ -227,6 +227,56 @@ public class ScrubDB {
 			System.out.println(sqle.getMessage());
 		}
 			
+		
+		
+	}
+	
+	public static void main(String[] args) {
+		
+		try
+		{
+			DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
+			
+			UtilityFunctions uf = new UtilityFunctions();
+			
+			
+		    //int nStartBatchNumber = 1529;
+			int nStartBatchNumber = 9410;
+		    
+		    String query = "select cnt,batch from (select count(id) as cnt,batch from fact_data where task_id=12 group by batch) as t1 where cnt>29";
+		    
+		    ResultSet rs = dbf.db_run_query(query);
+		    
+		    String[] batch = new String[5];
+		    
+		    while (rs.next())
+		    {
+		    	
+		    	String query3 = "select max(id) as mid,entity_id from fact_data where batch=" + rs.getInt("batch") + " group by entity_id";
+		 
+		    	ResultSet rs3 = dbf.db_run_query(query3);
+		    	
+		    	while (rs3.next())
+		    	{
+		    		System.out.println("Deleting entity: " + rs3.getInt("entity_id") + ",id: " + rs3.getInt("mid") + ",batch: " + rs.getInt("batch"));
+		    		String query4 = "delete from fact_data where id=" + rs3.getInt("mid");
+		    		
+		    		dbf.db_update_query(query4);
+		    		
+		    	}
+		    	
+		    	
+
+		    }
+		}
+		catch (SQLException sqle)
+		{
+			System.out.println(sqle.getMessage());
+		}
+		
+		    
+		
+		
 		
 		
 	}
