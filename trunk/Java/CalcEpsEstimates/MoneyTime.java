@@ -180,7 +180,7 @@ public class MoneyTime {
 	{
 		int calquarter=0;
 		int calyear=fiscalyear;
-		String query = "select begin_fiscal_calendar from company where ticker='" + strTicker +"'";
+		String query = "select begin_fiscal_calendar from entities where ticker='" + strTicker +"'";
 		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
 		int nBeginFiscalYear = convertMonthStringtoInt(rs.getString("begin_fiscal_calendar"));
