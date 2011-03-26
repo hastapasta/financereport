@@ -1019,9 +1019,10 @@ public void grab_data_set(String strJobPrimaryKey)
 				
 		
 		//String query = "select companygroup from schedules where task_id=" + nCurTask;
-		String query = "select entity_groups.id,tasks.use_group_for_reading from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id=" + nCurTask;
+		String query = "select entity_groups.id,tasks.metric_id,tasks.use_group_for_reading from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id=" + nCurTask;
 		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
+		int nMetricId = rs.getInt("tasks.metric_id");
 		int nGroupId = rs.getInt("entity_groups.id");
 		//String strGroup = rs.getString("entity_groups.name");
 		boolean bUseGroupForReading = rs.getBoolean("tasks.use_group_for_reading");
@@ -1076,7 +1077,7 @@ public void grab_data_set(String strJobPrimaryKey)
 					 * Insert directly into fact_data now.
 					 */
 					if (rs2.getInt("custom_insert") != 1)	
-						dbf.importTableIntoDB(tabledata2,"fact_data",this.nTaskBatch,this.nCurTask);
+						dbf.importTableIntoDB(tabledata2,"fact_data",this.nTaskBatch,this.nCurTask,nMetricId);
 					/*if (rs2.getInt("custom_insert") != 1)	
 					{
 						if (strCurDataSet.contains("xrateorg"))
@@ -1172,7 +1173,7 @@ public void grab_data_set(String strJobPrimaryKey)
 					/*
 					 * Import directly into fact_data now.
 					 */
-					dbf.importTableIntoDB(tabledata2,"fact_data",this.nTaskBatch,this.nCurTask);
+					dbf.importTableIntoDB(tabledata2,"fact_data",this.nTaskBatch,this.nCurTask,nMetricId);
 					/*if (this.strCurDataSet.equals("exchrate_yen_dollar"))
 						dbf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);	
 					else
@@ -1271,7 +1272,7 @@ public void grab_data_set(String strJobPrimaryKey)
 							ResultSet rs2 = dbf.db_run_query("select custom_insert from jobs where data_set='" + strCurDataSet + "'");
 							rs2.next();
 							if (rs2.getInt("custom_insert") != 1)
-								dbf.importTableIntoDB(tabledata2,"fact_data",this.nTaskBatch,this.nCurTask);
+								dbf.importTableIntoDB(tabledata2,"fact_data",this.nTaskBatch,this.nCurTask,nMetricId);
 							
 						
 						
@@ -1379,7 +1380,7 @@ public void grab_data_set(String strJobPrimaryKey)
 									else
 										dbf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);*/
 								
-									dbf.importTableIntoDB(tabledata2,"fact_data",this.nTaskBatch,this.nCurTask);
+									dbf.importTableIntoDB(tabledata2,"fact_data",this.nTaskBatch,this.nCurTask,nMetricId);
 								
 								/*{
 			

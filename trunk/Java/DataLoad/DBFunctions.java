@@ -179,7 +179,7 @@ public class DBFunctions {
 		
 	}
 	
-	public void importTableIntoDB(ArrayList<String[]> tabledata, String tablename, Integer nBatch,int nTask)
+	public void importTableIntoDB(ArrayList<String[]> tabledata, String tablename, Integer nBatch,int nTask,int nMetricId)
 	{
 		/* This function expects an arraylist with 2X of the number of values to be inserted with each value
 		preceeded by the datatype with the current 3 datatypes being VARCHAR, FUNCTIONS, INT */
@@ -202,6 +202,8 @@ public class DBFunctions {
 		
 		if (tablename.equals("fact_data_stage") || tablename.equals("fact_data"))
 		{
+				columnnames = UtilityFunctions.extendArray(columnnames);
+				columnnames[columnnames.length-1] = "metric_id";
 				columnnames = UtilityFunctions.extendArray(columnnames);
 				columnnames[columnnames.length - 1] = "task_id";
 				columnnames = UtilityFunctions.extendArray(columnnames);
@@ -280,6 +282,9 @@ public class DBFunctions {
 			
 			if (tablename.equals("fact_data_stage") || tablename.equals("fact_data"))
 			{
+					rowdata = UtilityFunctions.extendArray(rowdata);
+					rowdata[columnnames.length - 3] = Integer.toString(nMetricId);
+				
 					rowdata = UtilityFunctions.extendArray(rowdata);
 					rowdata[columnnames.length - 2] = Integer.toString(nTask);
 					
