@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/tools/hyperion/products/Essbase/EssbaseClient/JavaAPI/lib/ess_es_server.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/tools/hyperion/products/Essbase/EssbaseClient/JavaAPI/lib/ess_japi.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/googleapi_samples/gdata/java/lib/gdata-core-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/googleapi_samples/gdata/java/lib/gdata-client-meta-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/googleapi_samples/gdata/java/lib/gdata-client-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/googleapi_samples/gdata/java/lib/gdata-spreadsheet-meta-3.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/googleapi_samples/gdata/java/lib/gdata-spreadsheet-3.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/home/ollie/dev/java/googleapi_samples/gdata/java/doc"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/googleapi_samples/gdata/java/sample/util/lib/sample-util.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/libraries/apache-log4j-1.2.16/log4j-1.2.16.jar" sourcepath="/home/ollie/dev/java/libraries/apache-log4j-1.2.16/src/main/java"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/libraries/commons-io-1.4/commons-io-1.4.jar" sourcepath="/DataGrab2/C:/dev/java/libraries/commons-io-1.4/commons-io-1.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/dev/java/libraries/commons-io-1.4/commons-io-1.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/libraries/json-rpc-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/libraries/mysql-connector-java-5.1.12-bin.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/libraries/commons-logging-1.1.1/commons-logging-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/libraries/httpcomponents-client-4.0.3/lib/httpclient-4.0.3.zip"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/libraries/httpcomponents-client-4.0.3/lib/httpmime-4.0.3.zip"/>
+	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/libraries/httpcomponents-core-4.0.1/lib/httpcore-4.0.1.zip"/>
+	<classpathentry kind="output" path=""/>
+</classpath>
