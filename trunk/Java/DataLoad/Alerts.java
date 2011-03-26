@@ -482,7 +482,11 @@ public class Alerts {
 										  
 										  String strSubject = (String)DataLoad.props.get("subjecttext") + " : " + strTicker + " : " + hmAlert.get("time_events.name") + " Observation Period";
 										  
-										  UtilityFunctions.mail(strEmail,strMsg,strSubject,(String)DataLoad.props.get("fromaddy"));
+										  //Emails and Tweets are globally disabled for testing
+										  if (DataLoad.bDisableEmails == false)
+										  {
+											  UtilityFunctions.mail(strEmail,strMsg,strSubject,(String)DataLoad.props.get("fromaddy"));
+										  }
 										  
 										  String query9 = "update alerts set notification_count=" + (nNotificationCount+1) + " where id=" + nAlertId;
 										  
@@ -502,11 +506,16 @@ public class Alerts {
 									  
 									  String strUrl = (String)DataLoad.props.getProperty("phpbaseurl") + "charts/allassets/linechart.php?a=" + nAlertId;
 									  
-									  strTweet += " " + UtilityFunctions.shortenURL(strUrl);
+									  //Emails and Tweets are globally disabled for testing
+									  if (DataLoad.bDisableEmails == false)
+									  {
 									  
-									  strTweet += " #" + strTicker.replace(" ","").replace("(","").replace(")","").replace(".", "").replace("-", "");								  
-									  
-									  UtilityFunctions.tweet(strTweet);
+										  strTweet += " " + UtilityFunctions.shortenURL(strUrl);
+										  
+										  strTweet += " #" + strTicker.replace(" ","").replace("(","").replace(")","").replace(".", "").replace("-", "");								  
+										  
+										  UtilityFunctions.tweet(strTweet);
+									  }
   
 									  
 								  }
