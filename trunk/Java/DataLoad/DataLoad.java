@@ -657,9 +657,9 @@ class DataLoad extends Thread //implements Stopable
 	
 	DataLoad.bDisableEmails= Boolean.parseBoolean((String)props.getProperty("emaildisable"));
 	if (DataLoad.bDisableEmails)
-		UtilityFunctions.stdoutwriter.writeln("EMAIL NOTIFICATIONS ARE DISABLED",Logs.STATUS1,"DL18");
+		UtilityFunctions.stdoutwriter.writeln("EMAIL AND TWITTER NOTIFICATIONS ARE DISABLED",Logs.STATUS1,"DL18");
 	else
-		UtilityFunctions.stdoutwriter.writeln("EMAIL NOTIFICATIONS ARE ENABLED",Logs.STATUS1,"DL19");
+		UtilityFunctions.stdoutwriter.writeln("EMAIL AND TWITTER NOTIFICATIONS ARE ENABLED",Logs.STATUS1,"DL19");
 	
 	DataLoad.nMaxThreads = Integer.parseInt((String)props.get("max_threads"));
 	UtilityFunctions.stdoutwriter.writeln("MAXIMUM # OF DATAGRAB THREADS: " + DataLoad.nMaxThreads,Logs.STATUS1,"DL19");
