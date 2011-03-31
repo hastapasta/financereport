@@ -87,7 +87,8 @@ DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1."
 
 //ideally i'd like to use last() here but mysql doesn't support it - it would have to be 
 //coded by hand - so going with max() instead.
-String query = "select date_format(fact_data.date_collected,'%m-%d-%Y') as date_col, fact_data.batch,fact_data.value as fdvalue,entities.ticker  ";
+String query = "select date_format(fact_data.date_collected,'%m-%d-%Y') as date_col, date_format(fact_data.date_collected,'%H:%m:%s') as time_col, ";
+query += "fact_data.batch,fact_data.value as fdvalue,entities.ticker  ";
 query += "from fact_data ";
 query += "JOIN entities on fact_data.entity_id=entities.id ";
 //query += "JOIN tasks on fact_data.task_id=tasks.id ";
@@ -96,20 +97,9 @@ query += " AND date_format(fact_data.date_collected,'%Y-%m_%d')>'" + strBeginDat
 if (strEndDate!=null && !strEndDate.isEmpty())
 	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
 //query += " group by date_format(fact_data.date_collected,'%Y-%m-%d'),entities.ticker,fact_data.value ";
-query += " order by date_format(fact_data.date_collected,'%Y-%m-%d') ASC";
+query += " order by date_col ASC ,entities.ticker ASC, time_col ASC";
 
-/*String query = "select date_format(fact_data.date_collected,'%m-%d-%Y') as date_col,entities.ticker,fact_data.value ";
-query += " from fact_data ";
-query += "join (select date_format(fact_data.date_collected,'%m-%d-%Y') as date_col,max(fact_data.batch) as mb,fact_data.entity_id ";
-query +=		" from fact_data ";
-query += 		" where fact_data.entity_id " + strInClause + " ";
-query +=        " AND date_format(fact_data.date_collected,'%Y-%m_%d')>'" + strBeginDate + "' ";
-if (strEndDate!=null && !strEndDate.isEmpty())
-	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
-query +=			" group by date_format(fact_data.date_collected,'%Y-%m-%d'),fact_data.entity_id) ";
-query += 		" as t1 on fact_data.batch=t1.mb and fact_data.entity_id=t1.entity_id";
-query += " join entities where entities.id=fact_data.entity_id ";
-query += " order by date_format(fact_data.date_collected,'%m-%d-%Y') ASC";*/
+
 
 //out.println(query); if (1==1) return;
 
@@ -126,7 +116,7 @@ try
 	while (rs.next()) {
 		String [] tmp = new String[4];
 		tmp[0] = rs.getString("date_col");
-		tmp[1] = rs.getString("entities.ticker");
+		tmp[1] = rs.getString("entities.ticker");	
 		tmp[2] = rs.getString("fdvalue");
 		tmp[3] = rs.getString("fact_data.batch");
 				
@@ -140,9 +130,33 @@ catch (SQLException sqle)
 	out.println(sqle.toString());
 }
 
+int[] tmpArray = {0,1};
+arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray,3);
 
 
-arrayListRows = PopulateSpreadsheet.getMaxGroupBy(arrayListRows,0,3);
+
+/*out.println("<table>");
+for (int i=0;i<arrayListRows.size();i++)
+{
+	out.println("<tr>");
+	String[] temp = arrayListRows.get(i);
+	for (int j=0;j<temp.length;j++)
+	{
+		out.println("<td>" + temp[j] +"</td>");
+	}
+	out.println("</tr>");
+}
+out.println("</table>");
+
+out.println(query); if (1==1) return;*/
+
+
+
+
+
+
+
+
 
 arrayListRows = PopulateSpreadsheet.removeLastColumn(arrayListRows);
 
