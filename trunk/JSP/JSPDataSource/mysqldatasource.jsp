@@ -12,7 +12,7 @@
 <%
 /*
 * This data source pulls from the fact_data table using alerts (using alerts.initial_fact_data_id and
-* alerts.current_fact_data_id)
+* alerts.current_fact_data_id) and returns % change.
 */
 
 
@@ -76,7 +76,6 @@ arrayListCols.add(blap10);
 arrayListCols.add(blap11);
 
 DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
-
 
 
 String query = "select tasks.name,entities.ticker,time_events.name,users.username,fd1.value, fd2.value, (if (fd1.value=0,fd1.value,round(((fd2.value - fd1.value)/fd1.value),3))) * 100 as pctchange,  ";
