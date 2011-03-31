@@ -142,8 +142,13 @@ public class PopulateSpreadsheet {
 				{
 					
 					writeMsg("value: " + foo2[2*k]);
-					double dTmp = Double.valueOf(foo2[2*k]);
-					tmp.put("v", dTmp);
+					if (!foo2[2*k].isEmpty())
+					{
+						double dTmp = Double.valueOf(foo2[2*k]);
+						tmp.put("v", dTmp);
+					}
+					else
+						tmp.put("v", "");
 					//tmp.put("v",Integer.parseInt(foo2[2*k]));
 				}
 				else
@@ -781,6 +786,275 @@ public class PopulateSpreadsheet {
   		
   	}
   	
+  	public static ArrayList<String[]> removeLastColumn(ArrayList<String[]> inputArrayList)
+  	{
+  		//Removes the last index from all of the String arrays
+  		
+  		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
+  		
+  		for (int i=0;i<inputArrayList.size();i++)
+  		{
+  			String[] inRow = inputArrayList.get(i);
+  			
+  			String[] outRow = new String[inRow.length - 1];
+  			
+  			for (int j=0;j<outRow.length;j++)
+  			{
+  				outRow[j]=inRow[j];
+  			}
+  			
+  			outputArrayList.add(outRow);
+  			
+  		}
+  		
+  		return(outputArrayList);
+  		
+  	
+  	}
+  	
+  	/*
+  	 * 
+  	 * It should be simple to also create a getLastGroupBy() function.
+  	 *
+  	 */
+  	
+	public static ArrayList<String[]> getLastGroupBy(ArrayList<String[]> inputArrayList,int[] x, int y)
+  	{
+		
+		/*
+  		 * Return the row with a particular maximum value in a group of values. This is to avoid
+  		 * having to do nested select queries.
+  		 * 
+  		 * Assumptions: 
+  		 * 		- index x1 is the first group column
+  		 *  	- index x2 is the second group column
+  		 *      - index y is the max column (currently this can only be an int)
+  		 *      - data has been ordered by x1 and then x2
+  		 * 
+  		 * 
+  		 */
+  		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
+  		
+  		String[] previousRow = inputArrayList.get(0);
+  		String[] row = null;
+  		
+  		for (int i=1;i<inputArrayList.size();i++)
+  		{
+  			row = inputArrayList.get(i);
+  			boolean bResult=false;
+  			for (int j=0;j<x.length;j++)
+  			{
+  				if (!row[x[j]].equals(previousRow[x[j]]))
+  					bResult=true;
+  				
+  			}
+  			//if (!((row[x1].equals(previousRow[x1])) && (row[x2].equals(previousRow[x2]))))
+  			if (bResult==true)
+  				// we're on to the next group
+  			{
+  				outputArrayList.add(previousRow);
+  				
+  				
+  				 				
+  			}
+  			
+  			previousRow = row;
+  			
+  			//if (Integer.parseInt(row[y]) > Integer.parseInt(maxRow[y]))
+  				//maxRow = row;		
+  		}
+  		
+  		outputArrayList.add(row);
+  		
+  		
+  		return(outputArrayList);
+	
+  	}
+  	
+  	//public static ArrayList<String[]> getMaxGroupBy(ArrayList<String[]> inputArrayList,int x1, int x2,int y)
+	public static ArrayList<String[]> getMaxGroupBy(ArrayList<String[]> inputArrayList,int[] x,int y)
+  	{
+  		/*
+  		 * Return the row with a particular maximum value in a group of values. This is to avoid
+  		 * having to do nested select queries.
+  		 * 
+  		 * Assumptions: 
+  		 * 		- index x1 is the first group column
+  		 *  	- index x2 is the second group column
+  		 *      - index y is the max column (currently this can only be an int)
+  		 *      - data has been ordered by x1 and then x2
+  		 * 
+  		 * 
+  		 */
+  		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
+  		
+  		String[] maxRow = inputArrayList.get(0);
+  		String[] row;
+  		
+  		for (int i=1;i<inputArrayList.size();i++)
+  		{
+  			row = inputArrayList.get(i);
+  			boolean bResult=false;
+  			for (int j=0;j<x.length;j++)
+  			{
+  				if (!row[x[j]].equals(maxRow[x[j]]))
+  					bResult=true;
+  				
+  			}
+  			//if (!((row[x1].equals(maxRow[x1])) && (row[x2].equals(maxRow[x2]))))
+  			if (bResult==true)
+  				// we're on to the next group
+  			{
+  				outputArrayList.add(maxRow);
+  				
+  				maxRow = row;
+  				
+  				
+  			}
+  			
+  			if (Integer.parseInt(row[y]) > Integer.parseInt(maxRow[y]))
+  				maxRow = row;
+  			
+  		}
+  		
+  		outputArrayList.add(maxRow);
+  		
+  		
+  		return(outputArrayList);
+  		
+  		
+  		
+  	}
+  	
+  	
+  	public static ArrayList<String[]> pivotRowsToColumnsArrayList(ArrayList<String[]> inputArrayList)
+  	{
+  		/*
+  		 * Assumptions: 
+  		 * -data is ordered by col0 and then col1
+  		 * -combination of col0 and col1 is unique
+  		 * -we are pivoting on col1 (may make this variable at some point)
+  		 * -array size of the input ArrayList<String[]> is 3 (may expand this but the combination of the first n-1 columns has to be unique)
+  		 * 
+  		 * 
+  		 * Behavior:
+  		 * -we will handle missing data values
+  		 * -we're returning the pivoted column names as row 0
+  		 * 
+  		 * 
+  		 */
+  		
+  		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
+  		
+  		String strTmp = inputArrayList.get(0)[0];
+  		int nGlobalMax=1;
+  		int nCurrentMax=1;
+  		int nGlobalMaxRowNumber=0;
+  		
+  		/*
+  		 * 
+  		 * Determine the length of the longest sequence
+  		 */
+  		
+  		
+  		for (int i=1;i<inputArrayList.size();i++)
+  		{
+  			if (!inputArrayList.get(i)[0].equals(strTmp))
+  			{
+  				if (nCurrentMax>nGlobalMax)
+  				{
+  					nGlobalMax=nCurrentMax;
+  					nGlobalMaxRowNumber=i-nCurrentMax;
+  					
+  				}
+  				
+  				nCurrentMax=1;
+				strTmp = inputArrayList.get(i)[0];
+  			
+  		
+  				
+  				
+  			}
+  			else
+  				nCurrentMax++;
+  			
+  			
+  		}
+  		
+  		
+  		if (nCurrentMax>nGlobalMax)
+  			nGlobalMax=nCurrentMax;
+  		
+  		/*
+  		 * Create list of unique values
+  		 */
+  		String[] arrayUniqueValues = new String[nGlobalMax];
+  		
+  		for (int j=0;j<nGlobalMax;j++)
+  		{
+  			arrayUniqueValues[j] = inputArrayList.get(j+nGlobalMaxRowNumber)[1];
+  		}
+  		
+  		/*
+  		 * Create output ArrayList
+  		 */
+  		boolean done = false;
+  		int nInputRow=0;
+  		String[] inputArray = inputArrayList.get(0);
+  		String[] outputArray = new String[nGlobalMax+1];
+  		for (int z=0;z<outputArray.length;z++)
+  			outputArray[z]="";
+  		String strFirst = inputArray[0];
+  		
+  		
+  		while(!done)
+  		{
+  			outputArray[0] = inputArray[0]; 
+  			
+  			//Lookup value in arrayUniqueValues
+  			
+  			for (int y=0;y<arrayUniqueValues.length;y++)
+  			{
+  				if (arrayUniqueValues[y].equals(inputArray[1]))
+  				{
+  						outputArray[y+1] = inputArray[2];
+  						break;
+  				}
+  			}
+  			
+  			nInputRow++;
+  			if (nInputRow==inputArrayList.size())
+  			{
+  				outputArrayList.add(outputArray);
+  				break;
+  			}
+  			else
+  			{
+  				inputArray = inputArrayList.get(nInputRow);
+  				if (!inputArray[0].equals(strFirst))
+  				{
+  					outputArrayList.add(outputArray);
+  					outputArray = new String[nGlobalMax+1];
+  					for (int z=0;z<outputArray.length;z++)
+  			  			outputArray[z]="";
+  					strFirst = inputArray[0];
+  				}
+  					
+  					
+  					
+  					
+  					
+  			}
+  		}
+  		
+  		/*
+  		 * Create the column header array
+  		 */
+  			
+  		outputArrayList.add(0,arrayUniqueValues);
+  		return(outputArrayList);
+  	}
+  	
   	public void individualLoadSheetFromList(String strDocName, int nSheetIndex, ArrayList<String[]> rows) throws IOException,  ServiceException 
   	{
   		getNewFeed(strDocName,nSheetIndex);
@@ -810,6 +1084,7 @@ public class PopulateSpreadsheet {
   	  	
   	  		
  	
+  		
   	  	BatchSample.batchPopulate(service, cellFeedUrl,cellAddrs);
   		
   		
