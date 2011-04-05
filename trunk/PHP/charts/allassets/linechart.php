@@ -33,7 +33,7 @@ $row = mysql_fetch_array($result);
 	
 
  
-        google.load('visualization', '1', {packages: ['linechart']});
+        google.load('visualization', '1', {packages: ['corechart']});
         google.setOnLoadCallback(loadChart);
         line_chart = null;
         var options = {};
@@ -53,9 +53,11 @@ $row = mysql_fetch_array($result);
          	//options['title'] = 'Cotton Futures';
          	options['height'] = 600;
          	options['width'] = 900;
-         	options['fontSize'] = 1;
+         	options['fontSize'] = 15;
          	options['curveType'] = 'function';
          	options['pointSize'] = 0;
+         	options.interpolateNulls = true;
+         	<?php echo "options.title='".$row['ticker']." - ".$row['full_name']."';"; ?>
          	//options['legend'] = 'none';
          
  			
@@ -88,10 +90,11 @@ $row = mysql_fetch_array($result);
                    	}
 		   			//alert('here 2.7');
                     //column_chart.draw(res.getDataTable(), {'height': 600, 'width': 800});
-                     var title = document.getElementById('chart-title');
-					 <?php echo "title.innerHTML ='".$row['ticker']."';"; ?> 
-                     var description = document.getElementById('chart-description');
-                     <?php echo "description.innerHTML ='".$row['full_name']."';"; ?> 
+                    
+                    //var title = document.getElementById('chart-title');
+					 <?php //echo "title.innerHTML ='".$row['ticker']."';"; ?> 
+                     //var description = document.getElementById('chart-description');
+                     <?php //echo "description.innerHTML ='".$row['full_name']."';"; ?> 
                      
                     
                      line_chart.draw(res.getDataTable(), options);
