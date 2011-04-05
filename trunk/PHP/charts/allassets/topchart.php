@@ -25,7 +25,7 @@ db_utility::db_connect();
     var firstpass = true;
 
     <?php 
-            echo "var dataSourceUrl = '".db_utility::$datasourceurl."mysqldatasource2.jsp';";
+            echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2.jsp';";
             ?>
         // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
            
@@ -107,7 +107,7 @@ db_utility::db_connect();
       var tableChart1 = new google.visualization.Table(container1);
       var tableChart2 = new google.visualization.Table(container2);
       var tableChart3 = new google.visualization.Table(container3);
-     
+
       
       query1 && query1.abort();
       query1 = new google.visualization.Query(dataSourceUrl + queryString1);
