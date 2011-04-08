@@ -6,16 +6,42 @@ include ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
+$alertid="";
+
 if (isset($_GET['a']))
 	$alertid = $_GET['a'];
+elseif (isset ($_GET['e']))
+	$entityid = $_GET['e'];
 else
-	die("No alert id parameter in url. Unable to render chart.");
+	die("No alert id or entity id parameter in url. Unable to render chart.");
 	
-$sql = "select entities.* from entities,alerts where alerts.entity_id=entities.id AND alerts.id=".$alertid;
+if (!empty($alertid))
+{
+	$sql1 = "select entity_id from alerts where id=".$alertid;
+	$result1 = mysql_query($sql1);
+	$row1 = mysql_fetch_array($result1);
+	
+	
+	$entityid = $row1['entity_id'];
+}
+
+$title="";
+if (isset($_GET['title']))
+	$title=urldecode($_GET['title']);
+	
+
+	
+
+	
+$sql = "select * from entities where id=".$entityid;
 $result = mysql_query($sql);
-
 $row = mysql_fetch_array($result);
+	
 
+
+$entitygroup = 'all';
+if (isset($_GET['group']))
+	$entitygroup= $_GET['group'];
 
 
 
@@ -24,86 +50,143 @@ $row = mysql_fetch_array($result);
 <html>
 <head>
 	<?php IncFunc::icon();?>
-    <title>Complete visualization example</title>
-    <link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
+    <?php IncFunc::title();?>
+    <?php IncFunc::linkStyleCSS();?> 
+    <?php IncFunc::jQuery();?>   
     <?php IncFunc::yuiDropDownJavaScript(); ?>
-    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <?php IncFunc::googleGadget(); ?>
+   
     <script type="text/javascript">
+
+    	$(function(){
+    		$( "#a_c" ).autocomplete({
+    			source: function( request, response ) {
+					$.ajax({
+						url: "../../site/includes/getTicker.php",
+						dataType: "json",
+						data: {
+							maxRows: 12,
+							term: request.term
+							<?php echo ", group: '".$entitygroup."'\n"; ?>
+					
+						},
+						success: function( data ) {
+							//console.log(data);
+							response( $.map( data, function( item ) {
+								//alert(item.id);
+								return {
+									
+									value: item.ticker,
+									label: item.ticker,
+									id: item.id,
+									full_name: item.full_name
+			
+								}
+
+							}));
+						}
+					});
+				},
+    			minLength: 1,
+    			select: function( event, ui ) {
+    				if(ui.item)
+    				{
+        				//loadChart("",  ui.item.value);
+        				//alert('value:' + ui.item.value);
+        				//var tmp[] = split(ui.item.value,'|');
+        				//$( "#a_c" ).val(ui.item.value.split("|")[1]);
+        				//sendAndDraw(ui.item.value.split("|")[0],ui.item.value.split("|")[1],ui.item.value.split("|")[2]);
+        				sendAndDraw(ui.item.id,ui.item.label,ui.item.full_name);
+    				}
+    			}
+    		});
+        });
+
+        
+    
 		var count = 0;
 	
-
- 
+        //google.load('visualization', '1', {packages: ['linechart']});
         google.load('visualization', '1', {packages: ['corechart']});
-        google.setOnLoadCallback(loadChart);
-        line_chart = null;
+        google.setOnLoadCallback(function() { sendAndDraw(null) });
+        var firstpass = true;
         var options = {};
+        var query1;
 
         
+        function sendAndDraw(id,ticker,fullname) {
 
-        
-        function loadChart() {
+            
+
+            /*var chart2 = document.getElementById('orgchart2');
+            chart2.innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";*/
+            
         	
-         	//alert('here 1');
-            //var metric1 = document.getElementById('metric-1').value;
-      		count++;
-         	var str = '' + count;
+           
+            var queryString1;
 
-         	<?php //echo "options['title']='".$row['full_name']."';";?>
-         	
+            
+            var options = {};
          	//options['title'] = 'Cotton Futures';
          	options['height'] = 600;
          	options['width'] = 900;
          	options['fontSize'] = 15;
-         	options['curveType'] = 'function';
+         	//options['curveType'] = 'function';
          	options['pointSize'] = 0;
-         	options.interpolateNulls = true;
-         	<?php echo "options.title='".$row['ticker']." - ".$row['full_name']."';"; ?>
-         	//options['legend'] = 'none';
-         
- 			
+			options.interpolateNulls = true;
+			options.backgroundColor = {};
+			options.backgroundColor.fill = 'white';
+			options.backgroundColor.stroke = '#000';
+         	options.backgroundColor.strokeWidth = 8;
+         	
+            
+
+
+
+
+        	var queryPath = '<?php echo IncFunc::$JSP_ROOT_PATH;?>mysqldatasource1.jsp?begindate=2011-01-01&metricid=1';
+
+			if(id != undefined){
+				queryPath += '&entityid=' + escape(id); 
+				options.title = ticker + " - " + fullname;
+
+				//alert(ticker);
+			}
+			else
+			{
+				queryPath += <?php echo "'&entityid=".$entityid."';"; ?>
+				<?php echo "options.title='".$row['ticker']." - ".$row['full_name']."';"; ?>
+			}
+
+			var chart = document.getElementById('chart-div');
+            chart.innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
+			
+            //alert(queryPath);
+
+ 
+            
+            var container1 = document.getElementById('chart-div');
+            //var container2 = document.getElementById('orgchart2');
            
-            <?php echo "var query = new google.visualization.Query('".IncFunc::$JSP_ROOT_PATH."/mysqldatasource1.jsp?entityid=".$row['id']."&begindate=2011-01-01');"; ?>
             
-            //alert('here 2');
+            var lineChart1 = new google.visualization.LineChart(container1);
+            //var tableChart2 = new google.visualization.Table(container2);
+           
             
-            query.setQuery(str);
-            //alert('here 3');
-           // alert('here 2');
-          //  alert('metric1: ' + metric1);
-            query.send(
-           	function(res)
-           	{
-				//alert('here 2.05');
-                if(res.isError())
-                {
-				  //alert('here 2.06');
-                    alert(res.getDetailedMessage());
-                }
-                else
-                {
-                    //alert('here 2.07');
-                    if(line_chart === null)
-                    {
-		     			//alert('here 2.1');
-                    	 line_chart = new google.visualization.LineChart(document.getElementById('chart-div'));
-                    	 //alert('here 2.5');
-                   	}
-		   			//alert('here 2.7');
-                    //column_chart.draw(res.getDataTable(), {'height': 600, 'width': 800});
-                    
-                    //var title = document.getElementById('chart-title');
-					 <?php //echo "title.innerHTML ='".$row['ticker']."';"; ?> 
-                     //var description = document.getElementById('chart-description');
-                     <?php //echo "description.innerHTML ='".$row['full_name']."';"; ?> 
-                     
-                    
-                     line_chart.draw(res.getDataTable(), options);
-                   
-                    //alert('here 3');
-                }
-            });
-            
-        }
+            query1 && query1.abort();
+            query1 = new google.visualization.Query(queryPath);
+            query1.setTimeout(120);
+            var queryWrapper1 = new QueryWrapper(query1, lineChart1, options, container1);
+            queryWrapper1.sendAndDraw();
+
+            /*query2 && query2.abort();
+            query2 = new google.visualization.Query(dataSourceUrl + queryString2);
+            query2.setTimeout(120);
+            var queryWrapper2 = new QueryWrapper(query2, tableChart2, options, container2);
+            queryWrapper2.sendAndDraw();*/
+          }
+        
+       
     </script>
 </head>
 <body>
@@ -114,10 +197,18 @@ $row = mysql_fetch_array($result);
 	IncFunc::yuiDropDownMenu();
 
 ?>
+<div id="chartTitle" style="margin: 20px 0 0 300px;font-size: medium;font-weight:bold;"><u><?php echo $title ?></u></div>
 
+    <div id="pf-form" style="margin:20px 0 0 0;font-size:15px;">
+    Enter entity name (stock ticker, equity index, currency cross, etc):
+    <BR>
+  	<input type='text' id='a_c' /><br/>
   
-	<div style="font-size:30;margin: 10px 0 0 0;" id="chart-title"></div>
+  
+	<!-- <div style="font-size:30;margin: 10px 0 0 0;" id="chart-title"></div> -->
+	</div>
 	<BR>
+	
 	<div style="font-size:20" id="chart-description"></div>
     <div id="chart-div" style="margin: 10px 0 20px 0;"></div>
 

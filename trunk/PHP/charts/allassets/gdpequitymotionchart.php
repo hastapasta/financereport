@@ -1,6 +1,6 @@
 <?php
 //require_once 'init2.php';
-
+require_once '../../common/functions.php';
 include ("../../site/includes/sitecommon.php");
 
 
@@ -9,7 +9,7 @@ include ("../../site/includes/sitecommon.php");
 <html>
 <head>
 	<?php IncFunc::icon();?>
-    <title>Complete visualization example</title>
+    <?php IncFunc::title();?>
     <link rel="stylesheet" href="/PHP/site/includes/style.css" type="text/css" />
   <?php IncFunc::yuiDropDownJavaScript(); ?>
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>

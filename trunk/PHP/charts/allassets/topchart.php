@@ -15,6 +15,7 @@ db_utility::db_connect();
 <html>
 <head>
 <?php IncFunc::icon();?>
+<?php IncFunc::title();?>
 <link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
 <?php IncFunc::yuiDropDownJavaScript(); ?>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -108,6 +109,19 @@ db_utility::db_connect();
       var tableChart2 = new google.visualization.Table(container2);
       var tableChart3 = new google.visualization.Table(container3);
 
+      google.visualization.events.addListener(tableChart1, 'select', function(event){
+			var row = tableChart1.getSelection();
+			alert( "you selected row " + row[0].row + " of first table");
+       });
+		
+      google.visualization.events.addListener(tableChart2, 'select', function(event){
+	  		var row = tableChart2.getSelection();
+			alert( "you selected row " + row[0].row + " of second table");
+   	   });
+      google.visualization.events.addListener(tableChart3, 'select', function(event){
+	  		var row = tableChart3.getSelection();
+			alert( "you selected row " + row[0].row + " of third table");
+   	  });
       
       query1 && query1.abort();
       query1 = new google.visualization.Query(dataSourceUrl + queryString1);
