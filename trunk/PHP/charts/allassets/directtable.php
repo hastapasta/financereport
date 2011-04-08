@@ -8,7 +8,7 @@ $taskid = $_GET['taskid'];
 
 $title="";
 if (isset($_GET['title']))
-	$title=urldecode($_GET['title']).":";
+	$title=urldecode($_GET['title']);
 
 
 
@@ -19,6 +19,7 @@ if (isset($_GET['title']))
 <html>
 <head>
 <?php IncFunc::icon();?>
+<?php IncFunc::title();?>
 <link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
 <?php IncFunc::yuiDropDownJavaScript(); ?>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -29,7 +30,7 @@ if (isset($_GET['title']))
     var firstpass = true;
 
     <?php 
-            echo "var dataSourceUrl = '".db_utility::$datasourceurl."mysqldatasource2.jsp';";
+            echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2.jsp';";
             ?>
         // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
            
@@ -100,6 +101,8 @@ if (isset($_GET['title']))
       
       var tableChart1 = new google.visualization.Table(container1);
       //var tableChart2 = new google.visualization.Table(container2);
+      
+      alert(dataSourceUrl + queryString1);
      
       
       query1 && query1.abort();
@@ -130,6 +133,7 @@ if (isset($_GET['title']))
 
 
 <br/>
+<div id="chartTitle" style="font-size: medium;font-weight:bold;"><u><?php echo $title ?></u></div>
 <div id="pf-form" style="text-align:left;font-size:1.5em;">
 
 <BR>
@@ -151,7 +155,7 @@ Time Frame: <BR>
 </div><!-- pf-form -->
 
 <div id="tmp1" style="float: left;margin-bottom: 20px">
-<?php echo "<div id=\"chartTitle\" style=\"font-size: small\">".$title."</div>";?>
+
 <div id="table1" style="color: #000;"> </div>
 
 
