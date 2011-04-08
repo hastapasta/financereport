@@ -13,6 +13,7 @@ db_utility::db_connect();
 <html>
 <head>
 <?php IncFunc::icon();?>
+<?php IncFunc::title();?>
 <link rel="stylesheet" href="/PHP/site/includes/style.css" type="text/css" />
   <?php IncFunc::yuiDropDownJavaScript(); ?>
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -23,7 +24,7 @@ db_utility::db_connect();
     var firstpass = 'true';
 
     <?php 
-            echo "var dataSourceUrl = '".db_utility::$datasourceurl."mysqldatasource3.jsp';";
+            echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource3.jsp';";
     ?>
         // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
            

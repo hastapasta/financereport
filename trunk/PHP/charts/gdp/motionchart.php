@@ -2,14 +2,17 @@
 //require_once 'init2.php';
 
 include ("../../site/includes/sitecommon.php");
+require_once '../../common/functions.php';
+
 
 
 
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 	<?php IncFunc::icon();?>
-    <title>Complete visualization example</title>
+    <?php IncFunc::title();?>
     <link rel="stylesheet" href="/PHP/site/includes/style.css" type="text/css" />
   <?php IncFunc::yuiDropDownJavaScript(); ?>
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
@@ -30,6 +33,9 @@ include ("../../site/includes/sitecommon.php");
     
         
         function loadChart() {
+
+        	  document.getElementById('chart-div').innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
+
         	
          	//alert('here 1');
             //var metric1 = document.getElementById('metric-1').value;
@@ -52,27 +58,7 @@ include ("../../site/includes/sitecommon.php");
             options['height'] = 600;
             options['width'] = 800;
 
-            /*options['state'] =	'{"iconKeySettings":[],';  
-            options['state'] +='"stateVersion":3,';  
-            options['state'] +='"time":"notime",';  
-            options['state'] +='"xAxisOption":"Time",';  
-            options['state'] +='"playDuration":15,';  
-            options['state'] +='"iconType":"BUBBLE",';  
-            options['state'] +='"sizeOption":"_NOTHING",';  
-            options['state'] +='"xZoomedDataMin":null,';  
-            options['state'] +='"xZoomedIn":false,';  
-            options['state'] +='"duration":{"multiplier":1,"timeUnit":"none"},';  
-            options['state'] +='"yZoomedDataMin":null,';  
-            options['state'] +='"xLambda":1,';  
-            options['state'] +='"colorOption":"_NOTHING",';  
-            options['state'] +='"nonSelectedAlpha":0.4,';  
-            options['state'] +='"dimensions":{"iconDimensions":[]},';  
-            options['state'] +='"yZoomedIn":false,';  
-            options['state'] +='"yAxisOption":"pctchange",';  
-            options['state'] +='"yLambda":1,';  
-            options['state'] +='"yZoomedDataMax":null,';  
-            options['state'] +='"showTrails":true,';  
-            options['state'] +='"xZoomedDataMax":null};';*/
+            options.state = {};
 
             options['state'] = '{"showTrails":false,"iconType":"VBAR","orderedByY":false,"dimensions":{"iconDimensions":["dim0"]},"yZoomedDataMin":-7,"xZoomedDataMin":0,"xZoomedIn":false,"yAxisOption":"2","xLambda":1,"duration":{"timeUnit":"Y","multiplier":1},"time":"2015","yLambda":1,"xZoomedDataMax":182,"iconKeySettings":[],"colorOption":"_UNIQUE_COLOR","orderedByX":true,"yZoomedIn":false,"playDuration":15000,"sizeOption":"_UNISIZE","xAxisOption":"2","uniColorForNonSelected":false,"nonSelectedAlpha":0.4,"yZoomedDataMax":120}';
             	            

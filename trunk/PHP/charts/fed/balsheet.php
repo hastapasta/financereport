@@ -7,6 +7,7 @@
  */
 
 include ("../../site/includes/sitecommon.php");
+require_once '../../common/functions.php';
 
 ?>
 
@@ -14,6 +15,7 @@ include ("../../site/includes/sitecommon.php");
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <?php IncFunc::icon();?>
+<?php IncFunc::title();?>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
 

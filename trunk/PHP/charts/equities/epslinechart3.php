@@ -25,14 +25,59 @@ $row = mysql_fetch_array($result);
 <html>
 <head>
 <?php IncFunc::icon();?>
-<link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
+<?php IncFunc::title();?>
+<?php IncFunc::linkStyleCSS();?> 
 <?php IncFunc::yuiDropDownJavaScript(); ?>
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src="../../site/includes/querywrapper.js"></script>
+<?php IncFunc::googleGadget(); ?>
+<?php IncFunc::jQuery();?>   
 <script type="text/javascript">
-    google.load('visualization', '1', {'packages' : ['linechart']});
-    google.setOnLoadCallback(function() { sendAndDraw('') });
-    var firstpass = true;
+
+	$(function(){
+		$( "#a_c" ).autocomplete({
+			source: function( request, response ) {
+				$.ajax({
+					url: "../../site/includes/getTicker.php",
+					dataType: "json",
+					data: {
+						maxRows: 12,
+						term: request.term,
+						group: 1
+					},
+					success: function( data ) {
+						//console.log(data);
+						response( $.map( data, function( item ) {
+							//alert(item.id);
+							return {
+								
+								value: item.ticker,
+								label: item.ticker,
+								id: item.id,
+								full_name: item.full_name
+		
+							}
+	
+						}));
+					}
+				});
+			},
+			minLength: 1,
+			select: function( event, ui ) {
+				if(ui.item)
+				{
+					//loadChart("",  ui.item.value);
+					//alert('value:' + ui.item.value);
+					//var tmp[] = split(ui.item.value,'|');
+					//$( "#a_c" ).val(ui.item.value.split("|")[1]);
+					//sendAndDraw(ui.item.value.split("|")[0],ui.item.value.split("|")[1],ui.item.value.split("|")[2]);
+					sendAndDraw(ui.item.id,ui.item.label,ui.item.full_name);
+				}
+			}
+		});
+	});
+	
+    google.load('visualization', '1', {'packages' : ['corechart']});
+    google.setOnLoadCallback(function() { sendAndDraw(null) });
+
 
     <?php 
             //echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2.jsp';";
@@ -50,7 +95,7 @@ $row = mysql_fetch_array($result);
 
 
 
-    function sendAndDraw() {
+    function sendAndDraw(id,ticker,fullname) {
 
       var container1 = document.getElementById('chart1');
       var container2 = document.getElementById('chart2');
@@ -71,32 +116,45 @@ $row = mysql_fetch_array($result);
       //var taskid='1';
       var queryString1;
 
-      //alert("here 1");
-	  //alert("firstpass: " + firstpass);
-
-      if (firstpass==true)
-      {
-          //taskid='0';
-          //timeframe.value='week';
-          firstpass=false;
-      }
-      
+  
       var options = {};
       options['height'] = 400;
       options['width'] = 800;
       
+      var title = document.getElementById('page-title');
+      var description = document.getElementById('page-description');
+
+     	if(id != undefined){
+
+			queryString1 = '?entityid=' + id;
+
+			queryString2 = '?entityid=' + id;
+
+			title.innerHTML = 'Ticker: ' + ticker;
+
+			description.innerHTML = fullname;
+
+			
+
+			//alert(ticker);
+		}
+		else
+		{
+			/*queryPath += <?php //echo "'&entityid=".$row[id]."';"; ?>*/
+			<?php //echo "options.title='".$row['ticker']." - ".$row['full_name']."';"; ?>
+					
+			<?php echo "queryString1 = '?entityid=".$entityid."';\n";?>
+
+	     	<?php echo "queryString2 = '?entityid=".$entityid."';\n"; ?>
 
 
+	  	  <?php echo "title.innerHTML ='Ticker: ".$row['ticker']."';"; ?> 
 
+	        <?php echo "description.innerHTML ='".$row['full_name']."';"; ?> 
+		}
 
-     	 //queryString1 = '?userid='+userid+'&taskid='+tasks.value+'&timeeventid='+timeeventid.value;
-     	<?php 
-     	echo "queryString1 = '?entityid=".$entityid."';\n";
-
-     	echo "queryString2 = '?entityid=".$entityid."';\n";
      	
-     	
-     	?>
+  
     	 
 
  
@@ -111,10 +169,7 @@ $row = mysql_fetch_array($result);
       var chart1 = new google.visualization.LineChart(container1);
       var chart2 = new google.visualization.LineChart(container2);
 
-      var title = document.getElementById('page-title');
-	  <?php echo "title.innerHTML ='Ticker: ".$row['ticker']."';"; ?> 
-      var description = document.getElementById('page-description');
-      <?php echo "description.innerHTML ='".$row['full_name']."';"; ?> 
+
 
      
       
@@ -149,8 +204,15 @@ $row = mysql_fetch_array($result);
 
 
 <br/>
-<div id="pf-form" style="text-align:left;font-size:1.5em;">
-</div><!-- pf-form -->
+	<div id="pf-form" style="margin:20px 0 0 0;font-size:15px;">
+    Enter stock ticker:
+    <BR>
+  	<input type='text' id='a_c' /><br/>
+  
+  
+	<!-- <div style="font-size:30;margin: 10px 0 0 0;" id="chart-title"></div> -->
+	</div>
+	<BR>
 
 
 
@@ -159,7 +221,7 @@ $row = mysql_fetch_array($result);
 <div style="font-size:15px" id="page-description"></div>
 <BR><BR>
 <div id="tmp1" style="float: left;margin-bottom: 20px">
-<div id="tmp1A" style="font-size: small">EPS acutals and estimates (values):</div>
+<div id="tmp1A" style="font-size: small">EPS actuals and estimates (values):</div>
 <div id="chart1" style="margin: 10px 0 0 0"> </div>
 </div>
 
