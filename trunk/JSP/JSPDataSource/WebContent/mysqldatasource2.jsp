@@ -38,7 +38,17 @@ Calendar calBegin = Calendar.getInstance();
 
 
 
-
+if (Debug.RELEASE == true)
+{
+	calEnd.set(Calendar.YEAR,2011);
+	calEnd.set(Calendar.DAY_OF_MONTH,20);
+	calEnd.set(Calendar.MONTH,2);
+	
+	calBegin.set(Calendar.YEAR,2011);
+	calBegin.set(Calendar.DAY_OF_MONTH,20);
+	calBegin.set(Calendar.MONTH,2);
+	
+}
 
 
 
@@ -46,7 +56,7 @@ String strGranularity;
 
 if (strTimeFrame.toUpperCase().equals("HOUR"))
 {
-	calBegin.add(Calendar.DAY_OF_YEAR,-1);
+	calBegin.add(Calendar.HOUR,-1);
 }
 else if (strTimeFrame.toUpperCase().equals("DAY"))
 {
@@ -229,7 +239,7 @@ for (int i=0;i<arrayListRows.size();i++)
 
 
 
-out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId));
+out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,false));
 
 
 //google.visualization.Query.setResponse({version:'0.6',reqId:'0',status:'ok',sig:'5982206968295329967',table:{cols:[{id:'Col1',label:'label1',type:'number'},{id:'Col2',label:'label2',type:'number'},
