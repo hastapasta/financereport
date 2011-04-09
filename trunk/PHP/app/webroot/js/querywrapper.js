@@ -48,6 +48,7 @@ QueryWrapper.prototype.draw = function() {
 QueryWrapper.prototype.sendAndDraw = function() {
   var query = this.query;
   var self = this;
+  //query.setTimeout(120);
   query.send(function(response) {self.handleResponse(response)});
 };
 
@@ -69,6 +70,7 @@ QueryWrapper.prototype.handleErrorResponse = function(response) {
   var message = response.getMessage();
   var detailedMessage = response.getDetailedMessage();
   if (this.errorContainer) {
+	this.errorContainer.innerHTML="";
     google.visualization.errors.addError(this.errorContainer,
         message, detailedMessage, {'showInTooltip': false});
   } else {
