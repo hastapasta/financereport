@@ -90,7 +90,7 @@ DBFunctions dbf;
 	  			this.strCurTask=rs.getString("tasks.name");
 	  		jobsArray.add(rs.getInt("jobs_tasks.job_id")+"");
 	   	}
-	  	NDC.push("Task: " + strCurTask);
+
   	}
   	catch (SQLException sqle)
   	{
@@ -164,6 +164,7 @@ DBFunctions dbf;
 	
 	public void run()
 	 {
+		
 			UtilityFunctions.stdoutwriter.writeln("=========================================================",Logs.STATUS1,"");
 	  	
 	  		UtilityFunctions.stdoutwriter.writeln("PROCESSING TASK " + strCurTask,Logs.STATUS1,"DG37");
@@ -174,6 +175,9 @@ DBFunctions dbf;
 	 		UtilityFunctions.stdoutwriter.writeln("JOB PROCESSING START TIME: " + calJobProcessingStart.getTime().toString(),Logs.STATUS1,"DG38");
 	 		
 	 		UtilityFunctions.stdoutwriter.writeln("INITIATING THREAD",Logs.STATUS1,"DG1");
+	 		
+	 		if (DataLoad.bLoadingHistoricalData == true)
+	 			NDC.push(HistoricalDataLoad.calCurrent.getTime().toString());
 	 		
 	 		/*try
 	 		{
@@ -197,28 +201,38 @@ DBFunctions dbf;
 	 		calJobProcessingEnd = Calendar.getInstance();
 	 		UtilityFunctions.stdoutwriter.writeln("JOB PROCESSING END TIME: " + calJobProcessingEnd.getTime().toString(),Logs.STATUS1,"DG38.15");
 	 		
-	 		calAlertProcessingStart = Calendar.getInstance();
-	 		UtilityFunctions.stdoutwriter.writeln("ALERT PROCESSING START TIME: " + calAlertProcessingStart.getTime().toString(),Logs.STATUS1,"DG38.25");
+	 		if (DataLoad.bLoadingHistoricalData == true)
+	 			NDC.pop();
 	 		
-	 		Alerts al = new Alerts();
-	 		try
+	 		/*
+	 		 * Don't process alerts if loading historical data.
+	 		 */
+	 		if (DataLoad.bLoadingHistoricalData==false)
 	 		{
-	 			al.checkAlerts(this);
-	 		}
-	 		catch(SQLException sqle)
-	 		{
-	 			UtilityFunctions.stdoutwriter.writeln("Problem process alerts.",Logs.ERROR,"DG11.52");
-	 			UtilityFunctions.stdoutwriter.writeln(sqle);
-	 			//dbf.closeConnection();
-	 			//return;
-	 			
-	 		}
 	 		
-	 		
-	 		calAlertProcessingEnd = Calendar.getInstance();
-	 		UtilityFunctions.stdoutwriter.writeln("ALERT PROCESSING END TIME: " + calAlertProcessingEnd.getTime().toString(),Logs.STATUS1,"DG54");
+		 		calAlertProcessingStart = Calendar.getInstance();
+		 		UtilityFunctions.stdoutwriter.writeln("ALERT PROCESSING START TIME: " + calAlertProcessingStart.getTime().toString(),Logs.STATUS1,"DG38.25");
+		 		
+		 		Alerts al = new Alerts();
+		 		try
+		 		{
+		 			al.checkAlerts(this);
+		 		}
+		 		catch(SQLException sqle)
+		 		{
+		 			UtilityFunctions.stdoutwriter.writeln("Problem process alerts.",Logs.ERROR,"DG11.52");
+		 			UtilityFunctions.stdoutwriter.writeln(sqle);
+		 			//dbf.closeConnection();
+		 			//return;
+		 			
+		 		}
+		 		
+		 		
+		 		calAlertProcessingEnd = Calendar.getInstance();
+		 		UtilityFunctions.stdoutwriter.writeln("ALERT PROCESSING END TIME: " + calAlertProcessingEnd.getTime().toString(),Logs.STATUS1,"DG54");
+	 		}
 	 		dbf.closeConnection();
-	 		NDC.pop();
+	
 
 	 
 	 	
@@ -429,8 +443,11 @@ public String get_value(String local_data_set) throws IllegalStateException,TagN
   
   strDataValue = regexSnipValue(strBeforeUniqueCode,strAfterUniqueCode,nCurOffset);
   
- 
-  strDataValue = strDataValue.replace(",","");
+  /*
+   * OFP 3/28/2011 - Don't remove commas if this is csv format. Let the postProcessing function handle the commas.
+   */
+  if (rs.getBoolean("is_csv_format") == false)
+	  strDataValue = strDataValue.replace(",","");
   
   strDataValue = strDataValue.replace("&nbsp;","");
   
