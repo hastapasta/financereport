@@ -16,6 +16,7 @@ public class CalcEstimates
 	static String runtoticker="";
 	static int nBatch;
 	static Vector<String> vMetaDataSet = new Vector<String>();
+	static boolean bFirstUpdate=true;
 	
 	public static void main(String[] args)
 	{
@@ -29,10 +30,14 @@ public class CalcEstimates
 			String query = "select max(fiscalyear) from fact_data";
 			ResultSet rs = UtilityFunctions.db_run_query(query);
 			rs.next();
+			
 			int nMaxYear = rs.getInt("max(fiscalyear)");
 			
 			Calendar cal = Calendar.getInstance();
+			
 			int nCurYear = cal.get(Calendar.YEAR);
+			
+			initializeMetaSetId(nCurYear);
 			
 			
 			
@@ -48,52 +53,52 @@ public class CalcEstimates
 				
 				query = "select entities.* from entities,entity_groups,entities_entity_groups where entity_groups.name='sandp' and entities_entity_groups.entity_group_id=entity_groups.id and entities.id=entities_entity_groups.entity_id";
 				rs = UtilityFunctions.db_run_query(query);
-			while(rs.next())
+				while(rs.next())
+				{
+					
+					/*
+					 * -read in the fiscal annual estimates
+					*/
+					try
+					{
+						String strTicker = rs.getString("ticker");
+						String strBeginFiscalCal = rs.getString("begin_fiscal_calendar");
+						
+						UtilityFunctions.stdoutwriter.writeln("Processing ticker " + rs.getString("ticker"),Logs.STATUS2,"CE9.4");
+						if (!runtoticker.isEmpty())
+							if (!runtoticker.equals(rs.getString("ticker")))
+								continue;
+						
+						
+						readAnnualEstimates(strTicker,strBeginFiscalCal,nProcessYear);
+					}
+					catch (SQLException sqle)
+					{
+						UtilityFunctions.stdoutwriter.writeln("Problem issuing sql statement",Logs.ERROR,"CE9.5");
+						UtilityFunctions.stdoutwriter.writeln(sqle);
+					}
+					
+					
+					
+					/* -convert to calendar quarterly estimates
+					 * -subtract out the existing known estimates
+					 * -calculate the cyclicality
+					 * -calculate the missing quarterly estimates
+					 * -write new estimates into fact_data_stage_est
+					 */
+				}
+				
+				NDC.pop();
+				}
+			}
+			catch (SQLException sqle)
 			{
-				
-				/*
-				 * -read in the fiscal annual estimates
-				*/
-				try
-				{
-					String strTicker = rs.getString("ticker");
-					String strBeginFiscalCal = rs.getString("begin_fiscal_calendar");
-					
-					UtilityFunctions.stdoutwriter.writeln("Processing ticker " + rs.getString("ticker"),Logs.STATUS2,"CE9.4");
-					if (!runtoticker.isEmpty())
-						if (!runtoticker.equals(rs.getString("ticker")))
-							continue;
-					
-					
-					readAnnualEstimates(strTicker,strBeginFiscalCal,nProcessYear);
-				}
-				catch (SQLException sqle)
-				{
-					UtilityFunctions.stdoutwriter.writeln("Problem issuing sql statement",Logs.ERROR,"CE9.5");
-					UtilityFunctions.stdoutwriter.writeln(sqle);
-				}
-				
-				
-				
-				/* -convert to calendar quarterly estimates
-				 * -subtract out the existing known estimates
-				 * -calculate the cyclicality
-				 * -calculate the missing quarterly estimates
-				 * -write new estimates into fact_data_stage_est
-				 */
+				UtilityFunctions.stdoutwriter.writeln("Problem issuing sql statement",Logs.ERROR,"CE10");
+				UtilityFunctions.stdoutwriter.writeln(sqle);
 			}
 			
-			NDC.pop();
-			}
-		}
-		catch (SQLException sqle)
-		{
-			UtilityFunctions.stdoutwriter.writeln("Problem issuing sql statement",Logs.ERROR,"CE10");
-			UtilityFunctions.stdoutwriter.writeln(sqle);
-		}
-		
-
-		updateMetaDataSet();
+	
+			updateMetaDataSet();
 
 	
 
@@ -102,44 +107,12 @@ public class CalcEstimates
 	
 	public static void readAnnualEstimates(String strTicker, String strBeginFiscalCalendar, int nProcessYear) throws SQLException
 	{
-		/*String query = "select count(*) from fact_data where data_set='table_yahoo_y_eps_est_body' AND ticker='" + 
-		strTicker + "' AND fiscalyear=" + nProcessYear;
-		ResultSet rs = UtilityFunctions.db_run_query(query);
-		rs.next();
-		int nFetchSize = rs.getInt("count(*)");
-		if (nFetchSize > 1)
-		{
-			UtilityFunctions.stdoutwriter.writeln("There is more than one row of annual estimates for ticker " + strTicker + " and fiscal year " + nProcessYear,Logs.STATUS1,"CE20");
-			UtilityFunctions.stdoutwriter.writeln("Need to clean up the data",Logs.STATUS1,"CE20.1");
-			return;
-		}
-		else if (nFetchSize == 0)
-		{
-			UtilityFunctions.stdoutwriter.writeln(strTicker + ": No annual estimates, skipping",Logs.STATUS1,"CE20");
-			return;
-		}*/
-			
+
 		
 		
 		String query;
 		ResultSet rs2;
 		int nFetchSize;
-		
-
-		
-		//query = "select count(*) from tmp_eps_est where ticker='" + strTicker + "' AND fiscalyear=" + nProcessYear;
-		
-		/*String query = "select count(*) from fact_data where ticker='"+ strTicker + "' AND fiscalyear=" + nProcessYear + 
-			" AND data_set IN ('table_yahoo_q_eps_est_body','table_nasdaq_q_eps_body','table_nasdaq_q_eps_est_body')";
-		ResultSet rs2 = UtilityFunctions.db_run_query(query);
-		rs2.next();
-		int nFetchSize = rs2.getInt("count(*)");*/
-		
-		
-		
-		//query = "select * from tmp_eps_est where ticker='" + strTicker + "' AND fiscalyear=" + nProcessYear;
-		/*query = "select * from fact_data where ticker='"+ strTicker + "' AND fiscalyear=" + nProcessYear + 
-		" AND data_set IN ('table_yahoo_q_eps_est_body','table_nasdaq_q_eps_body','table_nasdaq_q_eps_est_body')";*/
 		
 		
 		
@@ -313,8 +286,8 @@ public class CalcEstimates
 			
 			if (bMissQuarters[i] == true)
 			{
-				query = "insert into fact_data_stage_est " +
-				"(value,entity_id,task_id,fiscalquarter,fiscalyear,batch,date_collected,data_group,calquarter,calyear,meta_data_set) values" +
+				query = "insert into fact_data " +
+				"(value,entity_id,task_id,fiscalquarter,fiscalyear,batch,date_collected,data_group,calquarter,calyear,metric_id,meta_set_id) values" +
 				"(" + dAdjustedQuarterEst + "," +
 				nEntityId + "," + 
 				nTaskId + "," +
@@ -325,9 +298,20 @@ public class CalcEstimates
 				"'eps_est'," +
 				strQuarterYear.substring(0,1) + "," +
 				strQuarterYear.substring(1,5) + "," +
-				"'eps_act_and_est')";
+				"4," +
+				"1)";
 			
+				
 				UtilityFunctions.db_update_query(query);
+				
+				if (CalcEstimates.bFirstUpdate==true)
+				{
+					String strDelete = "delete from fact_data where task_id=-1";
+					
+					UtilityFunctions.db_update_query(strDelete);
+					
+					CalcEstimates.bFirstUpdate=false;
+				}
 				
 				UtilityFunctions.stdoutwriter.writeln(strTicker + ": Generated estimate for fiscalyear: " + nProcessYear + " fiscalquarter: " + (i + 1),Logs.STATUS1,"CE44");
 			}
@@ -343,20 +327,80 @@ public class CalcEstimates
 	{
 		String strUpdate;
 		
-		UtilityFunctions.stdoutwriter.writeln("Attempting to update meta_data_set field for " + vMetaDataSet.size() + " records.",Logs.STATUS1,"CE44.5");
+		UtilityFunctions.stdoutwriter.writeln("Attempting to update meta_set_id field for " + vMetaDataSet.size() + " records.",Logs.STATUS1,"CE44.5");
 		
 		for (int i=0;i<vMetaDataSet.size();i++)
 		{
 			try
 			{
-				strUpdate = "update fact_data set meta_data_set='eps_act_and_est' where id=" + vMetaDataSet.get(i);
+				strUpdate = "update fact_data set meta_set_id=1 where id=" + vMetaDataSet.get(i);
 				UtilityFunctions.db_update_query(strUpdate);
 			}
 			catch(SQLException sql)
 			{
-				UtilityFunctions.stdoutwriter.writeln("Update meta_data_set failed for primary_key: " + vMetaDataSet.get(i),Logs.ERROR,"CE44.5");
+				UtilityFunctions.stdoutwriter.writeln("Update meta_set_id failed for id: " + vMetaDataSet.get(i),Logs.ERROR,"CE44.5");
 			}
 		}
+	}
+	
+	public static void initializeMetaSetId(int nYear) throws SQLException
+	{
+		/*
+		 * Initialize the meta_set_id for all years after and including nYear.
+		 * 
+		 * Have to think more about how to initialize this because for companies who's fiscalyear beings in feb,
+		 * their fiscalyear-calyear shift is one whole year. So processing fiscal year 2011 is processing calendar
+		 * year 2010. This program is based off of fiscal year (since the annual estimates are for fiscal year).
+		 * 
+		 * 
+		 * So here's an example of an issue - I wipe out calendar year 2011 and after and start this program with fiscalyear 2011.
+		 *  The februaries will go back and process 2010 again and duplicates will be created.
+		 * 
+		 * I wipe out 2010 and after, and then start this program with fiscalyear 2011. the februaries will go back and recalculate, but the januaries won't.
+		 * 
+		 * So there has to be more involved logic of initializing a certain range for each set of fiscalcalendar begin months.
+		 */
+		
+		//String strUpdate = "update fact_data set meta_set_id=2 where meta_set_id=1 and fiscalYear>=" + nYear;
+		
+		//phase shift 4
+		String strUpdate = "update fact_data,entities set meta_set_id=2 where entities.begin_fiscal_calendar='February' and ";
+		strUpdate += " fact_data.entity_id=entities.id and ";
+		strUpdate += "meta_set_id=1 and (calyear*10+calquarter)>=" + (((nYear-1)*10)+1);
+		
+		UtilityFunctions.db_update_query(strUpdate);
+		
+		//phase shift 3
+		strUpdate = "update fact_data,entities set meta_set_id=2 where entities.begin_fiscal_calendar in ('March','April','May') and ";
+		strUpdate += " fact_data.entity_id=entities.id and ";
+		strUpdate += "meta_set_id=1 and (calyear*10+calquarter)>=" + (((nYear-1)*10)+2);
+		
+		UtilityFunctions.db_update_query(strUpdate);
+		
+		//phase shift 2
+		strUpdate = "update fact_data,entities set meta_set_id=2 where entities.begin_fiscal_calendar in ('June','July','August') and ";
+		strUpdate += " fact_data.entity_id=entities.id and ";
+		strUpdate += "meta_set_id=1 and (calyear*10+calquarter)>=" + (((nYear-1)*10)+3);
+		
+		UtilityFunctions.db_update_query(strUpdate);
+		
+		//phase shift 1
+		strUpdate = "update fact_data,entities set meta_set_id=2 where entities.begin_fiscal_calendar in ('September','October','November') and ";
+		strUpdate += " fact_data.entity_id=entities.id and ";
+		strUpdate += "meta_set_id=1 and (calyear*10+calquarter)>=" + (((nYear-1)*10)+4);
+		
+		UtilityFunctions.db_update_query(strUpdate);
+		
+		//phase shift 0
+		strUpdate = "update fact_data,entities set meta_set_id=2 where entities.begin_fiscal_calendar in ('December','January') and ";
+		strUpdate += " fact_data.entity_id=entities.id and ";
+		strUpdate += "meta_set_id=1 and (calyear*10+calquarter)>=" + (((nYear)*10)+1);
+		
+		
+		UtilityFunctions.db_update_query(strUpdate);
+		
+		
+		
 	}
 	
 	public static Integer getBatchNumber() throws SQLException
@@ -373,7 +417,17 @@ public class CalcEstimates
 		query = query + "select batch from fact_data_stage_est) t1";
 		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
-		return (rs.getInt("max(batch)") + 1);
+		int nMaxBatch = rs.getInt("max(batch)") + 1;
+		
+		//Insert a batch # placeholder row in fact_data
+		//This is super kludgy and there is a very narrow window where this is not thread safe. This CalcEstimates should be integrated with DataLoad.
+		String strInsert = "insert into fact_data (value,date_collected,task_id,batch) values ";
+		strInsert += "(-1,NOW(),-1," + nMaxBatch + ")";
+		
+		UtilityFunctions.db_update_query(strInsert);
+		
+		
+		return (nMaxBatch);
 			
 	
 		
