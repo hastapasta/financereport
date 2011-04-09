@@ -1,6 +1,7 @@
 <?php
+include ("../../site/includes/sitecommon.php");
+require_once '../../common/functions.php';
 
-include ("../includes/sitecommon.php");
 
 ?>
 
@@ -8,10 +9,11 @@ include ("../includes/sitecommon.php");
 <HTML>
 <HEAD>
 <?php IncFunc::icon();?>
+<?php IncFunc::title();?>
 
 <?php IncFunc::blogFeedJavaScript();?>
 
-<?php IncFunc::incJquery(); ?>
+<?php //IncFunc::iquery(); ?>
 
 
 <script src="http://widgets.twimg.com/j/2/widget.js" type="text/javascript"></script>
@@ -20,7 +22,7 @@ include ("../includes/sitecommon.php");
 
 <script language="Javascript" type="text/javascript"> 
 
-function getElementsByClass(searchClass,node,tag) {
+/*function getElementsByClass(searchClass,node,tag) {
 	var classElements = new Array();
 	if ( node == null )
 		node = document;
@@ -36,7 +38,7 @@ function getElementsByClass(searchClass,node,tag) {
 		}
 	}
 	return classElements;
-}
+}*/
 
 //var obj= document.getElementById(obj);
 //obj.style.visibility = "visible";
@@ -95,7 +97,7 @@ IncFunc::header1("home");
 <BR/><BR/>
 <p>Providing financial data analysis and alerting services.</p>
 <br/><br/>
-<p>Note: This is website is an alpha release. Please bear with us as we expand the functionality of the site over the coming days and weeks. Thank you for your patience.</p>
+<p>Note: This website is an alpha release. Please bear with us as we expand the functionality of the site over the coming days and weeks. Thank you for your patience.</p>
 <br/>
 <p>For questions or requests please contact <a href="mailto:pikefin1@gmail.com">pikefin1@gmail.com</a></p>
 </div> <!-- intro -->
