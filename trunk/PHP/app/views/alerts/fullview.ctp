@@ -1,7 +1,7 @@
 <div class="alerts view">
 <?php echo $this->element('actions'); ?>
 <dl>
-<?php $this->set('jsIncludes',array('google'));   // this will link to /js/google.js ?>
+<?php //$this->set('jsIncludes',array('google'));   // this will link to /js/google.js ?>
 <?php $i = 0; $class = ' class="altrow"';?>
 <?php 
 	//debug($alert);

@@ -20,17 +20,11 @@
 	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Next Report Date'); ?></dt>
 	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $entity['Entity']['next_report_date']; ?>
 	&nbsp;</dd>
-	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Groups'); ?></dt>
-	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $entity['Entity']['groups']; ?>
-	&nbsp;</dd>
 	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Actual Fiscal Year End'); ?></dt>
 	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $entity['Entity']['actual_fiscal_year_end']; ?>
 	&nbsp;</dd>
 	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Full Name'); ?></dt>
 	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $entity['Entity']['full_name']; ?>
-	&nbsp;</dd>
-	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Depricated'); ?></dt>
-	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $entity['Entity']['depricated']; ?>
 	&nbsp;</dd>
 </dl>
 </div>

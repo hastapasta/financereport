@@ -44,6 +44,8 @@ if(isset($jsIncludes))
 echo $scripts_for_layout;
 ?>
 <script type="text/javascript">
+		//this was the only way I could figure out how to pass JSP_ROOT_PATH into the view.
+		<?php echo " var jsp_root_path='".IncFunc::$JSP_ROOT_PATH."';\n"; ?>
 		$(function(){
 			$('.deleteButton').click(function(){
 				$('#actionValue').val('1');
@@ -101,7 +103,13 @@ echo $scripts_for_layout;
 //display login/logout message
 echo $this->Session->flash('auth'); ?> <?php echo $this->Session->flash(); ?>
 
-<?php echo $content_for_layout; ?></div>
+<?php echo $content_for_layout; 
+
+$this->set('jsp_root_path',IncFunc::$JSP_ROOT_PATH);
+$this->set('test','value');
+
+
+?></div>
 
 
 <div id="footer"></div>
