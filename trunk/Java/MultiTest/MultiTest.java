@@ -88,7 +88,7 @@ public class MultiTest {
 		}
 		catch(ParseException pe)
 		{
-			System.out.println(pe);
+			System.out.println(0);
 			System.err.println(pe.getMessage());
 		}
 		
