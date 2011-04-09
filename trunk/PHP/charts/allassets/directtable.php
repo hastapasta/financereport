@@ -91,9 +91,6 @@ if (isset($_GET['title']))
 
  
 
-      //alert(dataSourceUrl + queryString1);
-
-     // alert(dataSourceUrl + queryString2);
       
       var container1 = document.getElementById('table1');
       //var container2 = document.getElementById('orgchart2');
@@ -102,7 +99,7 @@ if (isset($_GET['title']))
       var tableChart1 = new google.visualization.Table(container1);
       //var tableChart2 = new google.visualization.Table(container2);
       
-      alert(dataSourceUrl + queryString1);
+      //alert(dataSourceUrl + queryString1);
      
       
       query1 && query1.abort();
