@@ -61,7 +61,8 @@
          
  			
            
-            var query = new google.visualization.Query('http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php');
+           // var query = new google.visualization.Query('http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php');
+            var query = new google.visualization.Query('http://localhost/PHP/gadgetsamples/echodatasource2.php');
             
             //alert('here 2');
             
