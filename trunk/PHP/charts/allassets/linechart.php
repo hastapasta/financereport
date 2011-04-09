@@ -197,7 +197,7 @@ if (isset($_GET['group']))
 	IncFunc::yuiDropDownMenu();
 
 ?>
-<div id="chartTitle" style="margin: 20px 0 0 300px;font-size: medium;font-weight:bold;"><u><?php echo $title ?></u></div>
+<div id="chartTitle" style="margin: 20px 0 0 0;font-size: medium;font-weight:bold;"><u><?php echo $title ?></u></div>
 
     <div id="pf-form" style="margin:20px 0 0 0;font-size:15px;">
     Enter entity name (stock ticker, equity index, currency cross, etc):
