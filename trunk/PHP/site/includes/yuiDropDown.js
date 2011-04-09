@@ -23,9 +23,10 @@ function yuiCallBack() {
     {
        id: "equities", 
        itemdata: [ 
-           { text: "US Equities Top Gainers/Losers", url: rootpath + "/charts/allassets/directtable.php?taskid=10&title=" + escape("US%20Equities%20Top%20Gainers/Losers") },
-           { text: "Equities Individual Charts", url: rootpath + "/charts/other/comingsoon.php" },
-           { text: "Global Indexes Top Gainers/Losers", url: rootpath + "/charts/allassets/directtable.php?taskid=6&title=" + escape("Global%20Indexes%20Top%20Gainers/Losers") }
+           { text: "US Equities Percent Gain/Loss (S&P500)", url: rootpath + "/charts/allassets/directtable.php?taskid=10&title=" + escape("US%20Equities%20Percent%20Gain/Loss") },
+           { text: "US Equities Quarterly Earnings", url: rootpath + "/charts/equities/epslinechart3.php?entityid=1" },
+           { text: "US Equities Individual Line Charts", url: rootpath + "/charts/allassets/linechart.php?e=1&group=1&title=" + escape("US%20Equities%20Indivdual%20Line%20Charts") },
+           { text: "Global Indexes Percent Gain/Loss", url: rootpath + "/charts/allassets/directtable.php?taskid=6&title=" + escape("Global%20Indexes%20Percent%20Gain/Loss") }
            
        ]
     },
@@ -33,8 +34,8 @@ function yuiCallBack() {
     {
        id: "commodities", 
        itemdata: [
-           { text: "Commodity Futures Top Gainers/Losers", url: rootpath + "/charts/allassets/directtable.php?taskid=12&title=" + escape("Commodity%20Futures%20Top%20Gainers/Losers") },
-           { text: "Commodity Futures Individual Charts", url: rootpath + "/charts/other/comingsoon.php" }
+           { text: "Commodity Percent Gain/Loss", url: rootpath + "/charts/allassets/directtable.php?taskid=12&title=" + escape("Commodity%20Futures%20Percent%20Gain/Loss") },
+           { text: "Commodity Futures Individual Line Charts", url: rootpath + "/charts/allassets/linechart.php?e=673&group=4&title=" + escape("Commodity%20Futures%20Indivdual%20Line%20Charts") }
                  
        ]    
     },
@@ -42,8 +43,8 @@ function yuiCallBack() {
     {
        id: "forex", 
        itemdata: [
-           { text: "Forex Top Gainers/Losers", url: rootpath + "/charts/allassets/directtable.php?taskid=1&title=" + escape("Forex%20Top%20Gainers/Losers") },
-           { text: "Forex Individual Charts", url: rootpath + "/charts/other/comingsoon.php" }
+           { text: "Forex Percent Gain/Loss", url: rootpath + "/charts/allassets/directtable.php?taskid=1&title=" + escape("Forex%20Percent%20Gain/Loss") },
+           { text: "Forex Individual Line Charts", url: rootpath + "/charts/allassets/linechart.php?e=508&group=3&title=" + escape("Forex%20Indivdual%20Line%20Charts") }
        ] 
     },
 
@@ -53,7 +54,7 @@ function yuiCallBack() {
            { text: "Federal Reserve Balance Sheet", url: rootpath + "/charts/fed/balsheet.php" },
            { text: "Federal Reserve Change WOW", url: rootpath + "/charts/other/comingsoon.php" },
            { text: "GDP Growth Estimates", url: rootpath + "/charts/gdp/motionchart.php" },
-           { text: "All Assets - Inidivdual Line Charts", url: rootpath + "/charts/allassets/linechart.php?a=660" }
+           { text: "All Assets - Inidivdual Line Charts", url: rootpath + "/charts/allassets/linechart.php?a=660&title=" + escape("All%20Assets%20Indivdual%20Line%20Charts") }
          
        ]
     }                    
