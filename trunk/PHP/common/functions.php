@@ -12,17 +12,6 @@ class db_utility
 	static private $functions_dbpass="madmax1.";
 	static private $functions_database="findata";
 	
-	static public $datasourceurl="http://www.pikefin.com/testjsp/JSPDataSource/";
-	//static public $datasourceurl="http://localhost:8080/JSPDataSource/";
-	
-	/*static public function db_connect($host,$port,$user,$pass,$dbase)
-	{
-
-		mysql_connect($host.":".$port,$user,$pass) or die (mysql_error());
-		mysql_select_db($dbase) or die(mysql_error());
-	
-	}*/
-	
 	
 	static public function db_connect()
 	{
