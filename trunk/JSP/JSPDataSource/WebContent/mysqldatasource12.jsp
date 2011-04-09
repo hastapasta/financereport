@@ -16,6 +16,7 @@
 */
 
 String strEntityId = request.getParameter("entityid");
+//String strEntityId="75";
 
 //String strEndDate = request.getParameter("enddate");
 //String strBeginDate = request.getParameter("begindate"); 
@@ -115,14 +116,14 @@ query3 += " order by date_collected DESC";
 
 
 String query = "(select metrics.name,(fact_data.calyear*10+fact_data.calquarter) as cyq,value,batch,t1.initval,";
-query += "(if (initval=0,initval,round(((value - initval)/initval),2))) * 100 as pctchange ";
+query += "(if (initval=0,initval,round(((value - initval)/initval) * 100,2)))as pctchange ";
 query += " from fact_data ";
 query += " join metrics on fact_data.metric_id=metrics.id ";
 query += " join (" + query2 + ") as t1 on t1.entity_id=fact_data.entity_id ";
 query += " where metric_id=4 and fact_data.entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id) ";
 query += " union ";
 query += " (select metrics.name,(fact_data.calyear*10+fact_data.calquarter) as cyq,value,batch,t1.initval, ";
-query += "(if (initval=0,initval,round(((value - initval)/initval),2))) * 100 as pctchange ";
+query += "(if (initval=0,initval,round(((value - initval)/initval) * 100,2))) as pctchange ";
 query += " from fact_data ";
 query += " join metrics on fact_data.metric_id=metrics.id ";
 query += " join (" + query2 + ") as t1 on t1.entity_id=fact_data.entity_id ";
@@ -130,7 +131,7 @@ query += " where metric_id=5 and fact_data.entity_id=" + strEntityId + " and met
 query += " union ";
 query += " (select metrics.name,(year(date_collected)*10+( " + strCase + ")) as cyq, ";
 query += " value,batch,t2.initval,";
-query += "(if (initval=0,initval,round(((value - initval)/initval),2))) * 100 as pctchange ";
+query += "(if (initval=0,initval,round(((value - initval)/initval) * 100,2))) as pctchange ";
 query += " from fact_data ";
 query += " join metrics on fact_data.metric_id=metrics.id ";
 query += " join (" + query3 + ") as t2 on t2.entity_id=fact_data.entity_id ";
@@ -168,15 +169,6 @@ catch (SQLException sqle)
 	out.println(sqle.toString());
 }
 
-int[] tmpArray = {0,1};
-arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray,3);
-
-
-
-arrayListRows = PopulateSpreadsheet.removeLastColumn(arrayListRows);
-
-
-
 /*out.println("<table>");
 for (int i=0;i<arrayListRows.size();i++)
 {
@@ -191,6 +183,17 @@ for (int i=0;i<arrayListRows.size();i++)
 out.println("</table>");
 
 out.println(query); if (1==1) return;*/
+
+int[] tmpArray = {0,1};
+arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray,3);
+
+
+
+arrayListRows = PopulateSpreadsheet.removeLastColumn(arrayListRows);
+
+
+
+
 
 
 
@@ -328,7 +331,7 @@ for (int i=0;i<arrayListRows.size();i++)
 
 
 
-out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId));
+out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,false));
 
 
 
