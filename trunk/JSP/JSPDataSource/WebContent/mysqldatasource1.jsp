@@ -16,6 +16,7 @@
 */
 
 String strEntityId = request.getParameter("entityid");
+String strMetricId = request.getParameter("metricid");
 String[] entityIds = null;
 if (strEntityId!=null)
 	entityIds = strEntityId.split(",");
@@ -25,6 +26,12 @@ String strBeginDate = request.getParameter("begindate");
 if (strBeginDate==null)
 {
 	out.println("No begindate request parameter.");
+	return;
+}
+
+if (strMetricId ==null)
+{
+	out.println("No metricid request parameter.");
 	return;
 }
 
@@ -93,6 +100,7 @@ query += "from fact_data ";
 query += "JOIN entities on fact_data.entity_id=entities.id ";
 //query += "JOIN tasks on fact_data.task_id=tasks.id ";
 query += " where entities.id " + strInClause;
+query += " AND fact_data.metric_id=" + strMetricId;
 query += " AND date_format(fact_data.date_collected,'%Y-%m_%d')>'" + strBeginDate + "' ";
 if (strEndDate!=null && !strEndDate.isEmpty())
 	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
@@ -301,7 +309,7 @@ for (int i=0;i<arrayListRows.size();i++)
 
 
 
-out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId));
+out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,true));
 
 
 
