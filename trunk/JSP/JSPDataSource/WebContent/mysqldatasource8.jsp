@@ -196,7 +196,7 @@ for (int i=0;i<arrayListRows.size();i++)
 
 
 
-out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId).replace("\\",""));
+out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,false).replace("\\",""));
 
 
 //google.visualization.Query.setResponse({version:'0.6',reqId:'0',status:'ok',sig:'5982206968295329967',table:{cols:[{id:'Col1',label:'label1',type:'number'},{id:'Col2',label:'label2',type:'number'},

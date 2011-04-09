@@ -123,7 +123,7 @@ arrayListRows.add(blap6);*/
 
 
 
-out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId));
+out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,false));
 
 
 //google.visualization.Query.setResponse({version:'0.6',reqId:'0',status:'ok',sig:'5982206968295329967',table:{cols:[{id:'Col1',label:'label1',type:'number'},{id:'Col2',label:'label2',type:'number'},
