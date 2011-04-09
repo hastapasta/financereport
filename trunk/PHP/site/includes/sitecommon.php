@@ -5,12 +5,16 @@
 class IncFunc
 {
 	
-	//static public $PHP_ROOT_PATH="/PHP";
-	static public $CAKE_ROOT_PATH="/cakepftest";
-	//static public $JSP_ROOT_PATH="http://localhost:8080/JSPDataSource";
+	static public $PHP_ROOT_PATH="/PHP";
+	//static public $PHP_ROOT_PATH="/phpdev";
+	//static public $PHP_ROOT_PATH="/phptest";
 	
-	static public $PHP_ROOT_PATH="/phptest";
-	static public $JSP_ROOT_PATH="http://www.pikefin.com/testjsp/JSPDataSource";
+	//static public $CAKE_ROOT_PATH="/cakepfdev";
+	static public $CAKE_ROOT_PATH="/cakepftest";
+	
+	
+	static public $JSP_ROOT_PATH="http://localhost:8080/JSPDataSource/";	
+	//static public $JSP_ROOT_PATH="http://www.pikefin.com/devjsp/JSPDataSource/";
 	
 	static function icon()
 	{
@@ -28,6 +32,28 @@ class IncFunc
 	{
 		echo "<a id=\"jq-siteLogo\" href=\"http://www.pikefin.com\" title=\"PikeFin Home\"><img src=\"/PHP/site/images/33pctsizecrop.jpg\"/></a>";
 	}
+	
+	static function title()
+	{
+		echo "<title>PikeFinancial Data Service</title>";
+	}
+	
+	static function jQuery()
+	{
+		echo "<link rel=\"stylesheet\" href=\"../../site/includes/jquery-ui-1.8.11.custom.css\" type=\"text/css\" />";
+   		echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-1.5.1.js\"></script>";
+    	echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-ui-1.8.11.custom.min.js\"></script>";		
+	}
+	
+	static function googleGadget()
+	{
+		
+		echo "<script type=\"text/javascript\" src=\"../../site/includes/querywrapper.js\"></script>";
+		//echo "<script type=\"text/javascript\" src=\"".IncFunc::$CAKE_ROOT_PATH."/webroot/js/querywrapper.js\"></script>";
+		echo "<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>";
+	}
+	
+	
 	
 	static function primaryNav($Page)
 	{
@@ -48,11 +74,6 @@ class IncFunc
 		
 	}
 	
-	static function incJquery()
-	{
-		
-		echo "<script src=\"".self::$PHP_ROOT_PATH."/site/includes/jquery-1.5.1.js\" type=\"text/javascript\"></script>";
-	}
 	
 	static function header1($context)
 	{
