@@ -124,7 +124,7 @@ ul,li {
 	float: left;
 	width: 100%;
 	font: 13px/1.231 arial,helvetica,clean,sans-serif;
-	
+	display:table-row;
 }
 
 #footer {
@@ -135,10 +135,12 @@ ul,li {
 
 /** containers **/
 div.form,div.index,div.view {
-	float: right;
+	
+	display:table-cell;
 	width: 82%;
 	border-left: 1px solid #666;
 	padding: 10px 2%;
+	
 }
 
 div.actions {
@@ -488,6 +490,7 @@ p.error em {
 div.actions ul {
 	margin: 0;
 	padding: 0;
+	display:table-row;
 }
 
 div.actions li {
@@ -495,12 +498,11 @@ div.actions li {
 	list-style-type: none;
 	white-space: nowrap;
 	padding: 0;
-	display:inline;
-	float: left;
+	display:table-cell;
 	margin-right: 5px;
 	margin-bottom: 5px;
 }
-
+ 
 div.actions ul li a {
 	font-weight: normal;
 	/*display: block;*/
@@ -670,9 +672,12 @@ div.code-coverage-results span.result-good {
 	color: #0a0;
 }
 .searchTable{
-	float: left;
+	vertical-align:top;
+	padding-top:10px;
+	display:table-cell;
 	width:150px;
 	clear: none;
+	
 }
 .searchTable select{
 	width: 150px;
@@ -773,6 +778,26 @@ div.code-coverage-results span.result-good {
 	position: absolute;
 	/*border: 0 !important;*/
 }
+
 #topAction li a{
 	display:block;
+}
+.registration{
+	background: -moz-linear-gradient(center top , #A8EA9C, #62AF56) repeat scroll 0 0 #62AF56;
+    border-color: #2D6324;
+    color: #000000;
+    text-shadow: 0 1px 0 #8CEE7C;
+    -moz-border-radius: 8px 8px 8px 8px;   
+    border: 1px solid #2D6324;
+    cursor: pointer;
+    font-weight: normal;
+    min-width: 0;
+    padding: 4px 8px;
+    text-decoration: none;    
+}
+#logIn{
+	list-style-type: none;
+}
+#logIn li{
+	float: left;
 }
