@@ -78,7 +78,7 @@ arrayListCols.add(blap11);
 DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
 
 
-String query = "select tasks.name,entities.ticker,time_events.name,users.username,fd1.value, fd2.value, (if (fd1.value=0,fd1.value,round(((fd2.value - fd1.value)/fd1.value),3))) * 100 as pctchange,  ";
+String query = "select tasks.name,entities.ticker,time_events.name,users.username,fd1.value, fd2.value, (if (fd1.value=0,fd1.value,round(((fd2.value - fd1.value)/fd1.value) * 100,3)))  as pctchange,  ";
 query += "fd1.date_collected,fd2.date_collected,time_events.last_datetime,time_events.next_datetime ";
 query += "from alerts ";
 query += "JOIN schedules on alerts.schedule_id=schedules.id ";
@@ -223,7 +223,7 @@ for (int i=0;i<arrayListRows.size();i++)
 
 
 
-out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId));
+out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,false));
 
 
 //google.visualization.Query.setResponse({version:'0.6',reqId:'0',status:'ok',sig:'5982206968295329967',table:{cols:[{id:'Col1',label:'label1',type:'number'},{id:'Col2',label:'label2',type:'number'},
