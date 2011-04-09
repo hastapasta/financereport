@@ -633,15 +633,24 @@ public void postProcessYahooSharePrice() throws SQLException
 	//System.out.println("here");
 	String[] strTmpValue = propTableData.get(0);
 	
-	strTmpValue[0] = strTmpValue[0].substring(strTmpValue[0].indexOf(">")+1,strTmpValue[0].length());
+	String[] values = strTmpValue[0].split(",");
+	
+	
+	
+	//strTmpValue[0] = strTmpValue[0].substring(strTmpValue[0].indexOf(">")+1,strTmpValue[0].length());
 	
 	
 	String[] tmpArray = {"value","date_collected","entity_id"};
 	String[] rowdata = new String[tmpArray.length];
 	
 	//rowdata[0] = dg.nCurTask + "";
-	rowdata[0] = strTmpValue[0];
-	rowdata[1] = "NOW()";
+	//rowdata[0] = strTmpValue[0];
+	rowdata[0]= values[4];
+	if (DataLoad.bLoadingHistoricalData==false)
+		rowdata[1] = "NOW()";
+	else
+		// Just using some arbitrary after hours time
+		rowdata[1] = "'" + values[0] + " 20:00:00'";
 	rowdata[2] = dg.nCurrentEntityId + "";
 	//rowdata[4] = "share_price";
 	
@@ -657,6 +666,8 @@ public void postProcessYahooSharePrice() throws SQLException
 	
 
 }
+
+
 
 public void postProcessNasdaqSharesOut() throws SQLException
 {
@@ -1335,12 +1346,12 @@ public boolean preProcessYahooEPSEst() throws SQLException
 	if (strTicker.equals("BF/B"))
 	{
 		//dg.strCurrentTicker = "BF-B";		
-		dg.strCurrentTicker="BFB";
+		dg.strCurrentTicker="BF-B";
 	}
 	else if (strTicker.equals("BRK/A"))
 	{
 		//dg.strCurrentTicker = "BRK-A";	
-		dg.strCurrentTicker="BRKA";
+		dg.strCurrentTicker="BRK-A";
 	}
 	
 	
