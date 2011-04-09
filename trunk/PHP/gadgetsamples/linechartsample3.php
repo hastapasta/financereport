@@ -62,7 +62,7 @@
          
  			
            
-            var query = new google.visualization.Query('http://www.pikefin.com/testjsp/JSPDataSource/mysqldatasource1.jsp?entityid=660,661&begindate=2011-01-01');
+            var query = new google.visualization.Query('http://localhost:8080/JSPDataSource/mysqldatasource1.jsp?entityid=660,661&begindate=2011-01-01');
             
             //alert('here 2');
             
