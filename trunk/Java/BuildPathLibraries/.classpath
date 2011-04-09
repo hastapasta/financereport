@@ -13,7 +13,6 @@
 			<attribute name="javadoc_location" value="file:/home/ollie/dev/java/googleapi_samples/gdata/java/doc"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/googleapi_samples/gdata/java/sample/util/lib/sample-util.jar"/>
 	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/libraries/apache-log4j-1.2.16/log4j-1.2.16.jar" sourcepath="/home/ollie/dev/java/libraries/apache-log4j-1.2.16/src/main/java"/>
 	<classpathentry exported="true" kind="lib" path="/home/ollie/dev/java/libraries/commons-io-1.4/commons-io-1.4.jar" sourcepath="/DataGrab2/C:/dev/java/libraries/commons-io-1.4/commons-io-1.4-sources.jar">
 		<attributes>
