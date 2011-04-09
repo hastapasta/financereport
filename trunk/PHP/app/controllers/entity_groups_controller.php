@@ -2,6 +2,11 @@
 class EntityGroupsController extends AppController {
 
 	var $name = 'EntityGroups';
+	
+	function beforeFilter() {
+		parent::beforeFilter();
+		//$this->Auth->allow('*');
+	}
 
 	function index() {
 		$this->EntityGroup->recursive = 0;

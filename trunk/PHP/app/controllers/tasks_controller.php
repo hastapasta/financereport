@@ -2,6 +2,11 @@
 class TasksController extends AppController {
 
 	var $name = 'Tasks';
+	
+	function beforeFilter() {
+		parent::beforeFilter();
+		//$this->Auth->allow('*');
+	}
 
 	function index() {
 		$this->Task->recursive = 0;

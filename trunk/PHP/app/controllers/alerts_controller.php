@@ -2,7 +2,7 @@
 class AlertsController extends AppController {
 
 	var $name = 'Alerts';
-	var $uses = array('Alert','Schedule','Task', 'User','EntityGroup','Entity','TimeEvent');
+	var $uses = array('Alert','Schedule','Task', 'User','EntityGroup','Entity','TimeEvent','Metric');
 	var $paginate = array('limit'=>10);
 
 	function beforeFilter() {
@@ -77,14 +77,27 @@ class AlertsController extends AppController {
 						if ($filtervalues['Alert']['schedule_id']!="All")
 							$conditions['Schedule.id'] = $filtervalues['Alert']['schedule_id'];
 							
-						if ($filtervalues['Alert']['frequency']!="All")
-							$conditions['Alert.frequency'] = $filtervalues['Alert']['frequency'];
-			
+						
 						if (!empty($filtervalues['Entity']['ticker']))
 							$conditions['Entity.ticker LIKE'] = $filtervalues['Entity']['ticker'];
-			
+						
+						if(!empty($filtervalues['Alert']['user_id'])){
+							$conditions['Alert.user_id'] = $filtervalues['Alert']['user_id'];
+						}
+						
+						if(!empty($filtervalues['Alert']['time_event_id'])){
+							$conditions['Alert.time_event_id'] = $filtervalues['Alert']['time_event_id'];
+						}
+
+						if($filtervalues['Alert']['filtersdisabled'] == '1'){
+							$conditions['Alert.disabled'] = 1;
+						}
+						
+						if($filtervalues['Alert']['filtersfired'] == 1)
+							$conditions['Alert.fired'] = 1;
 					}
 				}
+				
 			/*if ($th['Alert']['schedule_id']!="All")
 			{
 				//debug('Filter schedules',true);
@@ -95,7 +108,6 @@ class AlertsController extends AppController {
 				$conditions['Entity.ticker LIKE'] = $filtervalues['Entity']['ticker'];*/
 		}
 		
-
 		$this->paginate = array('conditions' => $conditions);
 
 		$task_names2 = $this->Task->find('list', array('fields'=> array('SchedulesAlias.id','description'),'joins'=>array(
@@ -112,9 +124,21 @@ class AlertsController extends AppController {
 		
 		$task_names2 = $tmp;
 		
-		$this->set('frequencies',array('All'=>'All','HOURLY'=>'HOURLY','DAILY'=>'DAILY','WEEKLY'=>'WEEKLY','MONTHLY'=>'MONTHLY','YEARLY'=>'YEARLY','ALLTIME'=>'ALLTIME'));
+		//$this->set('frequencies',array('All'=>'All','HOURLY'=>'HOURLY','DAILY'=>'DAILY','WEEKLY'=>'WEEKLY','MONTHLY'=>'MONTHLY','YEARLY'=>'YEARLY','ALLTIME'=>'ALLTIME'));
 
 		$this->set('task_names2', $task_names2);
+		
+		//set observation period (time event) dropdown
+		
+		$time_event_names = $this->TimeEvent->find('list', array('fields'=>array('id', 'name')));
+		$this->set(compact('time_event_names'));
+		
+	
+		
+		// set users dropdown
+		
+		$users = $this->User->find('list', array('fields'=>array('id', 'username')));
+		$this->set(compact('users'));
 		//exit();
 		$this->set('alerts', $this->paginate());
 
@@ -127,6 +151,16 @@ class AlertsController extends AppController {
 		}
 		$this->Alert->recursive = 2;
 		$this->set('alert', $this->Alert->read(null, $id));
+		
+		//debug($this->Alert->data['Schedule']['Task']['metric_id'],true);
+		
+		$metric_id = $this->Alert->data['Schedule']['Task']['metric_id'];
+		$metric_name = $this->Metric->find('list', array(   'fields'=> 'name',   'conditions'=> array('id' => $metric_id)));
+		
+		//debug($metric_name[$metric_id],true);
+		$this->set('metric_name',$metric_name[$metric_id]);
+		
+		//debug($metric_name,true);
 	}
 	
 	function fullview($id = null) {

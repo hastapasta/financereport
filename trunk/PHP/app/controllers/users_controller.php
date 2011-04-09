@@ -2,6 +2,7 @@
 class UsersController extends AppController {
 
 	var $name = 'Users';
+	//var $uses = array('User');
 
 	function beforeFilter() {
 		/*
@@ -9,7 +10,13 @@ class UsersController extends AppController {
 		 */
 		parent::beforeFilter();
 
-		$this->Auth->allow(array('logout','login'));
+		$this->Auth->allow(array('logout','login','registration','confirm'));
+		$this->Auth->userScope = array(
+	        'User.active' => array(
+	            'expected' => 1,
+	            'message' => __("Your account is not active yet. Click the Link in our Mail.", true)
+	        )
+	    );
 
 		/*
 		 * End Production setup.
@@ -145,11 +152,69 @@ class UsersController extends AppController {
 		}
 	}
 	
+function registration() {
+		if(!empty($this->data)){
+			if($this->data['User']['password'] == $this->Auth->password($this->data['User']['confirm_password'])){
+				$this->data['User']['group_id'] = 3;
+				if($this->User->save($this->data)){
+					$data = array();
+					$data['id'] = $this->User->id;
+					$data['username'] = $this->data['User']['username'];
+					$data['password'] = $this->data['User']['confirm_password'];
+					$options['to'] = $this->data['User']['email'];
+					$options['from'] = CONFIG_ADMIN_MAIL;
+					$options['contentTemplate'] = 'confirmation_mail';
+					$options['subject'] = 'Account Confirmation';
+					$options['content'] = $data ;
+					$this->Mymail->sendEmail($options);
+					$this->Session->setFlash('Please check your email for confirmation link','default',array('class'=>'green_message'));
+					$this->redirect(array('controller'=>'users','action'=>'login'));
+				}
+			}else{
+				$this->Session->setFlash('Password is wrong!');
+			}
+		}
+	}
+	
+	function confirm($id = null) {
+		if($id){
+			$user = array();
+			$user['User']['id'] = $id;
+			$user['User']['active'] = 1;
+			if($this->User->save($user)){
+				$msg = 'Your account has been successfully activated';
+			}else{
+				$msg = 'Sorry! try after some time.';
+			}
+			$this->set(compact('msg'));
+		}else{
+			$this->redirect(array('controller'=>'users','action'=>'login'));
+		}
+	}
+	
 	function chart(){
 		
+		$userprops = $this->Auth->user();
+		$this->set('userid', $userprops['User']['id']);
+		
+		//debug($userprops,true);
+		
 	}
-/*
-	function initDB() {
+	
+	function charta(){
+		
+	}
+	function chartb(){
+		
+	}
+	function chartc(){
+		
+	}
+	function chartd(){
+	}
+	
+
+	/*function initDB() {
 		$group =& $this->User->Group;
 		//Allow admins to everything
 		$group->id = 1;

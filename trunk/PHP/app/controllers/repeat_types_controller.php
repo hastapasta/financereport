@@ -2,6 +2,11 @@
 class RepeatTypesController extends AppController {
 
 	var $name = 'RepeatTypes';
+	
+	function beforeFilter() {
+		parent::beforeFilter();
+		//$this->Auth->allow('*');
+	}
 
 	function index() {
 		$this->RepeatType->recursive = 0;

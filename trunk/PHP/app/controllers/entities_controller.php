@@ -2,6 +2,11 @@
 class EntitiesController extends AppController {
 
 	var $name = 'Entities';
+	
+	function beforeFilter() {
+		parent::beforeFilter();
+		//$this->Auth->allow('*');
+	}
 
 	function index() {
 		$this->Entity->recursive = 0;
@@ -13,7 +18,12 @@ class EntitiesController extends AppController {
 			$this->Session->setFlash(__('Invalid entity', true));
 			$this->redirect(array('action' => 'index'));
 		}
+		/*
+		 * Making it recursive causes a retrieval of all of the alerts; don't need that data.
+		 */
+		//$this->Entity->recursive = 1;
 		$this->set('entity', $this->Entity->read(null, $id));
+		
 	}
 
 	function add() {
