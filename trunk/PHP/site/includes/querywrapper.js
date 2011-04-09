@@ -85,9 +85,11 @@ QueryWrapper.prototype.handleErrorResponse = function(response) {
   var message = response.getMessage();
   var detailedMessage = response.getDetailedMessage();
   if (this.errorContainer) {
+    this.errorContainer.innerHTML="";
     google.visualization.errors.addError(this.errorContainer,
         message, detailedMessage, {'showInTooltip': false});
   } else {
+
     throw Error(message + ' ' + detailedMessage);
   }
 };
