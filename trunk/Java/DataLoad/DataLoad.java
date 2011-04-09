@@ -49,6 +49,7 @@ class DataLoad extends Thread //implements Stopable
   static int nMaxThreads;
   static Properties props;
   static boolean bDisableEmails;
+  static boolean bLoadingHistoricalData=false;
   //Hashtable<String,Hashtable<String,String>> hashScheduleTable;
   ArrayList<String> listWaitingJobs;
   DataGrab[] arrayRunningJobs;
@@ -297,7 +298,10 @@ class DataLoad extends Thread //implements Stopable
 				   * OFP 3/12/2011 - move the writeKeepAlive function call here because we were running into instances were the DataLoad thread was running
 				   * fine but the DataGrab threads were locked up and no new DataGrab threads were being initiated.
 				   */
-				  writeKeepAlive();
+				  /*
+				   * OFP 3/27/2011 - writeKeepAlive is now obsolete because MultiTest reads from log_tasks in the database.
+				   */
+				  //writeKeepAlive();
 				  dg.startThread();
 				  UtilityFunctions.stdoutwriter.writeln("Initiated DataGrab thread " + dg.getName(),Logs.THREAD,"DL4");
 				  
@@ -651,7 +655,7 @@ class DataLoad extends Thread //implements Stopable
 	UtilityFunctions.stdoutwriter.writeln("DATABASE NAME: " + (String)props.get("database"),Logs.STATUS1,"DL14");
 	UtilityFunctions.stdoutwriter.writeln("DATABASE USER: " + (String)props.get("dbuser"),Logs.STATUS1,"DL15");
 	UtilityFunctions.stdoutwriter.writeln("SLEEP INTERVAL: " + (String)props.get("sleep_interval"),Logs.STATUS1,"DL16");
-	UtilityFunctions.stdoutwriter.writeln("KEEP ALIVE FILE LOCATION: " + (String)props.get("filelocation"),Logs.STATUS1,"DL17");
+	//UtilityFunctions.stdoutwriter.writeln("KEEP ALIVE FILE LOCATION: " + (String)props.get("filelocation"),Logs.STATUS1,"DL17");
 	//UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR DAY: " + (String)props.get("gcday"),Logs.STATUS1,"DL17");
 	//UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR TIME: " + (String)props.get("gctime"),Logs.STATUS1,"DL18");
 	
@@ -660,6 +664,13 @@ class DataLoad extends Thread //implements Stopable
 		UtilityFunctions.stdoutwriter.writeln("EMAIL AND TWITTER NOTIFICATIONS ARE DISABLED",Logs.STATUS1,"DL18");
 	else
 		UtilityFunctions.stdoutwriter.writeln("EMAIL AND TWITTER NOTIFICATIONS ARE ENABLED",Logs.STATUS1,"DL19");
+	
+	DataLoad.bLoadingHistoricalData= Boolean.parseBoolean((String)props.getProperty("historicaldata"));
+	if (DataLoad.bLoadingHistoricalData==true)
+		UtilityFunctions.stdoutwriter.writeln("LOADING HISTORICAL DATA",Logs.STATUS1,"DL20");
+	else
+		UtilityFunctions.stdoutwriter.writeln("NOT LOADING HISTORICAL DATA",Logs.STATUS1,"DL21");
+	
 	
 	DataLoad.nMaxThreads = Integer.parseInt((String)props.get("max_threads"));
 	UtilityFunctions.stdoutwriter.writeln("MAXIMUM # OF DATAGRAB THREADS: " + DataLoad.nMaxThreads,Logs.STATUS1,"DL19");
@@ -706,75 +717,87 @@ class DataLoad extends Thread //implements Stopable
     
 	if (pause != true)
 	{
-		while(1 != 2)
-		{    	
-			//
-			try 
-			{ 
-				
-				//writeKeepAlive();
-				updateTimeEvents();
-				getTriggeredJobs();
-				executeJobs();
-				writeJobQueueIntoDB();			
-				sleep(nsleepinterval*1000);
-				//updateEventTimes();
-				garbageCollectionFunction();
-				cleanTerminatedJobs();
-				checkMessageCount();
-				/*
-				 * Right now we're just performing lazy database object cleanup by closing and reopening 
-				 * the connection. If connection pooling is ever utilized, then this won't work and explicit
-				 * close statements (for statements and/or resultsets) will have to be added to the code.
-				 */
-				dbf.cycleConnection();
-				
-				//checkNotifications();
-				
-				
-				//new Echo( ss.accept() ).start();      
-				//sleep(60000); //sleep for 1 minute
-				//System.out.println("Awake.....");
-				//Check if schedules are triggered
-				
-			        
-			     /*ArrayList<String> listDataSets = this.checkSchedules();
-			     boolean done = false;
-			     while (!done == true)
-			     {
-			    	 if (nRunningThreads == this.nMaxThreads)
-			    		 sleep(60000);
-			    	 else
-			    		 
-			    		 
-			    	 
-			     }*/
-			        	
-			  
-			        	//Check for run once
-			        	//Recalculate trigger timess
-				
-				
-				
-				
-				
-			}
-			catch(SQLException sqle)
-			{
-				UtilityFunctions.stdoutwriter.writeln("Problem issuing sql statement while processing schedules",Logs.ERROR,"DL10");
-				UtilityFunctions.stdoutwriter.writeln(sqle);
-			}
-			catch(InterruptedException ie)
-			{
-				//NDC.pop();
-				break;
-				
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
+		
+		if (bLoadingHistoricalData == false)
+		{
+			while(1 != 2)
+			{    	
+				//
+				try 
+				{ 
+					
+					//writeKeepAlive();
+					updateTimeEvents();
+					getTriggeredJobs();
+					executeJobs();
+					writeJobQueueIntoDB();			
+					sleep(nsleepinterval*1000);
+					//updateEventTimes();
+					garbageCollectionFunction();
+					cleanTerminatedJobs();
+					checkMessageCount();
+					/*
+					 * Right now we're just performing lazy database object cleanup by closing and reopening 
+					 * the connection. If connection pooling is ever utilized, then this won't work and explicit
+					 * close statements (for statements and/or resultsets) will have to be added to the code.
+					 */
+					dbf.cycleConnection();
+					
+					//checkNotifications();
+					
+					
+					//new Echo( ss.accept() ).start();      
+					//sleep(60000); //sleep for 1 minute
+					//System.out.println("Awake.....");
+					//Check if schedules are triggered
+					
+				        
+				     /*ArrayList<String> listDataSets = this.checkSchedules();
+				     boolean done = false;
+				     while (!done == true)
+				     {
+				    	 if (nRunningThreads == this.nMaxThreads)
+				    		 sleep(60000);
+				    	 else
+				    		 
+				    		 
+				    	 
+				     }*/
+				        	
+				  
+				        	//Check for run once
+				        	//Recalculate trigger timess
+					
+					
+					
+					
+					
+				}
+				catch(SQLException sqle)
+				{
+					UtilityFunctions.stdoutwriter.writeln("Problem issuing sql statement while processing schedules",Logs.ERROR,"DL10");
+					UtilityFunctions.stdoutwriter.writeln(sqle);
+				}
+				catch(InterruptedException ie)
+				{
+					//NDC.pop();
+					break;
+					
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}
+		else //Loading History Data
+		{
+			
+			HistoricalDataLoad.initiateHistoricalDataLoad(dbf,this.nMaxBatch);
+			
+			
+		}
+	
 		
 	}  
 }                
