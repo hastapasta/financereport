@@ -7,6 +7,7 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import org.json.*;
 
@@ -93,13 +94,53 @@ public class PopulateSpreadsheet {
 		UtilityFunctions.stdoutwriter.writeln(str,Logs.STATUS1,"A2.73");
 	}
 	
-
-	public static String createGoogleJSON(ArrayList<String[]> arrayListCols, ArrayList<String[]> arrayListRows,String strReqId)
+	public static String createGoogleError(String strReqId,String strReason,String strMessage,String strDetailed)
 	{
+		try
+		{
+		
+		JSONObject jsonTop = new JSONObject();
+		jsonTop.put("version","0.6");
+		jsonTop.put("reqId", strReqId);
+		jsonTop.put("status","error");
+		
+		JSONArray jsonArray = new JSONArray();
+		
+		JSONObject jsonBottom = new JSONObject();
+		
+		jsonBottom.put("reason",strReason);
+		jsonBottom.put("message", strMessage);
+		jsonBottom.put("detailed_message", strDetailed);
+		
+		jsonArray.put(jsonBottom);
+		
+		jsonTop.put("errors",jsonArray);
+		
+		//google.visualization.Query.setResponse({version:'0.6',reqId:'0',status:'error',errors:[{reason:'access_denied',message:'Access denied',detailed_message:'Access Denied'}]});
+		
+		return("google.visualization.Query.setResponse(" + jsonTop.toString() + ");");
+		}
+		catch (JSONException je)
+		{
+			return(je.toString());
+		}
+		
+		
+	}
+
+	public static String createGoogleJSON(ArrayList<String[]> arrayListCols, ArrayList<String[]> arrayListRows,String strReqId,boolean bEmptyZeros) 
+	{
+		
+		/*
+		 * OFP 4/1/2011 - Added bEmptyZeros to indicate if zero values should be replaced with the empty string.
+		 * 
+		 */
+		try 
+		{
 		UtilityFunctions.stdoutwriter.writeln("This is a test from inside createGoogleJSON.",Logs.STATUS1,"A2.73");
 		
 		JSONObject jsonTop = new JSONObject(); 
-		jsonTop.put("version","0.5");
+		jsonTop.put("version","0.6");
 		//jsonTop.put("reqId","0");
 		jsonTop.put("reqId", strReqId);
 		jsonTop.put("status","ok");
@@ -145,16 +186,55 @@ public class PopulateSpreadsheet {
 					if (!foo2[2*k].isEmpty())
 					{
 						double dTmp = Double.valueOf(foo2[2*k]);
-						tmp.put("v", dTmp);
+						if ((dTmp == 0) && (bEmptyZeros == true))
+						{
+							tmp.put("v", "");
+							if (k!=0)
+								tmp.put("f","");
+						}
+						else
+						{
+							tmp.put("v", dTmp);
+							if (k!=0)
+								tmp.put("f",dTmp);
+						}
 					}
 					else
+					{
 						tmp.put("v", "");
+						if (k!=0)
+							tmp.put("f","");
+					}
 					//tmp.put("v",Integer.parseInt(foo2[2*k]));
 				}
+				else if (arrayListCols.get(k)[2].equals("date"))
+				{
+					if (!foo2[2*k].isEmpty())
+					{	
+						
+						tmp.put("v", new JSONDate(foo2[2*k]));
+						if (k!=0)
+							tmp.put("f",foo2[2*k]);
+						
+					}
+					else
+					{
+						tmp.put("v", "");
+						if (k!=0)
+							tmp.put("f","");
+					}
+					
+					
+					
+					
+					
+				}			
 				else
+				{
 					tmp.put("v",foo2[2*k]);
-				if (k!=0)
-					tmp.put("f",foo2[(2*k)+1]);
+					if (k!=0)
+						tmp.put("f",foo2[(2*k)+1]);
+				}
 				
 				tmpArray.put(tmp);
 				
@@ -173,6 +253,12 @@ public class PopulateSpreadsheet {
 		jsonTop.put("table",jsonTable);
 		
 		return("google.visualization.Query.setResponse(" + jsonTop.toString() + ");");
+		
+		}
+		catch (JSONException je)
+		{
+			return(je.toString());
+		}
 
 		
 		
@@ -1164,9 +1250,51 @@ public class PopulateSpreadsheet {
   		
   		
   	}
+  	
+	
 
 
 	
 
 
 }
+
+class JSONDate implements JSONString
+	{
+	/*
+	 * Examples of date structure that google gadgets accept:
+	 * 
+	 * {v:new Date(2008,1,28,0,31,26),f:'2/28/08 12:31 AM'}
+	 * 
+	 * new Date(2008, 1 ,2)
+	 * 
+	 */
+	Calendar value;
+	
+	JSONDate(String date)
+	{
+		String[] date2;
+		if (date.contains("/"))
+			date2 = date.split("/");
+		else
+			date2 = date.split("-");
+		this.value = Calendar.getInstance();
+		this.value.set(Calendar.YEAR, Integer.parseInt(date2[2]));
+		this.value.set(Calendar.DAY_OF_MONTH, Integer.parseInt(date2[1]));
+		this.value.set(Calendar.MONTH, Integer.parseInt(date2[0]) - 1);
+		
+	}
+	
+	public String toJSONString()
+	{
+		
+		return("new Date(" + value.get(Calendar.YEAR) + "," + value.get(Calendar.MONTH) + "," + value.get(Calendar.DAY_OF_MONTH) + ")");
+		
+	}
+	
+
+	
+		
+		
+	}
+
