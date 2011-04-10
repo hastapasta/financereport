@@ -645,12 +645,18 @@ public void postProcessYahooSharePrice() throws SQLException
 	
 	//rowdata[0] = dg.nCurTask + "";
 	//rowdata[0] = strTmpValue[0];
-	rowdata[0]= values[4];
+
 	if (DataLoad.bLoadingHistoricalData==false)
+	{
+		rowdata[0] = values[0];
 		rowdata[1] = "NOW()";
+	}
 	else
+	{
 		// Just using some arbitrary after hours time
+		rowdata[0] = values[4];
 		rowdata[1] = "'" + values[0] + " 20:00:00'";
+	}
 	rowdata[2] = dg.nCurrentEntityId + "";
 	//rowdata[4] = "share_price";
 	
