@@ -495,6 +495,9 @@ class DataLoad extends Thread //implements Stopable
 			 triggerCal.setTime(dNextTrigger);
 			 //UtilityFunctions.stdoutwriter.writeln("Old Trigger time" + triggerCal,Logs.STATUS1,"DL7");
 			 newCal.setTime(cal.getTime());
+			 
+			 int nUnit = 0;
+			 //int nMultiplier = 0;
 	
 			if (newCal.after(triggerCal))
 				 //Next Trigger needs to be recalculated
@@ -503,33 +506,62 @@ class DataLoad extends Thread //implements Stopable
 				/* we are going to overwrite the database with newcal, not triggercal, since if this code hasn't been
 				 * run in a while, triggercal could lag by multiple cycles.
 				 */
+					
 				 if (strType.equals("WEEKLY"))
 				 {
-					 newCal.add(Calendar.WEEK_OF_YEAR, rs.getInt("multiplier"));
+					 nUnit = Calendar.WEEK_OF_YEAR;
+					 
+					 //newCal.add(Calendar.WEEK_OF_YEAR, rs.getInt("multiplier"));
 				 }
 				 else if (strType.equals("MONTHLY"))
 				 {
+					 nUnit = Calendar.MONTH;
 					 //May need to add code to handle the 28th - 31st
-					 newCal.add(Calendar.MONTH, rs.getInt("multiplier"));
+					 //newCal.add(Calendar.MONTH, rs.getInt("multiplier"));
 				 }
 				 else if (strType.equals("HOURLY"))
 				 {
-					 newCal.add(Calendar.HOUR, rs.getInt("multiplier"));
+					 nUnit = Calendar.HOUR;
+					 //newCal.add(Calendar.HOUR, rs.getInt("multiplier"));
 				 }
 				 else if (strType.equals("MINUTE"))
 				 {
-					 newCal.add(Calendar.MINUTE, rs.getInt("multiplier"));
+					 nUnit = Calendar.MINUTE;
+					 //newCal.add(Calendar.MINUTE, rs.getInt("multiplier"));
 				 }
 				 else if (strType.equals("DAILY"))
 				 {
-					 newCal.add(Calendar.DAY_OF_YEAR, rs.getInt("multiplier"));
+					 nUnit = Calendar.DAY_OF_YEAR;
+					 //newCal.add(Calendar.DAY_OF_YEAR, rs.getInt("multiplier"));
 				 }
 				 else
+				 {
+					 
+					 //We'll get here if the REPEAT_TYPE is RUNONCE,RUNEVERY OR NONE.
+				
 					 continue;
+				 }
+				 
+				 /*
+				  * OFP 4/10/2011: Added the following code so that trigger times are recalculated at fixed intervals. 
+				  * Previously they were being recalculated at random intervals.
+				  * But we also want to maintain the ability increment multiple periods if the program has been
+				  * idle for some time.
+				  */
+				 
+				 while (newCal.after(triggerCal))
+				 {
+					 triggerCal.add(nUnit,rs.getInt("multiplier"));
+					 
+				 }
+				 
+				 /*
+				  * End 4/10/2011 code block.
+				  */
 				 
 				//mysql deault datetime format: 'YYYY-MM-DD HH:MM:SS' 
 				DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				String strDate = formatter.format(newCal.getTime());
+				String strDate = formatter.format(triggerCal.getTime());
 				query = "update repeat_types set next_trigger='" + strDate + "' where id=" + rs.getInt("id");
 				dbf.db_update_query(query);
 			 }
