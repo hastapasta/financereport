@@ -71,6 +71,8 @@ DBFunctions dbf;
   	this.pf = new ProcessingFunctions(tmpUF,this);
   	
   	this.nCurTask = Integer.parseInt(strTask);
+  	
+  
 	this.nTaskBatch = nBatchParam;
   	try
   	{
@@ -165,6 +167,8 @@ DBFunctions dbf;
 	public void run()
 	 {
 		
+		NDC.push("[Task:" + this.nCurTask + "]");
+		
 			UtilityFunctions.stdoutwriter.writeln("=========================================================",Logs.STATUS1,"");
 	  	
 	  		UtilityFunctions.stdoutwriter.writeln("PROCESSING TASK " + strCurTask,Logs.STATUS1,"DG37");
@@ -231,6 +235,7 @@ DBFunctions dbf;
 		 		calAlertProcessingEnd = Calendar.getInstance();
 		 		UtilityFunctions.stdoutwriter.writeln("ALERT PROCESSING END TIME: " + calAlertProcessingEnd.getTime().toString(),Logs.STATUS1,"DG54");
 	 		}
+	 		NDC.pop();
 	 		dbf.closeConnection();
 	
 
@@ -367,7 +372,7 @@ public String get_value(String local_data_set) throws IllegalStateException,TagN
 	//run sql to get info about the data_set
 	//Connection con = UtilityFunctions.db_connect();
 	
-	String query = "select extract_info.* from extract_info,jobs where extract_info.id=jobs.extract_key and jobs.Data_Set='" + local_data_set + "'";
+	String query = "select extract_singles.* from extract_singles,jobs where extract_singles.id=jobs.extract_key and jobs.Data_Set='" + local_data_set + "'";
 	
   //Statement stmt = con.createStatement();
   ResultSet rs = dbf.db_run_query(query);
@@ -564,16 +569,16 @@ public ArrayList<String[]> get_table_with_headers(String strTableSet) throws SQL
 
 public void get_url(String strDataSet) throws SQLException, MalformedURLException, IOException
 {
-	/*String query = "select * from extract_table where data_set='" + strTableSet + "'";*/
+	/*String query = "select * from extract_tables where data_set='" + strTableSet + "'";*/
 	
 	
 	  String query;
 	 
 	  	/*retrieve url data */
 	  	/*if ((strDataSet.substring(0,5)).compareTo("table") == 0)
-	  		query = "select jobs.input_source,extract_table.* from extract_table where data_set='" + strDataSet + "'";
+	  		query = "select jobs.input_source,extract_tables.* from extract_tables where data_set='" + strDataSet + "'";
 	  	else 
-	  		query = "select jobs.input_srouce,extract* from extract_info where data_set='" + strDataSet + "'";*/
+	  		query = "select jobs.input_srouce,extract* from extract_singles where data_set='" + strDataSet + "'";*/
 	    query = "select * from jobs where data_set='" + strDataSet + "'";
 	  
 		ResultSet rs2 = dbf.db_run_query(query);
@@ -673,8 +678,10 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 			String strURL;
 			strURL = rs2.getString("url_static");
 					  
-			if (rs2.getString("url_dynamic")!=null && !rs2.getString("url_dynamic").isEmpty())
-				strURL = strURL.replace("${dynamic}", rs2.getString("url_dynamic"));
+			//if (rs2.getString("url_dynamic")!=null && !rs2.getString("url_dynamic").isEmpty())
+			//	strURL = strURL.replace("${dynamic}", rs2.getString("url_dynamic"));
+			
+			strURL = strURL.replace("${dynamic}", this.strCurrentTicker);
 			
 			UtilityFunctions.stdoutwriter.writeln("Retrieving URL: " + strURL,Logs.STATUS2,"DG25");
 			
@@ -758,15 +765,15 @@ public ArrayList<String[]> get_table(String strTableSet, String strSection) thro
 	String query;
 		if (strSection.equals("body"))
 		{
-			query = "select extract_table.* from extract_table,jobs where extract_table.id=jobs.extract_key and jobs.data_set='" + strTableSet + "'";
+			query = "select extract_tables.* from extract_tables,jobs where extract_tables.id=jobs.extract_key and jobs.data_set='" + strTableSet + "'";
 		}
 		else if (strSection.equals("colhead"))
 		{
-			query = "select extract_table.* from extract_table,jobs where extract_table.id=jobs.extract_key_colhead and jobs.data_set='" + strTableSet + "'";
+			query = "select extract_tables.* from extract_tables,jobs where extract_tables.id=jobs.extract_key_colhead and jobs.data_set='" + strTableSet + "'";
 		}
 		else if (strSection.equals("rowhead"))
 		{
-			query = "select extract_table.* from extract_table,jobs where extract_table.id=jobs.extract_key_rowhead and jobs.data_set='" + strTableSet + "'";
+			query = "select extract_tables.* from extract_tables,jobs where extract_tables.id=jobs.extract_key_rowhead and jobs.data_set='" + strTableSet + "'";
 		}
 		else
 		{
@@ -1259,15 +1266,15 @@ public void grab_data_set(String strJobPrimaryKey)
 						try
 						{
 								
-							/*query = "update extract_table set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
+							/*query = "update extract_tables set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
 							dbf.db_update_query(query);*/
 								
 							
 							//pf.preProcessingTable(strCurDataSet,strCurrentTicker);
 							pf.preProcessing(strCurDataSet,strCurrentTicker);
 							
-							query = "update jobs set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
-							dbf.db_update_query(query);
+							/*query = "update jobs set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
+							dbf.db_update_query(query);*/
 							
 	
 							 
@@ -1351,8 +1358,8 @@ public void grab_data_set(String strJobPrimaryKey)
 									throw new CustomEmptyStringException();
 								}
 								
-								query = "update jobs set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
-								dbf.db_update_query(query);
+								/*query = "update jobs set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
+								dbf.db_update_query(query);*/
 								
 								get_url(strCurDataSet);
 								
