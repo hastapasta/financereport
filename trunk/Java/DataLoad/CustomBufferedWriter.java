@@ -164,7 +164,7 @@ public class CustomBufferedWriter
 			case STATUS1:
 
 				//fullfilewriter.println("STATUS:" + code + ";:" + str);
-				fulllogger.info("STATUS:" + code + ":" + str);
+				fulllogger.info(code + ":" + str);
 				//consolelogger.info(str);
 
 				break;
@@ -175,7 +175,7 @@ public class CustomBufferedWriter
 					//fullfilewriter.println("STATUS:" + code + ":" + str);
 
 				}*/
-				fulllogger.debug("STATUS:" + code + ":" + str);
+				fulllogger.debug(code + ":" + str);
 				break;
 			//type NONE is obsolete, should remove it eventually
 			/*case NONE:
