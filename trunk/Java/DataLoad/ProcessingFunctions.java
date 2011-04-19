@@ -56,9 +56,9 @@ class ProcessingFunctions
 		{
 			String query;
 			/*if ((strDataSet.substring(0,5)).compareTo("table") == 0)
-				query = "select pre_nodata_check_func from extract_table where Data_Set='" + strDataSet + "'";
+				query = "select pre_nodata_check_func from extract_tables where Data_Set='" + strDataSet + "'";
 			else
-				query = "select pre_nodata_check_func from extract_info where Data_Set='" + strDataSet + "'";*/
+				query = "select pre_nodata_check_func from extract_singles where Data_Set='" + strDataSet + "'";*/
 			
 			query = "select pre_nodata_check_func from jobs where data_set='" + strDataSet + "'";
 			
@@ -383,15 +383,19 @@ public ArrayList<String[]> postProcessingTable(ArrayList<String[]> tabledata,Str
 
 
 
-public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomRegexException
+/*public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomRegexException
 {
-	/*
+	
+	#*
+	 * NONTHREAD SAFE FUNCTION.
+	 *#
+	#*
 		I'm going to store the estimated values as the adjusted quarter values whereas the
 		actual eps values are stored unadjusted (hence the adjusting is done in the query for 
 		the actual values)
-	*/
+	*#
 	//initialize the row value
-	String query; 
+	String query="";
 	
 	//try
 	//{
@@ -403,50 +407,52 @@ public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomReg
 	int nDataSetQuarter = Integer.parseInt(dg.strCurDataSet.substring(8,9));
 	UtilityFunctions.stdoutwriter.writeln("DataSetYear: " + nDataSetYear + " DataSetQuarter: " + nDataSetQuarter,Logs.STATUS2,"PF18");
 	int curRowCount=4;
-	String ticker;
+	String ticker = dg.strCurrentTicker;
 	//try
 	//{
-		query = "select url_dynamic from jobs where jobs.data_set='" + dg.strCurDataSet + "'";
+		#*query = "select url_dynamic from jobs where jobs.data_set='" + dg.strCurDataSet + "'";
 		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
 		ticker = rs.getString("url_dynamic");
-		UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + ticker,Logs.STATUS2,"PF19");
+		UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + ticker,Logs.STATUS2,"PF19");Z*#
 		
 	//}
-	/*catch(SQLException sqle)
+	#*catch(SQLException sqle)
 	{
 		UtilityFunctions.stdoutwriter.writeln("Problem running query in prenasdaqEPSEst",Logs.ERROR,"PF20");
 		UtilityFunctions.stdoutwriter.writeln(sqle);
 		return(false);
-	}*/
+	}*#
 	
 	while (!done)
 	{
 		UtilityFunctions.stdoutwriter.writeln("Row Count: " + curRowCount,Logs.STATUS2,"PF21");
-		query = "update extract_info,jobs set extract_info.Row_Count=" + curRowCount + ",jobs.url_dynamic='" + ticker + "' where jobs.extract_key=data_info.id and jobs.data_set='nasdaq_eps_est_quarter'";
+		//query = "update extract_singles,jobs set extract_singles.Row_Count=" + curRowCount + ",jobs.url_dynamic='" + ticker + "' where jobs.extract_key=data_info.id and jobs.data_set='nasdaq_eps_est_quarter'";
+		
+		query = "update extract_singles,jobs set extract_singles.Row_Count=" + curRowCount + " where jobs.extract_key=data_info.id and jobs.data_set='nasdaq_eps_est_quarter'";
 		
 		//try
 		//{
 			dbf.db_update_query(query);
 		//}
-		/*catch (SQLException sqle)
+		#*catch (SQLException sqle)
 		{
 				UtilityFunctions.stdoutwriter.writeln("Problem with update query.",Logs.ERROR,"PF22");
 				UtilityFunctions.stdoutwriter.writeln(sqle);
 				return(false);
 			
-		}*/
+		}*#
 		String curValue;
 		//try
 		//{
 			curValue = dg.get_value("nasdaq_eps_est_quarter");
 		//}
-		/*catch (CustomRegexException cre)
+		#*catch (CustomRegexException cre)
 		{
 			UtilityFunctions.stdoutwriter.writeln("Problem with update query.",Logs.ERROR,"PF22.5");
 			UtilityFunctions.stdoutwriter.writeln(cre);
 			return(false);
-		}*/
+		}*#
 		if (curValue.length() < 7)
 		//string returned too short
 			break;
@@ -520,111 +526,8 @@ public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomReg
 		
 	
 	
-}
-
-/*
- * I think these next 2 are obsolete
- */
-
-
-/*public void preNasdaqEPS() throws TagNotFoundException, SQLException, CustomRegexException
-{
-	//try
-	//{
-		String query = "select url_dynamic from jobs where jobs.Data_Set='" + dg.strCurDataSet + "'";
-		ResultSet rs = dbf.db_run_query(query);
-		rs.next();
-		//String strTicker = rs.getString("url_dynamic");
-		UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + rs.getString("url_dynamic"),Logs.STATUS2,"PF27");
-		query = "update jobs set url_dynamic='" + rs.getString("url_dynamic") + "' where jobs.data_set='nasdaq_current_fiscal_year'";
-		//have to save the value here because the get_value() call wipes it out.
-		String tmpStaticDataSet = dg.strCurDataSet;
-		dbf.db_update_query(query);
-		String strCurValue = dg.get_value("nasdaq_current_fiscal_year");
-		UtilityFunctions.stdoutwriter.writeln("Nasdaq_current_fiscal_year: " + strCurValue,Logs.STATUS2,"PF28");
-		int nDataSetYear = Integer.parseInt(tmpStaticDataSet.substring(9,11));
-		
-		if 	((strCurValue.compareTo("2009") == 0) && (nDataSetYear == 10))
-		//Data not available yet...return false (skip) 
-			throw new CustomRegexException();
-	
-		
-		if ((strCurValue.compareTo("2010") == 0) && (nDataSetYear != 10))
-		{
-			//need to shift things over one.
-			query = "select extract_info.Cell_Count,jobs.url_static from extract_info,jobs where jobs.extract_key=extract_info.primary_key and jobs.Data_Set='" + tmpStaticDataSet + "'";
-
-			rs = dbf.db_run_query(query);
-			rs.next();
-			int nCellCount = rs.getInt("Cell_Count");
-			strTemp2 = String.valueOf(nCellCount);
-			strTemp1 = (String)rs.getString("url_static");
-			
-			if (nDataSetYear == 7)
-			{
-				query = "update extract_info,jobs set jobs.url_static='http://fundamentals.nasdaq.com/redpage.asp?page=2&selected=', Cell_Count=2 where jobs.extract_key=extract_info.primary_key and jobs.Data_Set='" + tmpStaticDataSet + "'";
-			}
-			else 
-			{
-				query = "update extract_info,jobs set extract_info.Cell_Count=" + String.valueOf(nCellCount + 1) + " where jobs.extract_key=extract_info.primary_key and jobs.Data_Set='" + tmpStaticDataSet + "'";
-			}
-			dbf.db_update_query(query);
-			
-			
-		}
-		
-		//return(true);
-		
-		
-		
-	//}
-	catch (SQLException sqle)
-	{
-		UtilityFunctions.stdoutwriter.writeln("preNasdaqEPS2 failed...",Logs.ERROR,"PF29");
-		UtilityFunctions.stdoutwriter.writeln(sqle);
-		return(false);
-	}
-	catch (CustomRegexException cre)
-	{
-		UtilityFunctions.stdoutwriter.writeln("preNasdaqEPS2 failed...",Logs.ERROR,"PF29.5");
-		UtilityFunctions.stdoutwriter.writeln(cre);
-		return(false);
-		
-	}
-	
 }*/
 
-
-/*public void postNasdaqEPS()
-{
-	UtilityFunctions.stdoutwriter.writeln("Inside postNasdaqEPS...",Logs.ERROR,"PF30");
-	
-	strDataValue = strDataValue.replace("(m)","");
-	try
-	{
-		//restore URL static
-		if (strTemp1.compareTo("") != 0)
-		{
-			dbf.db_update_query("update extract_info,jobs set extract_info.url_static='" + strTemp1 + "' where jobs.extract_key=extract_info.primary_key and jobs.Data_Set = '" + dg.strCurDataSet + "'");
-			strTemp1 = "";
-		}
-		//restore Cell Count
-		if (strTemp2.compareTo("") != 0)
-		{
-			dbf.db_update_query("update extract_info,jobs set extract_info.Cell_Count='" + strTemp2 + "' where jobs.extract_key=extract_info.primary_key and jobs.Data_Set = '" + dg.strCurDataSet + "'");
-			strTemp2 = "";
-		}
-	}
-	catch (SQLException sqle)
-	{
-		UtilityFunctions.stdoutwriter.writeln("Problem updating fields for Data Set " + dg.strCurDataSet + "in postNasdaqEPS! Fields may be corrupted...",Logs.ERROR,"PF31");
-		UtilityFunctions.stdoutwriter.writeln(sqle);
-	}
-}*/
-
-/*
- * end obsolete
- */
 
 
 
@@ -727,7 +630,7 @@ public void postNasdaqFiscalYear()
 	/* Use the following update statement for populating fiscal_calendar_begin */
 	try
 	{
-		//String query = "UPDATE entities set begin_fiscal_calendar='" + strDataValue + "' where ticker=(select url_dynamic from extract_info where data_set='nasdaq_fiscal_year_begin')";
+		//String query = "UPDATE entities set begin_fiscal_calendar='" + strDataValue + "' where ticker=(select url_dynamic from extract_singles where data_set='nasdaq_fiscal_year_begin')";
 		//dbf.db_update_query(query);
 		
 		String[] tmp = {"ticker","begin_fiscal_calendar"};
@@ -810,43 +713,6 @@ public void processTableSAndPCoList(ArrayList<String[]> tabledata,String strData
 	
 }
 
-/*Not being used currently */
-public boolean preProcessNasdaqEPSTable()
-{
-	try
-	{
-	
-		
-		/*
-		 * OFP 10/1/2010 - RIght now we are going to assume that the body, row and column header data_sets are all reading
-		 * from the same URL.
-		 */
-		
-		String query = "update jobs set url_dynamic='" + strTicker + "' where jobs.data_set='" + dg.strCurDataSet + "'";
-		dbf.db_update_query(query);
-		return(true);
-		
-		
-		
-		/*String strTmpTableSet = strStaticDataSet.replace("_body","_colhead");
-		
-		query = "update extract_table set url_dynamic='" + strTemp1 + "' where data_set='" + strStaticDataSet + "'";
-		dbf.db_update_query(query);
-		
-		strTmpTableSet = strStaticDataSet.replace("_body","_rowhead");
-		
-		query = "update extract_table set url_dynamic='" + strTemp1 + "' where data_set='" + strTmpTableSet + "'";
-		dbf.db_update_query(query);*/
-	}
-	catch (SQLException sqle)
-	{
-		UtilityFunctions.stdoutwriter.writeln("Problem updating url_dynamic", Logs.ERROR,"PF38");
-		UtilityFunctions.stdoutwriter.writeln(sqle);
-		return(false);
-	}
-	
-	
-}
 
 public void postProcessTableNasdaqUpdateEPS() throws SQLException,SkipLoadException
 {
@@ -944,7 +810,7 @@ public void postProcessNasdaqEPSTable() throws SQLException
 	 */
 	//try
 	//{
-		//String query = "select url_dynamic from extract_table where Data_Set='" + propStrTableDataSet + "'";
+		//String query = "select url_dynamic from extract_tables where Data_Set='" + propStrTableDataSet + "'";
 		//ResultSet rs = dbf.db_run_query(query);
 		//rs.next();
 		String strTicker = dg.strOriginalTicker;
@@ -1074,7 +940,7 @@ public void postProcessBloombergCommodities()
 		}
 		catch (SQLException sqle)
 		{
-			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + tmp + ",row skipped",Logs.ERROR,"PF43.55");
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + tmp + ",row skipped",Logs.ERROR,"PF99.55");
 			
 			/*
 			 * This is not a fatal error so we won't display the full exception.
@@ -1248,9 +1114,7 @@ public void postProcessNasdaqEPSEstTable()
 	{
 		String query = "select url_dynamic from jobs where jobs.Data_Set='" + propStrTableDataSet + "'";
 
-		ResultSet rs = dbf.db_run_query(query);
 
-		rs.next();
 		strTicker = dg.strOriginalTicker;
 		
 		//String[] colheaders = propTableData.get(0);
@@ -1715,7 +1579,7 @@ public void postProcessTableYahooEPSAct() throws CustomEmptyStringException, SQL
 
 public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQLException
 {
-	/*String query = "select url_dynamic from extract_table where Data_Set='" + propStrTableDataSet + "'";
+	/*String query = "select url_dynamic from extract_tables where Data_Set='" + propStrTableDataSet + "'";
 	//ResultSet rs = dbf.db_run_query(query);
 	//rs.next();
 	//String strTicker = rs.getString("url_dynamic");*/
@@ -1921,19 +1785,23 @@ public void postProcessImfGdpEst() throws SQLException
 		//remove single quotes e.g. (coffee 'c')
 		strCountry = strCountry.replace("'", "\\'");
 		
-		String query = "select * from entities where ticker='"+strCountry+"'";
+		if (strCountry.toUpperCase().equals("KOREA"))
+			strCountry = "South Korea";
+		
+		//String query = "select * from entities where ticker='"+strCountry+"'";
+		String query = "select entities.id from entities,countries where countries.name= '" + strCountry + "' AND ticker='macro' AND entities.country_id=countries.id";
 		
 		try
 		{
 			ResultSet rs = dbf.db_run_query(query);
 			rs.next();
-			newrow[2] = rs.getInt("id") + "";
+			newrow[2] = rs.getInt("entities.id") + "";
 			
 		}
 		catch (SQLException sqle)
 		{
-			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + strCountry + ",row skipped",Logs.ERROR,"PF43.55");
-			
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up country: " + strCountry + ",row skipped",Logs.ERROR,"PF43.55");
+			continue;	
 			/*
 			 * This is not a fatal error so we won't display the full exception.
 			 */
