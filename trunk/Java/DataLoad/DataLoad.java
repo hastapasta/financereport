@@ -183,7 +183,7 @@ class DataLoad extends Thread //implements Stopable
 		/* Putting this here so that there is no differece between the time used to add jobs to the queue and 
 		 * for recalculating the next trigger time.
 		 */
-		updateEventTimes(cal);
+		updateRepeatTypes(cal);
 	}
 	finally
 	{
@@ -215,7 +215,7 @@ class DataLoad extends Thread //implements Stopable
 		  {
 			  if (arrayRunningJobs[i] != null)
 			  {
-				  query = "insert into job_queue (data_set,status) values ('" + arrayRunningJobs[i].strCurTask + "','" +
+				  query = "insert into job_queue (task_id,status) values (" + arrayRunningJobs[i].nCurTask + ",'" +
 				  arrayRunningJobs[i].getState().toString() + "')";
 				  dbf.db_update_query(query);
 				  UtilityFunctions.stdoutwriter.writeln("Status of thread " + arrayRunningJobs[i].getName() + ": " + 
@@ -224,7 +224,7 @@ class DataLoad extends Thread //implements Stopable
 		  }
 		  for (int k=0;k<listWaitingJobs.size();k++)
 		  {
-			  query = "insert into job_queue (data_set,status) values ('" + listWaitingJobs.get(k) + "','QUEUED')";
+			  query = "insert into job_queue (task_id,status) values (" + listWaitingJobs.get(k) + ",'QUEUED')";
 			  dbf.db_update_query(query);
 		  }
 		  
@@ -473,7 +473,7 @@ class DataLoad extends Thread //implements Stopable
 	  
   }
   
-  public void updateEventTimes(Calendar cal) throws SQLException
+  public void updateRepeatTypes(Calendar cal) throws SQLException
   {
 	 try
 	 {
