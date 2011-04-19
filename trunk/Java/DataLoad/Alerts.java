@@ -41,14 +41,15 @@ public class Alerts {
 		  String strTaskName,strTaskDescription;
 		  DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		  
-		  String query = "select schedules.*,tasks.name,tasks.description from schedules,tasks where schedules.task_id=" + nCurTask + " and schedules.task_id=tasks.id";
+		  //String query = "select schedules.*,tasks.name,tasks.description from schedules,tasks where schedules.task_id=" + nCurTask + " and schedules.task_id=tasks.id";
+		  String query = "select tasks.* from tasks where id=" + nCurTask;
 		  
-		  ResultSet rsSchedule = dg.dbf.db_run_query(query);
-		  if (rsSchedule.next())
+		  ResultSet rsTask = dg.dbf.db_run_query(query);
+		  if (rsTask.next())
 		  {
-			  int nKey = rsSchedule.getInt("schedules.id");
-			  strTaskName = rsSchedule.getString("tasks.name");
-			  strTaskDescription = rsSchedule.getString("tasks.description");
+			  //int nKey = rsSchedule.getInt("schedules.id");
+			  strTaskName = rsTask.getString("tasks.name");
+			  strTaskDescription = rsTask.getString("tasks.description");
 			  
 			  
 			  //String strLockQuery = "lock table alerts write";
@@ -74,7 +75,8 @@ public class Alerts {
 			  query += "LEFT JOIN users ON alerts.user_id=users.id ";
 			  query += "LEFT JOIN fact_data ON alerts.initial_fact_data_id=fact_data.id ";
 			  query += "LEFT JOIN time_events ON alerts.time_event_id=time_events.id ";
-			  query += "where alerts.schedule_id=" + nKey;
+			  //query += "where alerts.schedule_id=" + nKey;
+			  query += "where alerts.task_id=" + nCurTask;
 			  query += " order by time_events.id";
 			  
 			 
@@ -200,10 +202,10 @@ public class Alerts {
 				   */
 
 				
-					  if (calObservationPeriodBegin.after(calInitialFactDataCollected) || (bPopulateInitialFactDataId == true))
+					  if ((calObservationPeriodBegin.after(calInitialFactDataCollected) && bAutoResetPeriod) || (bPopulateInitialFactDataId == true))
 					  {
-						  if (bAutoResetPeriod)
-						  {
+						  //if (bAutoResetPeriod)
+						  //{
 							  
 							  
 							  /*
@@ -246,7 +248,7 @@ public class Alerts {
 							  query4 += " where id=" + nAlertId;
 							  
 							  dg.dbf.db_update_query(query4);
-						  }
+						  //}
 						  
 						  /*
 						   * We're past the end of the time period so don't do anything else and proceed to the next alert.
@@ -526,7 +528,16 @@ public class Alerts {
 								  
 								  String query8 = "insert into log_alerts (alert_id,date_time_fired,bef_fact_data_id,aft_fact_data_id,limit_value,entity_id,user_id) values (" 
 									  + nAlertId + ",'"
-									  + formatter.format(calJustCollected.getTime()) + "',"
+									  
+									  /*
+									   *  We already have a record of the after fact data time (linked to by aft_fact_data_id) so it's pointless to save it again as the
+									   *  alert fired time. So we will switch here to using the current time.
+									   * 
+									   */
+									 // + formatter.format(calJustCollected.getTime()) + "',"
+									  + formatter.format(Calendar.getInstance().getTime()) + "',"
+									  
+									  						  
 									  //+ rsCurFactData.getInt("id") + ","
 									  + hmAlert.get("fact_data.id") + ","
 									  + hmCurFactData.get(nEntityId+"").get("fact_data.id") + ","		
