@@ -13,6 +13,19 @@ import java.io.*;
 //import java.util.StringTokenizer;
 import java.util.regex.*;
 
+/*import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.conn.params.ConnManagerParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.HttpVersion;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;*/
+
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -86,6 +99,42 @@ public class UtilityFunctions
 		
 		
 	}
+	
+	/*
+	 * The following 2 functions were written because I thought there was a multithreading 
+	 * issue with how HttpClient was being utilitzed. The issue at that time turned out to
+	 * be caused by something else. I still think that the current HttpCLient implementation
+	 * is thread-safe and I don't want to rework something right now that looks to be working.
+	 * But having said that, I'm leaving these functions in here for now in case it's later
+	 * deemed necessary to make a change and go with the THreadSafeConnectionManager.
+	 * 
+	 * 
+	 */
+	
+	/*private void createThreadSafeConnectionManager()
+	{
+		
+		this.params = new BasicHttpParams();
+        ConnManagerParams.setMaxTotalConnections(params, 100);
+        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+        
+        // Create and initialize scheme registry 
+        SchemeRegistry schemeRegistry = new SchemeRegistry();
+        schemeRegistry.register(
+                new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+        
+        // Create an HttpClient with the ThreadSafeClientConnManager.
+        // This connection manager must be used if more than one thread will
+        // be using the HttpClient.
+        this.cm = new ThreadSafeClientConnManager(params, schemeRegistry);
+        this.httpClient = new DefaultHttpClient(this.cm, this.params);	
+				
+	}
+	
+	public HttpClient getHttpClient()
+	{
+		return(this.httpClient);
+	}*/
 	
 	/*public static void db_update_query(String strUpdateStmt) throws SQLException
 	{
