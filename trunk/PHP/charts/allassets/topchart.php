@@ -14,6 +14,18 @@ db_utility::db_connect();
 <!DOCTYPE html>
 <html>
 <head>
+
+<?php IncFunc::jQuery();?>
+
+<script type='text/javascript'>
+	$(function(){
+		$('#dialog').dialog({autoOpen:false, title : "HELP"});
+		$('.help').click(function(){
+			$('#dialog').dialog('open')
+		});
+	});
+</script>
+
 <?php IncFunc::icon();?>
 <?php IncFunc::title();?>
 <link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
@@ -26,7 +38,7 @@ db_utility::db_connect();
     var firstpass = true;
 
     <?php 
-            echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2.jsp';";
+            echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2eh2.jsp';";
             ?>
         // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
            
@@ -75,7 +87,7 @@ db_utility::db_connect();
       
       var options = {};
       options['height'] = 400;
-      options['width'] = 800;
+      options['width'] = 1000;
       
 
 
@@ -83,11 +95,11 @@ db_utility::db_connect();
 
      	 //queryString1 = '?userid='+userid+'&taskid='+tasks.value+'&timeeventid='+timeeventid.value;
      	<?php 
-     	echo "queryString1 = '?taskid=1&timeframe='+timeframe.value + '&order=DESC';\n";
+     	echo "queryString1 = '?entitygroupid=3&metricid=1&timeframe='+timeframe.value + '&order=DESC';\n";
 
-     	echo "queryString2 = '?taskid=6&timeframe='+timeframe.value + '&order=DESC';\n";
+     	echo "queryString2 = '?entitygroupid=5&metricid=1&timeframe='+timeframe.value + '&order=DESC';\n";
      	
-     	echo "queryString3 = '?taskid=12&timeframe='+timeframe.value + '&order=DESC';\n";
+     	echo "queryString3 = '?entitygroupid=4&metricid=1&timeframe='+timeframe.value + '&order=DESC';\n";
      	
      	?>
     	 
@@ -122,6 +134,8 @@ db_utility::db_connect();
 	  		var row = tableChart3.getSelection();
 			alert( "you selected row " + row[0].row + " of third table");
    	  });
+
+	  //alert(dataSourceUrl + queryString3);   	  
       
       query1 && query1.abort();
       query1 = new google.visualization.Query(dataSourceUrl + queryString1);
@@ -148,7 +162,7 @@ db_utility::db_connect();
 <body style="text-align:left;">
 <div id="jq-siteContain" >
 <?php 
-	IncFunc::header1("charts"); 
+	IncFunc::header2("charts"); 
 	//echo "<div id=\"yuipadding\" style=\"paddin>";
 	IncFunc::yuiDropDownMenu();
 	//echo "</div>";
@@ -175,14 +189,26 @@ Time Frame: <BR>
 <BR>
 <BR>
 
-<input type="button" style="color: #000000;background-color: #FFFFFF" value="Update Charts"
+<input type="button" style="color: #000000;background-color: #FFFFFF" value="Update Tables"
 	onclick="sendAndDraw();return false;"> <br />
 <br />
 <br />
 </div><!-- pf-form -->
 
 <div id="tmp1" style="float: left;margin-bottom: 20px">
-<div id="tmp1A" style="font-size: small">Forex Gainers/Losers:</div>
+
+<!-- Included for Dialog -->
+
+
+
+<div id="tmp1A" style="font-size: small">Forex Gainers/Losers:
+	<!-- <span class='help' style='cursor:pointer'>
+		?
+	</span>
+	<div id="dialog" title="Basic dialog">
+		<p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+	</div> -->
+</div>
 <div id="table1" style="color: #000;"> </div>
 </div>
 
