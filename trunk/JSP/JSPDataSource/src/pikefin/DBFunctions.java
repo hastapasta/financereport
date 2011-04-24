@@ -8,6 +8,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
+import javax.naming.Context;
+import javax.sql.DataSource;
+
 /* OFP: Something to be aware of:
  * 
  * It is important to remember that a Statement object represents a single SQL statement. 
@@ -25,7 +31,8 @@ import java.util.ArrayList;
 public class DBFunctions {
 	
 	private Connection con;
-	//private Statement stmt;
+	private Statement stmt;
+	public ResultSet rs;
 	private String strHost,strPort,strDatabase,strUser,strPass;
 
 	//UtilityFunctions uf;
@@ -38,40 +45,89 @@ public class DBFunctions {
 	
 	public void closeConnection()
 	{
-		try
+		//try
+		//{
+		if (rs != null)
 		{
-			con.close();
+			try { rs.close(); } catch (SQLException e) { ; }
+			rs = null;
 		}
+		
+		if (stmt != null)
+		{
+			try { stmt.close(); } catch (SQLException e) { ; }
+			stmt = null;
+		}
+		
+		if (con != null)
+		{			
+			try { con.close(); } catch (SQLException e) { ; }
+			con = null;
+		}
+
+		/*}
 		catch(SQLException sqle)
 		{
 			UtilityFunctions.stdoutwriter.writeln("Problem closing database connection",Logs.ERROR,"DBF0.25");
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 			
-		}
+		}*/
 		
 	}
 	
 	public void openConnection() throws SQLException
 	{
-		try
-		{
-			Class.forName("com.mysql.jdbc.Driver");
-			//String url = "jdbc:mysql://localhost:3306/" + strDatabase;
-			String url = "jdbc:mysql://" + strHost + ":" + strPort + "/" + strDatabase + "?tcpKeepAlive=true";
-			this.con = DriverManager.getConnection(url,strUser, strPass);
-
-		}
-		catch (ClassNotFoundException cnfe)
-		{
-			UtilityFunctions.stdoutwriter.writeln("Problem opening database connection",Logs.ERROR,"DBF0.65");
-			UtilityFunctions.stdoutwriter.writeln(cnfe);
-		}
+		
+		this.con = this.getJNDIConnection();
+	
 		/*catch (SQLException sqle)
 		{
 			UtilityFunctions.stdoutwriter.writeln("Problem opening database connection",Logs.ERROR,"DBF0.66");
 			UtilityFunctions.stdoutwriter.writeln(sqle);		
 		}*/
 	}
+	
+	 @SuppressWarnings("unused")
+	private Connection getJNDIConnection() throws SQLException
+	 {
+	
+			    String DATASOURCE_CONTEXT = "java:comp/env/jdbc/findata";
+			    
+			    Connection result = null;
+			    try {
+			      Context initialContext = new InitialContext();
+			      if ( initialContext == null){
+			        //log("JNDI problem. Cannot get InitialContext.");
+			        UtilityFunctions.stdoutwriter.writeln("JNDI problem. Cannot get InitialContext.",Logs.ERROR,"DBF0.66");
+				
+			      }
+			      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
+			      if (datasource != null) {
+			        result = datasource.getConnection();
+			      }
+			      else {
+			        //log("Failed to lookup datasource.");
+			        UtilityFunctions.stdoutwriter.writeln("Failed to lookup datasource.",Logs.ERROR,"DBF0.66");
+		
+			      }
+			    }
+			    catch ( NamingException ex ) {
+			      //log("Cannot get connection: " + ex);
+			      UtilityFunctions.stdoutwriter.writeln("Cannot get connection:",Logs.ERROR,"DBF0.66");
+			      UtilityFunctions.stdoutwriter.writeln(ex);
+			      
+			 
+			    }
+			   /* catch(SQLException ex){
+			      //log("Cannot get connection: " + ex);
+			      UtilityFunctions.stdoutwriter.writeln("Problem opening database connection",Logs.ERROR,"DBF0.66");
+
+			    }*/
+			    return result;
+	}
+
+
+		  
 	
 	public void cycleConnection() throws SQLException
 	{
@@ -80,7 +136,7 @@ public class DBFunctions {
 		
 	}
 	
-	public DBFunctions(String strDBHostParam, String strDBPortParam, String strDatabaseParam, String strUserParam, String strPassParam) throws SQLException
+	/*public DBFunctions(String strDBHostParam, String strDBPortParam, String strDatabaseParam, String strUserParam, String strPassParam) throws SQLException
 	{
 	
 		this.strHost = strDBHostParam;
@@ -88,8 +144,27 @@ public class DBFunctions {
 		this.strDatabase = strDatabaseParam;
 		this.strUser = strUserParam;
 		this.strPass = strPassParam;
+		this.con = null;
+		this.stmt = null;
+		this.rs = null;
 		this.openConnection();
 		
+
+		
+	}*/
+	
+	public DBFunctions() throws SQLException
+	{
+
+		/*this.strHost = "localhost";
+		this.strPort = "3306";
+		this.strDatabase = "findata";
+		this.strUser = "root";
+		this.strPass = "madmax1.";*/
+		this.con = null;
+		this.stmt = null;
+		this.rs = null;
+		this.openConnection();
 
 		
 	}
@@ -99,28 +174,16 @@ public class DBFunctions {
 
 	
 
-		//try
-		//{
-			UtilityFunctions.stdoutwriter.writeln("Executing SQL: " + strUpdateStmt,Logs.SQL,"DBF1");
-			UtilityFunctions.stdoutwriter.writeln(strUpdateStmt,Logs.SQL,"DBF2");
-			Statement stmt = con.createStatement();
-			stmt.execute(strUpdateStmt);
-			if (strUpdateStmt.substring(0,6).equals("update") && stmt.getUpdateCount() == 0)
-				UtilityFunctions.stdoutwriter.writeln("No rows were updated",Logs.ERROR,"DBF2.5");
-			
-				
-			
-		/*}
-		catch (SQLException sqle)
+		UtilityFunctions.stdoutwriter.writeln("Executing SQL: " + strUpdateStmt,Logs.SQL,"DBF1");
+		UtilityFunctions.stdoutwriter.writeln(strUpdateStmt,Logs.SQL,"DBF2");
+		this.stmt = con.createStatement();
+		stmt.execute(strUpdateStmt);
+		if (strUpdateStmt.substring(0,6).equals("update") && stmt.getUpdateCount() == 0)
 		{
-			UtilityFunctions.stdoutwriter.writeln("1 SQL statement failed: " + strUpdateStmt);
-			UtilityFunctions.stdoutwriter.writeln(sqle);
-	
-			
-		}*/
-		
-		
-		
+			//In the caller, make sure to close the connection when handling this error 
+			UtilityFunctions.stdoutwriter.writeln("No rows were updated",Logs.ERROR,"DBF2.5");
+		}
+				
 		
 	}
 	
@@ -128,17 +191,17 @@ public class DBFunctions {
 	
 	
 	
-	public ResultSet db_run_query(String query) throws SQLException
+	public void db_run_query(String query) throws SQLException
 	{
 
-		ResultSet rs =null;
+		//ResultSet rs =null;
 		//try
 		//{
 
 			UtilityFunctions.stdoutwriter.writeln("Executing query: " + query, Logs.SQL,"DBF3");
-			Statement stmt = con.createStatement();
+			this.stmt = con.createStatement();
 			UtilityFunctions.stdoutwriter.writeln(query, Logs.SQL,"DBF4");
-			rs = stmt.executeQuery(query);
+			this.rs = stmt.executeQuery(query);
 
 	
 		/*}
@@ -149,7 +212,7 @@ public class DBFunctions {
 		
 		}*/
 		
-		return(rs);
+		//return(this.rs);
 		/* Not going to worry about closing the connection, we'll let it be garbage collected.*/
 		
 		
@@ -381,11 +444,20 @@ public class DBFunctions {
 		UtilityFunctions.stdoutwriter.writeln("Updated " + nInsertCount + " records.",Logs.STATUS2,"DBF16");
 	}
 	
-	public Integer getBatchNumber() throws SQLException
+	/*
+	 * Not sure if this getBatchNumber is even being used anymore. 
+	 * 
+	 * Commenting it out for now - the exception and connection handling has changed
+	 * and has to be adjusted in the caller.
+	 */
+	
+	
+	/*public Integer getBatchNumber() throws SQLException
+
 	{
-		/*
+		#*
 		 * Get the current highest batch number from both fact_data & fact_data_stage and increase that by 1
-		 */
+		 *#
 		
 
 		
@@ -393,12 +465,12 @@ public class DBFunctions {
 		query = query + "(select batch from fact_data union all ";
 		query = query + "select batch from fact_data_stage union all ";
 		query = query + "select batch from fact_data_stage_est) t1";
-		ResultSet rs = db_run_query(query);
+		this.db_run_query(query);
 		rs.next();
 		return (rs.getInt("max(batch)") + 1);
 			
 	
 		
-	}
+	}*/
 
 }
