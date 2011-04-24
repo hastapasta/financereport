@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import org.json.*;
+import java.text.ParseException;
 
 
 
@@ -31,7 +33,7 @@ import com.google.gdata.util.ServiceException;
 
 
 public class PopulateSpreadsheet {
-	
+	//this is a comment
 	private SpreadsheetService service;
 	private FeedURLFactory factory;
 	private URL cellFeedUrl;
@@ -92,6 +94,172 @@ public class PopulateSpreadsheet {
 	public static void writeMsg(String str)
 	{
 		UtilityFunctions.stdoutwriter.writeln(str,Logs.STATUS1,"A2.73");
+	}
+	
+	public static String getEntityGroupList(String strEntityGroup) throws SQLException
+	{
+		
+		DBFunctions dbf = null;
+		
+		String strList = strEntityGroup;
+		
+	
+		String strMessage = "";
+		
+		
+		String query = "select * from entity_groups where parent_id=" + strEntityGroup;
+		boolean bException = false;
+		
+		try
+		{
+			dbf = new DBFunctions();
+			dbf.db_run_query(query);
+			while(dbf.rs.next())
+			{
+				/*String strReturn = getEntityGroupList(dbf.rs.getInt("id") + "");	
+				if (!strReturn.isEmpty())
+					strList += "," + strReturn;		*/
+				strList += "," + getEntityGroupList(dbf.rs.getInt("id") + "");
+			}
+			
+			
+		}
+		catch (SQLException sqle)
+		{
+			//out.println(sqle.toString());
+			bException = true;
+			strMessage = sqle.getMessage();
+		}
+		finally
+		{
+			dbf.closeConnection();
+			
+		}
+		if (bException == true)
+		{
+			throw new SQLException(strMessage);
+		}
+		else
+			return(strList);
+		
+		
+		
+		
+		
+		//getEntityList();
+		
+		//return(strList);
+		
+		
+		
+	}
+	
+	public static ArrayList<String[]> joinLists(ArrayList<String[]> arrayList1,ArrayList<String[]> arrayList2,int nCol)
+	{
+		/*
+		 * Assumptions:
+		 * 		-Same column index is used in both lists for join (nCol)
+		 * 		-inside join
+		 * 		-the arrays in each list are the same size
+		 * 
+		 */
+		
+		//ArrayList<String[]> shortList;
+		//ArrayList<String[]> longList;
+		
+		ArrayList<String[]> outputList = new ArrayList<String[]>();
+		
+		/*if (arrayList1.size() > arrayList2.size())
+		{
+			shortList = arrayList2;
+			longList = arrayList1;
+		}
+		else
+		{
+			shortList = arrayList1;
+			longList = arrayList2;
+		}*/
+		
+		int nIndexList1 = 0;
+		int nIndexList2 = 0;
+		
+		while (nIndexList1<arrayList1.size())
+		{
+			
+			String[] row1 = arrayList1.get(nIndexList1);
+			String[] row2 = null;
+			
+			boolean bDone = false;
+			boolean bMatch = false;
+			
+			int initialIndex = (nIndexList1>nIndexList2?nIndexList2:nIndexList1);
+			
+			int index = initialIndex;
+			
+			while (!bDone)
+			{
+				row2 = arrayList2.get(index);
+				
+				if (row2[nCol].equals(row1[nCol]))
+				{
+					bMatch = true;
+					break;
+				}
+				
+				index++;
+				
+				//We're at the end, wrap around.
+				if (index == arrayList2.size())
+					index = 0;
+				
+				//We've come full circle, no match.
+				if (index == initialIndex)
+					break;
+				
+				
+				
+				
+				
+			}
+			
+			if (bMatch == true)
+			{
+				
+				String[] joinArray = new String[(row1.length*2)-1];
+				
+				for (int i=0;i<row1.length;i++)
+				{
+					joinArray[i] = row1[i];
+				}
+				
+				
+				for (int i=0,j=row1.length;i<row2.length;j++,i++)
+				{
+					if (i==nCol)
+						j--;
+					else
+						joinArray[j] = row2[i];
+						
+				}
+				
+				outputList.add(joinArray);
+				
+				
+			}
+				
+			
+			nIndexList1++;
+			
+			
+		}
+		
+		
+		
+		
+		return(outputList);
+		
+		
+		
 	}
 	
 	public static String createGoogleError(String strReqId,String strReason,String strMessage,String strDetailed)
@@ -265,11 +433,20 @@ public class PopulateSpreadsheet {
 		
 	}
 	
+	/*public PopulateSpreadsheet()
+	{
+		
+		uf = new UtilityFunctions();
+		dbf = new DBFunctions
+		
+		
+	}*/
+	
 	
 	
 	public PopulateSpreadsheet()
 	{ 
-		uf = new UtilityFunctions();
+		//uf = new UtilityFunctions();
 		
 		UtilityFunctions.stdoutwriter.writeln("This is a test from inside PopulateSpreadsheet 2.",Logs.STATUS1,"A2.73");
 		
@@ -362,439 +539,11 @@ public class PopulateSpreadsheet {
 	}
 	        
 	
-	/*public static void main(String[] args)
-	{
-		 int row = 0;
-		 int col = 0;
-		 String formulaOrValue = "blap";
-		 
-		 
-		 
-		 
-		 PopulateSpreadsheet tmp = new PopulateSpreadsheet();
-		 
-		 
-		 
-		
-		
-		
-		
-		
-	}*/
 	
 	
 	
 	
-	public void loadSheet(String sheetName) throws IOException,
-    ServiceException {
-  // Get the spreadsheet to load
-  SpreadsheetFeed feed = service.getFeed(this.factory.getSpreadsheetsFeedUrl(),
-      SpreadsheetFeed.class);
-		
-  List spreadsheets = feed.getEntries();
-  //int spreadsheetIndex = getIndexFromUser(reader, spreadsheets, 
-    //  "spreadsheet");
-  int spreadsheetIndex = 0;
-  
-  for (int i = 0; i < spreadsheets.size(); i++) {
-      BaseEntry entry = (BaseEntry) spreadsheets.get(i);
-      if (entry.getTitle().getPlainText().equals("motion chart sample"))
-   	  {
-    	  spreadsheetIndex = i;
-    	  break;
-   	  }
-    		  
-    }
-  
-    
- 
-  	
-  	 
-  	//cellFeedUrl = spreadsheet.getWorksheets().get(0).getCellFeedUrl();
-  	
- 
-  	
-  	//spreadsheet.getWorksheets().get(0).setRowCount(500);
-  	
-  	//spreadsheet.getWorksheets().get(0).update();
-  	
-  	//spreadsheet.update();
-  	
-  	 	  	
-  	//int x = spreadsheet.getWorksheets().get(0).getRowCount();
-  	
-  	/*String query2 = "select count(distinct ticker) as count1 from fact_data where data_set like '%xrateorg%'";
-  	
-  	int uniquetickers = 0;
-  	try
-  	{
-  		ResultSet rs2 = dbf.db_run_query(query2);
-  		rs2.next();
-  		uniquetickers = rs2.getInt("count1");
-  	}
-  	catch (SQLException sqle)
-  	{
-  		sqle.printStackTrace();
-  	}*/
-  	
-  	String[] regions = {"europe","americas","asia","mideast","africa"};
-  	
-  	String[] colheaders = {"ticker","time","value","pct_change","region"};
-  	
-  	
-  	
-  	
-  	for (int z=1;z<6;z++)
-  	{
-  		
-  		
-  		
-  		
-  		/*
-  		 * Something happens in BatchSample that requires me to get this spreadsheetfeed again.
-  		 */
-  		
-  		
-  		
-  		getNewFeed("motion chart sample",z);
-  	
-  	
-  		System.out.println("Sheet loaded.");
-  		
-  		
-  		String query2 = "select count(distinct ticker) as count1 from fact_data where data_set like '%" + regions[z-1] + "%' AND ticker NOT IN ('EURUSD','EURGBP')";
-  		
-  		int uniquetickers = 0;
-  	  	try
-  	  	{
-  	  		ResultSet rs2 = dbf.db_run_query(query2);
-  	  		rs2.next();
-  	  		uniquetickers = rs2.getInt("count1");
-  	  	}
-  	  	catch (SQLException sqle)
-  	  	{
-  	  		sqle.printStackTrace();
-  	  	}
-  	
-	  	String query = "select avg(value) as value1,ticker,date_format(date_collected,'%m/%d/%y') as date1,data_set from fact_data" + 
-	  	" where data_set like '%" + regions[z-1] + "%' AND ticker NOT IN ('EURUSD','EURGBP') " + 
-	  	"group by date1,ticker,data_set order by date1";
-	  	try
-	  	{
-	  		CellEntry newEntry;
-	  		ListEntry newListEntry; 
 	
-	  		ResultSet rs = dbf.db_run_query(query);
-	  		int row = 2;
-	  		int rowcount = spreadsheet.getWorksheets().get(z).getRowCount();
-	  		int groupcount =0;
-	  	  	while (rs.next())
-	  	  	{
-	  	  		
-	  	  		//System.out.println(row);
-	  	  		
-	  	  		/*
-	  	  		 * 
-	  	  		 * Code to enter data by list feed.
-	  	  		 * Doesn't work with forumals or spaces in column headers.
-	  	  		 */
-	  	  		
-	  	  		/*newListEntry = new ListEntry();
-	  	  		
-	  	  		String tmp1 = rs.getString("value1");
-	  	  		
-	  	  		newListEntry.getCustomElements().setValueLocal(colheaders[0], rs.getString("ticker"));
-	  	  		newListEntry.getCustomElements().setValueLocal(colheaders[1], rs.getString("date1"));
-	  	  		newListEntry.getCustomElements().setValueLocal(colheaders[2], tmp1);
-	  	  		
-	  	  		
-	  	  		
-	  	  		//Formulas are not support with list feeds.
-	  	  		String tmp = "(C" + (row) + "-C" + (groupcount+2) + ")/C" + (groupcount+2);
-	  	  		newListEntry.getCustomElements().setValueLocal(colheaders[3], tmp);
-	  	  		
-	  	  		String strRegion = "";
-		  	  	if (rs.getString("data_set").contains("europe"))
-			  			strRegion = "europe";
-		  		else if (rs.getString("data_set").contains("americas"))
-		  			strRegion = "americas";
-		  		else if (rs.getString("data_set").contains("africa"))
-		  			strRegion = "africa";
-		  		else if (rs.getString("data_set").contains("asia"))
-		  			strRegion = "asia & pacific";
-		  		else if (rs.getString("data_set").contains("mideast"))
-		  			strRegion = "middle east";
-		  	  	
-		  	  	strRegion = "blap";
-		  	  	newListEntry.getCustomElements().setValueLocal(colheaders[4], strRegion);
-		  	  	
-		  	  	ListEntry insertedRow = service.insert(listFeedUrl, newListEntry);*/
-	  	  		
-	  	  		/*
-	  	  		 * End code section for enterind data by list feed.
-	  	  		 */
-	  	  		
-	  	  		
-	  	  		/*
-	  	  		 * 
-	  	  		 * Code to enter data cell by cell. Will leave this in for now as a reference.
-	  	  		 * 
-	  	  		 * */
-	  	  		
-	  	  		/*newEntry = new CellEntry(row,1,rs.getString("ticker"));
-	  	  		service.insert(cellFeedUrl, newEntry);
-	  	  		newEntry = new CellEntry(row,2,rs.getString("date1"));
-	  	  		service.insert(cellFeedUrl, newEntry);
-	  	  		newEntry = new CellEntry(row,3,rs.getString("value1"));
-	  	  		service.insert(cellFeedUrl, newEntry);
-	  	  		
-	  	  		newEntry = new CellEntry(row,4,("=(C" + (row) + "-C" + (groupcount+2) + ")/C" + (groupcount+2))); 	  		
-	  	  		service.insert(cellFeedUrl, newEntry);
-	  	  		
-	  	  		if (rs.getString("data_set").contains("europe"))
-	  	  			newEntry = new CellEntry(row,5,"europe");
-	  	  		else if (rs.getString("data_set").contains("americas"))
-	  	  			newEntry = new CellEntry(row,5,"americas");
-	  	  		else if (rs.getString("data_set").contains("africa"))
-		  			newEntry = new CellEntry(row,5,"africa");
-	  	  		else if (rs.getString("data_set").contains("asia"))
-	  	  			newEntry = new CellEntry(row,5,"asia & pacific");
-	  	  		else if (rs.getString("data_set").contains("mideast"))
-	  	  			newEntry = new CellEntry(row,5,"middle east");
-	  	  		
-	  	  		service.insert(cellFeedUrl, newEntry);*/
-	  	  		
-	  	  		/*
-	  	  		 * End section enter data cell by cell.
-	  	  		 */
-	  	  		
-	  	  		String tmp = "=(C" + (row) + "-C" + (groupcount+2) + ")/C" + (groupcount+2);
-	  	  		
-	  	  		cellAddrs.add(new BatchSample.CellAddress(row,1,rs.getString("ticker")));
-	  	  		cellAddrs.add(new BatchSample.CellAddress(row,2,rs.getString("date1")));
-	  	  		cellAddrs.add(new BatchSample.CellAddress(row,3,rs.getString("value1")));
-	  	  		cellAddrs.add(new BatchSample.CellAddress(row,4,tmp));
-	  	  		
-		  	  	String strRegion = "";
-		  	  	if (rs.getString("data_set").contains("europe"))
-			  			strRegion = "europe";
-		  		else if (rs.getString("data_set").contains("americas"))
-		  			strRegion = "americas";
-		  		else if (rs.getString("data_set").contains("africa"))
-		  			strRegion = "africa";
-		  		else if (rs.getString("data_set").contains("asia"))
-		  			strRegion = "asia & pacific";
-		  		else if (rs.getString("data_set").contains("mideast"))
-		  			strRegion = "middle east";
-		  	  	
-		  	  	cellAddrs.add(new BatchSample.CellAddress(row,5,strRegion));
-		  	  	
-		  	  	
-	  	  		
-	  	  		
-	  	  		
-	  	  		
-	  	  		
-		  	  	
-		  	  	
-		  	  	
-		  /*	  	List<CellAddress> cellAddrs = new ArrayList<CellAddress>();
-		  	  	cellAddrs.add(new CellAddress(2, 1));
-		  	  	cellAddrs.add(new CellAddress(2, 2));
-		  	  	cellAddrs.add(new CellAddress(2, 3));
-		  	  	cellAddrs.add(new CellAddress(2, 4));
-		  	  	cellAddrs.add(new CellAddress(2, 5));
-		  	  	
-		  	  	Map<String,CellEntry> cellEntries = getCellEntryMap(service, cellFeedUrl, cellAddrs);
-		  	  	
-		
-		  	  	
-		  	  	CellFeed batchRequest = new CellFeed();
-		  	    for (CellAddress cellAddr : cellAddrs) {
-		  	      URL entryUrl = new URL(cellFeedUrl.toString() + "/" + cellAddr.idString);
-		  	      CellEntry batchEntry = new CellEntry(cellEntries.get(cellAddr.idString));
-		  	      
-		  	      //batchEntry.changeInputValueLocal("999");
-		  	      //batchEntry.update();
-		  	      
-		  	      batchEntry.changeInputValueLocal(cellAddr.idString);
-		  	      BatchUtils.setBatchId(batchEntry, cellAddr.idString);
-		  	      BatchUtils.setBatchOperationType(batchEntry, BatchOperationType.UPDATE);
-		  	      batchRequest.getEntries().add(batchEntry);
-		  	    }
-		  	    
-		  	    Link batchLink = cellFeed.getLink(Link.Rel.FEED_BATCH, Link.Type.ATOM);
-		  	    CellFeed batchResponse = service.batch(new URL(batchLink.getHref()), batchRequest);
-	  	  		
-	  	  		*/
-		  	  	
-		  	  	if (row%250 == 0)
-	  	  		{
-	  	  			BatchSample.batchPopulate(service,cellFeedUrl,cellAddrs);
-	  	  			getNewFeed("motion chart sample",z);
-	  	  			
-	  	  		}
-	  	  		
-	  	  		
-	  	  		row++;
-	  	  		
-	  	  		/* This doesn't work for some reason */
-	  	  		/*if (rowcount == row)
-	  	  		{
-	  	  			rowcount +=100;
-	  	  			spreadsheet.getWorksheets().get(z).setRowCount(rowcount);
-	  	  			spreadsheet.getWorksheets().get(z).update();
-	  	  			
-	  	  			
-	  	  		}*/
-	  	  		
-	  	  		
-	  	  		
-	  	  	
-	  	  		
-	  	  
-	  	  		
-	  	  		
-	  	  		
-	  	  		
-	  	  		
-	  	  		groupcount++;
-	  	  		if (groupcount==uniquetickers)
-	  	  			groupcount=0;
-	  	  		
-	  	  		
-	  	  		
-	  	  		
-	  	  		break;
-	  	  		
-	  	  
-	  	  		
-	  	  	}
-	  	  	
-	  	  	BatchSample.batchPopulate(service, cellFeedUrl,cellAddrs);
-	  	  
-	  	  	
-	  	  	
-	  	}
-	  	catch (SQLException sqle)
-	  	{
-	  		sqle.printStackTrace();
-	  	}
-  	
-  	
-  	
-  	
-  	
-  	
-  	
-  	}
-  	
-
-  	
-  	
-
-  	
-
-
-}
-
-	
-	
-	public void currencyDataToList()
-	{
-		
-		String[] regions = {"europe","americas","asia","mideast","africa"};
-		
-		
-		
-		
-		for (int z=1;z<6;z++)
-	  	{
-			ArrayList<String[]> rows = new ArrayList<String[]>();
-			String query2 = "select count(distinct ticker) as count1 from fact_data where data_set like '%" + regions[z-1] + "%' AND ticker NOT IN ('EURUSD','EURGBP')";
-			int uniquetickers = 0;
-	  	  	try
-	  	  	{
-	  	  		ResultSet rs2 = dbf.db_run_query(query2);
-	  	  		rs2.next();
-	  	  		uniquetickers = rs2.getInt("count1");
-	  	  	}
-	  	  	catch (SQLException sqle)
-	  	  	{
-	  	  		sqle.printStackTrace();
-	  	  	}
-	  		String query = "select avg(value) as value1,ticker,date_format(date_collected,'%m/%d/%y') as date1,data_set from fact_data" + 
-		  	" where data_set like '%" + regions[z-1] + "%' AND ticker NOT IN ('EURUSD','EURGBP') " + 
-		  	"group by date1,ticker,data_set order by date1";
-	  		String[] tmpRow;
-		  	try
-		  	{
-		  		//CellEntry newEntry;
-		  		//ListEntry newListEntry; 
-		
-		  		ResultSet rs = dbf.db_run_query(query);
-		  		int row = 2;
-		  		//int rowcount = spreadsheet.getWorksheets().get(z).getRowCount();
-		  		int groupcount =0;
-		  	  	while (rs.next())
-		  	  	{
-		  	  		tmpRow = new String[5];
-		  	  		tmpRow[0]=rs.getString("ticker");
-		  	  		tmpRow[1]=rs.getString("date1");
-		  	  		tmpRow[2]=rs.getString("value1");
-		  	  	
-		  	  		
-		  	  		String strFormula = "=(C" + (row) + "-C" + (groupcount+2) + ")/C" + (groupcount+2);
-		  	  		tmpRow[3]=strFormula;
-		  	  		
-			  	  	String strRegion = "";
-			  	  	if (rs.getString("data_set").contains("europe"))
-				  			strRegion = "europe";
-			  		else if (rs.getString("data_set").contains("americas"))
-			  			strRegion = "americas";
-			  		else if (rs.getString("data_set").contains("africa"))
-			  			strRegion = "africa";
-			  		else if (rs.getString("data_set").contains("asia"))
-			  			strRegion = "asia & pacific";
-			  		else if (rs.getString("data_set").contains("mideast"))
-			  			strRegion = "middle east";
-			  	  	
-			  	  	tmpRow[4]=strRegion;
-			  	  	
-			  	  	rows.add(tmpRow);
-			  	  	
-			  		groupcount++;
-		  	  		if (groupcount==uniquetickers)
-		  	  			groupcount=0;
-		  	  	
-		  	  		//break;
-		  	  	}
-			
-			
-		  	}
-			catch (SQLException sqle)
-		  	{
-		  		sqle.printStackTrace();
-		  	}
-		
-			try
-			{
-				batchLoadSheetFromList("motion chart sample",z,rows);
-			}
-			catch (IOException ioe)
-			{
-				ioe.printStackTrace();
-				
-			}
-			catch (ServiceException se)
-			{
-				se.printStackTrace();
-			}
-		
-	  	}
-		
-		
-	}
 	
 	
 	public ArrayList<String[]> transformEssbaseList(ArrayList<String[]> listData)
@@ -872,15 +621,57 @@ public class PopulateSpreadsheet {
   		
   	}
   	
-  	public static ArrayList<String[]> removeLastColumn(ArrayList<String[]> inputArrayList)
+  	public static ArrayList<String[]> removeColumn(ArrayList<String[]> inputArrayList,int nCol) throws CustomInvalidInputException
+  	{
+  		//Removes an element from each array in the arraylist. nCol is zero based.
+  		
+  		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
+  		
+
+  		
+  		for (int i=0;i<inputArrayList.size();i++)
+  		{
+  			String[] inRow = inputArrayList.get(i);
+  			
+  	  		if (nCol >= inRow.length)
+				throw new CustomInvalidInputException("Invalid input. Column is zero based and needs to be less than the array length.");
+  			
+  			String[] outRow = new String[inRow.length - 1];
+  			
+  			for (int j=0,n=0;j<inRow.length;j++)
+  			{
+  				if (j==nCol)
+  					continue;
+  				else
+  				{
+  					outRow[n]=inRow[j];
+  					n++;
+  				}
+  				
+  			}
+  			
+  			outputArrayList.add(outRow);
+  			
+  		}
+  		
+  		return(outputArrayList);
+  		
+  	
+  	}
+  	
+  	public static ArrayList<String[]> removeLastColumn(ArrayList<String[]> inputArrayList) throws CustomInvalidInputException
   	{
   		//Removes the last index from all of the String arrays
+  		
+  	
   		
   		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
   		
   		for (int i=0;i<inputArrayList.size();i++)
   		{
   			String[] inRow = inputArrayList.get(i);
+  			
+  		
   			
   			String[] outRow = new String[inRow.length - 1];
   			
@@ -956,6 +747,105 @@ public class PopulateSpreadsheet {
   		return(outputArrayList);
 	
   	}
+	
+	public static ArrayList<String[]> getMaxMinGroupBy(ArrayList<String[]> inputArrayList,int[] x,int y,String strType,String strComparison) throws ParseException
+  	{
+  		/*
+  		 * Return the row with a particular maximum value in a group of values. This is to avoid
+  		 * having to do nested select queries. 
+  		 * 
+  		 * Assumptions: 
+  		 * 		- index x1 is the first group column
+  		 *  	- index x2 is the second group column
+  		 *      - index y is the min column, and strDataType indicates the type of comparison (currently DATE or NUMBER)
+  		 *      - strComparison is either MAX or MIN
+  		 *      - data has been ordered by x1 and then x2
+  		 * 
+  		 * NOTE: If you only have one group by column in your data, you can add a placeholder column and 
+  		 * then remove it after calling this function.
+  		 * 
+  		 */
+  		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
+  		
+  		String[] minmaxRow = inputArrayList.get(0);
+  		String[] row;
+  		
+  		for (int i=1;i<inputArrayList.size();i++)
+  		{
+  			row = inputArrayList.get(i);
+  			boolean bResult=false;
+  			for (int j=0;j<x.length;j++)
+  			{
+  				if (!row[x[j]].equals(minmaxRow[x[j]]))
+  					bResult=true;
+  				
+  			}
+  			//if (!((row[x1].equals(maxRow[x1])) && (row[x2].equals(maxRow[x2]))))
+  			if (bResult==true)
+  				// we're on to the next group
+  			{
+  				outputArrayList.add(minmaxRow);
+  				
+  				minmaxRow = row;
+  				
+  				
+  			}
+  			
+  			
+  			if (strType.toUpperCase().equals("DATE"))
+  			{
+  				
+  				SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  				
+  				Calendar cal1 = Calendar.getInstance();
+  				Calendar cal2 = Calendar.getInstance();
+  				
+
+	  			cal1.setTime(inputFormat.parse(row[y]));
+	  			cal2.setTime(inputFormat.parse(minmaxRow[y]));
+  		
+  				
+	  			if (strComparison.toUpperCase().equals("MIN"))
+  	  		   {
+	  				if (cal1.before(cal2))
+	  					minmaxRow = row;
+	  				//if (Double.parseDouble(row[y]) < Double.parseDouble(minmaxRow[y]))
+	  				//	minmaxRow = row;
+  	  		   }
+  	  		   else //assume max
+  	  		   {
+  	  			   if (cal1.after(cal2))
+  	  				   minmaxRow = row;
+  	  			   //if (Double.parseDouble(row[y]) > Double.parseDouble(minmaxRow[y]))
+  	  				//   minmaxRow = row;
+  	  		   }
+  				
+  			}
+  			else //assume number
+  			{
+	  		   if (strComparison.toUpperCase().equals("MIN"))
+	  		   {
+	  			if (Double.parseDouble(row[y]) < Double.parseDouble(minmaxRow[y]))
+	  				minmaxRow = row;
+	  		   }
+	  		   else //assume max
+	  		   {
+	  			 if (Double.parseDouble(row[y]) > Double.parseDouble(minmaxRow[y]))
+	   				minmaxRow = row;
+	  		   }
+  			}
+  			
+  		}
+  		
+  		outputArrayList.add(minmaxRow);
+  		
+  		
+  		return(outputArrayList);
+  		
+  		
+  		
+  	}
+
   	
   	//public static ArrayList<String[]> getMaxGroupBy(ArrayList<String[]> inputArrayList,int x1, int x2,int y)
 	public static ArrayList<String[]> getMaxGroupBy(ArrayList<String[]> inputArrayList,int[] x,int y)
@@ -970,7 +860,8 @@ public class PopulateSpreadsheet {
   		 *      - index y is the max column (currently this can only be an int)
   		 *      - data has been ordered by x1 and then x2
   		 * 
-  		 * 
+  		 * NOTE: If you only have one group by column in your data, you can add a placeholder column and 
+  		 * then remove it after calling this function.
   		 */
   		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
   		
@@ -998,7 +889,9 @@ public class PopulateSpreadsheet {
   				
   			}
   			
-  			if (Integer.parseInt(row[y]) > Integer.parseInt(maxRow[y]))
+  			/*if (Integer.parseInt(row[y]) > Integer.parseInt(maxRow[y]))
+  				maxRow = row;*/
+  			if (Double.parseDouble(row[y]) > Double.parseDouble(maxRow[y]))
   				maxRow = row;
   			
   		}
@@ -1297,4 +1190,29 @@ class JSONDate implements JSONString
 		
 		
 	}
+
+class CustomEntityGroupException extends Exception
+{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1264200616496045940L;
+	
+}
+
+class CustomInvalidInputException extends Exception
+{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1981345432124138523L;
+	
+	public CustomInvalidInputException(String msg){
+		super(msg);
+		}
+	
+	
+}
 
