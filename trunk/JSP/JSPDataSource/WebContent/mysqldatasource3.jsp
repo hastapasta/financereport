@@ -92,7 +92,7 @@ arrayListCols.add(blap9);
 arrayListCols.add(blap10);
 arrayListCols.add(blap11);*/
 
-DBFunctions dbf = new DBFunctions("testdataload","3306","findata","root","madmax1.");
+//DBFunctions dbf = new DBFunctions("testdataload","3306","findata","root","madmax1.");
 
 
 
@@ -122,30 +122,32 @@ query += " order by pctchange";
 
 
 
-ResultSet rs=null;
+DBFunctions dbf = null;
+boolean bException = false;
 ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
 try
 {
-	rs = dbf.db_run_query(query);
-	while (rs.next()) {
+	dbf = new DBFunctions();
+	dbf.db_run_query(query);
+	while (dbf.rs.next()) {
 		
 		String [] tmp = new String[22];
 		for (int i=0;i<fields.length;i=i+4)
 		{
-			tmp[(i/4)*2] = tmp[((i/4)*2)+1] = rs.getString(fields[i+1]);		
+			tmp[(i/4)*2] = tmp[((i/4)*2)+1] = dbf.rs.getString(fields[i+1]);		
 		}
 		
-		/*tmp[0] = tmp[1] = rs.getString("tasks.name");
-		tmp[2] = tmp[3] = rs.getString("entities.ticker");
-		tmp[4] = tmp[5] = rs.getString("time_events.name");
-		tmp[6] = tmp[7] = rs.getString("users.username");
-		tmp[8] = tmp[9] = rs.getString("fd1.value");
-		tmp[10] = tmp[11] = rs.getString("fd2.value");
-		tmp[12] = tmp[13] = rs.getString("pctchange");
-		tmp[14] = tmp[15] = rs.getString("fd1.date_collected");
-		tmp[16] = tmp[17] = rs.getString("fd2.date_collected");
-		tmp[18] = tmp[19] = rs.getString("time_events.last_datetime");
-		tmp[20] = tmp[21] = rs.getString("time_events.next_datetime");*/
+		/*tmp[0] = tmp[1] = dbf.rs.getString("tasks.name");
+		tmp[2] = tmp[3] = dbf.rs.getString("entities.ticker");
+		tmp[4] = tmp[5] = dbf.rs.getString("time_events.name");
+		tmp[6] = tmp[7] = dbf.rs.getString("users.username");
+		tmp[8] = tmp[9] = dbf.rs.getString("fd1.value");
+		tmp[10] = tmp[11] = dbf.rs.getString("fd2.value");
+		tmp[12] = tmp[13] = dbf.rs.getString("pctchange");
+		tmp[14] = tmp[15] = dbf.rs.getString("fd1.date_collected");
+		tmp[16] = tmp[17] = dbf.rs.getString("fd2.date_collected");
+		tmp[18] = tmp[19] = dbf.rs.getString("time_events.last_datetime");
+		tmp[20] = tmp[21] = dbf.rs.getString("time_events.next_datetime");*/
 		
 		
 		arrayListRows.add(tmp);
@@ -154,7 +156,15 @@ try
 }
 catch (SQLException sqle)
 {
-	out.println(sqle.toString());
+	//out.println(sqle.toString());
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	bException = true;
+}
+finally
+{
+	if (dbf !=null) dbf.closeConnection();
+	if (bException == true)
+		return;
 }
 
 

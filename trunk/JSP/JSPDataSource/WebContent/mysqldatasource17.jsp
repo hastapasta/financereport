@@ -54,7 +54,7 @@ UtilityFunctions uf = new UtilityFunctions();
 
 //String[] columns = tmpArrayList.get(0);
 
-DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
+//DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
 
 //String query1 = "select ticker from entities where id " + strInClause;
 //ResultSet rs1 = dbf.db_run_query(query1);
@@ -114,23 +114,25 @@ query2 += " order by dtf DESC limit 30 ";
 
 
 
-ResultSet rs=null;
-ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
 
+ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
+DBFunctions dbf = null;
+boolean bException = false;
 try
 {
-	rs = dbf.db_run_query(query2);
-	while (rs.next()) {
+	dbf = new DBFunctions();
+	dbf.db_run_query(query2);
+	while (dbf.rs.next()) {
 		String [] tmp = new String[18];
-		tmp[0] = tmp[1] = rs.getString("dtf");
-		tmp[2] = tmp[3] = rs.getString("ticker");
-		tmp[4] = tmp[5] = rs.getString("full_name");
-		tmp[6] = tmp[7] = rs.getString("time_events.name");
-		tmp[8] = tmp[9] = rs.getString("fd1.value");
-		tmp[10] = tmp[11] = rs.getString("fd2.value");
-		tmp[12] = tmp[13] = rs.getString("fd1.date_collected");
-		tmp[14] = tmp[15] = rs.getString("fd2.date_collected");
-		tmp[16] = tmp[17] = rs.getString("log_alerts.limit_value");
+		tmp[0] = tmp[1] = dbf.rs.getString("dtf");
+		tmp[2] = tmp[3] = dbf.rs.getString("ticker");
+		tmp[4] = tmp[5] = dbf.rs.getString("full_name");
+		tmp[6] = tmp[7] = dbf.rs.getString("time_events.name");
+		tmp[8] = tmp[9] = dbf.rs.getString("fd1.value");
+		tmp[10] = tmp[11] = dbf.rs.getString("fd2.value");
+		tmp[12] = tmp[13] = dbf.rs.getString("fd1.date_collected");
+		tmp[14] = tmp[15] = dbf.rs.getString("fd2.date_collected");
+		tmp[16] = tmp[17] = dbf.rs.getString("log_alerts.limit_value");
 
 				
 		
@@ -140,7 +142,15 @@ try
 }
 catch (SQLException sqle)
 {
-	out.println(sqle.toString());
+	//out.println(sqle.toString());
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	bException = true;
+}
+finally
+{
+	if (dbf !=null) dbf.closeConnection();
+	if (bException == true)
+		return;
 }
 
 

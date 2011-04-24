@@ -54,7 +54,7 @@ arrayListCols.add(blap3);
 arrayListCols.add(blap4);
 
 
-DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
+//DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
 
 String query2 = "select entities.ticker,date_format(date_time_fired,'%XW%V') as date_fired,count(log_alerts.id) as alert_count,time_events.name ";
 query2 += " from log_alerts ";
@@ -79,17 +79,19 @@ query2 += " AND task_id=" + strTaskId;*/
 
 
 
-ResultSet rs=null;
+DBFunctions dbf = null;
+boolean bException = false;
 ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
 try
 {
-	rs = dbf.db_run_query(query2);
-	while (rs.next()) {
+	dbf = new DBFunctions();
+	dbf.db_run_query(query2);
+	while (dbf.rs.next()) {
 		String [] tmp = new String[8];
-		tmp[0] = tmp[1] = rs.getString("entities.ticker");
-		tmp[2] = tmp[3] = rs.getString("date_fired");
-		tmp[4] = tmp[5] = rs.getString("alert_count");
-		tmp[6] = tmp[7] = rs.getString("time_events.name");
+		tmp[0] = tmp[1] = dbf.rs.getString("entities.ticker");
+		tmp[2] = tmp[3] = dbf.rs.getString("date_fired");
+		tmp[4] = tmp[5] = dbf.rs.getString("alert_count");
+		tmp[6] = tmp[7] = dbf.rs.getString("time_events.name");
 
 		
 		
@@ -99,7 +101,15 @@ try
 }
 catch (SQLException sqle)
 {
-	out.println(sqle.toString());
+	//out.println(sqle.toString());
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	bException = true;
+}
+finally
+{
+	if (dbf !=null) dbf.closeConnection();
+	if (bException == true)
+		return;
 }
 
 

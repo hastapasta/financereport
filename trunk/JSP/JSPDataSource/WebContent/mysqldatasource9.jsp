@@ -49,7 +49,7 @@ UtilityFunctions uf = new UtilityFunctions();
 
 //String[] columns = tmpArrayList.get(0);
 
-DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
+//DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
 
 //String query1 = "select ticker from entities where id " + strInClause;
 //ResultSet rs1 = dbf.db_run_query(query1);
@@ -89,16 +89,18 @@ query2 += " order by alert_count DESC limit " + strLimitCount;
 
 
 
-ResultSet rs=null;
+DBFunctions dbf = null;
+boolean bException = false;
 ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
 
 try
 {
-	rs = dbf.db_run_query(query2);
-	while (rs.next()) {
+	dbf = new DBFunctions();
+	dbf.db_run_query(query2);
+	while (dbf.rs.next()) {
 		String [] tmp = new String[4];
-		tmp[0] = tmp[1] = rs.getString("entities.ticker");
-		tmp[2] = tmp[3] = rs.getString("alert_count");
+		tmp[0] = tmp[1] = dbf.rs.getString("entities.ticker");
+		tmp[2] = tmp[3] = dbf.rs.getString("alert_count");
 
 				
 		
@@ -108,7 +110,15 @@ try
 }
 catch (SQLException sqle)
 {
-	out.println(sqle.toString());
+	//out.println(sqle.toString());
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	bException = true;
+}
+finally
+{
+	if (dbf !=null) dbf.closeConnection();
+	if (bException == true)
+		return;
 }
 
 

@@ -52,7 +52,7 @@ arrayListCols.add(blap2);
 arrayListCols.add(blap3);
 
 
-DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
+//DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
 
 
 String query2 = "select fact_data.value as initval, fact_data.entity_id ";
@@ -83,16 +83,18 @@ query += " order by fact_data.calyear,entities.ticker";
 
 
 
-ResultSet rs=null;
+DBFunctions dbf = null;
+boolean bException = false;
 ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
 try
 {
-	rs = dbf.db_run_query(query);
-	while (rs.next()) {
+	dbf = new DBFunctions();
+	dbf.db_run_query(query);
+	while (dbf.rs.next()) {
 		String [] tmp = new String[6];
-		tmp[0] = tmp[1] = rs.getString("countries.name");
-		tmp[2] = tmp[3] = rs.getString("fact_data.calyear");
-		tmp[4] = tmp[5] = rs.getString("pctchange");
+		tmp[0] = tmp[1] = dbf.rs.getString("countries.name");
+		tmp[2] = tmp[3] = dbf.rs.getString("fact_data.calyear");
+		tmp[4] = tmp[5] = dbf.rs.getString("pctchange");
 
 		
 		
@@ -102,8 +104,17 @@ try
 }
 catch (SQLException sqle)
 {
-	out.println(sqle.toString());
+	//out.println(sqle.toString());
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	bException = true;
 }
+finally
+{
+	if (dbf !=null) dbf.closeConnection();
+	if (bException == true)
+		return;
+}
+
 
 
 

@@ -5,48 +5,22 @@
 <%@ page import="org.json.*" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
-<%@ page import="java.text.DateFormat" %>
-<%@ page import="java.text.SimpleDateFormat" %>
 
- 
 
 
 
 <%
 
 /*
-* This data_source pulls from the fact_data based off of entities and a date range
+* This data soruce pulls from log_tasks
 */
 
 
+String strType = "total";
+if (request.getParameter("type") != null)
+	strType = request.getParameter("type");
 
-String strEntityId = request.getParameter("entityid");
-String[] entityIds = null;
-if (strEntityId!=null)
-	entityIds = strEntityId.split(",");
-String strEndDate = request.getParameter("enddate");
-String strBeginDate = request.getParameter("begindate"); 
 
-if (strBeginDate==null)
-{
-	out.println("No begindate request parameter.");
-	return;
-}
-
-if (!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19"))
-{
-	out.println("begindate format needs to be yyyy-mm-dd");
-	return;
-}
-
-if (strEndDate!=null)
-{
-	if (!strEndDate.startsWith("20") && !strEndDate.startsWith("19"))
-	{
-		out.println("enddate format needs to be yyyy-mm-dd");
-		return;
-	}
-}
 
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
@@ -67,14 +41,7 @@ UtilityFunctions uf = new UtilityFunctions();
 
 ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 
-String strInClause="in (";
-for (int i=0;i<entityIds.length;i++)
-{
-	if (i!=0)
-		strInClause += ",";
-	strInClause += entityIds[i];
-}
-strInClause += ") ";
+
 //String[] columns = tmpArrayList.get(0);
 
 //DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
@@ -90,19 +57,12 @@ strInClause += ") ";
 
 
 
-//ideally i'd like to use last() here but mysql doesn't support it - it would have to be 
-//coded by hand - so going with max() instead.
-String query = "select date_format(fact_data.date_collected,'%m-%d-%Y') as date_col, date_format(fact_data.date_collected,'%H:%m:%s') as time_col, ";
-query += "fact_data.batch,fact_data.value as fdvalue,entities.ticker  ";
-query += "from fact_data ";
-query += "JOIN entities on fact_data.entity_id=entities.id ";
-//query += "JOIN tasks on fact_data.task_id=tasks.id ";
-query += " where entities.id " + strInClause;
-query += " AND date_format(fact_data.date_collected,'%Y-%m_%d')>'" + strBeginDate + "' ";
-if (strEndDate!=null && !strEndDate.isEmpty())
-	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
-//query += " group by date_format(fact_data.date_collected,'%Y-%m-%d'),entities.ticker,fact_data.value ";
-query += " order by date_col ASC ,entities.ticker ASC, time_col ASC";
+String query = "select date_format(job_process_start,'%m-%d-%Y') as date1, round(time_to_sec(timediff(job_process_end,job_process_start))/60,2) as jobdiff, ";
+query += " round(time_to_sec(timediff(alert_process_end,alert_process_start))/60,2) as alertdiff, round(time_to_sec(timediff(alert_process_end,job_process_start))/60,2) as totaldiff";
+query += " ,tasks.name ";
+query += "from log_tasks ";
+query += " join tasks on log_tasks.task_id=tasks.id ";
+query += " order by date1 ASC, name ";
 
 
 
@@ -116,18 +76,21 @@ DBFunctions dbf = null;
 boolean bException = false;
 ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
 
-DateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-
 try
 {
 	dbf = new DBFunctions();
 	dbf.db_run_query(query);
 	while (dbf.rs.next()) {
-		String [] tmp = new String[4];
-		tmp[0] = dbf.rs.getString("date_col");
-		tmp[1] = dbf.rs.getString("entities.ticker");	
-		tmp[2] = dbf.rs.getString("fdvalue");
-		tmp[3] = dbf.rs.getString("fact_data.batch");
+		String [] tmp = new String[3];
+		tmp[0] = dbf.rs.getString("date1");
+		tmp[1] = dbf.rs.getString("tasks.name");
+		if (strType.equals("job"))
+			tmp[2] = dbf.rs.getString("jobdiff");
+		else if (strType.equals("alert"))
+			tmp[2] = dbf.rs.getString("alertdiff");
+		else
+			tmp[2] = dbf.rs.getString("totaldiff");
+
 				
 		
 		arrayListRows.add(tmp);
@@ -147,8 +110,23 @@ finally
 		return;
 }
 
+/*out.println("<table>");
+for (int i=0;i<arrayListRows.size();i++)
+{
+	out.println("<tr>");
+	String[] temp = arrayListRows.get(i);
+	for (int j=0;j<temp.length;j++)
+	{
+		out.println("<td>" + temp[j] +"</td>");
+	}
+	out.println("</tr>");
+}
+out.println("</table>");
+
+out.println(query); if (1==1) return;*/
+
 int[] tmpArray = {0,1};
-arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray,3);
+arrayListRows = PopulateSpreadsheet.getMaxGroupBy(arrayListRows,tmpArray,2);
 
 
 
@@ -175,7 +153,7 @@ out.println(query); if (1==1) return;*/
 
 
 
-arrayListRows = PopulateSpreadsheet.removeLastColumn(arrayListRows);
+//arrayListRows = PopulateSpreadsheet.removeLastColumn(arrayListRows);
 
 arrayListRows = PopulateSpreadsheet.pivotRowsToColumnsArrayList(arrayListRows);
 
@@ -205,7 +183,7 @@ out.println(query); if (1==1) return;*/
 
 String[] pivotColumns = arrayListRows.remove(0);
 
-String[] col1 = {"date_collected","date collected","date"};
+String[] col1 = {"date_collected","date collected","string"};
 arrayListCols.add(col1);
 for (int i=0;i<pivotColumns.length;i++)
 {

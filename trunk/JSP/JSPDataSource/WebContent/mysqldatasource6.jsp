@@ -39,7 +39,7 @@ UtilityFunctions uf = new UtilityFunctions();
 
 
 
-DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
+//DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
 
 String query2 = "select fact_data.value as initval, fact_data.entity_id ";
 query2 += "from fact_data ";
@@ -69,17 +69,19 @@ query += " order by fact_data.calyear,entities.ticker";
 
 
 
-ResultSet rs=null;
+DBFunctions dbf = null;
+boolean bException = false;
 ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
 
 try
 {
-	rs = dbf.db_run_query(query);
-	while (rs.next()) {
+	dbf = new DBFunctions();
+	dbf.db_run_query(query);
+	while (dbf.rs.next()) {
 		String [] tmp = new String[3];
-		tmp[0] = rs.getString("fact_data.calyear");
-		tmp[1] = rs.getString("entities.ticker");
-		tmp[2] = rs.getString("pctchange");
+		tmp[0] = dbf.rs.getString("fact_data.calyear");
+		tmp[1] = dbf.rs.getString("entities.ticker");
+		tmp[2] = dbf.rs.getString("pctchange");
 		
 
 
@@ -91,7 +93,15 @@ try
 }
 catch (SQLException sqle)
 {
-	out.println(sqle.toString());
+	//out.println(sqle.toString());
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	bException = true;
+}
+finally
+{
+	if (dbf !=null) dbf.closeConnection();
+	if (bException == true)
+		return;
 }
 
 /*out.println("<table>");

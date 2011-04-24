@@ -129,7 +129,7 @@ arrayListCols.add(blap9);
 //arrayListCols.add(blap10);
 //arrayListCols.add(blap11);
 
-DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
+//DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
 
 
 
@@ -173,24 +173,26 @@ query += " order by pctchange " + strOrder;
 
 
 
-ResultSet rs=null;
+DBFunctions dbf = null;
+boolean bException = false;
 ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
 try
 {
-	rs = dbf.db_run_query(query);
-	while (rs.next()) {
+	dbf = new DBFunctions();
+	dbf.db_run_query(query);
+	while (dbf.rs.next()) {
 		String [] tmp = new String[14];
-		//tmp[0] = tmp[1] = rs.getString("tasks.name");
-		tmp[0] = tmp[1] = rs.getString("entities.ticker");
-		//tmp[4] = tmp[5] = rs.getString("time_events.name");
-		//tmp[6] = tmp[7] = rs.getString("users.username");
-		tmp[2] = tmp[3] = rs.getString("fd1.value");
-		tmp[4] = tmp[5] = rs.getString("fd2.value");
-		tmp[6] = tmp[7] = rs.getString("pctchange");
-		tmp[8] = tmp[9] = rs.getString("date_begin");
-		tmp[10] = tmp[11] = rs.getString("date_end");
-		//tmp[18] = tmp[19] = rs.getString("time_events.last_datetime");
-		//tmp[20] = tmp[21] = rs.getString("time_events.next_datetime");
+		//tmp[0] = tmp[1] = dbf.rs.getString("tasks.name");
+		tmp[0] = tmp[1] = dbf.rs.getString("entities.ticker");
+		//tmp[4] = tmp[5] = dbf.rs.getString("time_events.name");
+		//tmp[6] = tmp[7] = dbf.rs.getString("usedbf.rs.username");
+		tmp[2] = tmp[3] = dbf.rs.getString("fd1.value");
+		tmp[4] = tmp[5] = dbf.rs.getString("fd2.value");
+		tmp[6] = tmp[7] = dbf.rs.getString("pctchange");
+		tmp[8] = tmp[9] = dbf.rs.getString("date_begin");
+		tmp[10] = tmp[11] = dbf.rs.getString("date_end");
+		//tmp[18] = tmp[19] = dbf.rs.getString("time_events.last_datetime");
+		//tmp[20] = tmp[21] = dbf.rs.getString("time_events.next_datetime");
 		
 		
 		arrayListRows.add(tmp);
@@ -199,7 +201,15 @@ try
 }
 catch (SQLException sqle)
 {
-	out.println(sqle.toString());
+	//out.println(sqle.toString());
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	bException = true;
+}
+finally
+{
+	if (dbf !=null) dbf.closeConnection();
+	if (bException == true)
+		return;
 }
 
 

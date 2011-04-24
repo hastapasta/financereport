@@ -27,8 +27,9 @@ DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 String strTimeEventId = request.getParameter("timeeventid");
 String strUserId = request.getParameter("userid");
-String strTaskId = request.getParameter("taskid") ; 
+String strEntityGroupId = request.getParameter("entitygroupid") ; 
 String strFired = request.getParameter("fired") ; 
+String strRows = request.getParameter("rows");
 
 /*String strTimeEventId = "2";
 String strUserId = "16";
@@ -65,6 +66,7 @@ String[] fields =
 	"entities.ticker","entities.ticker", "ticker", "string",
 	"entities.full_name","entities.full_name","description","string",
 	"time_events.name","time_events.name","observation period","string",
+	"users.username","users.username","User Name","string",
 	"fd1.value","fd1.value", "initial value", "number",
 	"fd2.value","fd2.value", "current value", "number",
 	"alerts.limit_value * 100 as lv","lv","limit value %", "number",
@@ -74,13 +76,68 @@ String[] fields =
 	"date_format(fd2.date_collected,'%m-%d-%Y %H:%i') as date_end","date_end", "date current", "datetime",
 	"case alerts.fired when 1 then 'True' when 0 then 'False' end as fired1","fired1", "Fired", "string",
 	"case alerts.auto_reset_fired when 1 then 'True' when 0 then 'False' end as arf","arf","Auto Reset Fired","string",
-	"case alerts.auto_reset_period when 1 then 'True' when 0 then 'False' end as arp","arp","Auto Reset Period","string"
+	"case alerts.auto_reset_period when 1 then 'True' when 0 then 'False' end as arp","arp","Auto Reset Period","string",
+	"case alerts.disabled when 1 then 'True' when 0 then 'False' end as dis","dis","Disabled","string"
+	
 
 };
 
+//DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
+
+/*
+* Code to retrieve list of entity_groups
+*/
+
+boolean done = false;
+
+String strGroupList=null;
+
+try
+{
+	strGroupList = PopulateSpreadsheet.getEntityGroupList(strEntityGroupId);
+}
+catch (SQLException sqle)
+{
+	out.println(sqle.getMessage());
+	return;
+}
+	
+/*DBFunctions dbf = null;
+while (!done)
+{
+
+	String tmpQuery = "select * from entity_groups where parent_id in (" + strGroupList + ")";
+	
+	try
+	{
+		ResultSet rsTmp = dbf.db_run_query(tmpQuery);
+		int count = 0;
+		
+		while (rsTmp.next())
+		{
+			count++;
+			strGroupList += "," + rsTmp.getInt("id");
+		}
+		
+		if (count==0)
+			break;
+		
+	}
+	catch (SQLException sqle)
+	{
+		System.out.println(sqle.getMessage());
+		return;
+	}
+	
+}*/
+
+
+
+
+
 ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 
-String query = "select ";
+String query = "select distinct ";
 
 for (int i=0;i<fields.length;i=i+4)
 {
@@ -98,7 +155,7 @@ for (int i=0;i<fields.length;i=i+4)
 
 
 
-DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
+
 
 
 
@@ -115,9 +172,14 @@ querymodel += " join fact_data as fd1 on alerts.initial_fact_data_id=fd1.id ";
 querymodel += " join fact_data as fd2 on alerts.current_fact_data_id=fd2.id ";
 querymodel += " join entities on entities.id=alerts.entity_id ";
 querymodel += " join time_events on alerts.time_event_id=time_events.id ";
-querymodel += " where 1=1 ";
-if (!strTaskId.toUpperCase().equals("ALL"))
-	querymodel += " and fd1.task_id=" + strTaskId;
+querymodel += " join users on alerts.user_id=users.id ";
+querymodel += " join entities_entity_groups on entities_entity_groups.entity_id=alerts.entity_id ";
+querymodel += " where disabled=0 ";
+/*if (!strTaskId.toUpperCase().equals("ALL"))
+	querymodel += " and fd1.task_id=" + strTaskId;*/
+//querymodel += " and entities_entity_groups.entity_group_id=" +  strEntityGroupId
+querymodel += " and entities_entity_groups.entity_group_id in (" +  strGroupList + ") ";
+	
 if (!strTimeEventId.toUpperCase().equals("ALL"))
 	querymodel += " and time_event_id=" + strTimeEventId; 
 if (!strUserId.toUpperCase().equals("ALL"))
@@ -125,6 +187,8 @@ if (!strUserId.toUpperCase().equals("ALL"))
 if (strFired.toUpperCase().equals("FALSE"))
 	querymodel += " and fired=0 ";
 querymodel += " order by pctchange2 desc ";
+if (strRows != null && !strRows.isEmpty())
+	querymodel += " limit " + strRows;
 
 
 
@@ -135,39 +199,63 @@ querymodel += " order by pctchange2 desc ";
 
 //out.println(query + querymodel); if (1==1) return;
 
-String countquery = query + ",count(alerts.id) as cnt ";
+/*
+* If the user explicity set a row limit <= 500, skip the row amount check.
+*/
 
-ResultSet rs=null;
-try
+//ResultSet rs=null;
+DBFunctions dbf = null;
+
+if (strRows == null || strRows.isEmpty() || (Integer.parseInt(strRows) > 500))
 {
-	rs = dbf.db_run_query(countquery + querymodel);
-	rs.next();
-	if (rs.getInt("cnt") > 500 )
+
+	String countquery = query + ",count(alerts.id) as cnt ";
+	//String countquery = "select count(alerts.id) as cnt ";
+	boolean bException = false;
+	
+	try
 	{
-		out.println(PopulateSpreadsheet.createGoogleError(strReqId,"rows_exceeded","Maximum Number of Rows Exceeded (500 Max)","Maximum Number of Rows Exceeded (500 Max)"));
-		return;
+		dbf = new DBFunctions();
+		String tmp = countquery + querymodel;
+		dbf.db_run_query(countquery + querymodel);
+		
+		dbf.rs.next();
+		if (dbf.rs.getInt("cnt") > 500 )
+		{
+			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"rows_exceeded","Maximum Number of Rows Exceeded (500 Max)","Maximum Number of Rows Exceeded (500 Max)"));
+			return;
+		}
+		
+		
 	}
-	
-	
-}
-catch (SQLException sqle)
-{
-	out.println(sqle.toString());
-	return;
+	catch (SQLException sqle)
+	{
+		//out.println(sqle.toString());
+		out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+		bException = true;
+	}
+	finally
+	{
+		if (dbf !=null) dbf.closeConnection();
+		if (bException == true)
+			return;
+	}
 }
 
 
-rs=null;
+//rs=null;
 ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
+boolean bException = false;
 try
 {
-	rs = dbf.db_run_query(query + querymodel);
-	while (rs.next()) {
+	dbf = new DBFunctions();
+	dbf.db_run_query(query + querymodel);
+	while (dbf.rs.next()) {
 		
 		String [] tmp = new String[(fields.length/2)];
 		for (int i=0;i<fields.length;i=i+4)
 		{
-			tmp[(i/4)*2] = tmp[((i/4)*2)+1] = rs.getString(fields[i+1]);		
+			tmp[(i/4)*2] = tmp[((i/4)*2)+1] = dbf.rs.getString(fields[i+1]);		
 		}
 		
 		/*tmp[0] = tmp[1] = rs.getString("tasks.name");
@@ -189,8 +277,15 @@ try
 }
 catch (SQLException sqle)
 {
-	out.println(sqle.toString());
-	return;
+	//out.println(sqle.toString());
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	bException = true;
+}
+finally
+{
+	if (dbf !=null) dbf.closeConnection();
+	if (bException == true)
+		return;
 }
 
 

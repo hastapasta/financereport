@@ -7,7 +7,7 @@
 <%@ page import="java.sql.SQLException" %>
 
 
-  
+   
 
 <%
 
@@ -64,7 +64,8 @@ ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 
 //String[] columns = tmpArrayList.get(0);
 
-DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
+//DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
+
 
 //String query1 = "select ticker from entities where id " + strInClause;
 //ResultSet rs1 = dbf.db_run_query(query1);
@@ -76,19 +77,34 @@ query2 += " entity_id=" + strEntityId;
 query2 += " AND metric_id=5 ";
 query2 += " order by cyq asc limit 1";
 
-ResultSet rstmp = null;
+//ResultSet rstmp = null;
+int nMonth=0;
+int nYear = 0;
+DBFunctions dbf = null;
+boolean bException = false;
 try
 {
-	rstmp = dbf.db_run_query(query2);
-	rstmp.next();
+	dbf = new DBFunctions();
+	dbf.db_run_query(query2);
+	dbf.rs.next();
+	nMonth = dbf.rs.getInt("calquarter") * 3;
+	nYear = dbf.rs.getInt("calyear");
 	
 }
 catch (SQLException sqle)
 {
-	out.println(sqle.toString());
+	//out.println(sqle.toString());
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	bException = true;
+}
+finally
+{
+	if (dbf !=null) dbf.closeConnection();
+	if (bException == true)
+		return;
 }
 
-int nMonth = rstmp.getInt("calquarter") * 3;
+
 
 
 String strCase = "case month(date_collected) when 1 then 1 when 2 then 1 when 3 then 1 ";
@@ -102,7 +118,7 @@ String query3 = "select value as initval,entity_id, (year(date_collected)*10 + (
 query3 += " from fact_data ";
 query3 += "where ";
 query3 += " entity_id=" + strEntityId;
-query3 += " and metric_id=1 and month(date_collected)=" + nMonth + " and year(date_collected)=" + rstmp.getInt("calyear");
+query3 += " and metric_id=1 and month(date_collected)=" + nMonth + " and year(date_collected)=" + nYear;
 query3 += " order by date_collected DESC";
 
 
@@ -143,21 +159,22 @@ query += " order by cyq asc,name,batch ";
 //out.println(query); if (1==1) return;
 
 
+dbf = new DBFunctions();
 
 
-
-ResultSet rs=null;
+//ResultSet rs=null;
 ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
 
 try
 {
-	rs = dbf.db_run_query(query);
-	while (rs.next()) {
+	dbf = new DBFunctions();
+	dbf.db_run_query(query);
+	while (dbf.rs.next()) {
 		String [] tmp = new String[4];
-		tmp[0] = rs.getString("cyq");
-		tmp[1] = rs.getString("name");
-		tmp[2] = rs.getString("pctchange");
-		tmp[3] = rs.getString("batch");
+		tmp[0] = dbf.rs.getString("cyq");
+		tmp[1] = dbf.rs.getString("name");
+		tmp[2] = dbf.rs.getString("pctchange");
+		tmp[3] = dbf.rs.getString("batch");
 				
 		
 		arrayListRows.add(tmp);
@@ -166,7 +183,15 @@ try
 }
 catch (SQLException sqle)
 {
-	out.println(sqle.toString());
+	//out.println(sqle.toString());
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	bException = true;
+}
+finally
+{
+	if (dbf !=null) dbf.closeConnection();
+	if (bException == true)
+		return;
 }
 
 /*out.println("<table>");

@@ -88,7 +88,7 @@ if (Debug.RELEASE == true)
 	
 }
 
-System.out.println(calBegin.getTime().toString());
+//System.out.println(calBegin.getTime().toString());
 
 
 
@@ -151,7 +151,7 @@ calEndAdjust.setTime(calEnd.getTime());
 calBeginAdjust.add(Calendar.DAY_OF_MONTH,2);
 calEndAdjust.add(Calendar.DAY_OF_MONTH,-2);
 
-System.out.println(calBegin.getTime().toString());
+//System.out.println(calBegin.getTime().toString());
 
 String strTqx = request.getParameter("tqx");
 String strReqId=null;

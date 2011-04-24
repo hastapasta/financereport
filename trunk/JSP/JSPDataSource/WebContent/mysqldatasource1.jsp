@@ -79,7 +79,7 @@ for (int i=0;i<entityIds.length;i++)
 strInClause += ") ";
 //String[] columns = tmpArrayList.get(0);
 
-DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
+
 
 //String query1 = "select ticker from entities where id " + strInClause;
 //ResultSet rs1 = dbf.db_run_query(query1);
@@ -115,18 +115,22 @@ query += " order by date_col ASC ,entities.ticker ASC, time_col ASC";
 
 
 
-ResultSet rs=null;
+
 ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
+DBFunctions dbf = null;
+boolean bException = false;
 
 try
 {
-	rs = dbf.db_run_query(query);
-	while (rs.next()) {
+	dbf = new DBFunctions();
+	dbf.db_run_query(query);
+	while (dbf.rs.next()) {
+		
 		String [] tmp = new String[4];
-		tmp[0] = rs.getString("date_col");
-		tmp[1] = rs.getString("entities.ticker");	
-		tmp[2] = rs.getString("fdvalue");
-		tmp[3] = rs.getString("fact_data.batch");
+		tmp[0] = dbf.rs.getString("date_col");
+		tmp[1] = dbf.rs.getString("entities.ticker");	
+		tmp[2] = dbf.rs.getString("fdvalue");
+		tmp[3] = dbf.rs.getString("fact_data.batch");
 				
 		
 		arrayListRows.add(tmp);
@@ -135,7 +139,21 @@ try
 }
 catch (SQLException sqle)
 {
-	out.println(sqle.toString());
+	//out.println(sqle.toString());
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	bException = true;
+}
+finally
+{
+	if (dbf !=null) if (dbf !=null) dbf.closeConnection();
+	if (bException == true)
+		return;
+}
+
+if (arrayListRows.size()==0)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"zero_rows","No data was returned","No data was returned"));
+	return;
 }
 
 int[] tmpArray = {0,1};
@@ -168,7 +186,7 @@ out.println(query); if (1==1) return;*/
 
 arrayListRows = PopulateSpreadsheet.removeLastColumn(arrayListRows);
 
-arrayListRows = PopulateSpreadsheet.pivotRowsToColumnsArrayList(arrayListRows);
+arrayListRows = PopulateSpreadsheet.pivotRowsToColumnsArrayList(arrayListRows); 
 
 
 
