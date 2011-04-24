@@ -35,6 +35,62 @@ public class MultiTest {
 		{
 			dataGrabAlive(args);
 		}
+		else if (args[0].toUpperCase().equals("JOBDURATION"))
+		{
+			maxJobDuration();
+		}
+		else
+		{
+			System.out.println("valid commands are: LINKTEST,DATAGRABALIVE,JOBDURATION");
+			System.err.println("valid commands are: LINKTEST,DATAGRABALIVE,JOBDURATION");
+		}
+	}
+	
+	public static void maxJobDuration()
+	{
+		
+		//Output the longest job duration from the job_queue table.
+		
+		try
+		{
+			
+			UtilityFunctions uf = new UtilityFunctions();
+			
+			DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
+			
+			String select = "select max(round(time_to_sec(timediff(NOW(),start_time))/60,0)) as maxduration from job_queue where status='RUNNABLE'";
+			
+			ResultSet rs = dbf.db_run_query(select);
+			
+			int nMaxTime = 0;
+			
+			if (rs.next())
+				nMaxTime = rs.getInt("maxduration");
+			
+			System.out.println(nMaxTime);
+			
+		}
+		catch (SQLException sqle)
+		{
+			
+			/*
+			 * 
+			 * We'll output a negative number to indicate an error.
+			 */
+			
+			System.out.println(-1);
+			System.err.println(sqle.getMessage());
+			
+			
+			
+		}
+		
+		
+		
+		
+		
+		
+		
 	}
 	
 	
