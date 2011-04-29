@@ -15,7 +15,7 @@ include ("../../site/includes/sitecommon.php");
 	<?php IncFunc::title();?>
     
     <link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
-    <?php IncFunc::yuiDropDownJavaScript(); ?>
+    <?php //IncFunc::yuiDropDownJavaScript(); ?>
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript">
 		var count = 0;
@@ -92,7 +92,7 @@ include ("../../site/includes/sitecommon.php");
 <div id="jq-siteContain">
 
 <?php 
-	IncFunc::header1("charts"); 
+	IncFunc::header2("charts"); 
 	IncFunc::yuiDropDownMenu();
 
 ?>
