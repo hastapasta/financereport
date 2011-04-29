@@ -15,8 +15,7 @@ db_utility::db_connect();
 	<?php IncFunc::icon();?>
 	<?php IncFunc::title();?>
 <link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src="../querywrapper.js"></script>
+<?php IncFunc::googleGadget()?>
 <script type="text/javascript">
     google.load('visualization', '1', {'packages' : ['table']});
     google.setOnLoadCallback(function() { sendAndDraw('') });
