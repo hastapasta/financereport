@@ -53,7 +53,7 @@ if (isset($_GET['group']))
     <?php IncFunc::title();?>
     <?php IncFunc::linkStyleCSS();?> 
     <?php IncFunc::jQuery();?>   
-    <?php IncFunc::yuiDropDownJavaScript(); ?>
+    <?php //IncFunc::yuiDropDownJavaScript(); ?>
     <?php IncFunc::googleGadget(); ?>
    
     <script type="text/javascript">
@@ -107,7 +107,7 @@ if (isset($_GET['group']))
 		var count = 0;
 	
         //google.load('visualization', '1', {packages: ['linechart']});
-        google.load('visualization', '1', {packages: ['corechart']});
+        google.load('visualization', '1', {packages: ['annotatedtimeline']});
         google.setOnLoadCallback(function() { sendAndDraw(null) });
         var firstpass = true;
         var options = {};
@@ -128,7 +128,7 @@ if (isset($_GET['group']))
             
             var options = {};
          	//options['title'] = 'Cotton Futures';
-         	options['height'] = 600;
+         	/*options['height'] = 600;
          	options['width'] = 900;
          	options['fontSize'] = 15;
          	//options['curveType'] = 'function';
@@ -137,25 +137,29 @@ if (isset($_GET['group']))
 			options.backgroundColor = {};
 			options.backgroundColor.fill = 'white';
 			options.backgroundColor.stroke = '#000';
-         	options.backgroundColor.strokeWidth = 8;
+         	options.backgroundColor.strokeWidth = 8;*/
+
+         	options.scaleType='allmaximixed';
+         	options.scaleType='maximized';
          	
             
 
 
 
 
-        	var queryPath = '<?php echo IncFunc::$JSP_ROOT_PATH;?>mysqldatasource1.jsp?begindate=2011-01-01&metricid=1';
+        	//var queryPath = '<?php echo IncFunc::$JSP_ROOT_PATH;?>mysqldatasource1.jsp?begindate=2011-01-01&metricid=1';
+        	var queryPath = '<?php echo IncFunc::$JSP_ROOT_PATH;?>mysqldatasource15.jsp?begindate=2011-01-01&alertid=0&metricid=1';
 
 			if(id != undefined){
 				queryPath += '&entityid=' + escape(id); 
-				options.title = ticker + " - " + fullname;
+				//options.title = ticker + " - " + fullname;
 
 				//alert(ticker);
 			}
 			else
 			{
 				queryPath += <?php echo "'&entityid=".$entityid."';"; ?>
-				<?php echo "options.title='".$row['ticker']." - ".$row['full_name']."';"; ?>
+				<?php //echo "options.title='".$row['ticker']." - ".$row['full_name']."';"; ?>
 			}
 
 			var chart = document.getElementById('chart-div');
@@ -169,9 +173,10 @@ if (isset($_GET['group']))
             //var container2 = document.getElementById('orgchart2');
            
             
-            var lineChart1 = new google.visualization.LineChart(container1);
+            var lineChart1 = new google.visualization.AnnotatedTimeLine(container1);
             //var tableChart2 = new google.visualization.Table(container2);
            
+            if (window.console && window.console.firebug) {console.log(queryPath)}
             
             query1 && query1.abort();
             query1 = new google.visualization.Query(queryPath);
@@ -193,7 +198,7 @@ if (isset($_GET['group']))
 <div id="jq-siteContain">
 
 <?php 
-	IncFunc::header1("charts"); 
+	IncFunc::header2("charts"); 
 	IncFunc::yuiDropDownMenu();
 
 ?>
@@ -202,7 +207,7 @@ if (isset($_GET['group']))
     <div id="pf-form" style="margin:20px 0 0 0;font-size:15px;">
     Enter entity name (stock ticker, equity index, currency cross, etc):
     <BR>
-  	<input type='text' id='a_c' /><br/>
+  	<input type='text' id='a_c' style='z-index:3' /><br/>
   
   
 	<!-- <div style="font-size:30;margin: 10px 0 0 0;" id="chart-title"></div> -->
@@ -210,7 +215,7 @@ if (isset($_GET['group']))
 	<BR>
 	
 	<div style="font-size:20" id="chart-description"></div>
-    <div id="chart-div" style="margin: 10px 0 20px 0;"></div>
+    <div id="chart-div" style="margin: 30px 0 20px 0;width:800px;height:600px"></div>
 
  
     
