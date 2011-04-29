@@ -4,7 +4,7 @@ include ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
-$taskid = $_GET['taskid'];
+$entitygroupid = $_GET['entitygroupid'];
 
 $title="";
 if (isset($_GET['title']))
@@ -18,19 +18,20 @@ if (isset($_GET['title']))
 <!DOCTYPE html>
 <html>
 <head>
+<?php IncFunc::jQuery();?>
 <?php IncFunc::icon();?>
 <?php IncFunc::title();?>
 <link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
-<?php IncFunc::yuiDropDownJavaScript(); ?>
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src="../../site/includes/querywrapper.js"></script>
+<?php //IncFunc::yuiDropDownJavaScript(); ?>
+<?php IncFunc::googleGadget(); ?>
+
 <script type="text/javascript">
     google.load('visualization', '1', {'packages' : ['table']});
     google.setOnLoadCallback(function() { sendAndDraw('') });
     var firstpass = true;
 
     <?php 
-            echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2.jsp';";
+            echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2eh2.jsp';";
             ?>
         // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
            
@@ -82,7 +83,7 @@ if (isset($_GET['title']))
 
      	 //queryString1 = '?userid='+userid+'&taskid='+tasks.value+'&timeeventid='+timeeventid.value;
      	<?php 
-     	echo "queryString1 = '?taskid=".$taskid."&timeframe='+timeframe.value + '&order=ASC';\n";
+     	echo "queryString1 = '?entitygroupid=".$entitygroupid."&timeframe='+timeframe.value + '&metricid=1&order=ASC';\n";
 
      //	echo "queryString2 = '?taskid=".$taskid."&timeframe='+timeframe.value + '&order=DESC';\n";
      	
@@ -116,12 +117,16 @@ if (isset($_GET['title']))
     }
 
   </script>
+ 
+ 
+
+  
 </head>
 
 <body>
 <div id="jq-siteContain" >
 <?php 
-	IncFunc::header1("charts"); 
+	IncFunc::header2("charts"); 
 	IncFunc::yuiDropDownMenu();
 
 ?>
@@ -153,8 +158,11 @@ Time Frame: <BR>
 
 <div id="tmp1" style="float: left;margin-bottom: 20px">
 
-<div id="table1" style="color: #000;"> </div>
 
+
+  
+
+	<div id="table1" style="color: #000;"> </div>
 
 
 </div> <!--  font-black -->
