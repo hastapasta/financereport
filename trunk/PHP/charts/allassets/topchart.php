@@ -29,9 +29,8 @@ db_utility::db_connect();
 <?php IncFunc::icon();?>
 <?php IncFunc::title();?>
 <link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
-<?php IncFunc::yuiDropDownJavaScript(); ?>
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src="../../site/includes/querywrapper.js"></script>
+<?php //IncFunc::yuiDropDownJavaScript(); ?>
+<?php IncFunc::googleGadget()?>
 <script type="text/javascript">
     google.load('visualization', '1', {'packages' : ['table']});
     google.setOnLoadCallback(function() { sendAndDraw('') });
@@ -136,6 +135,10 @@ db_utility::db_connect();
    	  });
 
 	  //alert(dataSourceUrl + queryString3);   	  
+	  
+	  if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString1)}
+      if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString2)}
+      if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString3)}
       
       query1 && query1.abort();
       query1 = new google.visualization.Query(dataSourceUrl + queryString1);
