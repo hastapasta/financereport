@@ -13,8 +13,12 @@ class IncFunc
 	static public $CAKE_ROOT_PATH="/cakepftest";
 	
 	
-	static public $JSP_ROOT_PATH="http://localhost:8080/JSPDataSource/";	
+	//static public $JSP_ROOT_PATH="http://localhost:8080/JSPDataSource/";	
 	//static public $JSP_ROOT_PATH="http://www.pikefin.com/devjsp/JSPDataSource/";
+	//static public $JSP_ROOT_PATH="http://www.pikefin.com/testjsp/JSPDataSource/";
+	static public $JSP_ROOT_PATH="http://192.168.122.133:8080/JSPDataSource/";
+	
+	
 	
 	static function icon()
 	{
@@ -51,7 +55,16 @@ class IncFunc
 		echo "<script type=\"text/javascript\" src=\"../../site/includes/querywrapper.js\"></script>";
 		//echo "<script type=\"text/javascript\" src=\"".IncFunc::$CAKE_ROOT_PATH."/webroot/js/querywrapper.js\"></script>";
 		echo "<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>";
+		
+		echo   "<STYLE type=\"text/css\">\n";
+		echo "#google-visualization-errors-0 span{\n";
+		echo "font:1.8em arial,sans-serif;\n";
+		echo "}";
+		echo "</STYLE>";
 	}
+
+	
+	
 	
 	
 	
@@ -74,6 +87,8 @@ class IncFunc
 		
 	}
 	
+	//header1 is for cake files, header2 non-cake
+	
 	
 	static function header1($context)
 	{
@@ -81,8 +96,14 @@ class IncFunc
 		echo "<div id=\"jq-header\" >";
 		self::logo();
 		self::primaryNav($context);
-		//self::pageCounter();
 		echo "</div> <!-- header -->";
+	}
+	
+	static function header2($context)
+	{
+		self::pageCounter();
+		self::header1($context);
+		
 	}
 	
 	
@@ -137,7 +158,7 @@ class IncFunc
 	static function yuiDropDownJavaScript()
 	{
 		
-		echo "	<!-- Combo-handled YUI CSS files: -->";
+		/*echo "	<!-- Combo-handled YUI CSS files: -->";
 		//echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://yui.yahooapis.com/combo?2.8.2r1/build/reset-fonts-grids/reset-fonts-grids.css\">";
 		echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://yui.yahooapis.com/combo?2.8.2r1/build/menu/assets/skins/sam/menu.css\">";
 		echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://yui.yahooapis.com/combo?2.8.2r1/build/button/assets/skins/sam/button.css\">";
@@ -153,7 +174,7 @@ class IncFunc
 		//echo "var rootpath='/phptest';";
 		
 		echo "YAHOO.util.Event.onContentReady(\"productsandservices\", yuiCallBack);";
-		echo "</script>";
+		echo "</script>";*/
 		
 		
 	}
@@ -161,7 +182,7 @@ class IncFunc
 	static function yuiDropDownMenu()
 	{
 
-		echo "<div class=\"yui-skin-sam\" id=\"yahoo-com\" style=\"padding: 0 160px;\">";
+		/*echo "<div class=\"yui-skin-sam\" id=\"yahoo-com\" style=\"padding: 0 160px;\">";
 		echo "	<div id=\"doc\" class=\"yui-t1\" width=\"30em\">";
 		echo "		<div id=\"productsandservices\" class=\"yuimenubar yuimenubarnav\">";
 		echo "			<div class=\"bd\">";
@@ -182,12 +203,72 @@ class IncFunc
 		echo "			</div>";
 		echo "		</div>";
 		echo "	</div>";
-		echo "</div>";
+		echo "</div>";*/
+		self::dropdownInclude();
+		self::dropdownMenu();
 		
 		
 		
 		
 	
+	}
+	
+	static function dropdownInclude()
+	{
+		//echo "<script type=\"text/javascript\" src=\"".self::$PHP_ROOT_PATH."/site/includes/jquery-1.5.1.js\"></script>";
+		echo "<script type=\"text/javascript\" src=\"".self::$PHP_ROOT_PATH."/site/includes/dropdown.js\"></script>";
+		echo "<link type=\"text/css\" rel=\"stylesheet\"   href=\"".self::$PHP_ROOT_PATH."/site/includes/dropdown.css\"></link>";
+	}
+	
+	static function dropdownMenu()
+	{
+		echo "
+			<div style='padding-left:240px;margin-bottom:20px;'>
+			<ul class='dropdown'>
+				<li>
+					<a href='#'>Equities</a>
+					<ul class='sub_menu'>
+						<li>
+						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?taskid=10&amp;title=US%2520Equities%2520Top%2520Gainers/Losers' >US Equities Top Gainers/Losers</a>
+						</li>
+						<li>
+						<a href='".self::$PHP_ROOT_PATH."/charts/equities/epslinechart3.php?entityid=1'>US Equities Quarterly Earnings</a>
+						</li>
+						<li>
+						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=1&group=1&amp;title=US%20Equities%20Indivdual%20Line%20Charts' >US Equities Individual Charts</a>
+						</li>
+						<li>
+						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=5&amp;title=Global%2520Indexes%2520Top%2520Gainers/Losers' >Global Indexes Top Gainers/Losers</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a href='#'>Commodities</a>
+					<ul class='sub_menu'>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=4&amp;title=Commodity%2520Futures%2520Top%2520Gainers/Losers' >Commodity Futures Top Gainers/Losers</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=673&group=4&amp;title=Commodity%20Futures%20Indivdual%20Line%20Charts' >Commodity Futures Individual Charts</a></li>
+					</ul>
+				</li>
+				<li>
+					<a href='#'>Foreign Exchange</a>
+					<ul class='sub_menu'>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=3&title=Forex%2520Top%2520Gainers/Losers'>Forex Top Gainers/Loosers</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=508&group=3&title=Forex%20Indivdual%20Line%20Charts'>Forex Individual Charts</a></li>
+					</ul>
+				</li>
+				<li>
+					<a href='#'>Miscellaneous</a>
+					<ul class='sub_menu'>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/fed/balsheet.php'>Federal Reserve Balance Sheet</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/other/comingsoon.php'>Federal Reserve Change WOW</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/gdp/motionchart.php'>GDP Growth Estimates</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?a=660&amp;title=All%20Assets%20Indivdual%20Line%20Charts''>All Assets - Inidivdual Line Charts</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<div style='clear:both'>
+		";
 	}
 	
 	static function blogFeedJavaScript()
