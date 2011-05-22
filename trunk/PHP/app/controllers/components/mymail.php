@@ -20,6 +20,20 @@ class MymailComponent extends Object {
 		$this->Email->to = $options['to'];
 		$this->Email->from = $options['from'];
 		$this->Email->subject = $options['subject'];
+		
+		$this->Email->smtpOptions = array(
+        'port'=>'465', 
+        'timeout'=>'30',
+        //'host' => 'ssl://smtp.gmail.com',
+        'host' => 'ssl://smtp.gmail.com',
+        //'username'=>'pikefin1@gmail.com',
+        //'password'=>'ginger1.',
+        'username'=>'pikefin1',
+		'password'=>'ginger1.',
+  		 );
+  		 $this->Email->delivery = 'smtp';
+		
+		//$this->Email->delivery = 'debug';
 
 		if(isset($options['contentTemplate']))
 		   $this->Email->template = $options['contentTemplate'];
@@ -29,8 +43,10 @@ class MymailComponent extends Object {
 		$this->Email->sendAs = "both";
 		$this->controller->set("data", $options['content']);
 		if($this->Email->send()){
+			$this->log('email true',LOG_DEBUG);
 		   return true;
 		}else{
+			$this->log('email false',LOG_DEBUG);
 		  return false;
 		}
 	}    
