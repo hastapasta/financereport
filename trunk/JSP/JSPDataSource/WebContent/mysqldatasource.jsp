@@ -7,20 +7,13 @@
 <%@ page import="java.sql.SQLException" %>
 
 
-
+ 
 
 <%
 /*
 * This data source pulls from the fact_data table using alerts (using alerts.initial_fact_data_id and
 * alerts.current_fact_data_id) and returns % change.
 */
-
-
-
-
-String strTimeEventId = request.getParameter("timeeventid");
-String strUserId = request.getParameter("userid");
-String strTaskId = request.getParameter("taskid") ; 
 
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
@@ -31,6 +24,14 @@ if (strTqx!=null)
 }
 else
 	strReqId="0";
+
+
+
+String strTimeEventId = request.getParameter("timeeventid");
+String strUserId = request.getParameter("userid");
+String strTaskId = request.getParameter("taskid") ; 
+
+
 
 //out.println(strTimeEventId + "," + strUserId + "," + strTaskId + "," + strReqId); if (1==1) return;
 
@@ -131,7 +132,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 0-1"));
 	bException = true;
 }
 finally
