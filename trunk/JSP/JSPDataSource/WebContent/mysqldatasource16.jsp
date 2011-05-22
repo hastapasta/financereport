@@ -14,17 +14,6 @@
 /*
 * This data_source pulls from the fact_data based off of entities and a date range
 */
-
-
-
-String strAlertId = request.getParameter("alertid");
-//String strEntityId = request.getParameter("entityid");
-
-
-
-
-
-
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
 if (strTqx!=null)
@@ -34,6 +23,25 @@ if (strTqx!=null)
 }
 else
 	strReqId="0";
+
+
+
+String strAlertId = request.getParameter("alertid");
+
+if (strAlertId==null)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No alertid request parameter.","PF ERROR CODE 16-1"));
+	//out.println("No begindate request parameter.");
+	return;
+}
+//String strEntityId = request.getParameter("entityid");
+
+
+
+
+
+
+
 
 
 
@@ -110,7 +118,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 16-2"));
 	bException = true;
 }
 finally

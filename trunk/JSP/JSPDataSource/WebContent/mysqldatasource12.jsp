@@ -15,7 +15,24 @@
 * This data_source pulls earnings estimates from the fact_data table based off of an entity id
 */
 
+String strTqx = request.getParameter("tqx");
+String strReqId=null;
+if (strTqx!=null)
+{
+	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
+	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
+}
+else
+	strReqId="0";
+
 String strEntityId = request.getParameter("entityid");
+
+if (strEntityId==null)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No entityid request parameter.","PF ERROR CODE 12-1"));
+	//out.println("No begindate request parameter.");
+	return;
+}
 //String strEntityId="75";
 
 //String strEndDate = request.getParameter("enddate");
@@ -42,15 +59,7 @@ if (strEndDate!=null)
 	}
 }*/
 
-String strTqx = request.getParameter("tqx");
-String strReqId=null;
-if (strTqx!=null)
-{
-	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
-	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
-}
-else
-	strReqId="0";
+
 
 
 
@@ -94,7 +103,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 12-2"));
 	bException = true;
 }
 finally
@@ -184,7 +193,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 12-3"));
 	bException = true;
 }
 finally

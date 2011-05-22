@@ -50,6 +50,7 @@ String[] blap3 = {"date","date","date"};
 String[] blap4 = {"job duration","job duration","number"};
 String[] blap5 = {"alerts duration","alerts duration","number"};
 String[] blap6 = {"total duration","total duration","number"};
+String[] blap7 = {"repeat type","repeat type", "string"};
 
 
 arrayListCols.add(blap2);
@@ -58,16 +59,19 @@ arrayListCols.add(blap3);
 arrayListCols.add(blap4);
 arrayListCols.add(blap5);
 arrayListCols.add(blap6);
+arrayListCols.add(blap7);
+
 
 
 
 
 
 String query = "select date_format(job_process_start,'%m/%d/%Y') as date1, round(time_to_sec(timediff(job_process_end,job_process_start))/60,2) as jobdiff, ";
-query += " round(time_to_sec(timediff(alert_process_end,alert_process_start))/60,2) as alertdiff, round(time_to_sec(timediff(alert_process_end,job_process_start))/60,2) as totaldiff";
-query += " ,tasks.name ";
+query += " round(time_to_sec(timediff(alert_process_end,alert_process_start))/60,2) as alertdiff, round(time_to_sec(timediff(alert_process_end,job_process_start))/60,2) as totaldiff ";
+query += " ,tasks.name, repeat_types.type ";
 query += "from log_tasks ";
 query += " join tasks on log_tasks.task_id=tasks.id ";
+query += " join repeat_types on log_tasks.repeat_type_id=repeat_types.id ";
 query += " order by date1 ASC, name ";
 
 
@@ -91,6 +95,7 @@ try
 		tmp[2]  = dbf.rs.getString("jobdiff");
 		tmp[3] =  dbf.rs.getString("alertdiff");
 		tmp[4] =  dbf.rs.getString("totaldiff");
+		tmp[5] =  dbf.rs.getString("repeat_types.type");
 		
 		/*if (strType.equals("job"))
 			tmp[2]  = dbf.rs.getString("jobdiff");
@@ -108,7 +113,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 19-1"));
 	bException = true;
 }
 finally
@@ -118,7 +123,7 @@ finally
 		return;
 }
 
-/*out.println("<table>");
+out.println("<table>");
 for (int i=0;i<arrayListRows.size();i++)
 {
 	out.println("<tr>");
@@ -131,7 +136,7 @@ for (int i=0;i<arrayListRows.size();i++)
 }
 out.println("</table>");
 
-out.println(query); if (1==1) return;*/
+out.println(query); if (1==1) return;
 
 int[] tmpArray = {0,1};
 arrayListRows = PopulateSpreadsheet.getMaxGroupBy(arrayListRows,tmpArray,4);
@@ -190,13 +195,14 @@ out.println(query); if (1==1) return;*/
 ArrayList<String[]> arrayListSave = new ArrayList<String[]>();
 for (int i=0;i<arrayListRows.size();i++)
 {
-	String[] tmp = new String[10];
+	String[] tmp = new String[11];
 	
 	tmp[0] = tmp[1] = arrayListRows.get(i)[0];
 	tmp[2] = tmp[3] = arrayListRows.get(i)[1];
 	tmp[4] = tmp[5] = arrayListRows.get(i)[2];
 	tmp[6] = tmp[7] = arrayListRows.get(i)[3];
 	tmp[8] = tmp[9] = arrayListRows.get(i)[4];
+	tmp[9] = tmp[10] = arrayListRows.get(i)[5];
 	
 	arrayListSave.add(tmp);
 	

@@ -15,34 +15,6 @@
 * This data_source pulls earnings estimates from the fact_data table based off of an entity id
 */
 
-String strEntityId = request.getParameter("entityid");
-//String strEntityId = "3";
-
-
-//String strEndDate = request.getParameter("enddate");
-//String strBeginDate = request.getParameter("begindate"); 
-
-/*if (strBeginDate==null)
-{
-	out.println("No begindate request parameter.");
-	return;
-}
-
-if (!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19"))
-{
-	out.println("begindate format needs to be yyyy-mm-dd");
-	return;
-}
-
-if (strEndDate!=null)
-{
-	if (!strEndDate.startsWith("20") && !strEndDate.startsWith("19"))
-	{
-		out.println("enddate format needs to be yyyy-mm-dd");
-		return;
-	}
-}*/
-
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
 if (strTqx!=null)
@@ -53,6 +25,13 @@ if (strTqx!=null)
 else
 	strReqId="0";
 
+String strEntityId = request.getParameter("entityid");
+
+if (strEntityId==null)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No entityid request parameter.","PF ERROR CODE 11-1"));
+	return;
+}
 
 
 
@@ -63,19 +42,6 @@ UtilityFunctions uf = new UtilityFunctions();
 ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 
 
-//String[] columns = tmpArrayList.get(0);
-
-//DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
-
-
-//String query1 = "select ticker from entities where id " + strInClause;
-//ResultSet rs1 = dbf.db_run_query(query1);
-
-
-
-
-//String[] col;
-
 
 String query = "(select name,(calyear*10+calquarter) as cyq,value,batch ";
 query += " from fact_data,metrics ";
@@ -85,13 +51,6 @@ query += " (select name,(calyear*10+calquarter) as cyq,value,batch ";
 query += " from fact_data,metrics where metric_id=5 and entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id) ";
 query += " order by cyq asc,name";
 
-//out.println(query); if (1==1) return;
-
-
-
-
-
-//ResultSet rs=null;
 ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
 DBFunctions dbf = null;
 boolean bException = false;
@@ -113,8 +72,7 @@ try
 }
 catch (SQLException sqle)
 {
-	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 11-2"));
 	bException = true;
 }
 finally
@@ -124,6 +82,11 @@ finally
 		return;
 }
 
+if (arrayListRows.size() == 0)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"no_rows_in_data","No data to display.","PF ERROR CODE 11-3"));
+	return;
+}
 
 int[] tmpArray = {0,1};
 arrayListRows = PopulateSpreadsheet.getMaxGroupBy(arrayListRows,tmpArray,3);
@@ -131,30 +94,6 @@ arrayListRows = PopulateSpreadsheet.getMaxGroupBy(arrayListRows,tmpArray,3);
 arrayListRows = PopulateSpreadsheet.removeLastColumn(arrayListRows);
 
 arrayListRows = PopulateSpreadsheet.pivotRowsToColumnsArrayList(arrayListRows);
-
-/*out.println("<table>");
-for (int i=0;i<arrayListRows.size();i++)
-{
-	out.println("<tr>");
-	String[] temp = arrayListRows.get(i);
-	for (int j=0;j<temp.length;j++)
-	{
-		out.println("<td>" + temp[j] +"</td>");
-	}
-	out.println("</tr>");
-}
-out.println("</table>");
-
-out.println(query); if (1==1) return;*/
-
-
-
-
-
-
-
-
-
 
 
 /*
@@ -177,8 +116,7 @@ for (int i=0;i<pivotColumns.length;i++)
 	arrayListCols.add(col3);
 }
 
-//String[] col2 = {"value","value1","number"};
-//arrayListCols.add(col2);
+
 
 ArrayList<String[]> saveListRows = arrayListRows;
 
@@ -199,82 +137,6 @@ for (int i=0;i<saveListRows.size();i++)
 	
 }
 
-
-/*try
-{
-	rs = dbf.db_run_query(query);
-	while (rs.next()) {
-		String [] tmp = new String[6];
-		tmp[0] = tmp[1] = rs.getString("fact_data.date_collected");
-		tmp[2] = tmp[3] = rs.getString("entities.ticker");
-		tmp[4] = tmp[5] = rs.getString("fdvalue");
-		
-
-
-		
-		
-		arrayListRows.add(tmp);
-	    
-	}
-}
-catch (SQLException sqle)
-{
-	out.println(sqle.toString());
-}*/
-
-
-
-
-
-
-
-
-
-
-;
-/*for (int i=0;i<tmpArrayList.size();i++)
-{
-	String[] tmp2 = tmpArrayList.get(i);
-	for (int j=0;j<tmp2.length;j++)
-	{
-		out.println(tmp2[j]);
-		out.println("<BR>");
-	}
-	
-	
-	
-}*/
-
-
-
-
-
-
-
-
-
-
-/*for (int i=0;i<arrayListCols.size();i++)
-{
-	String[] temp = arrayListCols.get(i);
-	for (int j=0;j<temp.length;j++)
-	{
-		out.println(temp[j]);
-		out.println("<BR>");
-	}
-		
-}
-
-for (int i=0;i<arrayListRows.size();i++)
-{
-	String[] temp = arrayListRows.get(i);
-	for (int j=0;j<temp.length;j++)
-	{
-		out.println(temp[j]);
-		out.println("<BR>");
-	}
-		
-}*/
 
 
 

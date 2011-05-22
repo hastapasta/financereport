@@ -22,30 +22,6 @@ The query fields have been made dynamic.
 */
 
 
-
-DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-String strTimeEventId = request.getParameter("timeeventid");
-String strUserId = request.getParameter("userid");
-String strEntityGroupId = request.getParameter("entitygroupid") ; 
-String strFired = request.getParameter("fired") ; 
-String strRows = request.getParameter("rows");
-
-/*String strTimeEventId = "2";
-String strUserId = "16";
-String strTaskId = "1";*/
-
-
-
-
-
-
-
-
-
-
-
-
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
 if (strTqx!=null)
@@ -55,6 +31,54 @@ if (strTqx!=null)
 }
 else
 	strReqId="0";
+
+
+DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+String strTimeEventId = request.getParameter("timeeventid");
+String strUserId = request.getParameter("userid");
+String strEntityGroupId = request.getParameter("entitygroupid") ; 
+
+String strFired = "false";
+if (request.getParameter("fired") != null)
+	strFired = request.getParameter("fired"); 
+
+String strRows = "30";
+if (request.getParameter("rows") != null)
+	strRows = request.getParameter("rows");
+
+if (strTimeEventId==null)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No timeeventid request parameter.","PF ERROR CODE 14-1"));
+	//out.println("No begindate request parameter.");
+	return;
+}
+
+if (strUserId==null)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No userid request parameter.","PF ERROR CODE 14-2"));
+	//out.println("No begindate request parameter.");
+	return;
+}
+
+if (strEntityGroupId==null)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No entitygroupid request parameter.","PF ERROR CODE 14-3"));
+	//out.println("No begindate request parameter.");
+	return;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 UtilityFunctions uf = new UtilityFunctions();
@@ -222,7 +246,7 @@ if (strRows == null || strRows.isEmpty() || (Integer.parseInt(strRows) > 500))
 		dbf.rs.next();
 		if (dbf.rs.getInt("cnt") > 500 )
 		{
-			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"rows_exceeded","Maximum Number of Rows Exceeded (500 Max)","Maximum Number of Rows Exceeded (500 Max)"));
+			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"rows_exceeded","Maximum Number of Rows Exceeded (500 Max)","PF ERROR CODE 14-4"));
 			return;
 		}
 		
@@ -231,7 +255,7 @@ if (strRows == null || strRows.isEmpty() || (Integer.parseInt(strRows) > 500))
 	catch (SQLException sqle)
 	{
 		//out.println(sqle.toString());
-		out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+		out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 14-5"));
 		bException = true;
 	}
 	finally
@@ -278,7 +302,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 14-6"));
 	bException = true;
 }
 finally

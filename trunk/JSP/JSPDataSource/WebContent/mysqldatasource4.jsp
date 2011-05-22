@@ -16,25 +16,6 @@
 * This data_source is similar to datasource1 but datasource1 returns actual value and this one pctchange.
 */
 
-String strEntityId = request.getParameter("entityid");
-String[] entityIds = null;
-if (strEntityId!=null)
-	entityIds = strEntityId.split(",");
-String strEndDate = request.getParameter("enddate");
-String strBeginDate = request.getParameter("begindate"); 
-
-if (!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19"))
-{
-	out.println("begindate format needs to be yyyy-mm-dd");
-	return;
-}
-
-if (!strEndDate.startsWith("20") && !strEndDate.startsWith("19"))
-{
-	out.println("enddate format needs to be yyyy-mm-dd");
-	return;
-}
-
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
 if (strTqx!=null)
@@ -44,6 +25,36 @@ if (strTqx!=null)
 }
 else
 	strReqId="0";
+
+String strEntityId = request.getParameter("entityid");
+String[] entityIds = null;
+if (strEntityId!=null)
+	entityIds = strEntityId.split(",");
+String strEndDate = request.getParameter("enddate");
+String strBeginDate = request.getParameter("begindate"); 
+
+if (strEntityId==null)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No entityid request parameter.","PF ERROR CODE 4-1"));
+	//out.println("No begindate request parameter.");
+	return;
+}
+
+if (!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19"))
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"badformat_parameter","begindate format needs to be yyyy-mm-dd","PF ERROR CODE 4-2"));
+	//out.println("begindate format needs to be yyyy-mm-dd");
+	return;
+}
+
+if (!strEndDate.startsWith("20") && !strEndDate.startsWith("19"))
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"badformat_parameter","enddate format needs to be yyyy-mm-dd","PF ERROR CODE 4-3"));
+	//out.println("enddate format needs to be yyyy-mm-dd");
+	return;
+}
+
+
 
 
 
@@ -117,7 +128,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 4-4"));
 	bException = true;
 }
 finally

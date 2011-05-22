@@ -12,7 +12,7 @@
 
 
 
-
+ 
 <% 
 
 /*
@@ -24,6 +24,16 @@ This is the datasource to use to figure out the maximum gainers/losers for a tas
 
 
 */
+
+String strTqx = request.getParameter("tqx");
+String strReqId=null;
+if (strTqx!=null)
+{
+	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
+	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
+}
+else
+	strReqId="0";
 
 DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -87,15 +97,7 @@ if (!strEndDate.startsWith("20") && !strEndDate.startsWith("19"))
 	return;
 }*/
 
-String strTqx = request.getParameter("tqx");
-String strReqId=null;
-if (strTqx!=null)
-{
-	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
-	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
-}
-else
-	strReqId="0";
+
 
 if (strTaskId.equals("all"))
 	strTaskId = "%";
@@ -202,7 +204,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 2-1"));
 	bException = true;
 }
 finally

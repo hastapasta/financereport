@@ -15,12 +15,6 @@
 * alerts.current_fact_data_id)
 */
 
-
-
-String strUserId = request.getParameter("userid");
-
-
-
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
 if (strTqx!=null)
@@ -30,6 +24,21 @@ if (strTqx!=null)
 }
 else
 	strReqId="0";
+
+
+
+String strUserId = request.getParameter("userid");
+
+if (strUserId==null)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No userid request parameter.","PF ERROR CODE 8-1"));
+	//out.println("No begindate request parameter.");
+	return;
+}
+
+
+
+
 
 //out.println(strTimeEventId + "," + strUserId + "," + strTaskId + "," + strReqId); if (1==1) return;
 
@@ -102,7 +111,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 8-2"));
 	bException = true;
 }
 finally

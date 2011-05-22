@@ -15,20 +15,6 @@
 * This data_source pulls from the fact_data based off of entities and a date range
 */
 
-
-
-String strAlertId = request.getParameter("alertid");
-String strUserId = request.getParameter("userid");
-//String strEntityId = request.getParameter("entityid");
-
-
-		
-
-
-
-
-
-
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
 if (strTqx!=null)
@@ -39,8 +25,19 @@ if (strTqx!=null)
 else
 	strReqId="0";
 
+
+
+String strAlertId = request.getParameter("alertid");
+String strUserId = request.getParameter("userid");
+//String strEntityId = request.getParameter("entityid");
+
+
+
+
+
+
 if ((strAlertId == null) && (strUserId == null))
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"invalid_parameters","No userid or alertid parameter","No userid or alertid parameter"));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"invalid_parameters","No userid or alertid parameter","PF ERROR CODE 17-1"));
 
 
 
@@ -143,7 +140,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 17-2"));
 	bException = true;
 }
 finally

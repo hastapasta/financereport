@@ -15,6 +15,17 @@
 * This data_source pulls from the fact_data based off of entities and a date range
 */
 
+String strTqx = request.getParameter("tqx");
+String strReqId=null;
+if (strTqx!=null)
+{
+	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
+	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
+}
+else
+	strReqId="0";
+
+
 String strEntityId = request.getParameter("entityid");
 String[] entityIds = null;
 if (strEntityId!=null)
@@ -24,7 +35,15 @@ String strBeginDate = request.getParameter("begindate");
 
 if (strBeginDate==null)
 {
-	out.println("No begindate request parameter.");
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No begindate request parameter.","PF ERROR CODE 10-1"));
+	//out.println("No begindate request parameter.");
+	return;
+}
+
+if (strEntityId==null)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No entityid request parameter.","PF ERROR CODE 10-2"));
+	//out.println("No begindate request parameter.");
 	return;
 }
 
@@ -43,15 +62,6 @@ if (strEndDate!=null)
 	}
 }
 
-String strTqx = request.getParameter("tqx");
-String strReqId=null;
-if (strTqx!=null)
-{
-	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
-	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
-}
-else
-	strReqId="0";
 
 
 
@@ -134,7 +144,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 10-3"));
 	bException = true;
 }
 finally

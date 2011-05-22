@@ -18,10 +18,6 @@
 * 3/8/2011 - Right now this data source is primarily being used for gdp estimates.
 */
 
-String strTaskId = request.getParameter("taskid");
-String[] entityIds = null;
-
-
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
 if (strTqx!=null)
@@ -31,6 +27,19 @@ if (strTqx!=null)
 }
 else
 	strReqId="0";
+
+String strTaskId = request.getParameter("taskid");
+
+if (strTaskId==null)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No taskid request parameter.","PF ERROR CODE 5-1"));
+	//out.println("No begindate request parameter.");
+	return;
+}
+
+
+
+
 
 
 
@@ -83,7 +92,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 5-2"));
 	bException = true;
 }
 finally

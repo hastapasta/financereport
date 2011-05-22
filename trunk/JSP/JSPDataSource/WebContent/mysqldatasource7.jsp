@@ -15,12 +15,6 @@
 * alerts.current_fact_data_id)
 */
 
-
-
-String strTaskId = request.getParameter("taskid");
-String[] entityIds = null;
-
-
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
 if (strTqx!=null)
@@ -30,6 +24,21 @@ if (strTqx!=null)
 }
 else
 	strReqId="0";
+
+
+
+String strMetricId = request.getParameter("metricid");
+
+if (strMetricId==null)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No metricid request parameter.","PF ERROR CODE 7-1"));
+	//out.println("No begindate request parameter.");
+	return;
+}
+
+
+
+
 
 //out.println(strTimeEventId + "," + strUserId + "," + strTaskId + "," + strReqId); if (1==1) return;
 
@@ -57,9 +66,9 @@ arrayListCols.add(blap3);
 
 String query2 = "select fact_data.value as initval, fact_data.entity_id ";
 query2 += "from fact_data ";
-query2 += "join (select min(calyear) as minyear,entity_id from fact_data where task_id=" + strTaskId + " group by entity_id) as t1 on fact_data.entity_id=t1.entity_id";
+query2 += "join (select min(calyear) as minyear,entity_id from fact_data where metric_id=" + strMetricId + " group by entity_id) as t1 on fact_data.entity_id=t1.entity_id";
 query2 += " where calyear = t1.minyear ";
-query2 += " AND task_id=" + strTaskId;
+query2 += " AND metric_id=" + strMetricId;
 
 
 //out.println(query2); if (1==1) return;
@@ -73,7 +82,7 @@ query += "JOIN countries on entities.country_id=countries.id ";
 query += "JOIN tasks on fact_data.task_id=tasks.id ";
 query += "JOIN (" + query2 + ") as t2 on t2.entity_id=fact_data.entity_id ";
 query += " where ";
-query += " fact_data.task_id=" + strTaskId;
+query += " fact_data.metric_id=" + strMetricId;
 //query += " AND entities.ticker like 'A%'";
 query += " order by fact_data.calyear,entities.ticker";
 
@@ -105,7 +114,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 7-2"));
 	bException = true;
 }
 finally

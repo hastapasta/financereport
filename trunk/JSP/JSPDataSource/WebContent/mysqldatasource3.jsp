@@ -19,9 +19,6 @@ NOTE: No longer exactly the same as mysqldatasource2 which uses begindate,enddat
 timeeventid.
 
 */
-String strTimeEventId = request.getParameter("timeeventid");
-String strUserId = request.getParameter("userid");
-String strTaskId = request.getParameter("taskid") ; 
 
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
@@ -33,15 +30,21 @@ if (strTqx!=null)
 else
 	strReqId="0";
 
+String strTimeEventId = request.getParameter("timeeventid");
+String strUserId = request.getParameter("userid");
+String strTaskId = request.getParameter("taskid") ; 
+
+
+
 //out.println(strTimeEventId + "," + strUserId + "," + strTaskId + "," + strReqId); if (1==1) return;
 
-if (strTimeEventId.equals("all"))
+if ((strTimeEventId == null) || strTimeEventId.equals("all"))
 	strTimeEventId = "%";
 
-if (strUserId.equals("all"))
+if ((strUserId == null) || strUserId.equals("all"))
 	strUserId = "%";
 
-if (strTaskId.equals("all"))
+if ((strTaskId == null) || strTaskId.equals("all"))
 	strTaskId = "%";
 
 UtilityFunctions uf = new UtilityFunctions();
@@ -157,7 +160,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 3-1"));
 	bException = true;
 }
 finally

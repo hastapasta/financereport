@@ -75,7 +75,7 @@ Calendar calBegin = Calendar.getInstance();
 
 
 
-if (Debug.RELEASE == true)
+if (Debug.RELEASE == true) 
 {
 	calEnd.set(Calendar.YEAR,2011);
 	calEnd.set(Calendar.DAY_OF_MONTH,15);
@@ -137,9 +137,12 @@ if (calBegin.before(calEarliest))
 
 		<----calBegin-----calBeginAdjust-------calEndAdjust-------calEnd->
 
-   And like this (for time frames < 2 days):
+   And like this (for time frames < 2 days): 
 	   
 	   <-----calEndAdjust------calBegin----calEnd-------calBeginAdjust---->
+   
+   OFP 5/17/2011 - Just noticed an issue with the "< 2 days" login in that potentially
+   the calEnd time could come before calBegin;
 */
 
 Calendar calBeginAdjust = Calendar.getInstance();
@@ -268,7 +271,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 2eh2-1"));
 	bException = true;
 }
 finally
@@ -303,7 +306,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 2eh2-2"));
 	bException = true;
 }
 finally
@@ -340,7 +343,7 @@ if (1==1) return;*/
 
 //arrayListRows2 = PopulateSpreadsheet.removeColumn(arrayListRows2,1);
 
-ArrayList<String[]> arrayListRows = PopulateSpreadsheet.joinLists(arrayListRows1,arrayListRows2,0);
+ArrayList<String[]> arrayListRows = PopulateSpreadsheet.joinListsInner(arrayListRows1,arrayListRows2,0);
 
 
 
