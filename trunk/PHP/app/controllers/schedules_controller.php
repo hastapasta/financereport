@@ -2,7 +2,7 @@
 class SchedulesController extends AppController {
 
 	var $name = 'Schedules';
-	var $uses = array('Schedule','Task','RepeatType','EntityGroup');
+	var $uses = array('Schedule','Task','RepeatType','EntityGroup','Job');
 
 	function beforeFilter() {
 		parent::beforeFilter();
@@ -14,12 +14,26 @@ class SchedulesController extends AppController {
 		$this->Schedule->recursive = 2;
 		$this->set('schedules', $this->paginate());
 	}
+	
+	function turnoff(){
+		$this->Schedule->query('update schedules set repeat_type_id = 10');
+		$this->redirect($this->referer());
+	}
 
 	function view($id = null) {
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid schedule', true));
 			$this->redirect(array('action' => 'index'));
 		}
+		$this->set('schedule', $this->Schedule->read(null, $id));
+	}
+	
+	function fullview($id = null) {
+		if (!$id) {
+			$this->Session->setFlash(__('Invalid alert', true));
+			$this->redirect(array('action' => 'index'));
+		}
+		$this->Schedule->recursive = 2;
 		$this->set('schedule', $this->Schedule->read(null, $id));
 	}
 
