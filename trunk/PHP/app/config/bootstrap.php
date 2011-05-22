@@ -48,3 +48,8 @@
  * Inflector::rules('plural', array('rules' => array(), 'irregular' => array(), 'uninflected' => array()));
  *
  */
+
+define('CONFIG_ADMIN_MAIL', 'pikefin1@gmail.com'); 
+define('CONFIG_DOMAIN', 'http://localhost/cakepftest');
+	
+?>
