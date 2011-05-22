@@ -5,6 +5,7 @@ package pikefin;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import com.google.gdata.data.spreadsheet.SpreadsheetFeed;
 import com.google.gdata.data.spreadsheet.WorksheetEntry;
 import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
+
 
 
 public class PopulateSpreadsheet {
@@ -154,7 +156,153 @@ public class PopulateSpreadsheet {
 		
 	}
 	
-	public static ArrayList<String[]> joinLists(ArrayList<String[]> arrayList1,ArrayList<String[]> arrayList2,int nCol)
+	public static ArrayList<String[]> joinListsOuter(ArrayList<String[]> arrayList1,ArrayList<String[]> arrayList2,int nCol)
+	{
+		/*
+		 * Assumptions:
+		 * 		-Same column index is used in both lists for join (nCol)
+		 * 		-left outer join
+		 * 		-the arrays in each list are the same size
+		 * 
+		 */
+		
+		ArrayList<String[]> outputList = new ArrayList<String[]>();
+			
+			/*if (arrayList1.size() > arrayList2.size())
+			{
+				shortList = arrayList2;
+				longList = arrayList1;
+			}
+			else
+			{
+				shortList = arrayList1;
+				longList = arrayList2;
+			}*/
+			
+			int nIndexList1 = 0;
+			int nIndexList2 = 0;
+			
+			while (nIndexList1<arrayList1.size())
+			{
+				
+				String[] row1 = arrayList1.get(nIndexList1);
+				String[] row2 = null;
+				
+				boolean bDone = false;
+				
+				/*
+				 * If there are no elements in arrayList2, we'll just skip searching for the element
+				 * and go to filling with nulls.
+				 */
+				if (arrayList2.size()==0)
+					bDone = true;
+				
+				
+				
+				boolean bMatch = false;
+				
+				int initialIndex;
+				
+				if (!(nIndexList1>=arrayList2.size()))
+					initialIndex = nIndexList1;
+				else
+					initialIndex = 0;
+				
+				//int initialIndex = (nIndexList1>nIndexList2?nIndexList1:nIndexList2);
+				
+				int index = initialIndex;
+				
+				while (!bDone)
+				{
+					row2 = arrayList2.get(index);
+					
+					if (row2[nCol].equals(row1[nCol]))
+					{
+						bMatch = true;
+						break;
+					}
+					
+					index++;
+					
+					//We're at the end, wrap around.
+					if (index == arrayList2.size())
+						index = 0;
+					
+					//We've come full circle, no match.
+					if (index == initialIndex)
+						break;
+					
+					
+					
+					
+					
+				}
+				
+				if (bMatch == true)
+				{
+					
+					String[] joinArray = new String[(row1.length*2)-1];
+					
+					for (int i=0;i<row1.length;i++)
+					{
+						joinArray[i] = row1[i];
+					}
+					
+					
+					for (int i=0,j=row1.length;i<row2.length;j++,i++)
+					{
+						if (i==nCol)
+							j--;
+						else
+							joinArray[j] = row2[i];
+							
+					}
+					
+					outputList.add(joinArray);
+					
+					
+				}
+				else
+				{
+					String[] joinArray = new String[(row1.length*2)-1];
+					
+					for (int i=0;i<row1.length;i++)
+					{
+						joinArray[i] = row1[i];
+					}
+					
+					
+					for (int i = row1.length;i<joinArray.length;i++)
+					{
+						joinArray[i] = null;
+							
+					}
+					
+					outputList.add(joinArray);
+					
+					
+					
+					
+					
+					
+				}
+					
+				
+				nIndexList1++;
+				
+				
+			}
+			
+			
+			
+			
+			return(outputList);
+		
+		
+		
+	}
+	
+	public static ArrayList<String[]> joinListsInner(ArrayList<String[]> arrayList1,ArrayList<String[]> arrayList2,int nCol)
 	{
 		/*
 		 * Assumptions:
@@ -181,7 +329,7 @@ public class PopulateSpreadsheet {
 		}*/
 		
 		int nIndexList1 = 0;
-		int nIndexList2 = 0;
+		//int nIndexList2 = 0;
 		
 		while (nIndexList1<arrayList1.size())
 		{
@@ -190,9 +338,23 @@ public class PopulateSpreadsheet {
 			String[] row2 = null;
 			
 			boolean bDone = false;
+			
+			/*
+			 * If there are no elements in arrayList2, we'll just skip searching for the element
+			 * and go to filling with nulls.
+			 */
+			if (arrayList2.size()==0)
+				bDone = true;
+			
 			boolean bMatch = false;
 			
-			int initialIndex = (nIndexList1>nIndexList2?nIndexList2:nIndexList1);
+			//int initialIndex = (nIndexList1>nIndexList2?nIndexList2:nIndexList1);
+			int initialIndex;
+			
+			if (!(nIndexList1>=arrayList2.size()))
+				initialIndex = nIndexList1;
+			else
+				initialIndex = 0;
 			
 			int index = initialIndex;
 			
@@ -295,7 +457,117 @@ public class PopulateSpreadsheet {
 		
 		
 	}
+	
+	public static String createJSONFromArrayList(ArrayList<String[]> listCols,ArrayList<String[]> listRows) 
+	{
+		/*
+		 * The main use of this function is to easily create non-google structured output from google
+		 * structured inputs.
+		 */
+		
 
+		try 
+		{
+			
+	
+			JSONArray jsonArray = new JSONArray();
+	
+
+			
+			for(String[] row : listRows)
+			{
+				JSONObject tmp = new JSONObject();
+				
+				for(int i=0;i<listCols.size();i++)
+				{
+					tmp.put(listCols.get(i)[0], row[i*2]);					
+				}
+				
+				jsonArray.put(tmp);
+				
+			}
+	
+	
+			
+			
+			
+			return(jsonArray.toString());
+			
+			//return("google.visualization.Query.setResponse(" + jsonTop.toString() + ");");
+		
+		}
+		catch (JSONException je)
+		{
+			return(je.getMessage());
+		}
+
+
+		
+		
+		
+	}
+	
+
+
+	public static String createJSONFromResultSet(ResultSet rs) 
+	{
+		
+
+		try 
+		{
+			//UtilityFunctions.stdoutwriter.writeln("This is a test from inside createGoogleJSON.",Logs.STATUS1,"A2.73");
+			
+			//JSONObject jsonTop = new JSONObject(); 
+			
+			//JSONObject jsonTable = new JSONObject();
+	
+			JSONArray jsonArray = new JSONArray();
+	
+			ResultSetMetaData rsmd = rs.getMetaData();
+		    int numColumns = rsmd.getColumnCount();
+			
+			while(rs.next())
+			{
+				JSONObject tmp = new JSONObject();
+				
+				for(int i=1;i<=numColumns;i++)
+				{
+					if (rs.getString(rsmd.getColumnName(i))!=null)
+						tmp.put(rsmd.getColumnName(i), rs.getString(rsmd.getColumnName(i)));
+					else
+						tmp.put(rsmd.getColumnName(i), "");
+						
+	
+					
+				}
+				
+				jsonArray.put(tmp);
+				
+			}
+	
+	
+			
+			
+			
+			return(jsonArray.toString());
+			
+			//return("google.visualization.Query.setResponse(" + jsonTop.toString() + ");");
+		
+		}
+		catch (JSONException je)
+		{
+			return(je.getMessage());
+		}
+		catch (SQLException sqle)
+		{
+			return(sqle.getMessage());
+		}
+
+		
+		
+		
+	}
+	
 	public static String createGoogleJSON(ArrayList<String[]> arrayListCols, ArrayList<String[]> arrayListRows,String strReqId,boolean bEmptyZeros) 
 	{
 		
@@ -305,7 +577,7 @@ public class PopulateSpreadsheet {
 		 */
 		try 
 		{
-		UtilityFunctions.stdoutwriter.writeln("This is a test from inside createGoogleJSON.",Logs.STATUS1,"A2.73");
+		//UtilityFunctions.stdoutwriter.writeln("This is a test from inside createGoogleJSON.",Logs.STATUS1,"A2.73");
 		
 		JSONObject jsonTop = new JSONObject(); 
 		jsonTop.put("version","0.6");
@@ -845,6 +1117,23 @@ public class PopulateSpreadsheet {
   		
   		
   	}
+	
+	public static ArrayList<String[]> limitRows(ArrayList<String[]> inputArrayList,String strRows)
+	{
+		int nRows = Integer.parseInt(strRows);
+		if (nRows >= inputArrayList.size())
+			return(inputArrayList);
+		
+		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
+		
+		for (int i=0;i<nRows;i++)
+		{
+			outputArrayList.add(inputArrayList.get(i));		
+		}
+		
+		return(outputArrayList);
+	
+	}
 
   	
   	//public static ArrayList<String[]> getMaxGroupBy(ArrayList<String[]> inputArrayList,int x1, int x2,int y)
@@ -1144,6 +1433,33 @@ public class PopulateSpreadsheet {
   		
   	}
   	
+  	public static String displayDebugTable(ArrayList<String[]> arrayListRows) {
+		
+		String output = "<table>";
+		
+		//out.println("<table>");
+		
+		for (int i=0;i<arrayListRows.size();i++)
+		{
+			//out.println("<tr>");
+			output += "<tr>";
+			String[] temp = arrayListRows.get(i);
+			for (int j=0;j<temp.length;j++)
+			{
+				//out.println("<td>" + temp[j] +"</td>");
+				output += "<td>" + temp[j] +"</td>";
+			}
+			//out.println("</tr>");
+			output += "</tr>";
+		}
+		//out.println("</table>");
+		output += "</table>";
+	
+	
+		return(output);
+	}
+	
+  	
 	
 
 
@@ -1184,6 +1500,7 @@ class JSONDate implements JSONString
 		return("new Date(" + value.get(Calendar.YEAR) + "," + value.get(Calendar.MONTH) + "," + value.get(Calendar.DAY_OF_MONTH) + ")");
 		
 	}
+	
 	
 
 	
