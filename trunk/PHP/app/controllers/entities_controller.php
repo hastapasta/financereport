@@ -2,6 +2,7 @@
 class EntitiesController extends AppController {
 
 	var $name = 'Entities';
+	var $uses = array('Entity','Alert','User','EntityGroup');
 	
 	function beforeFilter() {
 		parent::beforeFilter();
@@ -9,11 +10,34 @@ class EntitiesController extends AppController {
 	}
 
 	function index() {
+		$this->urlToNamed();
 		$this->Entity->recursive = 0;
-		$this->set('entities', $this->paginate());
+		$conditions = array();
+		
+		
+		if(isset($this->passedArgs['enable']) && $this->passedArgs['enable'] == 1){
+			if( isset($this->passedArgs['ticker']) && !empty($this->passedArgs['ticker']))
+				$conditions['Entity.ticker LIKE'] = "%".$this->passedArgs['ticker']."%";
+			if(isset($this->passedArgs['name']) && !empty($this->passedArgs['name']))
+				$conditions['Entity.full_name LIKE'] = "%".$this->passedArgs['name']."%";
+			if(isset($this->passedArgs['country_id']) && !empty($this->passedArgs['country_id']))
+				$conditions['Entity.country_id'] = $this->passedArgs['country_id']; 
+		}
+			
+		//debug($conditions);
+		$this->set('entities', $this->paginate($conditions));
 	}
 
 	function view($id = null) {
+		
+		$userprops = $this->Auth->user();
+		
+		if($userprops['User']['group_id'] != 1)
+		{ 
+			$tmpuserid = $this->User->find('first', array('fields'=> 'id','conditions'=>array('User.username'=>$userprops['User']['username'])));
+			$conditions['Alert.user_id'] = $tmpuserid['User']['id'];
+		}
+		
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid entity', true));
 			$this->redirect(array('action' => 'index'));
@@ -70,6 +94,18 @@ class EntitiesController extends AppController {
 		}
 		$this->Session->setFlash(__('Entity was not deleted', true));
 		$this->redirect(array('action' => 'index'));
+	}
+	
+	function getCountry(){
+		$this->autoRender = false;
+		$this->layout = null;
+		$term  =  $_REQUEST['term'];
+		$this->loadModel("Country");
+		$conditions = array();
+		$conditions['Country.name LIKE'] = $term."%";
+		$countries = $this->Country->find('all', array('conditions'=>$conditions, 'order'=>'name ASC', 'fields'=>array('id','name')));
+		$this->set("data", $countries);
+		$this->render('json');	
 	}
 }
 ?>
