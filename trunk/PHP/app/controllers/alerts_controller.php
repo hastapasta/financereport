@@ -2,7 +2,7 @@
 class AlertsController extends AppController {
 
 	var $name = 'Alerts';
-	var $uses = array('Alert','Schedule','Task', 'User','EntityGroup','Entity','TimeEvent','Metric');
+	var $uses = array('Alert','Task', 'User','EntityGroup','Entity','TimeEvent','Metric','InitialFactDatum');
 	var $paginate = array('limit'=>10);
 
 	function beforeFilter() {
@@ -72,10 +72,11 @@ class AlertsController extends AppController {
 				//debug($filtervalues,true);
 				if (!empty($filtervalues))
 				{
+					
 					if ($filtervalues['Alert']['filtersenabled']=='1')
 					{
-						if ($filtervalues['Alert']['schedule_id']!="All")
-							$conditions['Schedule.id'] = $filtervalues['Alert']['schedule_id'];
+						if ($filtervalues['Alert']['task_id']!="All")
+							$conditions['Task.id'] = $filtervalues['Alert']['task_id'];
 							
 						
 						if (!empty($filtervalues['Entity']['ticker']))
@@ -95,7 +96,12 @@ class AlertsController extends AppController {
 						
 						if($filtervalues['Alert']['filtersfired'] == 1)
 							$conditions['Alert.fired'] = 1;
+							
+						if($filtervalues['Alert']['filtersinitial'] == 1)
+							$conditions['InitialFactDatum.value'] = 0;
 					}
+					
+					
 				}
 				
 			/*if ($th['Alert']['schedule_id']!="All")
@@ -108,12 +114,14 @@ class AlertsController extends AppController {
 				$conditions['Entity.ticker LIKE'] = $filtervalues['Entity']['ticker'];*/
 		}
 		
-		$this->paginate = array('conditions' => $conditions);
+		$this->paginate = array_merge( $this->paginate,  array('conditions' => $conditions));
 
-		$task_names2 = $this->Task->find('list', array('fields'=> array('SchedulesAlias.id','description'),'joins'=>array(
+		/*$task_names2 = $this->Task->find('list', array('fields'=> array('SchedulesAlias.id','description'),'joins'=>array(
 		array('table'=>'schedules','alias'=>'SchedulesAlias','type'=>'inner','foreignKey'=>false,'conditions'=>array('SchedulesAlias.task_id = Task.id'))
-		)));
-
+		)));*/
+		
+		$task_names2 = $this->Task->find('list', array('fields'=>array('id', 'name')));
+		
 		//Add an all option to the front
 		$tmp = array("All"=>"All");
 		foreach(array_keys($task_names2) as $key)
@@ -126,6 +134,7 @@ class AlertsController extends AppController {
 		
 		//$this->set('frequencies',array('All'=>'All','HOURLY'=>'HOURLY','DAILY'=>'DAILY','WEEKLY'=>'WEEKLY','MONTHLY'=>'MONTHLY','YEARLY'=>'YEARLY','ALLTIME'=>'ALLTIME'));
 
+		
 		$this->set('task_names2', $task_names2);
 		
 		//set observation period (time event) dropdown
@@ -154,7 +163,7 @@ class AlertsController extends AppController {
 		
 		//debug($this->Alert->data['Schedule']['Task']['metric_id'],true);
 		
-		$metric_id = $this->Alert->data['Schedule']['Task']['metric_id'];
+		$metric_id = $this->Alert->data['Task']['metric_id'];
 		$metric_name = $this->Metric->find('list', array(   'fields'=> 'name',   'conditions'=> array('id' => $metric_id)));
 		
 		//debug($metric_name[$metric_id],true);
@@ -175,36 +184,64 @@ class AlertsController extends AppController {
 
 
 	function add() {
-		if (!empty($this->data)) {
-			//restructure the data
-			$multiselect = $this->data['Alert']['entity_id'];
-			//$i=0;
-			$tmp2 = array();
-				
-			foreach ($multiselect as $item){
-				$tmp = $this->data['Alert'];
-				$tmp['entity_id'] = $item;
-				array_push($tmp2,$tmp);
-				//$i++;
-			}
-			$this->data['Alert'] = $tmp2;
-			$this->Alert->create();
-				
+		
+		//debug($this->data,true);
 			
-
-			if ($this->Alert->saveAll($this->data['Alert'])) {
-				$this->Session->setFlash(__('The alert has been saved', true),'default',array('class'=>'green_message'));
-				$this->redirect(array('action' => 'index'));
-			} else {
+		if (!empty($this->data)) {
+			$this->Alert->set($this->data);
+			if (!$this->Alert->validates())
+			{
+				//debug('here',true);
 				$this->Session->setFlash(__('The alert could not be saved. Please, try again.', true));
+			}
+			else
+			{
+			
+				
+				debug('here1',true);
+				debug($this->data,true);
+			
+				
+				//restructure the data
+				$multiselect = $this->data['Alert']['entity_id'];
+				//$i=0;
+				$tmp2 = array();
+					
+				foreach ($multiselect as $item){
+					$tmp = $this->data['Alert'];
+					$tmp['entity_id'] = $item;
+					array_push($tmp2,$tmp);
+					//$i++;
+				}
+				$this->data['Alert'] = $tmp2;
+				$this->Alert->create();
+				
+				
+					
+				
+	
+				if ($this->Alert->saveAll($this->data['Alert'])) {
+					$this->Session->setFlash(__('The alert(s) have been saved', true),'default',array('class'=>'green_message'));
+					//$this->redirect(array('action' => 'index'));
+				} else {
+					$this->Session->setFlash(__('The alert could not be saved. Please, try again.', true));
+				}
 			}
 				
 		}
 		
-		$task_names2 = $this->Task->find('list', array('fields'=> array('SchedulesAlias.id','description'),'joins'=>array(
-		array('table'=>'schedules','alias'=>'SchedulesAlias','type'=>'inner','foreignKey'=>false,'conditions'=>array('SchedulesAlias.task_id = Task.id'))
-		)));
+		/*$task_names2 = $this->Task->find('list', array('fields'=> array('SchedulesAlias.id','description'),'joins'=>array(
+		array('table'=>'schedules','alias'=>'SchedulesAlias','type'=>'inner','foreignKey'=>false,'conditions'=>array('SchedulesAlias.task_id = Task.id','Task.allow_alerts = 1'))
+		)));*/
+		//debug($task_names2,true);
+		$task_names2 = $this->Task->find('list', array('fields'=> 'name'));
 		$this->set('task_names2', $task_names2);
+		
+		$entity_groups = $this->EntityGroup->find('list', array('fields'=> 'description'));
+		$this->set('entity_groups', $entity_groups);
+		
+		$metric_names = $this->Metric->find('list', array('fields'=> 'name'));
+		$this->set('metric_names', $metric_names);
 	
 		$task_names = $this->Task->find('list', array('fields'=> 'description',    'order'=>'Task.description ASC',  'conditions'=> array('1' => '1'),'group'=>'description'));
 		$this->set('task_names', $task_names);
@@ -266,7 +303,7 @@ class AlertsController extends AppController {
 			}
 			
 			if ($this->Alert->saveAll($this->data['Alert'])) {
-				$this->Session->setFlash(__('The alert has been saved', true),'default',array('class'=>'green_message'));
+				$this->Session->setFlash(__('The alert(s) have been saved', true),'default',array('class'=>'green_message'));
 				$this->Session->delete('Record');
 				//$this->redirect(array('action' => 'index'));
 			} else {
@@ -287,17 +324,30 @@ class AlertsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		//$task_names = $this->Task->find('list', array('fields'=> 'description',    'order'=>'Task.description ASC',  'conditions'=> array('1' => '1'),'group'=>'description'));
-		$task_names = $this->Task->find('list', array('fields'=> array('SchedulesAlias.id','description'),'joins'=>array(
+		/*$task_names = $this->Task->find('list', array('fields'=> array('SchedulesAlias.id','description'),'joins'=>array(
 		array('table'=>'schedules','alias'=>'SchedulesAlias','type'=>'inner','foreignKey'=>false,'conditions'=>array('SchedulesAlias.task_id = Task.id'))
-		)));
+		)));*/
+		$task_names = $this->Task->find('list', array('fields'=> array('id','name')));
 		$this->set('task_names', $task_names);
 		
 		$tickers = $this->Entity->find('list', array('fields'=> array('id','ticker')));
 		$this->set('tickers1', $tickers);
 		
+		$time_event_names = $this->TimeEvent->find('list', array('fields'=> 'name'));
+		$this->set('timeeventnames', $time_event_names);
+		
+
+		
+		$userprops = $this->Auth->user();
+		if ($userprops['User']['group_id'] == 1){
+			$this->set('show_twitter_alert',true);			
+		}
+		else
+			$this->set('show_twitter_alert',false);
+		
 	
 
-		$this->set('frequencies',array('HOURLY'=>'HOURLY','DAILY'=>'DAILY','WEEKLY'=>'WEEKLY','MONTHLY'=>'MONTHLY','YEARLY'=>'YEARLY','ALLTIME'=>'ALLTIME'));
+		//$this->set('frequencies',array('HOURLY'=>'HOURLY','DAILY'=>'DAILY','WEEKLY'=>'WEEKLY','MONTHLY'=>'MONTHLY','YEARLY'=>'YEARLY','ALLTIME'=>'ALLTIME'));
 
 		$userprops = $this->Auth->user();
 		if ($userprops['User']['group_id'] == 1)
@@ -329,9 +379,9 @@ class AlertsController extends AppController {
 		$this->autoRender = false;
 		$q='';
 		$q = $this->params['named']['q'];
-		$sql="SELECT entities.ticker,entities.id FROM entities,entity_groups,entities_entity_groups,entity_groups_tasks,schedules";
-		$sql.=" where entities.id=entities_entity_groups.entity_id and entity_groups.id=entities_entity_groups.entity_group_id and entity_groups.id=entity_groups_tasks.entity_group_id";
-		$sql.=" and entity_groups_tasks.task_id=schedules.task_id and schedules.id=".$q;
+		$sql="SELECT entities.ticker,entities.id FROM entities,entities_entity_groups ";
+		$sql.=" where entities.id=entities_entity_groups.entity_id  ";
+		$sql.=" and entities_entity_groups.entity_group_id=".$q;
 		$data = $this->Alert->query($sql);
 		$ticker = array();
 		for($i = 0; $i <sizeof($data); $i++){
