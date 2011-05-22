@@ -5,12 +5,18 @@ class EntityGroupsController extends AppController {
 	
 	function beforeFilter() {
 		parent::beforeFilter();
+		
 		//$this->Auth->allow('*');
 	}
+	
+	/*function recoverTree(){
+		$this->EntityGroup->recover('parent');
+	}*/
 
 	function index() {
 		$this->EntityGroup->recursive = 0;
 		$this->set('entityGroups', $this->paginate());
+		$this->set('entityList', $this->EntityGroup->find('list'));
 	}
 
 	function view($id = null) {
@@ -31,32 +37,31 @@ class EntityGroupsController extends AppController {
 				$this->Session->setFlash(__('The entity group could not be saved. Please, try again.', true));
 			}
 		}
-		$entities = $this->EntityGroup->Entity->find('list');
-		$tasks = $this->EntityGroup->Task->find('list');
-		$entityGroupsTasks = $this->EntityGroup->EntityGroupsTask->find('list');
-		$this->set(compact('entities', 'tasks', 'entityGroupsTasks'));
+		$parents = $this->EntityGroup->find('list');
+		$this->set(compact('parents'));
 	}
 
 	function edit($id = null) {
-		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid entity group', true));
-			$this->redirect(array('action' => 'index'));
-		}
+		$record = $this->Session->read('Record');
 		if (!empty($this->data)) {
-			if ($this->EntityGroup->save($this->data)) {
+			if ($this->EntityGroup->saveAll($this->data['EntityGroup'])) {
 				$this->Session->setFlash(__('The entity group has been saved', true),'default',array('class'=>'green_message'));
+				$this->Session->delete('Record');
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The entity group could not be saved. Please, try again.', true));
 			}
 		}
-		if (empty($this->data)) {
-			$this->data = $this->EntityGroup->read(null, $id);
+		if (!empty($record)) {
+			$this->data = $this->toMulti($this->EntityGroup->find('all',array('conditions'=>array('EntityGroup.id'=>$record))));
+				
 		}
-		$entities = $this->EntityGroup->Entity->find('list');
-		$tasks = $this->EntityGroup->Task->find('list');
-		$entityGroupsTasks = $this->EntityGroup->EntityGroupsTask->find('list');
-		$this->set(compact('entities', 'tasks', 'entityGroupsTasks'));
+		if (empty($this->data)) {
+			$this->Session->setFlash(__('Invalid user', true));
+			$this->redirect(array('action' => 'index'));
+		}
+		$parents = $this->EntityGroup->find('list');
+		$this->set(compact('parents'));
 	}
 
 	function delete($id = null) {
