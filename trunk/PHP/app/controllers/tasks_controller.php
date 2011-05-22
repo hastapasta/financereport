@@ -31,24 +31,32 @@ class TasksController extends AppController {
 				$this->Session->setFlash(__('The task could not be saved. Please, try again.', true));
 			}
 		}
+		$metrics = $this->Task->Metric->find('list');
+		$this->set(compact('metrics'));
 	}
 
 	function edit($id = null) {
-		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid task', true));
-			$this->redirect(array('action' => 'index'));
-		}
+		$record = $this->Session->read('Record');
 		if (!empty($this->data)) {
-			if ($this->Task->save($this->data)) {
-				$this->Session->setFlash(__('The task has been saved', true),'default',array('class'=>'green_message'));
+			if ($this->Task->saveAll($this->data['Task'])) {
+				$this->Session->setFlash(__('The Task has been saved', true),'default',array('class'=>'green_message'));
+				$this->Session->delete('Record');
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The task could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The Task could not be saved. Please, try again.', true));
 			}
 		}
-		if (empty($this->data)) {
-			$this->data = $this->Task->read(null, $id);
+		if (!empty($record)) {
+			$this->data = $this->toMulti($this->Task->find('all',array('conditions'=>array('Task.id'=>$record))));
+				
 		}
+		if (empty($this->data)) {
+			$this->Session->setFlash(__('Invalid Task', true));
+			$this->redirect(array('action' => 'index'));
+		}
+		
+		$metrics = $this->Task->Metric->find('list');
+		$this->set(compact('metrics'));
 	}
 
 	function delete($id = null) {
