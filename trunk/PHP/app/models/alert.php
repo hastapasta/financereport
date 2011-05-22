@@ -1,10 +1,19 @@
 <?php
 class Alert extends AppModel {
 	var $name = 'Alert';
+	/*var $validate = array(
+		'value' => array(
+		'numeric' => array(
+		'rule' => 'numeric',
+		'required' => true,
+		'message' => 'Number required (up to 2 decimal places).'
+		)
+		)
+		);*/
 	var $belongsTo = array(
-	        'Schedule' => array( 
-	            'className' => 'Schedule', 
-	            'foreignKey' => 'schedule_id' 
+	        'Task' => array( 
+	            'className' => 'Task', 
+	            'foreignKey' => 'task_id' 
 	            ),
 	        'User' => array(
 	        	'className' => 'User',
@@ -34,9 +43,9 @@ class Alert extends AppModel {
 		'id' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-	        	//'message' => 'Your custom message here',
+	        	//'message' => 'Number required',
 	        	//'allowEmpty' => false,
-	        	//'required' => false,
+	        	//'required' => true
 	        	//'last' => false, // Stop validation after this rule
 	        	//'on' => 'create', // Limit validation to 'create' or 'update' operations
 	        	),
@@ -51,12 +60,13 @@ class Alert extends AppModel {
 	        	//'on' => 'create', // Limit validation to 'create' or 'update' operations
 	        	),
 	        	),
-		'schedule_id' => array(
+	        	
+	     'limit_value'=> array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-	        	//'message' => 'Your custom message here',
+	        	'message' => 'Number required.',
 	        	//'allowEmpty' => false,
-	        	//'required' => false,
+	        	'required' => true
 	        	//'last' => false, // Stop validation after this rule
 	        	//'on' => 'create', // Limit validation to 'create' or 'update' operations
 	        	),
