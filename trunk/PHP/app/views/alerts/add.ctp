@@ -10,8 +10,9 @@
 <!-- Source file -->
 <script src="http://yui.yahooapis.com/2.8.2r1/build/json/json-min.js"></script>
 
-<div class="alerts form">
+
 <script type="text/javascript">
+	metricid="";
 	function get_type(thing){     
 		if(thing===null)return "[object Null]"; 
 	// special case   
@@ -35,36 +36,227 @@
 		}
 	}
 
+	$(document).ready(function() {
+        $("#filtersubmit").click(function() {
+        	selectobj = document.getElementById("filtermetric");
+        	checkboxobj = document.getElementById("filtersenabled");
+        	
+        	if (checkboxobj.checked == true)
+        		metricid = selectobj.value;
+        	else
+        		metricid = "";
+       
+            buildTree3();
+            //var src = $(this).val();
+
+            //$("#imagePreview").html(src ? "<img src='" + src + "'>" : "");
+        });
+    });
+
+	
+
+	
+
+	/*(function() {*/
+
+		 function treeInit() {
+			
+		        buildTree3();
+		    }
+	function buildTree3() {
+
+	
+		
+		tree1 = new YAHOO.widget.TreeView("treeDiv1");
+
+		tmp = new YAHOO.widget.TextNode("&nbsp<B>LOADING TREE...</B>", tree1.getRoot(), false);
+
+		tree1.render();
+
+		
+    	
+    	/*tree1.subscribe('clickEvent',tree1.onEventToggleHighlight);		
+    	tree1.setNodesProperty('propagateHighlightUp',true);
+    	tree1.setNodesProperty('propagateHighlightDown',true);
+    	tree1.render();*/
+
+    	var tmpNode1;
+ 
+       // Expand and collapse happen prior to the actual expand/collapse,
+       // and can be used to cancel the operation
+  
+
+              if (window.XMLHttpRequest)
+          	{// code for IE7+, Firefox, Chrome, Opera, Safari
+          		xmlhttp=new XMLHttpRequest();
+          	}
+          	else
+          	{// code for IE6, IE5  
+          		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+          	}
+          	
+          	xmlhttp.onreadystatechange=function()
+          	{
+          		if (xmlhttp.readyState==4 && xmlhttp.status==200)
+          		{
+          	
+          			var data = YAHOO.lang.JSON.parse(xmlhttp.responseText);
+          			var tmpNode
+					/*
+					* Build the Group Nodes
+					*/
+          			//n = tree1.getNodeByProperty('id',data[0].parent_id)
+          			
+          			tree1.removeChildren(tree1.getRoot());
+          			
+          			//tree1.removeChildren(n);
+
+          			//for (i=0;i<1;i++)
+          			for (i=0;i<data.length;i++)
+          			{
+
+              			var label = "&nbsp<B>" + data[i].description + "</B>";
+
+              			label.replace('€','&#8364;');
+              		
+              			if ((data[i].full_name != null) && (data[i].full_name != ''))
+                  			label += ' (' + data[i].full_name + ')';
+
+              			if ((data[i].country != null) && (data[i].country != ''))
+                  			label += ' (' + data[i].country + ')';
+
+              			
+              		
+              			if (i==0)
+              				 var tmpNode = new YAHOO.widget.TextNode(label, tree1.getRoot(), false);
+              				 
+              			else
+              			{
+							nodes = tree1.getNodesByProperty('id',data[i].parent_id);
+
+
+							for (j=0;j<nodes.length;j++)
+							{
+								if (nodes[j].type == 1)
+									tmpNode = new YAHOO.widget.TextNode(label, nodes[j], false);
+							}
+				
+                  			
+          					
+          					tmpNode.parent_id = data[i].parent_id;
+              			}
+          				tmpNode.id = data[i].id;
+          				tmpNode.type = data[i].type;
+
+          	
+          				
+
+          			}
+
+          	
+          		   tree1.subscribe("collapse", function(node) {
+                       YAHOO.log(node.index + " was collapsed", "info", "example");
+                     
+                    });
+
+	                tree1.subscribe("expand", function(node) {
+	                    YAHOO.log(node.index + " was expanded", "info", "example");
+	                });
+	
+	                // Trees with TextNodes will fire an event for when the label is clicked:
+	                tree1.subscribe("labelClick", function(node) {
+	                       YAHOO.log(node.index + " label was clicked", "info", "example");
+                    });
+
+          			tree1.subscribe('clickEvent',tree1.onEventToggleHighlight);		
+          	    	tree1.setNodesProperty('propagateHighlightUp',true);
+          	    	tree1.setNodesProperty('propagateHighlightDown',true);
+          	    	tree1.render();
+   			
+          		}
+          	}
+
+          	var currentTime = new Date()
+        	var users = document.getElementById("users");
+        
+        	//xmlhttp.open("POST","http://localhost/PHP/ajaxsample/cakeajax.php?q="+str+"&timestamp="+currentTime,true);
+       
+        	xmlhttp.open("POST",php_root_path + "/ajaxsample/cakeajax4.php?q=1002" + "&m=" + metricid ,true);
+
+        	xmlhttp.send();
+
+     
+
+    
+
+	}
+
+	YAHOO.util.Event.onDOMReady(treeInit);
+
+	//} )();
+	function buildTree2() {
+		var AppPath = "<?php echo $this->base;?>/alerts/getTicker/q:1000";
+	
+		xmlhttp.open("POST",AppPath,true);
+		xmlhttp.send();
+		jsondata = YAHOO.lang.JSON.parse(xmlhttp.responseText);
+		tree = new YAHOO.widget.TreeView("treeDiv2");
+		tmpNode = new YAHOO.widget.TextNode("All Foreign Exchange Rate Entities", tree.getRoot(), false);
+		for (i=0;i<jsondata.length;i++){
+			nodeObj=new Object();
+			nodeObj.label=jsondata[i].ticker;
+			nodeObj.id=jsondata[i].id;
+			//new YAHOO.widget.TextNode(data[i].ticker, tmpNode, false);
+			new YAHOO.widget.TextNode(nodeObj, tmpNode, false);
+		}
+		/*tmpNode = new YAHOO.widget.TextNode("Forex", tree.getRoot(), false);
+        buildLargeBranch(tmpNode);
+        tmpNode = new YAHOO.widget.TextNode("Commodity Futures", tree.getRoot(), false);
+        buildLargeBranch(tmpNode);
+        tmpNode = new YAHOO.widget.TextNode("US Equities", tree.getRoot(), false);
+        buildLargeBranch(tmpNode);
+        tmpNode = new YAHOO.widget.TextNode("US Equity Indexes", tree.getRoot(), false);
+        buildLargeBranch(tmpNode);*/
+
+        tree.subscribe('clickEvent',tree.onEventToggleHighlight);		
+    	tree.setNodesProperty('propagateHighlightUp',true);
+    	tree.setNodesProperty('propagateHighlightDown',true);
+    	tree.render();
+	}
+
 	function submitFunc()
 	{
+	
+		/*if (!validate())
+			return false;*/
+		
 		var myselect = document.getElementById("AlertEntityId");
+		myselect.style.display="none";
 			//document.createElement("select");
 		//myselect.setAttribute("name","data[Alert][entity_id]");
 		//var theOption=document.createElement("OPTION");
 		//theText=document.createTextNode("OptionText");
 		//theOption.appendChild(theText);
-
-		var hiLit = tree.getNodesByProperty('highlightState',1);
+		
+		var hiLit = tree1.getNodesByProperty('highlightState',1);
 		/*
 		* Have to do an id lookup now. Tried saving the id in the treenode along with the ticker, but the id field wasn't coming through.
 		*/
 		for (k=0;k<hiLit.length;k++)
 		//for(k=0;k<1;k++)
 		{
-			var theOption=document.createElement("OPTION");
-			theText=document.createTextNode("OptionText");
-			theOption.appendChild(theText);
-			for (i=0;i<jsondata.length;i++)
+
+			if (hiLit[k].type == 2)
 			{
-				if (jsondata[i].ticker==hiLit[k].label)
-				{
-					theOption.setAttribute("value",jsondata[i].id);
-					theOption.setAttribute("selected","selected");
-					//alert(jsondata[i].id);
-					break;
-				}
+				
+				var theOption=document.createElement("OPTION");
+				theText=document.createTextNode("OptionText");
+				theOption.appendChild(theText);
+				theOption.setAttribute("value",hiLit[k].id);
+				theOption.setAttribute("selected","selected");
+	
+				myselect.appendChild(theOption);
 			}
-			myselect.appendChild(theOption);
 		}
 
 		//theOption.setAttribute("value",hiLit[0].id);
@@ -75,7 +267,7 @@
 		newdiv.innerHTML = 'Element Number '+num+' has been added! <a href=\'#\' onclick=\'removeElement('+divIdName+')\'>Remove the div "'+divIdName+'"</a>';
 		ni.appendChild(newdiv);*/
 		//alert(document.testForm.elements.length);
-		for(i=0; i<document.testForm.elements.length; i++)
+		/*for(i=0; i<document.testForm.elements.length; i++)
 		{
 		//document.write("The field name is: " + document.FormName.elements[i].name + " and it’s value is: " + document.FormName.elements[i].value + ".<br />");
 			if (document.testForm.elements[i].name=="data[Alert][entity_id][]")
@@ -90,200 +282,73 @@
 			}                                                    				
 			else
 				document.getElementById("testdiv").innerHTML += "The field name is: " + document.testForm.elements[i].name + " and it’s value is: " + document.testForm.elements[i].value + ".<br />";
-		}
+		}*/
 		return true;
 	}
-	function showUser(str){
-		document.getElementById("treeDiv1").style.height = "200px" ;
-		var height = document.getElementById("treeDiv1").style.height;		
-		if (str==""){
-			document.getElementById("txtHint").innerHTML="";
-			return;
-		} 
-		if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
-			xmlhttp=new XMLHttpRequest();
-		}else{// code for IE6, IE5  
-			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-		}
-	
-		xmlhttp.onreadystatechange=function(){
-			if (xmlhttp.readyState==4 && xmlhttp.status==200){				
-				//alert(xmlhttp.responseText);
-				jsondata = YAHOO.lang.JSON.parse(xmlhttp.responseText);
-				//alert(data[0].ticker);
-				/*var tmpSelect = document.getElementById("AlertTicker");
-				var options=tmpSelect.getElementsByTagName("option");
-				var i;
-				for (i=options.length-1; i>=0; i--){
-					tmpSelect.remove(i);
-				}
-				for (i=0; i<10;i++){
-					var y=document.createElement('option');
-					y.text=i + "";
-				 	tmpSelect.add(y,null);
-				}*/
-				//alert("here 1");
-				tree = new YAHOO.widget.TreeView("treeDiv1");
-				tmpNode = new YAHOO.widget.TextNode("Forex", tree.getRoot(), false);
-				for (i=0;i<jsondata.length;i++){
-					nodeObj=new Object();
-					nodeObj.label=jsondata[i].ticker;
-					nodeObj.id=jsondata[i].id;
-					//new YAHOO.widget.TextNode(data[i].ticker, tmpNode, false);
-					new YAHOO.widget.TextNode(nodeObj, tmpNode, false);
-				}
-				/*tmpNode = new YAHOO.widget.TextNode("Forex", tree.getRoot(), false);
-		        buildLargeBranch(tmpNode);
-		        tmpNode = new YAHOO.widget.TextNode("Commodity Futures", tree.getRoot(), false);
-		        buildLargeBranch(tmpNode);
-		        tmpNode = new YAHOO.widget.TextNode("US Equities", tree.getRoot(), false);
-		        buildLargeBranch(tmpNode);
-		        tmpNode = new YAHOO.widget.TextNode("US Equity Indexes", tree.getRoot(), false);
-		        buildLargeBranch(tmpNode);*/
 
-		        tree.subscribe('clickEvent',tree.onEventToggleHighlight);		
-		    	tree.setNodesProperty('propagateHighlightUp',true);
-		    	tree.setNodesProperty('propagateHighlightDown',true);
-		    	tree.render();
-				
-				//document.getElementById("txtCompany").innerHTML=xmlhttp.responseText;
-				
-			}
-		}
-		var currentTime = new Date();
-		var AppPath = "<?php echo $this->base;?>/alerts/getTicker/q:" + str;
-		xmlhttp.open("POST",AppPath,true);
-		xmlhttp.send();
-		//alert("http://localhost/PHP/ajaxsample/cakeajax.php?q="+str);
-		//xmlhttp.open("POST","http://localhost/PHP/ajaxsample/cakeajax.php?q="+str+"&timestamp="+currentTime,true);
-		
-	}
-	var tree;
-    function buildLargeBranch(node) {
-    	new YAHOO.widget.TextNode(node.label + "-A", node, false);
-    	new YAHOO.widget.TextNode(node.label + "-B", node, false);
-    	new YAHOO.widget.TextNode(node.label + "-C", node, false);
-        
-        /*if (node.depth < 10) {
-            YAHOO.log("buildRandomTextBranch: " + node.index, "info", "example");
-            for ( var i = 0; i < 10; i++ ) {
-                new YAHOO.widget.TextNode(node.label + "-" + i, node, false);
-            }
-        }*/
-    }
-
-	//anonymous function wraps the remainder of the logic:
-	(function() {
-
-		//function to initialize the tree:
-	    function treeInit() {
-	        buildRandomTextNodeTree();
-	    }
-	    
-		//Function  creates the tree and 
-		//builds between 3 and 7 children of the root node:
-	    function buildRandomTextNodeTree() {
-			//instantiate the tree:
-	        tree = new YAHOO.widget.TreeView("treeDiv1");
-
-	        /*tmpNode = new YAHOO.widget.TextNode("Forex", tree.getRoot(), false);
-	        buildLargeBranch(tmpNode);
-	        tmpNode = new YAHOO.widget.TextNode("Commodity Futures", tree.getRoot(), false);
-	        buildLargeBranch(tmpNode);
-	        tmpNode = new YAHOO.widget.TextNode("US Equities", tree.getRoot(), false);
-	        buildLargeBranch(tmpNode);
-	        tmpNode = new YAHOO.widget.TextNode("US Equity Indexes", tree.getRoot(), false);
-	        buildLargeBranch(tmpNode);*/
-
-	        /*for (var i = 0; i < Math.floor((Math.random()*4) + 3); i++) {
-	            var tmpNode = new YAHOO.widget.TextNode("label-" + i, tree.getRoot(), false);
-	            // tmpNode.collapse();
-	            // tmpNode.expand();
-	            // buildRandomTextBranch(tmpNode);
-	            buildLargeBranch(tmpNode);
-	        }*/
-
-	       // Expand and collapse happen prior to the actual expand/collapse,
-	       // and can be used to cancel the operation
-	       tree.subscribe("expand", function(node) {
-	              YAHOO.log(node.index + " was expanded", "info", "example");
-	              // return false; // return false to cancel the expand
-	           });
-
-	       tree.subscribe("collapse", function(node) {
-	              YAHOO.log(node.index + " was collapsed", "info", "example");
-	           });
-
-	       // Trees with TextNodes will fire an event for when the label is clicked:
-	       tree.subscribe("labelClick", function(node) {
-	              YAHOO.log(node.index + " label was clicked", "info", "example");
-	           });
-
-			//The tree is not created in the DOM until this method is called:
-	        //tree.draw();
-	    }
-
-		//function builds 10 children for the node you pass in:
-	    function buildLargeBranch(node) {
-	    	new YAHOO.widget.TextNode(node.label + "-A", node, false);
-	    	new YAHOO.widget.TextNode(node.label + "-B", node, false);
-	    	new YAHOO.widget.TextNode(node.label + "-C", node, false);
-	        
-	        /*if (node.depth < 10) {
-	            YAHOO.log("buildRandomTextBranch: " + node.index, "info", "example");
-	            for ( var i = 0; i < 10; i++ ) {
-	                new YAHOO.widget.TextNode(node.label + "-" + i, node, false);
-	            }
-	        }*/
-	    }
-		//Add an onDOMReady handler to build the tree when the document is ready
-	    YAHOO.util.Event.onDOMReady(treeInit);
-
-	})();
 	</script>
-	<?php echo $this->element('actions'); ?>
+
+<table>
+<tr>
+<td>
+<table class="searchTable">
+<tr><td>
+<?php
+$checkboxdefault=false;
+?>
+<tr><td>
+<?php echo $this->Form->label('Metric:'); ?>
+</td></tr>
+<tr><td>
+<?php echo "<select id=\"filtermetric\" >";
+foreach ($this->getVar('metric_names') as $key=>$metric)
+{
+	echo "<option value=\"".$key."\">".$metric."</option>";
+}
+echo "</select>";
+?>
+</td></tr>
+<tr>
+<td><?php echo $this->Form->label('Filters Enabled:');?></td>
+<td><?php echo $this->Form->checkbox('filtersenabled', array('value' => '0','checked'=>$checkboxdefault)); ?></td>
+</tr>
+<tr><td>
+<div class="submit"><input type="submit" value="Refresh Entities" id="filtersubmit"/></div>
+</td></tr>
+
+</table>
+</td>
+<td style='width:99%;'>
+<div class="alerts index" style='float:left;'>
 <?php //echo $this->Form->create('Alert');
 	echo $this->Form->create('Alert', array (/*'default'=>false,'action'=>'multiAdd',*/'name'=>'testForm','onsubmit'=>'submitFunc();'))
 ?>
 	<fieldset>
  		<legend><?php __('Add Alert'); ?></legend>
 	<?php
+	
 
-		//debug($this->validationErrors,true);
-		//debug($this->data,true);
-		//debug($this->getVar('usernames'),true);
-		//debug($this->getVar('task_names'),true);
-		//debug($this->getVar('frequencies'),true);
-		
-		
 
-		//echo $this->Form->input('id');
-		//echo $this->Form->input('type');
-		
-		//debug($this);	
-		//array('onChange'=>'showFields(this)')
-		
-		//echo $this->Form->input('schedule_id',array('label'=>'Schedule Name','options' => $this->getVar('task_names')));
-		
-		
-		//echo $this->Form->input('ticker',array('label'=>'Financial Enitity','options' => $this->getVar('entity_descs')));
-		
-		//echo $this->Form->input('schedule_id');
+
 
 		echo '<div style="display:none" id="hiddenselect" >';
 		echo '<select id="hiddenTicker" name="data[Alert][entity_id]" multiple="multiple" >';
 		echo "</select>";
 		echo $this->Form->input('Alert.entity_id',array('type'=>'select','multiple'=> true));
 		echo "</div>";
-		//$group_id = $session->read('Auth.User.group_id');		
-		 
+
 		
-		echo $this->Form->input('schedule_id',array('label'=>'Schedule Name','onChange'=>'showUser(this.value)','options' => $this->getVar('task_names2')));
-		//debug($this->Form,true);
+		
+		
+		echo "<BR>Entity Group:<BR>";
+		echo "<div id=\"treeDiv1\" class=\"ygtv-checkbox\"></div>";
+		
 		echo "<div style=\"position:relative; left:0px; top:0px; width:400px; height:0px; background-color:#ffffff; overflow:auto;\"";
-		echo "id=\"treeDiv1\" class=\"ygtv-checkbox\"></div>";
+		echo "id=\"treeDiv2\" class=\"ygtv-checkbox\"></div>";
+		echo $this->Form->input('Alert.metric_id',array('label'=>'Metric','options' => $this->getVar('metric_names')));
 		echo $this->Form->input('Alert.user_id',array('label'=>'User Name','options' => $this->getVar('usernames')));
-		echo $this->Form->input('Alert.frequency',array('label'=>'Frequency','options' => $this->getVar('frequencies')));
+		echo $this->Form->input('Alert.time_event_id',array('label'=>'Observation Period','options' => $this->getVar('timeeventnames')));
+		
 		echo $this->Form->input('limit_value');
 		//echo $this->Form->input('limit_adjustment');
 		echo $this->Form->input('limit_adjustment',array('value'=>0,'type'=>'hidden'));
@@ -292,6 +357,10 @@
 		
 		//echo $this->Form->input('alert_count');
 		echo $this->Form->input('disabled');
+		echo $this->Form->input('auto_reset_fired',array('label'=>'Auto Reset After Fired'));
+		echo $this->Form->input('auto_reset_period',array('label'=>'Auto Reset After Observation Period End'));
+		echo $this->Form->input('email_alert',array('label'=>'Email Notification'));
+		
 		
 	
 		//echo $this->Form->input('user_id');
@@ -299,4 +368,7 @@
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
+</td>
+</tr>
+</table>
 
