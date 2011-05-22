@@ -2,6 +2,7 @@
 class UsersController extends AppController {
 
 	var $name = 'Users';
+	var $components =array('Mymail','Email');
 	//var $uses = array('User');
 
 	function beforeFilter() {
@@ -10,7 +11,7 @@ class UsersController extends AppController {
 		 */
 		parent::beforeFilter();
 
-		$this->Auth->allow(array('logout','login','registration','confirm'));
+		$this->Auth->allow(array('logout','login','registration','confirm','received'));
 		$this->Auth->userScope = array(
 	        'User.active' => array(
 	            'expected' => 1,
@@ -51,6 +52,35 @@ class UsersController extends AppController {
 		}
 		$groups = $this->User->Group->find('list');
 		$this->set(compact('groups'));
+	}
+	
+	function emailtest()
+	{
+		//$this->Email->from    = 'Somebody <hastapasta99@gmail.com>';
+		//$this->Email->to      = 'Somebody Else <opike@yahoo.com>';
+		$this->Email->from    = 'pikefin1@gmail.com';
+		$this->Email->to      = 'opike@yahoo.com';
+		//$this->Email->delivery = 's';
+		$this->Email->delivery = 'smtp';
+		$this->Email->subject = 'Test';
+		
+		
+		$this->Email->smtpOptions = array(
+        'port'=>'465', 
+        'timeout'=>'30',
+        //'host' => 'ssl://smtp.gmail.com',
+        'host' => 'ssl://smtp.gmail.com',
+        'username'=>'pikefin1',
+        'password'=>'ginger1.',
+  		 );
+  		 
+  		$this->Email->subject = 'Welcome to our really cool thing';
+		$this->Email->send('Hello message body!');
+		
+		$this->set('smtp_errors', $this->Email->smtpError);
+		
+		
+		
 	}
 
 	function edit($id = null) {
@@ -154,41 +184,124 @@ class UsersController extends AppController {
 	
 function registration() {
 		if(!empty($this->data)){
-			if($this->data['User']['password'] == $this->Auth->password($this->data['User']['confirm_password'])){
+		
+			/*if (sizeof($this->User->find('all',array('conditions'=>array('User.email'=>$this->data['User']['email'])))))
+			{
+				$this->Session->setFlash('An account for this email address already exists.');
+			}*/
+			if (sizeof($this->User->find('all',array('conditions'=>array('User.username'=>$this->data['User']['username'])))))
+			{
+				$this->Session->setFlash('Username already exists.');
+			}			
+			else if(!($this->data['User']['password'] == $this->Auth->password($this->data['User']['confirm_password']))){
+				$this->Session->setFlash('Passwords do not match.');
+			}
+			else 
+			{
 				$this->data['User']['group_id'] = 3;
 				if($this->User->save($this->data)){
 					$data = array();
 					$data['id'] = $this->User->id;
 					$data['username'] = $this->data['User']['username'];
 					$data['password'] = $this->data['User']['confirm_password'];
+					
 					$options['to'] = $this->data['User']['email'];
 					$options['from'] = CONFIG_ADMIN_MAIL;
 					$options['contentTemplate'] = 'confirmation_mail';
-					$options['subject'] = 'Account Confirmation';
+					$options['subject'] = 'PikeFin Account Confirmation';
 					$options['content'] = $data ;
 					$this->Mymail->sendEmail($options);
-					$this->Session->setFlash('Please check your email for confirmation link','default',array('class'=>'green_message'));
-					$this->redirect(array('controller'=>'users','action'=>'login'));
+					$this->Session->write('id', $this->User->id);
+					
+					//$this->Session->setFlash('Please check your email for a confirmation link','default',array('class'=>'green_message'));
+					$this->redirect(array('controller'=>'users','action'=>'received'));
 				}
-			}else{
-				$this->Session->setFlash('Password is wrong!');
 			}
 		}
 	}
 	
+	function received() {
+	
+	$id = $this->Session->read('id');
+	
+	if($id){
+			$user = array();
+			$user['User']['id'] = $id;
+			$user['User']['active'] = -1;
+			if($this->User->save($user)){
+				$msg = 'Your registration request has been submitted.
+						<BR> Please check you email and and click on the confirmation link.';
+			}else{
+				$msg = 'Sorry! Please try to submit the form again or contact the administrator at pikefin1@gmail.com';
+			}
+			$this->set(compact('msg'));
+		}else{
+			debug('here',true);
+			//$this->redirect(array('controller'=>'users','action'=>'login'));
+		}
+		
+		
+		
+		
+		
+	}
+	
 	function confirm($id = null) {
+		
+		$user1 = $this->User->find('all',array('conditions'=>array('User.id'=>$id)));
+		//debug($user1,true);
+		if($id){
+			$user = array();
+			$user['User']['id'] = $id;
+			$user['User']['active'] = -2;
+			if($this->User->save($user)){
+				$msg = 'Your email address has been successfully confirmed. 
+						<BR> The final step is for an administrator to enable the account.
+						<BR> You will receive an email informing you when the account has been enabled.';
+				
+				$data = array();
+				$data['id'] = $user1['0']['User']['id'];
+				$data['username'] = $user1['0']['User']['username'];
+				$data['email'] = $user1['0']['User']['email'];
+				
+				$options['to'] = CONFIG_ADMIN_MAIL;
+				$options['from'] = CONFIG_ADMIN_MAIL;
+				$options['contentTemplate'] = 'administration_mail';
+				$options['subject'] = 'PikeFin Administration: Account Confirmation';
+				$options['content'] = $data ;
+				$this->Mymail->sendEmail($options);
+				
+				
+			}else{
+				$msg = 'Sorry! Please try clicking on the link again or contact the administrator at pikefin1@gmail.com';
+			}
+			$this->set(compact('msg'));
+		}else{
+			$this->redirect(array('controller'=>'users','action'=>'login'));
+		}
+	}
+	
+	function finalize($id = null) {
+		$user1 = $this->User->find('all',array('conditions'=>array('User.id'=>$id)));
 		if($id){
 			$user = array();
 			$user['User']['id'] = $id;
 			$user['User']['active'] = 1;
 			if($this->User->save($user)){
-				$msg = 'Your account has been successfully activated';
+				$msg = 'User: '.$user1['0']['User']['username'].
+						'<BR>Email: '.$user1['0']['User']['email'].
+						'<BR>Account has been finalized.';
+				
+		
+				
+				
 			}else{
-				$msg = 'Sorry! try after some time.';
+				$msg = 'Finalization link failed.';
 			}
 			$this->set(compact('msg'));
 		}else{
-			$this->redirect(array('controller'=>'users','action'=>'login'));
+			$msg = 'Error with finalizing account. No $id variable passed.';
+			$this->set(compact('msg'));
 		}
 	}
 	
@@ -211,6 +324,10 @@ function registration() {
 		
 	}
 	function chartd(){
+	}
+	
+	function recover_tree() {
+		$this->Acl->recover('parent');
 	}
 	
 
