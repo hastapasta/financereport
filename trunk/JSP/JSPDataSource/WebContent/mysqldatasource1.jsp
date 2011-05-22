@@ -14,6 +14,15 @@
 /*
 * This data_source pulls from the fact_data based off of entities and a date range
 */
+String strTqx = request.getParameter("tqx");
+String strReqId=null;
+if (strTqx!=null)
+{
+	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
+	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
+}
+else
+	strReqId="0";
 
 String strEntityId = request.getParameter("entityid");
 String strMetricId = request.getParameter("metricid");
@@ -25,13 +34,21 @@ String strBeginDate = request.getParameter("begindate");
 
 if (strBeginDate==null)
 {
-	out.println("No begindate request parameter.");
+	//out.println("No begindate request parameter.");
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No begindate request parameter.","PF ERROR CODE 1-1"));
 	return;
 }
 
 if (strMetricId ==null)
 {
-	out.println("No metricid request parameter.");
+	//out.println("No metricid request parameter.");
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No metricid request parameter.","PF ERROR CODE 1-2"));
+	return;
+}
+
+if(strEntityId == null)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No entityid request parameter.","PF ERROR CODE 1-3"));
 	return;
 }
 
@@ -50,15 +67,7 @@ if (strEndDate!=null)
 	}
 }
 
-String strTqx = request.getParameter("tqx");
-String strReqId=null;
-if (strTqx!=null)
-{
-	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
-	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
-}
-else
-	strReqId="0";
+
 
 
 
@@ -140,7 +149,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),sqle.getMessage()));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 1-4"));
 	bException = true;
 }
 finally
@@ -152,7 +161,7 @@ finally
 
 if (arrayListRows.size()==0)
 {
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"zero_rows","No data was returned","No data was returned"));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"zero_rows","No data was returned","PF ERROR CODE 1-5"));
 	return;
 }
 
