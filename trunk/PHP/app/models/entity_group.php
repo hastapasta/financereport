@@ -1,6 +1,7 @@
 <?php
 class EntityGroup extends AppModel {
 	var $name = 'EntityGroup';
+	var $actsAs = array('Tree');
 	var $validate = array(
 		'name' => array(
 			'notempty' => array(
