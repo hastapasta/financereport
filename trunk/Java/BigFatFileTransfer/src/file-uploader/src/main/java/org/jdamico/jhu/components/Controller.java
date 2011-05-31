@@ -2,6 +2,7 @@ package org.jdamico.jhu.components;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -352,6 +354,93 @@ public class Controller {
 	public String getFileMapXml(String fileXml) {
 		return Helper.getInstance().getStringFromFile(fileXml);
 	}
+	
+	public void deleteFiles(String fileName)	{
+		
+	
+		/*
+		 * These next 2 lines only apply to the server however they don't cause any harm on the client
+		 * so we will execute them in all instances.
+		 */
+		File f = new File (Constants.conf.getFileDirectory() + Constants.PATH_SEPARATOR + fileName);
+		f.delete();
+
+		f = new File(Constants.conf.getFileDirectory() + Constants.PATH_SEPARATOR + fileName + ".xml");
+		f.delete();
+		
+		File dir = new File(Constants.conf.getFileDirectory());
+		File[] files = dir.listFiles(new WildCardFileFilter(".part*"));
+		
+		for (File file1 : files)
+		{
+			file1.delete();
+		}
+	}
+	
+	public boolean deleteFilesRemote(String fileName, String host, int port)	{
+		
+		String url = "http://" + host + ":" + port + "/CheckFiles?deletefilename=" + fileName;
+		
+		String strText = Helper.getInstance().getStringFromUrl(url);
+		
+		if (strText.toUpperCase().equals("SUCCESS"))
+			return true;
+		else
+			return false;
+		
+		
+		
+	}
+	
+	public long getFileSize(String file) {
+		File tmpFile = new File(file);
+		return(tmpFile.length());
+	}
+	
+	
+	
+	public long getRemoteFileSize(String fileName, String host, int port, Upload upload) throws Exception {
+		String url = "http://" + host + ":" + port + "/CheckFiles?filename=" + fileName;
+		
+		String strText = Helper.getInstance().getStringFromUrl(url);
+		
+		if (strText != null && strText.length() > 2)
+			return(Long.parseLong(strText));
+		else
+			return(0);
+		
+		/*boolean ret = false;
+
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpPost httppost = new HttpPost(url);
+		
+		MultipartEntity reqEntity = new MultipartEntity();
+		reqEntity.addPart("filename", new StringBody(fileName));
+		
+		HttpResponse response = null;
+		
+		try {
+			response = httpclient.execute(httppost);
+			
+			switch (response.getStatusLine().getStatusCode()) {
+			case HttpServletResponse.SC_OK:
+				return(response.getEntity().)
+				break;
+			default:
+				break;
+		}
+			
+		} catch (ClientProtocolException e) {
+			System.out.println("Remote host is unreachable: " + url);
+			upload.error("Remote host is unreachable: " + url);
+		} catch (IOException ioe) {
+			System.out.println("Remote host is unreachable: " + url);
+			upload.error("Remote host is unreachable: " + url);
+		}
+	    return("");*/
+		
+		
+	}
 
 	public void consolidateFileAtRemoteHost(String fileName, String host,
 			int port, Upload upload) throws UnsupportedEncodingException {
@@ -388,5 +477,20 @@ public class Controller {
 			throw new Exception("Accempled file ("
 					+ fileMap.getSourceFile().getName() + ") is corrupted!");
 		}
+	}
+	
+	class WildCardFileFilter implements FileFilter
+	{
+	    private String _pattern;
+	 
+	    public WildCardFileFilter(String pattern)
+	    {
+	        _pattern = pattern.replace("*", ".*").replace("?", ".");
+	    }
+	 
+	    public boolean accept(File file)
+	    {
+	    	return Pattern.compile(_pattern).matcher(file.getName()).find();
+	    }
 	}
 }

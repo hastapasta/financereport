@@ -17,7 +17,7 @@ public class Configuration {
 	private int chunkSize;
 	private static boolean client = false;
 	
-	public static void setClientServer(boolean client) {
+	public static void setIsClient(boolean client) {
 		Configuration.client = client;
 	}
 
@@ -26,32 +26,48 @@ public class Configuration {
 	private Configuration() {
 	}
 
-	public static synchronized Configuration getInstance(String conf) {
+	public static synchronized Configuration getInstance() {
 		if (_instance == null) {
 			_instance = new Configuration();
-			_instance.readConfiguration(conf);
+			_instance.readConfiguration();
 		}
 		return _instance;
 	}
 
-	public void readConfiguration(String conf) {
+	public void readConfiguration() {
 		System.out.println("here 1");
 		configuration = new PropertiesConfiguration();
 		System.out.println("here 2");
 		URL config = null;
 		try {
 			
+			String strConfFile = System.getProperty( "service.conffile" );
+			
 			if (Configuration.client == false)
 			{
 				System.out.println("Using serverconf.properties");
-				//config = new URL("file:./conf/serverconf.properties");
-				config = new URL("file:../conf/serverconf.properties");
+				if (strConfFile == null)
+				{
+					config = new URL("file:../conf/serverconf.properties");
+				}
+				else
+				{
+					config = new URL("file:" + strConfFile + "/serverconf.properties");
+				}
+				
+
 			}
 			else
 			{
 				System.out.println("Using clientconf.properties");
-				//config = new URL("file:./conf/clientconf.properties");
-				config = new URL("file:../conf/clientconf.properties"); 
+				if (strConfFile == null)
+				{
+					config = new URL("file:../conf/clientconf.properties");
+				}
+				else
+				{
+					config = new URL("file:" + strConfFile + "/clientconf.properties");
+				}
 			}
 		} catch (MalformedURLException e2) {
 			e2.printStackTrace();

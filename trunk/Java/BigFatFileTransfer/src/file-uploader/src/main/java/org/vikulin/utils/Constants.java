@@ -5,7 +5,7 @@ import org.vikulin.runtime.Configuration;
 
 public abstract interface Constants {
 	public static final Configuration conf = Configuration
-			.getInstance("file:../conf/conf.properties");
+			.getInstance();
 	public static final String PATH_SEPARATOR = Splitter
 			.returnPathSeparator(conf.getFileDirectory());
 }

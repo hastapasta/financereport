@@ -18,13 +18,38 @@ public class CheckFiles extends HttpServlet {
 		
 		System.out.println("In CheckFiles.java doGet()");
 		System.out.println("Request parameter " + request.getParameter("fileXml"));
-		String fileXml = Constants.conf.getFileDirectory()
-				+ Constants.PATH_SEPARATOR + request.getParameter("fileXml");
-		Controller control = new Controller();
-		String result = control.getFileMapXml(fileXml);
-		PrintWriter out = response.getWriter();
-		out.println(result);
-		out.close();
+		
+		if (request.getParameter("filename")!= null)
+		{
+			String strFile = Constants.conf.getFileDirectory()
+			+ Constants.PATH_SEPARATOR + request.getParameter("filename");
+			Controller control = new Controller();
+			//String result = control.getFileMapXml(fileXml);
+			String result = control.getFileSize(strFile) + "";
+			PrintWriter out = response.getWriter();
+			out.println(result);
+			out.close();
+		
+		}
+		else if (request.getParameter("deletefilename")!=null)
+		{
+			String strFile = request.getParameter("deletefilename");
+			Controller control = new Controller();
+			control.deleteFiles(strFile);
+			PrintWriter out = response.getWriter();
+			out.println("SUCCESS");
+			out.close();			
+		}
+		else
+		{
+			String fileXml = Constants.conf.getFileDirectory()
+					+ Constants.PATH_SEPARATOR + request.getParameter("fileXml");
+			Controller control = new Controller();
+			String result = control.getFileMapXml(fileXml);
+			PrintWriter out = response.getWriter();
+			out.println(result);
+			out.close();
+		}
 	}
 
 	protected void doPost(HttpServletRequest request,

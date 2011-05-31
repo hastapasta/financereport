@@ -5,19 +5,19 @@ import java.util.Observable;
 
 import javax.swing.JOptionPane;
 
-import org.jdamico.jhu.components.Controller;
 import org.jdamico.jhu.components.FilePartition;
 import org.vikulin.utils.Constants;
 
 // This class uploads a file from a URL.
-public class Upload extends Observable implements Runnable {
+public class ProcessEntry extends Observable implements Runnable {
 
 	// Max size of upload buffer.
 	private static final int MAX_BUFFER_SIZE = 1024;
 
 	// These are the status names.
 	public static final String STATUSES[] = { "Uploading", "Paused",
-			"Complete", "Cancelled", "Error", "Splitting", "Joining", "Calculating checksums" };
+			"Complete", "Cancelled", "Error", "Splitting", "Joining", "Calculating Initial Checksums","Waiting for Upload",
+			"Waiting for Checksum"};
 
 	// These are the status codes.
 	public static final int UPLOADING = 0;
@@ -28,36 +28,35 @@ public class Upload extends Observable implements Runnable {
 	public static final int SPLITTING = 5;
 	public static final int JOINING = 6;
 	public static final int CALCULATION_CHECKSUMS = 7;
+	public static final int WAITING_UPLOAD = 8;
+	public static final int WAITING_CHECKSUM= 9;
 	
 	public boolean resume;
 	
-	public FilePartition partitioning;
+	public String strBeforeChecksum;
+	public String strAfterChecksum;
 
+	private File fileParent;
 	private File file; // upload URL
 	private long size; // size of upload in bytes
 	// private int uploaded; // number of bytes uploaded
 	private int status; // current status of upload
-	
-	private String strBeforeChecksum;
-	private String strAfterChecksum;
 
 	private int progress;
 
-	private UploadManager uploadManager;
-	
-	public ProcessingTableModel tableModel2;
+	//private UploadManager uploadManager;
 
 	private volatile Thread thread;
 
 	// Constructor for Upload.
-	public Upload(File file, UploadManager uploadManager,boolean resume) {
+	public ProcessEntry(File file, File fileParent) {
+		
 		this.file = file;
-		this.uploadManager = uploadManager;
+		this.fileParent= fileParent;
+		//this.uploadManager = uploadManager;
 		size = -1l;
 		
-		this.resume = resume;
-		
-		tableModel2 = new ProcessingTableModel();
+		//this.resume = resume;
 
 		upload();
 	}
@@ -67,32 +66,21 @@ public class Upload extends Observable implements Runnable {
 		return file.toString();
 	}
 	
-	// Get this upload's URL.
 	public String getName() {
 		return file.getName();
+	}
+	
+	public String getParentName() {
+		return fileParent.getName();
 	}
 
 	// Get this upload's size.
 	public long getSize() {
 		return size;
 	}
-
-	// Get this upload's progress.
-	public float getProgress() {
-		return progress;// ((float) uploaded / size) * 100;
-	}
-
-	// Get this upload's status.
-	public int getStatus() {
-		return status;
-	}
-
-	// Set this upload's status.
-	public void setStatus(int status) {
-		if (this.status==ERROR) return;
-		this.status = status;
-		if (status != COMPLETE)	setProgress(0);
-		else stateChanged(); 
+	
+	public void setSize(long size) {
+		this.size = size;
 	}
 	
 	public void setBeforeChecksum(String strInput) {
@@ -112,6 +100,24 @@ public class Upload extends Observable implements Runnable {
 
 	public String getAfterChecksum() {
 		return strAfterChecksum;
+	}
+
+	// Get this upload's progress.
+	public float getProgress() {
+		return progress;// ((float) uploaded / size) * 100;
+	}
+
+	// Get this upload's status.
+	public int getStatus() {
+		return status;
+	}
+
+	// Set this upload's status.
+	public void setStatus(int status) {
+		if (this.status==ERROR) return;
+		this.status = status;
+		if (status != COMPLETE)	setProgress(0);
+		else stateChanged(); 
 	}
 
 	// Pause this upload.
@@ -144,8 +150,8 @@ public class Upload extends Observable implements Runnable {
 	public void error(String message) {
 		status = ERROR;
 		stateChanged();
-		JOptionPane.showMessageDialog(uploadManager, message, "Error",
-				JOptionPane.ERROR_MESSAGE);
+		//JOptionPane.showMessageDialog(uploadManager, message, "Error",
+				//JOptionPane.ERROR_MESSAGE);
 	}
 
 	// Start or resume uploading.
@@ -162,29 +168,7 @@ public class Upload extends Observable implements Runnable {
 
 	// Upload file.
 	public void run() {
-		/*
-		 * Set the size for this upload if it hasn't been already set.
-		 */
-		if (size == -1) {
-			size = file.length();
-			stateChanged();
-		}
-
-		partitioning = new FilePartition(this);
-		try {
-			String remote = Constants.conf.getServerHost();
-			int port = Constants.conf.getServerPort();// 9999;
-			int partSize = Constants.conf.getChunkSize();// 500000000;
-			System.out.println("Running as client [Remote Host: http://"
-					+ remote + ":" + port + " (" + file + ") (" + size + ")]");
-			if (resume == false)
-				partitioning.startNew(file, partSize, remote, port);
-			else
-				partitioning.startResume(file, partSize, remote, port);
-		} catch (Exception e) {
-			System.out.println("Unable to run client with these parameters.");
-			e.printStackTrace();
-		}
+		
 	}
 
 	// Notify observers that this upload's status has changed.
@@ -196,16 +180,6 @@ public class Upload extends Observable implements Runnable {
 	public void setProgress(int percent) {
 		this.progress = percent;
 		stateChanged();
-	}
-	
-	public void repaint() {
-		uploadManager.repaint();
-	}
-	
-	public void updateProcessEntitiesProgress()
-	{
-		uploadManager.updateProcessEntitiesProgress();
-		
 	}
 	
 

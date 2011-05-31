@@ -1,12 +1,19 @@
 package org.jdamico.jhu.runtime;
 
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,9 +22,11 @@ import java.util.Observer;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -27,12 +36,23 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeSelectionModel;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
+import org.jdamico.jhu.components.Controller;
+import org.jdamico.jhu.components.FilePartition;
 import org.vikulin.runtime.Configuration;
+import org.vikulin.utils.Constants;
+
+
 
 //The Upload Manager.
 public class UploadManager extends JFrame implements Observer {
@@ -47,10 +67,12 @@ public class UploadManager extends JFrame implements Observer {
 	private JTextField addTextField;
 
 	// Upload table's data model.
-	private UploadsTableModel tableModel;
+	private UploadsTableModel tableModel1;
+	
 
 	// Table listing uploads.
-	private JTable table;
+	private JTable table1;
+	private JTable table2;
 
 	// These are the buttons for managing the selected download.
 	private JButton pauseButton, resumeButton;
@@ -63,6 +85,8 @@ public class UploadManager extends JFrame implements Observer {
 	private boolean clearing;
 
 	private File[] selectedFiles;
+	
+	private JFrame dialogFrame;
 
 	// Constructor for Upload Manager.
 	public UploadManager() {
@@ -124,30 +148,70 @@ public class UploadManager extends JFrame implements Observer {
 		addPanel.add(addUpload);
 
 		// Set up Uploads table.
-		tableModel = new UploadsTableModel();
-		table = new JTable(tableModel);
-		table.getSelectionModel().addListSelectionListener(
+		tableModel1 = new UploadsTableModel();
+		table1 = new JTable(tableModel1);
+		table1.getSelectionModel().addListSelectionListener(
 				new ListSelectionListener() {
 					public void valueChanged(ListSelectionEvent e) {
 						tableSelectionChanged(e);
 					}
 				});
 		// Allow only one row at a time to be selected.
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
+		
 
 		// Set up ProgressBar as renderer for progress column.
-		ProgressRenderer renderer = new ProgressRenderer(0, 100);
-		renderer.setStringPainted(true); // show progress text
-		table.setDefaultRenderer(JProgressBar.class, renderer);
+		ProgressRenderer renderer1 = new ProgressRenderer(0, 100);
+		renderer1.setStringPainted(true); // show progress text
+		table1.setDefaultRenderer(JProgressBar.class, renderer1);
 
 		// Set table's row height large enough to fit JProgressBar.
-		table.setRowHeight((int) renderer.getPreferredSize().getHeight());
+		table1.setRowHeight((int) renderer1.getPreferredSize().getHeight());
+		
 
 		// Set up downloads panel.
 		JPanel downloadsPanel = new JPanel();
-		downloadsPanel.setBorder(BorderFactory.createTitledBorder("Uploads"));
+		downloadsPanel.setBorder(BorderFactory.createTitledBorder("File Transfers"));
 		downloadsPanel.setLayout(new BorderLayout());
-		downloadsPanel.add(new JScrollPane(table), BorderLayout.CENTER);
+		downloadsPanel.add(new JScrollPane(table1), BorderLayout.CENTER);
+		
+		/*
+		 * 
+		 * Add processing table.
+		 */
+		
+		ProcessingTableModel tableModel2 = new ProcessingTableModel();
+		table2 = new JTable(tableModel2);
+		/*table2.getSelectionModel().addListSelectionListener(
+				new ListSelectionListener() {
+					public void valueChanged(ListSelectionEvent e) {
+						tableSelectionChanged(e);
+					}
+				});*/
+		// Allow only one row at a time to be selected.
+		//table2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		// Set up ProgressBar as renderer for progress column.
+		ProgressRenderer renderer2 = new ProgressRenderer(0, 100);
+		renderer2.setStringPainted(true); // show progress text
+		table2.setDefaultRenderer(JProgressBar.class, renderer2);
+
+		// Set table's row height large enough to fit JProgressBar.
+		table2.setRowHeight((int) renderer2.getPreferredSize().getHeight());
+		
+		JPanel processingPanel = new JPanel();
+		processingPanel.setBorder(BorderFactory.createTitledBorder("Processing Files"));
+		processingPanel.setLayout(new BorderLayout());
+		processingPanel.add(new JScrollPane(table2), BorderLayout.CENTER);
+		
+		
+	
+		
+		/*
+		 * End processing table.
+		 */
+
 
 		// Set up buttons panel.
 		JPanel buttonsPanel = new JPanel();
@@ -185,12 +249,21 @@ public class UploadManager extends JFrame implements Observer {
 		buttonsPanel.add(clearButton);
 
 		// Add panels to display.
-		getContentPane().setLayout(new BorderLayout());
-		getContentPane().add(addPanel, BorderLayout.NORTH);
+		//getContentPane().setLayout(new BorderLayout());
+		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
+
+		/*getContentPane().add(addPanel, BorderLayout.NORTH);
 		getContentPane().add(downloadsPanel, BorderLayout.CENTER);
-		getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
+		getContentPane().add(treePanel, BorderLayout.CENTER);
+		getContentPane().add(buttonsPanel, BorderLayout.SOUTH);*/
+		
+		getContentPane().add(addPanel);
+		getContentPane().add(downloadsPanel);
+		getContentPane().add(processingPanel);
+		getContentPane().add(buttonsPanel);
 
 	}
+	
 
 	// Exit this program.
 	private void actionExit() {
@@ -200,13 +273,54 @@ public class UploadManager extends JFrame implements Observer {
 	// Add a new upload.
 	private void actionAddUpload() {
 		File file = verifyUri(addTextField.getText());
-		if (file != null) {
-			tableModel.addUpload(new Upload(file, this));
-			addTextField.setText(""); // reset add text field
-		} else {
-			JOptionPane.showMessageDialog(this, "Invalid the File URL",
-					"Error", JOptionPane.ERROR_MESSAGE);
+		
+		String strControlFile = Constants.conf.getFileDirectory() + Constants.PATH_SEPARATOR + 
+			file.getName() + ".xml";
+		
+		if (new File(strControlFile).exists())
+		{
+			dialogFrame = new JFrame("Show Message Dialog");
+			
+			JButton newButton = new JButton("New");
+			newButton.addActionListener(new newUploadAction());
+			
+			JButton resumeButton = new JButton("Resume");
+			resumeButton.addActionListener(new resumeUploadAction());
+			
+			String text = "A previous control file exists for this file.\n";
+			text += "Would you like to initiate a new transfer or resume the previous one?";
+			
+			JLabel testLabel = new JLabel(text);
+			
+			Container content = dialogFrame.getContentPane();
+
+			content.setBackground(Color.white);
+			content.setLayout(new FlowLayout()); 
+		
+			content.add(testLabel);
+			content.add(newButton);
+			content.add(resumeButton);
+			
+			dialogFrame.setSize(200,200);
+			dialogFrame.setVisible(true);
+			dialogFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 		}
+		else
+		{	
+			if (file != null) {
+				tableModel1.addUpload(new Upload(file, this, false));
+
+				addTextField.setText(""); // reset add text field
+			} 
+		
+			
+			
+		}
+			
+
+		
+		
 	}
 	
 	// Add a new upload.
@@ -221,7 +335,7 @@ public class UploadManager extends JFrame implements Observer {
 					actionAddMultipleUpload(fileToUpload.listFiles(), true);
 				} else {
 					if (fileToUpload.isFile())
-						tableModel.addUpload(new Upload(fileToUpload, this));
+						tableModel1.addUpload(new Upload(fileToUpload, this, false));
 				}
 			}
 		else
@@ -285,11 +399,12 @@ public class UploadManager extends JFrame implements Observer {
 		 * and register to receive notifications from it.
 		 */
 		if (!clearing) {
-			selectedUpload = tableModel.getUpload(/* table.getSelectedRow() */e
-					.getLastIndex());
+			selectedUpload = tableModel1.getUpload(table1.getSelectedRow());
 			selectedUpload.addObserver(UploadManager.this);
 			updateButtons();
 		}
+		
+		table2.setModel(selectedUpload.tableModel2);
 	}
 
 	// Pause the selected upload.
@@ -313,11 +428,13 @@ public class UploadManager extends JFrame implements Observer {
 	// Clear the selected upload.
 	private void actionClear() {
 		clearing = true;
-		tableModel.clearUpload(table.getSelectedRow());
+		tableModel1.clearUpload(table1.getSelectedRow());
 		clearing = false;
 		selectedUpload = null;
 		updateButtons();
 	}
+	
+
 
 	/*
 	 * Update each button's state based off of the currently selected upload's
@@ -383,9 +500,96 @@ public class UploadManager extends JFrame implements Observer {
 
 	// Run the Upload Manager.
 	public static void main(String[] args) {
-		Configuration.setClientServer(true);
+		Configuration.setIsClient(true); 
 		UploadManager manager = new UploadManager();
 		manager.setVisible(true);
+		
+		
+		/*Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+		    public void eventDispatched(AWTEvent event) {
+		    	
+		    	//Filter out certain events
+		    
+		    	if (!event.toString().contains("MOUSE_MOVED") &&
+		    		!event.toString().contains("MOUSE_ENTERED") &&
+		    		!event.toString().contains("MOUSE_EXITED") &&
+		    		!event.toString().contains("ANCESTOR_MOVED"))
+		    		System.out.println("Event:" + event);
+		    	
+		    	
+
+		    }
+		}, -1);*/
+		
+
+
 	}
+	
+	public void updateProcessEntitiesProgress()
+	{
+	
+		Controller control = new Controller();
+		
+		
+		
+		for (int i=0;i<tableModel1.getRowCount();i++)
+		{
+			if (tableModel1.getUpload(i).getStatus() == Upload.UPLOADING)
+			{
+				for (int j=0;j<tableModel1.getUpload(i).tableModel2.getRowCount();j++)
+				{
+					ProcessEntry pe = tableModel1.getUpload(i).tableModel2.getProcessEntry(j);
+					
+					try
+					{
+						long lCurSize = control.getRemoteFileSize(pe.getName(),Constants.conf.getServerHost(),Constants.conf.getServerPort(),tableModel1.getUpload(i));
+						pe.setProgress((int) ((lCurSize / pe.getSize()) * 100));
+					}
+					catch (Exception e)
+					{
+						//not going to do anything here
+					}
+					
+					
+				}
+				
+				
+			}
+			
+			
+		}
+	}
+	
+	class newUploadAction implements ActionListener{
+		
+		   public void actionPerformed(ActionEvent e){
+		   //JOptionPane.showMessageDialog(dialogFrame,"New Upload");
+			   dialogFrame.setVisible(false); //you can't see me!
+			   dialogFrame.dispose(); 
+			   
+		   File file = verifyUri(addTextField.getText());
+		   
+		   	tableModel1.addUpload(new Upload(file, UploadManager.this, false));
+			addTextField.setText(""); // reset add text field
+		   }
+	}
+	
+	class resumeUploadAction implements ActionListener{
+		   public void actionPerformed(ActionEvent e){
+		   //JOptionPane.showMessageDialog(dialogFrame,"Resume Upload");
+			   dialogFrame.setVisible(false); //you can't see me!
+			   dialogFrame.dispose(); 
+			   
+		   File file = verifyUri(addTextField.getText());
+		   	tableModel1.addUpload(new Upload(file, UploadManager.this, true));
+			addTextField.setText(""); // reset add text field
+		   }
+		   }
+	
+	
+
 
 }
+
+ 
+	 

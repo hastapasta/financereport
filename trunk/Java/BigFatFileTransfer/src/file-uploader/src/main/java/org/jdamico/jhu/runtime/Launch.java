@@ -8,7 +8,7 @@ import org.vikulin.utils.Constants;
 
 public class Launch {
 	public static void main(String[] args) {
-		Configuration.setClientServer(false);
+		Configuration.setIsClient(false); 
 		System.out.println("here");
 		long heapSize = Runtime.getRuntime().totalMemory();
 		long heapMaxSize = Runtime.getRuntime().maxMemory();
