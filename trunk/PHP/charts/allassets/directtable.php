@@ -6,9 +6,21 @@ db_utility::db_connect();
 
 $entitygroupid = $_GET['entitygroupid'];
 
+$timeframe="hour";
+if (isset($_GET['timeframe']))
+	$timeframe = strtolower($_GET['timeframe']);
+	
+$order = "ASC";
+if (isset($_GET['order']))
+	$order = $_GET['order'];
+
 $title="";
 if (isset($_GET['title']))
 	$title=urldecode($_GET['title']);
+	
+$metricid="1";
+if (isset($_GET['metricid']))
+	$metricid=$_GET['metricid'];
 
 
 
@@ -26,6 +38,12 @@ if (isset($_GET['title']))
 <?php IncFunc::googleGadget(); ?>
 
 <script type="text/javascript">
+
+	$(document).ready(function(){
+	   // Your code here
+		$("#timeframe").val(<?php echo "'".$timeframe."'"?>);
+		
+	 });
     google.load('visualization', '1', {'packages' : ['table']});
     google.setOnLoadCallback(function() { sendAndDraw('') });
     var firstpass = true;
@@ -59,7 +77,7 @@ if (isset($_GET['title']))
       //var users = document.getElementById('users');
       //var tasks = document.getElementById('tasks');
       // var timeeventid = document.getElementById('timeeventid');
-      var timeframe = document.getElementById('timeframe');
+      var timeframe = document.getElementById('timeframe').value;
       //var userid= users.value;
       var taskid='1';
       var queryString1;
@@ -70,8 +88,10 @@ if (isset($_GET['title']))
       if (firstpass==true)
       {
           //taskid='0';
+          <?php if (!empty($timeframe)) echo "var timeframe='".$timeframe."';";?>
           firstpass=false;
       }
+      
       
       var options = {};
       options['height'] = 600;
@@ -83,14 +103,14 @@ if (isset($_GET['title']))
 
      	 //queryString1 = '?userid='+userid+'&taskid='+tasks.value+'&timeeventid='+timeeventid.value;
      	<?php 
-     	echo "queryString1 = '?entitygroupid=".$entitygroupid."&timeframe='+timeframe.value + '&metricid=1&order=ASC';\n";
+     	echo "queryString1 = '?order=".$order."&entitygroupid=".$entitygroupid."&timeframe='+timeframe + '&metricid=".$metricid."&order=ASC';\n";
 
      //	echo "queryString2 = '?taskid=".$taskid."&timeframe='+timeframe.value + '&order=DESC';\n";
      	
      	?>
     	 
 
- 
+     	if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString1)}
 
       
       var container1 = document.getElementById('table1');
