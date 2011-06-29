@@ -30,12 +30,13 @@ if (isset($_GET['title']))
 	$title=urldecode($_GET['title']);
 	
 
-	
+$entityid = str_replace(' ',',',$entityid);
+
 
 	
-$sql = "select * from entities where id=".$entityid;
+$sql = "select * from entities where id in (".$entityid.")";
 $result = mysql_query($sql);
-$row = mysql_fetch_array($result);
+//$row = mysql_fetch_array($result);
 	
 
 
@@ -141,33 +142,47 @@ if (isset($_GET['group']))
 
          	options.scaleType='allmaximixed';
          	options.scaleType='maximized';
+         	options.wmode='opaque';
+         	options.thickness=2;
          	
             
 
 
 
 
-        	//var queryPath = '<?php echo IncFunc::$JSP_ROOT_PATH;?>mysqldatasource1.jsp?begindate=2011-01-01&metricid=1';
-        	var queryPath = '<?php echo IncFunc::$JSP_ROOT_PATH;?>mysqldatasource15.jsp?begindate=2011-01-01&alertid=0&metricid=1';
-
+        	
+        	
+        	/*
+        	* metric id of zero means use the default.
+        	*/
+        	var queryPath = '<?php echo IncFunc::$JSP_ROOT_PATH;?>mysqldatasource15multiple.jsp?begindate=2011-01-01&alertid=0&metricid=0';
+        	title = document.getElementById('chart-title');
 			if(id != undefined){
 				queryPath += '&entityid=' + escape(id); 
+
+		
+				title.innerHTML = ticker + " - " + fullname;
 				//options.title = ticker + " - " + fullname;
 
-				//alert(ticker);
+				
 			}
 			else
 			{
 				queryPath += <?php echo "'&entityid=".$entityid."';"; ?>
-				<?php //echo "options.title='".$row['ticker']." - ".$row['full_name']."';"; ?>
+				
+				
+				<?php 
+					while ($row = mysql_fetch_array($result)) {
+						echo "title.innerHTML+='".$row['ticker']." - ".$row['full_name']."<BR>';";
+					}
+
+					
+				?>
 			}
 
 			var chart = document.getElementById('chart-div');
             chart.innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
 			
-            //alert(queryPath);
-
- 
             
             var container1 = document.getElementById('chart-div');
             //var container2 = document.getElementById('orgchart2');
@@ -175,8 +190,10 @@ if (isset($_GET['group']))
             
             var lineChart1 = new google.visualization.AnnotatedTimeLine(container1);
             //var tableChart2 = new google.visualization.Table(container2);
-           
+            
+         
             if (window.console && window.console.firebug) {console.log(queryPath)}
+
             
             query1 && query1.abort();
             query1 = new google.visualization.Query(queryPath);
@@ -208,11 +225,13 @@ if (isset($_GET['group']))
     Enter entity name (stock ticker, equity index, currency cross, etc):
     <BR>
   	<input type='text' id='a_c' style='z-index:3' /><br/>
+  	<BR>
   
-  
-	<!-- <div style="font-size:30;margin: 10px 0 0 0;" id="chart-title"></div> -->
+	<div style="font-size:30;margin: 10px 0 0 0;" id="chart-title"></div>
 	</div>
-	<BR>
+	
+	
+
 	
 	<div style="font-size:20" id="chart-description"></div>
     <div id="chart-div" style="margin: 30px 0 20px 0;width:800px;height:600px"></div>
