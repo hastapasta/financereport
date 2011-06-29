@@ -37,8 +37,11 @@ db_utility::db_connect();
     var firstpass = true;
 
     <?php 
-            echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2eh2.jsp';";
-            ?>
+    //added cache buster url parameter for ie.
+    
+            echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2eh2.jsp?randNum=' + new Date().getTime();";
+            
+     ?>
         // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
            
 
@@ -46,6 +49,7 @@ db_utility::db_connect();
     var query1;
     var query2;
     var query3;
+    var query4;
  
 
 
@@ -63,6 +67,9 @@ db_utility::db_connect();
 
       var chart3 = document.getElementById('table3');
       chart3.innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
+
+      var chart4 = document.getElementById('table4');
+      chart4.innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
       
   	  
      
@@ -94,11 +101,13 @@ db_utility::db_connect();
 
      	 //queryString1 = '?userid='+userid+'&taskid='+tasks.value+'&timeeventid='+timeeventid.value;
      	<?php 
-     	echo "queryString1 = '?entitygroupid=3&metricid=1&timeframe='+timeframe.value + '&order=DESC';\n";
+     	echo "queryString1 = '&entitygroupid=3&metricid=1&timeframe='+timeframe.value + '&order=DESC';\n";
 
-     	echo "queryString2 = '?entitygroupid=5&metricid=1&timeframe='+timeframe.value + '&order=DESC';\n";
+     	echo "queryString2 = '&entitygroupid=5&metricid=1&timeframe='+timeframe.value + '&order=DESC';\n";
      	
-     	echo "queryString3 = '?entitygroupid=4&metricid=1&timeframe='+timeframe.value + '&order=DESC';\n";
+     	echo "queryString3 = '&entitygroupid=4&metricid=11&timeframe='+timeframe.value + '&order=DESC';\n";
+     	
+     	echo "queryString4 = '&entitygroupid=1008&metricid=11&timeframe='+timeframe.value + '&order=DESC';\n";
      	
      	?>
     	 
@@ -114,31 +123,39 @@ db_utility::db_connect();
       var container1 = document.getElementById('table1');
       var container2 = document.getElementById('table2');
       var container3 = document.getElementById('table3');
+      var container4 = document.getElementById('table4');
      
       
       var tableChart1 = new google.visualization.Table(container1);
       var tableChart2 = new google.visualization.Table(container2);
       var tableChart3 = new google.visualization.Table(container3);
+      var tableChart4 = new google.visualization.Table(container4);
 
       google.visualization.events.addListener(tableChart1, 'select', function(event){
 			var row = tableChart1.getSelection();
-			alert( "you selected row " + row[0].row + " of first table");
+			alert( "you selected row " + row[0].row + " of second table");
        });
 		
       google.visualization.events.addListener(tableChart2, 'select', function(event){
 	  		var row = tableChart2.getSelection();
-			alert( "you selected row " + row[0].row + " of second table");
+			alert( "you selected row " + row[0].row + " of third table");
    	   });
       google.visualization.events.addListener(tableChart3, 'select', function(event){
 	  		var row = tableChart3.getSelection();
-			alert( "you selected row " + row[0].row + " of third table");
+			alert( "you selected row " + row[0].row + " of fourth table");
    	  });
+
+      google.visualization.events.addListener(tableChart4, 'select', function(event){
+	  		var row = tableChart4.getSelection();
+			alert( "you selected row " + row[0].row + " of 1st table");
+ 	  });
 
 	  //alert(dataSourceUrl + queryString3);   	  
 	  
 	  if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString1)}
       if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString2)}
       if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString3)}
+      if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString4)}
       
       query1 && query1.abort();
       query1 = new google.visualization.Query(dataSourceUrl + queryString1);
@@ -157,6 +174,12 @@ db_utility::db_connect();
       query3.setTimeout(120);
       var queryWrapper3 = new QueryWrapper(query3, tableChart3, options, container3);
       queryWrapper3.sendAndDraw();
+
+      query4 && query4.abort();
+      query4 = new google.visualization.Query(dataSourceUrl + queryString4);
+      query4.setTimeout(120);
+      var queryWrapper4 = new QueryWrapper(query4, tableChart4, options, container4);
+      queryWrapper4.sendAndDraw();
     }
 
   </script>
@@ -198,6 +221,8 @@ Time Frame: <BR>
 <br />
 </div><!-- pf-form -->
 
+
+
 <div id="tmp1" style="float: left;margin-bottom: 20px">
 
 <!-- Included for Dialog -->
@@ -224,6 +249,13 @@ Time Frame: <BR>
 <div id="tmp3A" style="font-size: small">Commodity Futures Gainers/Losers:</div>
 <div id="table3" style="color: #000;"> </div>
 </div>
+
+<div id="tmp4" style="float: left;clear: left;margin-bottom: 20px">
+<div id="tmp4A" style="font-size: small">Equity Futures Gainers/Losers:</div>
+<div id="table4" style="color: #000;"> </div>
+</div>
+
+
 
 
 </div> <!--  font-black -->
