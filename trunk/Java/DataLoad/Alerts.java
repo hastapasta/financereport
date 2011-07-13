@@ -280,106 +280,22 @@ public class Alerts {
 				 // int nNotifyKey = Integer.parseInt(hmAlert.get("alerts.id"));//rsAlert.getInt("id");
 				  int nNotificationCount = Integer.parseInt(hmAlert.get("alerts.notification_count"));//rsAlert.getInt("alert_count");
 				  
-				  //try to find the fact key in fact_data
-				  /*String query2 = "select * from fact_data where id=" + nFactKey;
-				  ResultSet rsPrevFactData = dg.dbf.db_run_query(query2);*/
-				  
-				  //String query3;
-				  //query3 = "select * from fact_data where task_id=" + nCurTask + " and entity_id='" + nEntityId + "' and batch=" + nMaxBatch;
-				  /*if (!(strTicker==null) && !(strTicker.isEmpty()))
-					  query3 = "select * from fact_data where task_id=" + nCurTask + " and entity_id='" + nEntityId + "' and batch=" + nMaxBatch;
-					//  "(select max(batch) from fact_data where task=" + nCurTask + " and ticker='" + strTicker + "')";
-				  else
-					  query3 = "select * from fact_data where task_id=" + nCurTask + " and batch=" + nMaxBatch;*/
-					//  "(select max(batch) from fact_data where task=" + nCurTask + ")";
-				  
-				  //ResultSet rsCurFactData1 = dg.dbf.db_run_query(query3);
-				  
-				  //HashMap<String,HashMap<String,String>> hmCurFactData = UtilityFunctions.convertResultSetToHashMap(rsCurFactData1,nEntityId+"");
-				
-			
-					  //if (strFrequency.equals("HOURLY"))
-					  //{
-					  
-					  /*Calendar startthis = Calendar.getInstance();
-					  SimpleDateFormat inputFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-					  startthis.setTime(inputFormat.parse(temp)); */
-					  
-					
-					 
-					  //Calendar calOrigRun = Calendar.getInstance();
-					  //Another variable since calOrigRun is modified
-					  //Calendar calOrigRunSaved = Calendar.getInstance();
-					  //calOrigRun.setTime(inputFormat.parse(hmAlert.get("fact_data.date_collected")));
-					  //calOrigRunSaved.setTime(inputFormat.parse(hmAlert.get("fact_data.date_collected")));
-				
-						  
-					
-					
-						  
-						
-						//get the date
-						  /*
-						   * resultSet.getDate() drops the time value
-						   */
-						 //calLastRun.setTime(rsPrevFactData.getDate("date_collected"));
-						  //calLastRun.setTime(rsPrevFactData.getTimestamp("date_collected"));
-						  /*OFP 2/27/2011
-						   * if (strFrequency.equals("HOURLY"))
-						  {
-							  calOrigRun.add(Calendar.HOUR,1);
-						  }
-						  else if (strFrequency.equals("YEARLY"))
-						  {
-							  calOrigRun.add(Calendar.YEAR, 1);
-						  }
-						  else if (strFrequency.equals("WEEKLY"))
-						  {
-							  calOrigRun.add(Calendar.WEEK_OF_YEAR,1);
-						  }
-						  else if (strFrequency.equals("MONTHLY"))
-						  {
-							  calOrigRun.add(Calendar.MONTH,1);
-						  }
-						  else if (strFrequency.equals("DAILY"))
-						  {
-							  calOrigRun.add(Calendar.DAY_OF_YEAR,1);
-						  }
-						  else if (strFrequency.equals("MINUTE"))
-						  {
-							  calOrigRun.add(Calendar.MINUTE,1);
-						  }
-						  else if (strFrequency.equals("ALLTIME"))
-						  {
-							  //don't add any time
-						  }
-						  else
-						  {
-							  UtilityFunctions.stdoutwriter.writeln("alerts frequency not found, skipping alert processing for alert id " + nAlertId,Logs.WARN,"A2.735");
-							  continue;
-						  }*/
-						  
-						
-						  
-						  //if (calJustCollected.after(calLastRun))
-						  //{
-						  
-						  //Check if limit is exceeded, if so then send alert.
-							  //if (!rsCurFactData.next())
-						  	/*if (hmCurFactData.get(nEntityId+"") == null)
-		                      {
-		                          UtilityFunctions.stdoutwriter.writeln("Attempting to check for an alert but did not find fact_data entry for entity id: " + nEntityId + " and batch: " + nMaxBatch,Logs.WARN,"A2.7358");
-		                          UtilityFunctions.stdoutwriter.writeln("Problem occured processing alert id: " + nAlertId,Logs.WARN,"A2.7358");
-		                          continue;
-		                      }*/
+	
 						  	
 						  	String strUpdateQuery = "update alerts set current_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + " where alerts.id=" + nAlertId;
 						  	dg.dbf.db_update_query(strUpdateQuery);
 						  	
 							  
 						  	//BigDecimal dJustCollectedValue = rsCurFactData.getBigDecimal("value");
-							  BigDecimal dJustCollectedValue = new BigDecimal(hmCurFactData.get(nEntityId+"").get("fact_data.value"));		  
-							  //BigDecimal dLastRunValue = rsPrevFactData.getBigDecimal("value");
+							  BigDecimal dJustCollectedValue = new BigDecimal(hmCurFactData.get(nEntityId+"").get("fact_data.value"));
+							  
+							  //Not sure of the scale
+							  if (dJustCollectedValue.equals(new BigDecimal("0.000")) || dJustCollectedValue.equals(new BigDecimal("0.00")))
+							  {
+								  UtilityFunctions.stdoutwriter.writeln("Zero was the last value collected. Probably a bad print. Skipping ticker " + strTicker,Logs.WARN,"A2.7385");
+								  continue;
+							  }
+						
 							  BigDecimal dInitialFactDataValue = new BigDecimal(hmAlert.get("fact_data.value"));
 							  			  
 							  BigDecimal dChange;
@@ -514,7 +430,20 @@ public class Alerts {
 									  
 										  strTweet += " " + UtilityFunctions.shortenURL(strUrl);
 										  
-										  strTweet += " #" + strTicker.replace(" ","").replace("(","").replace(")","").replace(".", "").replace("-", "");								  
+										  String strTmp = strTicker.replace(" ","").replace("(","").replace(")","").replace(".", "").replace("-", "").replace("#", "");
+										  
+										  /*
+										   * Figure out if this alert represents an actual stock ticker. If so, then use the $ tag; otherwise use the # tag.
+										   */
+										  
+										  String tmpQuery = "select * from entities_entity_groups where entity_id=" + hmAlert.get("entities.id") + " AND entity_group_id=1";
+										  
+										  ResultSet rs10 = dg.dbf.db_run_query(tmpQuery);
+										  
+										  if (rs10.next())
+											  strTweet += " $" + tmpQuery;
+										  else
+											  strTweet += " #" + tmpQuery;
 										  
 										  UtilityFunctions.tweet(strTweet);
 									  }
