@@ -13,6 +13,7 @@
 import java.net.*;
 import java.io.*; 
 import java.sql.*;
+import java.util.Calendar;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -50,8 +51,12 @@ class DataLoad extends Thread //implements Stopable
   static Properties props;
   static boolean bDisableEmails;
   static boolean bLoadingHistoricalData=false;
-  //Hashtable<String,Hashtable<String,String>> hashScheduleTable;
-  ArrayList<String> listWaitingJobs;
+
+  /*
+   * listWaitingJobs now holds  tasks.id,schedules.id and repeat_types.id
+   */
+  ArrayList<String[]> listWaitingJobs;
+  
   DataGrab[] arrayRunningJobs;
   public static DBFunctions dbf;
   GarbCollector gc;
@@ -155,14 +160,19 @@ class DataLoad extends Thread //implements Stopable
 					for (int i=0;i<listWaitingJobs.size();i++)
 					{
 						//if (listWaitingJobs.get(i).equals(rs2.getString("data_set")))
-						if (listWaitingJobs.get(i).equals(rs2.getString("task_id")))
+						if (listWaitingJobs.get(i)[0].equals(rs2.getString("task_id")))
 							bInQ=true;
 										
 					}
 					
 					if (!bInQ)
-						//listWaitingJobs.add(rs2.getString("data_set"));
-						listWaitingJobs.add(rs2.getString("task_id"));
+					{
+						String[] tmp = new String[3];
+						tmp[0] = rs2.getString("task_id");
+						tmp[1] = rs2.getString("id");
+						tmp[2] = rs2.getString("repeat_type_id");
+						listWaitingJobs.add(tmp);
+					}
 				
 					//turn off run once after job is in queue, 4 is the primary key for run type 'NONE'
 					if (rs.getString("type").equals("RUNONCE"))
@@ -207,6 +217,8 @@ class DataLoad extends Thread //implements Stopable
 	  
 	  String query;
 	  query = "delete from job_queue";
+	  DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	  
 	  try
 	  {
 		  dbf.db_update_query(query);
@@ -215,8 +227,10 @@ class DataLoad extends Thread //implements Stopable
 		  {
 			  if (arrayRunningJobs[i] != null)
 			  {
-				  query = "insert into job_queue (task_id,status) values (" + arrayRunningJobs[i].nCurTask + ",'" +
-				  arrayRunningJobs[i].getState().toString() + "')";
+				  query = "insert into job_queue (task_id,status,start_time) values (";
+				  query += arrayRunningJobs[i].nCurTask + ",'";
+				  query += arrayRunningJobs[i].getState().toString() + "','";
+				  query += formatter.format(arrayRunningJobs[i].calJobProcessingStart.getTime()) + "')";
 				  dbf.db_update_query(query);
 				  UtilityFunctions.stdoutwriter.writeln("Status of thread " + arrayRunningJobs[i].getName() + ": " + 
 						  arrayRunningJobs[i].getState().toString(),Logs.THREAD,"DL2");
@@ -224,7 +238,7 @@ class DataLoad extends Thread //implements Stopable
 		  }
 		  for (int k=0;k<listWaitingJobs.size();k++)
 		  {
-			  query = "insert into job_queue (task_id,status) values (" + listWaitingJobs.get(k) + ",'QUEUED')";
+			  query = "insert into job_queue (task_id,status) values (" + listWaitingJobs.get(k)[0] + ",'QUEUED')";
 			  dbf.db_update_query(query);
 		  }
 		  
@@ -259,14 +273,14 @@ class DataLoad extends Thread //implements Stopable
 		  for (int i=0;i<listWaitingJobs.size();i++)
 		  {
 			  bAlreadyRunning = false;
-			  strTask = listWaitingJobs.get(i);
+			  strTask = listWaitingJobs.get(i)[0];
 			  for (int j=0;j<arrayRunningJobs.length;j++)
 			  {
 				  if (arrayRunningJobs[j] != null)
 				  {
-					  if (arrayRunningJobs[j].nCurTask == Integer.parseInt(listWaitingJobs.get(i)))
+					  if (arrayRunningJobs[j].nCurTask == Integer.parseInt(listWaitingJobs.get(i)[0]))
 					  {
-						  UtilityFunctions.stdoutwriter.writeln("Job in waiting queue already running so won't get moved to run queue (task id: " + arrayRunningJobs[j].nCurTask, Logs.STATUS1, "DL3.99");
+						  UtilityFunctions.stdoutwriter.writeln("Task in waiting queue already running so won't get moved to run queue (task id: " + arrayRunningJobs[j].nCurTask, Logs.STATUS1, "DL3.99");
 						  bAlreadyRunning=true;
 						  break;
 					  }
@@ -283,7 +297,7 @@ class DataLoad extends Thread //implements Stopable
 				  * of the one just checked (index i).
 				  */
 				  //strTask = listWaitingJobs.get(0);
-				  strTask = listWaitingJobs.get(i);
+				  strTask = listWaitingJobs.get(i)[0];
 				  DBFunctions tmpdbf = new DBFunctions((String)props.get("dbhost"),(String)props.get("dbport"),(String)props.get("database"),(String)props.get("dbuser"),(String)props.get("dbpass"));
 				  
 				  /*
@@ -291,7 +305,7 @@ class DataLoad extends Thread //implements Stopable
 				   * dbf.getBatchNumber(). Now the batch number is maintained in the parent thread to avoid duplication.
 				   * 
 				   */
-				  dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,this.nMaxBatch);
+				  dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,this.nMaxBatch,listWaitingJobs.get(i)[1],listWaitingJobs.get(i)[2]);
 				  
 				  this.nMaxBatch++;
 				  /*
@@ -387,13 +401,14 @@ class DataLoad extends Thread //implements Stopable
 		 
 		  
 		  DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		  //String strDate = formatter.format(endCal.getTime());
 		  
-		  //strDate = formatter.format(dg.getStartTime().getTime());
+
 		  
-		  String query = "insert into log_tasks (task_id,batch,job_process_start,job_process_end,alert_process_start,alert_process_end) values ("
+		  String query = "insert into log_tasks (task_id,batch,repeat_type_id,schedule_id,job_process_start,job_process_end,alert_process_start,alert_process_end) values ("
 	      + dg.nCurTask + ","
-	      + dg.nTaskBatch + ",'"
+	      + dg.nTaskBatch + ","
+	      + dg.strRepeatTypeId + ","
+	      + dg.strScheduleId + ",'"
 		  + formatter.format(dg.getJobProcessingStartTime().getTime()) + "','" 
 		  + formatter.format(dg.getJobProcessingEndTime().getTime()) + "','"
 		  + formatter.format(dg.getAlertProcessingStartTime().getTime()) + "','"
@@ -404,64 +419,10 @@ class DataLoad extends Thread //implements Stopable
 		  dbf.db_update_query(query);
 	  }
 	  
-	  /*
-	   * All this code is now obsolete since we are saving detailed entries and run counts and averages can
-	   * be calculated from these entries.
-	   */
-		  //query = "select * from job_stats where data_set='" + strDataSet + "'";
-		 /* query = "select * from job_stats where task_id=" + strTask;
-		  
-		  ResultSet rs = dbf.db_run_query(query);
-		  
-		  Long lStart = startCal.getTimeInMillis();
-		  Long lEnd = endCal.getTimeInMillis();
-		  Long lDiff = lEnd - lStart;
-		  Calendar cal = Calendar.getInstance();
-		  Calendar cal2 = Calendar.getInstance();
-		  cal.setTimeInMillis(lDiff);
-		  
-		  if (rs.next())
-		  {
-			  Integer nRunCount = rs.getInt("run_count");
-			  
-			  
-			  //Long lAvg = cal.getTimeInMillis();
-			  Long lAvg = rs.getLong("avg_run_duration");
-			  
-			  lAvg = ((nRunCount * lAvg) + lDiff)/(nRunCount + 1);
-			  
-			  nRunCount++;
-			  
-			  
-			  cal2.setTimeInMillis(lAvg);
-			  
-			  query = "update job_stats " + 
-			  "set run_count=" + nRunCount + 
-			  ",last_run_duration=" +  lDiff.toString() + 
-			  ",avg_run_duration=" + lAvg.toString() + 
-			  ",last_run_dur_converted='" + UtilityFunctions.getElapsedTimeHoursMinutesSecondsString(lDiff) + "'" +
-			  ",avg_run_dur_converted='" + UtilityFunctions.getElapsedTimeHoursMinutesSecondsString(lAvg) + "'" +
-			  " where task_id=" + strTask;
-			  dbf.db_update_query(query);
-		  }
-		  else
-		  //data_set doesn't exist in job_stats, need to insert it.
-		  {
-			 
-			  query = "insert into job_stats (task_id,run_count,avg_run_duration,last_run_duration,avg_run_dur_converted,last_run_dur_converted) VALUES (" +
-			  strTask + ",1," +
-			  lDiff.toString() + "," +
-			  lDiff.toString() + ",'" +
-			  UtilityFunctions.getElapsedTimeHoursMinutesSecondsString(lDiff) + "','" +
-			  UtilityFunctions.getElapsedTimeHoursMinutesSecondsString(lDiff) + "')";
 
-			  dbf.db_update_query(query);
-		  }
-	
-	  }*/
 	  catch (CustomGenericException cge)
 	  {
-		  UtilityFunctions.stdoutwriter.writeln("Problem retrieving start or end time",Logs.ERROR,"DL2.5");
+		  UtilityFunctions.stdoutwriter.writeln("Problem retrieving start or end time",Logs.ERROR,"DL2.57");
 		  UtilityFunctions.stdoutwriter.writeln(cge);
 	  }
 	  catch (SQLException sqle)
@@ -740,7 +701,7 @@ class DataLoad extends Thread //implements Stopable
 	}
 
   	arrayRunningJobs = new DataGrab[nMaxThreads];
-  	listWaitingJobs = new ArrayList<String>();
+  	listWaitingJobs = new ArrayList<String[]>();
   	for (int i=0;i<nMaxThreads;i++)
   		arrayRunningJobs[i] = null;
 
