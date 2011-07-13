@@ -34,6 +34,8 @@ String returned_content;
 String strCurDataSet;
 String strCurTask="";
 int nCurTask;
+String strScheduleId;
+String strRepeatTypeId;
 ArrayList<String> jobsArray;
 
 /* Need to make this a constant*/
@@ -64,13 +66,15 @@ String strCurrentTicker;
 DBFunctions dbf;
 
 
-  public DataGrab(UtilityFunctions tmpUF, DBFunctions dbfparam, String strTask/*Primary key of task but as a string.*/,int nBatchParam)
+  public DataGrab(UtilityFunctions tmpUF, DBFunctions dbfparam, String strTask/*Primary key of task but as a string.*/,int nBatchParam, String strScheduleIdParam, String strRepeatTypeIdParam)
   {
   	this.uf = tmpUF;
   	this.dbf = dbfparam;
   	this.pf = new ProcessingFunctions(tmpUF,this);
   	
   	this.nCurTask = Integer.parseInt(strTask);
+  	this.strScheduleId = strScheduleIdParam;
+  	this.strRepeatTypeId = strRepeatTypeIdParam;
   	
   
 	this.nTaskBatch = nBatchParam;
@@ -628,7 +632,13 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 			 //HttpClient = new HttpClient();
 			 
 			 data="series_id=LNS14000000&survey=ln&format=&html_tables=&delimiter=&catalog=&print_line_length=&lines_per_page=&row_stub_key=&year=&date=&net_change_start=&net_change_end=&percent_change_start=&percent_change_end=";
-			 HttpPost httppost = new HttpPost("http://data.bls.gov/cgi-bin/surveymost"); 
+			 HttpPost httppost = new HttpPost("http://data.bls.gov/cgi-bin/surveymost");
+			 
+			 /*
+			 * Emulate a browser.
+			 */
+				
+			httppost.getParams().setParameter("http.protocol.user-agent", "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
 			 
 			 /*
 			  * The following line fixes an issue where a non-fatal error is displayed about an invalid cookie data format.
@@ -693,6 +703,12 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 			strURL = strURL.replace("^","%5E");
 			
 			HttpGet httpget = new HttpGet(strURL); 
+			
+			/*
+			 * Emulate a browser.
+			 */
+			
+			httpget.getParams().setParameter("http.protocol.user-agent", "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
 			/*
 			 * The following line fixes an issue where a non-fatal error is displayed about an invalid cookie data format.
 			 * It turns out that some sites generate a warning with this code, and others without it.
