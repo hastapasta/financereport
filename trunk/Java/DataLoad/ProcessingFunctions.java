@@ -966,6 +966,97 @@ public void postProcessBloombergCommodities()
 
 }
 
+public void postProcessBloombergFutures()
+{
+	String[] lookup = 
+	{"DJIA INDEX","913",
+	"S&P 500","919",
+	"NASDAQ 100","929",
+	"S&P/TSX 60","961",
+	"MEX BOLSA"," 963",
+	"BOVESPA","972",
+	"DJ EURO STOXX 50","680",
+	"FTSE 100","699",
+	"CAC 40 10 EURO","715",
+	"DAX","706",
+	"IBEX 35","722",
+	"FTSE MIB","731",
+	"AMSTERDAM","740",
+	"OMXS30"," 758",
+	"SWISS MARKET","725",
+	"NIKKEI 225","848",
+	"HANG SENG"," 855",
+	"SPI 200"," 888"
+	};
+	
+	
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	String[] rowdata, newrow;
+	
+	String[] rowheaders = propTableData.get(1);
+	
+
+	
+	for (int row=2;row<propTableData.size();row++)
+	{
+		rowdata = propTableData.get(row);
+		
+		if (rowdata[0].contains("N.A."))
+			continue;
+		
+		newrow = new String[tmpArray.length];
+		
+	
+		newrow[0] = rowdata[0].replace(",", "");
+	
+		newrow[1] = "NOW()";
+	
+		
+		String tmp = rowheaders[row-2];
+		
+		tmp = tmp.trim();
+	
+		
+		String strEntityIndex = "";
+		
+		for (int i=0;i<lookup.length;i+=2)
+		{
+			if (lookup[i].compareTo(tmp) == 0)
+			{
+				strEntityIndex = lookup[i+1];
+				break;
+			}
+		}
+		
+		if (strEntityIndex.isEmpty())
+		{
+			UtilityFunctions.stdoutwriter.writeln("Problem with lookup for ticker" + tmp + ",Skipping...",Logs.ERROR,"PF90.2");
+			continue;
+		}
+		
+		
+		newrow[2] = strEntityIndex;
+		newTableData.add(newrow);
+		
+	
+		
+		
+			
+			
+		
+		
+	}
+	
+	newTableData.add(0, tmpArray);
+	propTableData = newTableData;
+	
+	
+
+}
+
+
 public void postProcessOneTimeYahooIndex()
 {
 	String[] rowdata;
@@ -1309,6 +1400,73 @@ public void postProcessTableYahooBeginYearVerify() throws CustomEmptyStringExcep
 	
 	fullfilewriter.close();
 
+}
+
+public void postProcessTreasuryDebtTable6()
+{
+	int j=0;
+	for (int i=0;i<10;i++)
+	{
+		j++;
+	}
+	
+	
+}
+
+
+public void postProcessTreasuryDirect() throws SQLException
+{
+	
+	String[] data = propTableData.get(1);
+	
+	data[0] = data[0].replace(",", "");
+	data[0] = data[0].substring(0,data[0].indexOf("."));
+	long lPublicDebt = Long.parseLong(data[0]);
+	lPublicDebt = lPublicDebt/10000000;
+	
+	data[1] = data[1].replace(",", "");
+	data[1] = data[1].substring(0,data[1].indexOf("."));
+	long lIntraGov = Long.parseLong(data[1]);
+	lIntraGov = lIntraGov/10000000;
+
+	
+	String strQuery = "insert into fact_data ";
+	strQuery += "(\"value\",\"scale\",\"date_collected\",\"task_id\",\"entity_id\",\"metric_id\",\"batch\") ";
+	strQuery += " values (";
+	strQuery += lPublicDebt;
+	strQuery += ",7,NOW()," + dg.nCurTask + ",1360,9," + dg.nTaskBatch + ")";
+	
+	try
+	{
+		dbf.db_update_query(strQuery);
+	}
+	catch (SQLException sqle)
+	{
+		UtilityFunctions.stdoutwriter.writeln("Problem with custom insert",Logs.ERROR,"PF55.5");
+		UtilityFunctions.stdoutwriter.writeln(sqle);
+	}
+	
+	strQuery = "insert into fact_data ";
+	strQuery += "(\"value\",\"scale\",\"date_collected\",\"task_id\",\"entity_id\",\"metric_id\",\"batch\") ";
+	strQuery += " values (";
+	strQuery += lIntraGov;
+	strQuery += ",7,NOW()," + dg.nCurTask + ",1360,10," + dg.nTaskBatch + ")";
+	
+	try
+	{
+		dbf.db_update_query(strQuery);
+	}
+	catch (SQLException sqle)
+	{
+		UtilityFunctions.stdoutwriter.writeln("Problem with custom insert",Logs.ERROR,"PF55.6");
+		UtilityFunctions.stdoutwriter.writeln(sqle);
+	}
+	
+	
+	
+	
+	
+	
 }
 
 public void preJobProcessTableXrateorg() throws SQLException
@@ -1682,6 +1840,7 @@ public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQ
 {
 	String[] rowdata, newrow;
 	String[] colheaders = propTableData.get(0);
+	
 	//String[] rowheaders = propTableData.get(1);
 	
 	String[] tmpArray = {"data_set","value","date_collected","calmonth","calyear","day"};
@@ -1722,7 +1881,49 @@ public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQ
 	propTableData = newTableData;
 }
 
-public void postProcessImfGdpEst() throws SQLException
+/*public void postProcessIMFGdpPPPActual() throws SQLException {
+	
+	String[] tmpArray = {"value","date_collected","entity_id","calyear","scale"};
+	
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	String[] rowdata, newrow;
+	//String[] colheaders = propTableData.get(0);
+	
+	String[] colheaders = propTableData.remove(0);
+	String[] rowheaders = propTableData.remove(0);
+	
+	for (int row=0;row<propTableData.size();row++) {
+		rowdata = propTableData.get(row);
+		
+		for (int col=0;col<colheaders.length;col++)
+		{
+		
+		String strCountry = rowheaders[row];
+		newrow = new String[tmpArray.length];
+		
+		if (rowdata[0].equals("n/a"))
+		{
+			UtilityFunctions.stdoutwriter.writeln("Retrieved n/a value, skipping processing for entity " + strCountry,Logs.WARN,"PF44");
+			continue;
+		}
+		
+		newrow[0] = rowdata[col].replace(",", "");
+		BigDecimal bdTmp = new BigDecimal(newrow[0]);
+		
+		newrow[0] = bdTmp.toString();
+
+		newrow[1] = "NOW()";
+		}
+		
+	}
+	
+}
+
+public void postProcessIMFGdpPPPEst() throws SQLException {
+	
+}*/
+
+public void postProcessImfGdp() throws SQLException
 {
 	
 	String[] tmpArray = {"value","date_collected","entity_id","calyear","scale"};
@@ -1746,16 +1947,35 @@ public void postProcessImfGdpEst() throws SQLException
 		String strCountry = rowheaders[row];
 		newrow = new String[tmpArray.length];
 		
-		if (rowdata[0].equals("n/a"))
+		newrow[0] = rowdata[col].replace(",", "");
+		
+		if (newrow[0].contains("n/a"))
 		{
 			UtilityFunctions.stdoutwriter.writeln("Retrieved n/a value, skipping processing for entity " + strCountry,Logs.WARN,"PF44");
 			continue;
 		}
 		
-		newrow[0] = rowdata[col].replace(",", "");
-		BigDecimal bdTmp = new BigDecimal(newrow[0]);
-		//bdTmp = bdTmp.multiply(new BigDecimal(1000000000));
-		//newrow[0] = bdTmp.toBigInteger().toString();
+		
+		BigDecimal bdTmp = null;
+		if (this.dg.nCurTask == 29) {
+			if (!newrow[0].contains("bgcolor")) {
+				bdTmp = new BigDecimal(newrow[0].substring(newrow[0].indexOf("right\">")+7,newrow[0].length()));
+			}
+			else
+				continue;
+		}
+		else if (this.dg.nCurTask == 30) {
+			if (newrow[0].contains("bgcolor")) {
+				bdTmp = new BigDecimal(newrow[0].substring(newrow[0].indexOf("\">")+2,newrow[0].length()));
+			}
+			else
+				continue;
+		}
+		else {
+			bdTmp = new BigDecimal(newrow[0]);
+		}
+
+
 		newrow[0] = bdTmp.toString();
 		//newrow[0] = rowdata[0].replace(",", "");
 		//newrow[4] = "VARCHAR";
@@ -1768,21 +1988,9 @@ public void postProcessImfGdpEst() throws SQLException
 		 */
 		
 		
-		/*int i = tmp.indexOf("(");
 	
-		if (tmp.indexOf("(",i+1)==-1)
-			tmp = tmp.substring(0,i);
-		else
-			tmp = tmp.substring(0,tmp.indexOf("(",i+1));*/
-		
-			
-		
-		//newrow[3] = rowheaders[row-2].substring(0,rowheaders[row-2].indexOf("("));
 		strCountry = strCountry.trim();
-		/*newrow[3] = tmp.substring(tmp.indexOf(">")+1,tmp.indexOf("</"));
-		newrow[3] = newrow[3].replace("&amp;", "&");*/
 		
-		//remove single quotes e.g. (coffee 'c')
 		strCountry = strCountry.replace("'", "\\'");
 		
 		if (strCountry.toUpperCase().equals("KOREA"))
