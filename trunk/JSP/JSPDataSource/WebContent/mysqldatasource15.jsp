@@ -37,9 +37,7 @@ String strEntityId = request.getParameter("entityid");
 String strMetricId = request.getParameter("metricid");
 String strAlertId = request.getParameter("alertid");
 String strUserId = request.getParameter("userid");
-String[] entityIds = null;
-if (strEntityId!=null)
-	entityIds = strEntityId.split(",");
+
 String strEndDate = request.getParameter("enddate");
 String strBeginDate = request.getParameter("begindate"); 
 
@@ -79,29 +77,11 @@ if (strEndDate!=null)
 
 
 
+
+
 UtilityFunctions uf = new UtilityFunctions();
 
 ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
-
-String strInClause="in (";
-for (int i=0;i<entityIds.length;i++)
-{
-	if (i!=0)
-		strInClause += ",";
-	strInClause += entityIds[i];
-}
-strInClause += ") ";
-//String[] columns = tmpArrayList.get(0);
-
-//DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
-
-//String query1 = "select ticker from entities where id " + strInClause;
-//ResultSet rs1 = dbf.db_run_query(query1);
-
-
-
-
-//String[] col;
 
 
 
@@ -112,9 +92,18 @@ String query = "select date_format(fact_data.date_collected,'%m-%d-%Y') as date_
 query += "fact_data.batch,fact_data.value as fdvalue,entities.ticker  ";
 query += "from fact_data ";
 query += "JOIN entities on fact_data.entity_id=entities.id ";
+if (strMetricId.equals("0")) {
+	query += "JOIN entities_metrics on fact_data.entity_id=entities_metrics.entity_id ";
+}
 query += "JOIN tasks on fact_data.task_id=tasks.id ";
-query += " where entities.id " + strInClause;
-query += " and tasks.metric_id=" + strMetricId;
+
+query += " where entities.id=" + strEntityId;
+if (strMetricId.equals("0")) {
+	query += " and entities_metrics.default_metric=1 ";
+	query += " and entities_metrics.metric_id=tasks.metric_id ";
+}
+else
+	query += " and tasks.metric_id=" + strMetricId;
 query += " AND date_format(fact_data.date_collected,'%Y-%m_%d')>'" + strBeginDate + "' ";
 if (strEndDate!=null && !strEndDate.isEmpty())
 	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
@@ -126,12 +115,19 @@ query2 += " from log_alerts ";
 query2 += " JOIN alerts on log_alerts.alert_id=alerts.id ";
 query2 += " JOIN entities on entities.id=log_alerts.entity_id ";
 query2 += " JOIN tasks on alerts.task_id=tasks.id ";
+query2 += " JOIN entities_metrics on log_alerts.entity_id=entities_metrics.entity_id ";
 query2 += " where 1=1 ";
 if (strAlertId==null)
 {
-	query2 += " AND log_alerts.entity_id " + strInClause;
+	query2 += " AND log_alerts.entity_id=" + strEntityId;
 	query2 += " AND log_alerts.user_id=" + strUserId;
-	query2 += " AND tasks.metric_id=" + strMetricId;
+	
+	if (strMetricId.equals("0"))
+		query2 += " and entities_metrics.default_metric=1 ";
+	else 
+		query2 += " AND tasks.metric_id=" + strMetricId;
+		
+		
 }
 else
 	query2 += " AND log_alerts.alert_id=" + strAlertId;
@@ -215,7 +211,7 @@ finally
 }
 
 int[] tmpArray = {0,1};
-arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray,3);
+arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray);
 
 
 
@@ -236,21 +232,6 @@ arrayListRows = PopulateSpreadsheet.joinListsOuter(arrayListRows,arrayListRows2,
 
 
 
-
-/*out.println("<table>");
-for (int i=0;i<arrayListRows.size();i++)
-{select count(id) as cnt,date_format(log_alerts.date_time_fired,'%m-%d-%Y') as datefired  from log_alerts  JOIN alerts on log_alerts.alert_id=alerts.id  where log_alerts.entity_id=in (1)  AND log_alerts.user_id=16 group by date_format(log_alerts.date_time_fired,'%m-%d-%Y')
-	out.println("<tr>");
-	String[] temp = arrayListRows.get(i);
-	for (int j=0;j<temp.length;j++)
-	{
-		out.println("<td>" + temp[j] +"</td>");
-	}
-	out.println("</tr>");
-}
-out.println("</table>");
-
-out.println(query); if (1==1) return;*/
 
 
 
@@ -328,53 +309,7 @@ for (int i=0;i<saveListRows.size();i++)
 	
 }
 
-//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows));if (1==1) return; 
-
-
-/*try
-{
-	rs = dbf.db_run_query(query);
-	while (rs.next()) {
-		String [] tmp = new String[6];
-		tmp[0] = tmp[1] = rs.getString("fact_data.date_collected");
-		tmp[2] = tmp[3] = rs.getString("entities.ticker");
-		tmp[4] = tmp[5] = rs.getString("fdvalue");
-		
-
-
-		
-		
-		arrayListRows.add(tmp);
-	    
-	}
-}
-catch (SQLException sqle)
-{
-	out.println(sqle.toString());
-}*/
-
-
-
-
-
-
-
-
-
-
-;
-/*for (int i=0;i<tmpArrayList.size();i++)
-{
-	String[] tmp2 = tmpArrayList.get(i);
-	for (int j=0;j<tmp2.length;j++)
-	{
-		out.println(tmp2[j]);
-		out.println("<BR>");
-	}
-	
-	
-	
-}*/
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
 
 
 
