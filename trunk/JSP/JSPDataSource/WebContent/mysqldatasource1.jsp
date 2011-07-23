@@ -110,7 +110,7 @@ query += "JOIN entities on fact_data.entity_id=entities.id ";
 //query += "JOIN tasks on fact_data.task_id=tasks.id ";
 query += " where entities.id " + strInClause;
 query += " AND fact_data.metric_id=" + strMetricId;
-query += " AND date_format(fact_data.date_collected,'%Y-%m_%d')>'" + strBeginDate + "' ";
+query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')>'" + strBeginDate + "' ";
 if (strEndDate!=null && !strEndDate.isEmpty())
 	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
 //query += " group by date_format(fact_data.date_collected,'%Y-%m-%d'),entities.ticker,fact_data.value ";
@@ -166,7 +166,7 @@ if (arrayListRows.size()==0)
 }
 
 int[] tmpArray = {0,1};
-arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray,3);
+arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray);
 
 
 
