@@ -6,12 +6,13 @@
 <%@ page import="java.util.Date" %>
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.text.SimpleDateFormat" %>
-<%@ page import="org.json.*" %>
+<%@ page import="org.json.*" %> 
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="java.math.BigDecimal" %>
 <%@ page import="java.util.Collections" %>
 <%@ page import="java.util.Comparator" %>
+<%@ page import="org.apache.log4j.Logger" %>
 
 
 
@@ -30,6 +31,10 @@ batch #, since batch is a capture property and shouldn't be utilitzed in any end
 
 */
 
+Calendar calBeginTimer = Calendar.getInstance(); 
+
+Logger fulllogger = Logger.getLogger("FullLogging");
+
 DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 String strTimeFrame = request.getParameter("timeframe");
@@ -38,7 +43,7 @@ String strTimeFrame = request.getParameter("timeframe");
 //String strTaskId = request.getParameter("taskid");
 String strMetricId = request.getParameter("metricid");
 String strEntityGroupId = request.getParameter("entitygroupid");
-//String strOrder = request.getParameter("order");
+
 
 if (strTimeFrame==null)
 {
@@ -61,7 +66,7 @@ if (strEntityGroupId == null)
 }
 
 String strOrder = "DESC";
-if (request.getParameter("order") == null)
+if (request.getParameter("order") != null)
 {
 	strOrder = request.getParameter("order");
 	
@@ -75,18 +80,19 @@ Calendar calBegin = Calendar.getInstance();
 
 
 
-if (Debug.RELEASE == true) 
+if (Debug.RELEASE == true)  
 {
 	calEnd.set(Calendar.YEAR,2011);
-	calEnd.set(Calendar.DAY_OF_MONTH,15);
-	calEnd.set(Calendar.MONTH,3);
+	calEnd.set(Calendar.DAY_OF_MONTH,21);
+	calEnd.set(Calendar.MONTH,4);
 	
 	calBegin.set(Calendar.YEAR,2011);
-	calBegin.set(Calendar.DAY_OF_MONTH,15);
-	calBegin.set(Calendar.MONTH,3);
+	calBegin.set(Calendar.DAY_OF_MONTH,21);
+	calBegin.set(Calendar.MONTH,4);
 
 	
 }
+
 
 //System.out.println(calBegin.getTime().toString());
 
@@ -115,16 +121,22 @@ else if (strTimeFrame.toUpperCase().equals("YEAR"))
 	calBegin.add(Calendar.YEAR,-1);
 }
 
-/*
-We don't have much historical data.
-*/
+/* We don't have much historical data*/
 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 Calendar calEarliest = Calendar.getInstance();
 calEarliest.setTime(inputFormat.parse("2011-01-20 00:00:00"));
+
+/*
+*Futures didn't get added until later.
+*/
+if (strEntityGroupId.equals("1008"))
+	calEarliest.setTime(inputFormat.parse("2011-06-21 00:00:00"));
+
 if (calBegin.before(calEarliest))
 	calBegin = calEarliest;
 
-//System.out.println(calBegin.getTime().toString());
+
+
 
 /*
 *   Here's where this gets a little funky... we will add two days to calBegin and then get the minimum.
@@ -141,7 +153,7 @@ if (calBegin.before(calEarliest))
 	   
 	   <-----calEndAdjust------calBegin----calEnd-------calBeginAdjust---->
    
-   OFP 5/17/2011 - Just noticed an issue with the "< 2 days" login in that potentially
+   OFP 5/17/2011 - Just noticed an issue with the "< 2 days" query in that potentially
    the calEnd time could come before calBegin;
 */
 
@@ -213,7 +225,7 @@ arrayListCols.add(blap4);
 
 String query2 = "select fact_data.entity_id,'placeholder',date_format(date_collected,'%Y-%m-%d %T') as date_begin,value,ticker ";
 query2 += " ,countries.name,entities.full_name ";
-query2 += "from fact_data ";
+query2 += " from fact_data ";
 query2 += " JOIN entities on entities.id=fact_data.entity_id ";
 query2 += " LEFT JOIN countries on entities.country_id=countries.id ";
 query2 += " JOIN entities_entity_groups on fact_data.entity_id=entities_entity_groups.entity_id ";
@@ -223,10 +235,14 @@ query2 += " AND entities_entity_groups.entity_group_id=" + strEntityGroupId;
 query2 += " AND metric_id=" + strMetricId;
 query2 += " ORDER BY fact_data.entity_id ";
 
+out.println(query2); if (1==1) return;
+
+
+
 
 String query3 = "select fact_data.entity_id,'placeholder',date_format(date_collected,'%Y-%m-%d %T') as date_end,value,ticker ";
 query3 += " ,countries.name,entities.full_name ";
-query3 += "from fact_data ";
+query3 += " from fact_data ";
 query3 += " JOIN entities on entities.id=fact_data.entity_id ";
 query3 += " LEFT JOIN countries on entities.country_id=countries.id ";
 query3 += " JOIN entities_entity_groups on fact_data.entity_id=entities_entity_groups.entity_id ";
@@ -238,85 +254,133 @@ query3 += " ORDER BY fact_data.entity_id ";
 
 
 
-
+Calendar calEndTimer = null;
 
 
 
 DBFunctions dbf = null;
 boolean bException = false;
 ArrayList<String[]> arrayListRows1 = new ArrayList<String[]>();
-try
-{
-	dbf = new DBFunctions();
-	dbf.db_run_query(query2);
-	while (dbf.rs.next()) {
-		String [] tmp = new String[6];
-		
-		tmp[0] = dbf.rs.getString("fact_data.entity_id");
-		tmp[1] = dbf.rs.getString("date_begin");
-		tmp[2] = dbf.rs.getString("value");
-		tmp[3] = dbf.rs.getString("ticker");
-		tmp[4] = dbf.rs.getString("full_name");
-		tmp[5] = dbf.rs.getString("name");
-		
-
+int code=1;
+boolean bDone = false;
+while (!bDone) {
+	
+	
+	try
+	{
+		dbf = new DBFunctions();
+		code=2;
+		dbf.db_run_query(query2); 
+		calEndTimer = Calendar.getInstance();
+		code=3;
+		while (dbf.rs.next()) {
+			String [] tmp = new String[6];
+			
+			tmp[0] = dbf.rs.getString("fact_data.entity_id");
+			tmp[1] = dbf.rs.getString("date_begin");
+			tmp[2] = dbf.rs.getString("value");
+			tmp[3] = dbf.rs.getString("ticker");
+			tmp[4] = dbf.rs.getString("full_name");
+			tmp[5] = dbf.rs.getString("name");
+			
 	
 		
-		
-		
-		arrayListRows1.add(tmp);
-	    
+			
+			
+			
+			arrayListRows1.add(tmp);
+		    
+		}
+		bDone = true;
+	}
+	catch (SQLException sqle)
+	{
+		//out.println(sqle.toString());
+		fulllogger.info("PF ERROR CODE 2eh2-1,subcode:"+code);
+		fulllogger.info(sqle.getMessage());	
+		if (!sqle.getMessage().contains("The last packet successfully recieved"))
+			bDone = true;
+		else {
+			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 2eh2-1,subcode:"+code));
+			bException = true;
+		}
+			
+	}
+	finally
+	{
+		if (dbf !=null) dbf.closeConnection();
+		if (bException == true)
+			return;
 	}
 }
-catch (SQLException sqle)
-{
-	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 2eh2-1"));
-	bException = true;
-}
-finally
-{
-	if (dbf !=null) dbf.closeConnection();
-	if (bException == true)
-		return;
-}
+
+
+
+//int diff = calBeginTimer.compareTo(calEndTimer);
+
+//out.println(diff/1000 + " seconds");
+
+
+
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows1));if (1==1) return; 
+
+bDone = false;
 
 bException = false;
 ArrayList<String[]> arrayListRows2 = new ArrayList<String[]>();
-try
-{
-	dbf = new DBFunctions();
-	dbf.db_run_query(query3);
-
-	while (dbf.rs.next()) {
-		String [] tmp = new String[6];
-		
-		tmp[0] = dbf.rs.getString("fact_data.entity_id");
-		tmp[1] = dbf.rs.getString("date_end");
-		tmp[2] = dbf.rs.getString("value");
-		tmp[3] = dbf.rs.getString("ticker");
-		tmp[4] = dbf.rs.getString("full_name");
-		tmp[5] = dbf.rs.getString("name");
-
-		
-		arrayListRows2.add(tmp);
-	    
+while (!bDone) {
+	try
+	{
+		dbf = new DBFunctions();
+		dbf.db_run_query(query3);
+	
+		while (dbf.rs.next()) {
+			String [] tmp = new String[6];
+			
+			tmp[0] = dbf.rs.getString("fact_data.entity_id");
+			tmp[1] = dbf.rs.getString("date_end");
+			tmp[2] = dbf.rs.getString("value");
+			tmp[3] = dbf.rs.getString("ticker");
+			tmp[4] = dbf.rs.getString("full_name");
+			tmp[5] = dbf.rs.getString("name");
+	
+			
+			arrayListRows2.add(tmp);
+		    
+		}
+		bDone = true;
 	}
-}
-catch (SQLException sqle)
-{
-	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 2eh2-2"));
-	bException = true;
-}
-finally
-{
-	if (dbf !=null) dbf.closeConnection();
-	if (bException == true)
-		return;
+	catch (SQLException sqle)
+	{
+		//out.println(sqle.toString());
+		fulllogger.info("PF ERROR CODE 2eh2-2,subcode:"+code);
+		fulllogger.info(sqle.getMessage());	
+		if (!sqle.getMessage().contains("The last packet successfully recieved"))
+			bDone = true;
+		else {
+			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 2eh2-2"));
+			bException = true;
+		}
+	}
+	finally
+	{
+		if (dbf !=null) dbf.closeConnection();
+		if (bException == true)
+			return;
+	}
 }
 
 int[] tmpArray = {0};
+
+if (arrayListRows1.size() == 0) {
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_no_data","Query returned no data.","PF ERROR CODE 2eh2-3"));
+	return;	
+}
+
+if (arrayListRows2.size() == 0) {
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_no_data","Query returned no data.","PF ERROR CODE 2eh2-4"));
+	return;	
+}
 
 arrayListRows1 = PopulateSpreadsheet.getMaxMinGroupBy(arrayListRows1,tmpArray,1,"DATE","MIN");
 
@@ -383,7 +447,11 @@ for (int i=0;i<saveListRows.size();i++)
 	BigDecimal bdAft = new BigDecimal(tmpSave[7]);
 	
 	bdAft = bdAft.subtract(bdBef);
-	bdAft = bdAft.divide(bdBef,BigDecimal.ROUND_HALF_UP);
+	if (bdBef.compareTo(new BigDecimal(0)) == 0)
+		//Bad Data
+		bdAft = new BigDecimal(0);
+	else
+		bdAft = bdAft.divide(bdBef,BigDecimal.ROUND_HALF_UP);
 	bdAft = bdAft.multiply(new BigDecimal(100));
 	
 	//bdAft.subtract(bdBef).divide(bdBef).multiply(new BigDecimal("100"));
@@ -413,25 +481,24 @@ Comparator<String[]> comp = new Comparator<String[]>() {
 	  }
 };
 
+Comparator<String[]> comp2 = new Comparator<String[]>() {
+	  public int compare(String[] first, String[] second) {
+		BigDecimal bdFirst = new BigDecimal(first[6]);
+		BigDecimal bdSecond = new BigDecimal(second[6]);
+		
+		return bdFirst.compareTo(bdSecond);
+		
+	    //return first[1].compareTo(second[1]);
+	  }
+};
 
-Collections.sort(arrayListRows,comp);
+if ((strOrder !=null) && (strOrder.toUpperCase().equals("DESC")))
+	Collections.sort(arrayListRows,comp);
+else
+	Collections.sort(arrayListRows,comp2);
 
 
 
-/*out.println("<table>");
-for (int i=0;i<arrayListRows.size();i++)
-{
-	out.println("<tr>");
-	String[] temp = arrayListRows.get(i);
-	for (int j=0;j<temp.length;j++)
-	{
-		out.println("<td>" + temp[j] +"</td>");
-	}
-	out.println("</tr>");
-}
-out.println("</table>");
-
-if (1==1) return;*/
 
 
 
@@ -443,14 +510,4 @@ if (1==1) return;*/
 
 
 out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,false));
-
-
-//google.visualization.Query.setResponse({version:'0.6',reqId:'0',status:'ok',sig:'5982206968295329967',table:{cols:[{id:'Col1',label:'label1',type:'number'},{id:'Col2',label:'label2',type:'number'},
-//{id:'Col3',label:'label3',type:'number'}],rows:[{c:[{v:1.0,f:'1'},{v:2.0,f:'2'},{v:3.0,f:'3'}]},{c:[{v:2.0,f:'2'},{v:3.0,f:'3'},{v:4.0,f:'4'}]},{c:[{v:3.0,f:'3'},{v:4.0,f:'4'},{v:5.0,f:'5'}]},{c:[{v:1.0,f:'1'},{v:2.0,f:'2'},{v:3.0,f:'3'}]}]}}); 
-
-//out.println("[{\"\":\" Gold certificate account\",\"2011-01-26 \":\"11037\",\"2011-01-19 \":\"11037\",\"diff \":\"0.00%\"}, {\"\":\" Special drawing rights certificate account\",\"2011-01-26 \":\"5200\",\"2011-01-19 \":\"5200\",\"diff \":\"0.00%\"}, {\"\":\" Coin\",\"2011-01-26 \":\"2318\",\"2011-01-19 \":
-//	\"2246\",\"diff \":\"0.00%\"}, {\"\":\"Bills\",\"2011-01-26 \":\"18422\",\"2011-01-19 \":\"18422\",\"diff \":\"0.00%\"}, {\"\":\"Notes and bonds\",\"2011-01-26 \":\"1096024\",\"2011-01-19 \":\"1061154\",\"diff \":\"0.00%\"}, {\"\":\" Federal agency debt securities\",\"2011-01-26 \":\"144623\",\"2011-01-19 \":\"145887\",\"diff \":\"0.00%\"}, {\"\":\" Mortgage-backed securities\",\"2011-01-26 \":\"965078\",\"2011-01-19 \":\"980155\",\"diff \":\"0.00%\"}, {\"\":\" Repurchase agreements\",\"2011-01-26 \":\"0\",\"2011-01-19 \":\"0\",\"diff \":\"0.00%\"}, {\"\":\" Term auction credit\",\"2011-01-26 \":\"0\",\"2011-01-19 \":\"0\",\"diff \":\"0.00%\"}, {\"\":\" Other loans\",\"2011-01-26 \":\"23260\",\"2011-01-19 \":\"23689\",\"diff \":\"0.00%\"}]"); 
-
-
-
-//out.println(" Hello Oracle World4"); %> 
+ %> 
