@@ -9,12 +9,15 @@
 <%@ page import="org.json.*" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
+<%@ page import="org.apache.log4j.Logger" %>
 
 
 
  
 <% 
 
+Logger fulllogger = Logger.getLogger("FullLogging");
+fulllogger.info("Test in mysqldatasource2.jsp");
 /*
 
 This datasource pulls from the fact_data table  the earliest and latest values for all the entities from 
@@ -35,6 +38,8 @@ if (strTqx!=null)
 else
 	strReqId="0";
 
+
+
 DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 String strTimeFrame = request.getParameter("timeframe");
@@ -43,12 +48,24 @@ String strTimeFrame = request.getParameter("timeframe");
 String strTaskId = request.getParameter("taskid"); 
 String strOrder = request.getParameter("order");
 
+if (strTimeFrame==null)
+{
+	out.println("No timeframe parameter passed in the url. Exiting.");
+	return;
+}
+
+if (strTaskId==null)
+{
+	out.println("No taskid parameter passed in the url. Exiting.");
+	return;
+}
+
 Calendar calEnd = Calendar.getInstance();
 Calendar calBegin = Calendar.getInstance();
 
 
 
-if (Debug.RELEASE == true)
+if (Debug.RELEASE == true) 
 {
 	calEnd.set(Calendar.YEAR,2011);
 	calEnd.set(Calendar.DAY_OF_MONTH,20);
@@ -131,25 +148,12 @@ arrayListCols.add(blap9);
 //arrayListCols.add(blap10);
 //arrayListCols.add(blap11);
 
-//DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
 
 
-
-/*String query = "select tasks.name,entities.ticker,time_events.name,users.username,fd1.value, fd2.value, (if (fd1.value=0,fd1.value,round(((fd2.value - fd1.value)/fd1.value),3))) * 100 as pctchange,  ";
-query += "fd1.date_collected,fd2.date_collected,time_events.last_datetime,time_events.next_datetime ";
-query += "from alerts ";
-query += "JOIN schedules on alerts.schedule_id=schedules.id ";
-query += "JOIN users on alerts.user_id=users.id ";
-query += "JOIN entities on alerts.entity_id=entities.id ";
-query += "JOIN tasks on schedules.task_id=tasks.id ";
-query += "JOIN time_events on alerts.time_event_id=time_events.id ";
-query += "LEFT JOIN fact_data as fd1 on alerts.initial_fact_data_id=fd1.id ";
-query += "LEFT JOIN fact_data as fd2 on alerts.current_fact_data_id=fd2.id ";
-query += "where !isnull(fd1.value) AND !isnull(fd2.value)";
-query += " AND time_events.id LIKE '" + strTimeEventId + "' ";
-query += " AND users.id LIKE '" + strUserId +"' ";
-query += " AND tasks.id LIKE '" + strTaskId +"' ";
-query += " order by pctchange";*/
+if (calEnd == null)
+	fulllogger.info("calEnd is null");
+if (strTaskId == null)
+	fulllogger.info("strTaskId is null");
 
 String query = "select entities.ticker,entities.full_name,";
 query += "fd1.value,";
@@ -219,35 +223,6 @@ finally
 
 
 
-/*String[] blap4 = {"ADSK","empty","20091","20091","0","1"};
-String[] blap5 = {"ANFG","empty","20091","20091","5000","5000"};
-String[] blap6 = {"BIG","empty","3000","3000","10000","10000"};
-
-arrayListRows.add(blap4);
-arrayListRows.add(blap5);
-arrayListRows.add(blap6);*/
-
-/*for (int i=0;i<arrayListCols.size();i++)
-{
-	String[] temp = arrayListCols.get(i);
-	for (int j=0;j<temp.length;j++)
-	{
-		out.println(temp[j]);
-		out.println("<BR>");
-	}
-		
-}
-
-for (int i=0;i<arrayListRows.size();i++)
-{
-	String[] temp = arrayListRows.get(i);
-	for (int j=0;j<temp.length;j++)
-	{
-		out.println(temp[j]);
-		out.println("<BR>");
-	}
-		
-}*/
 
 
 
