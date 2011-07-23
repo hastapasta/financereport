@@ -207,7 +207,7 @@ ArrayList<String[]> arrayListRows2 = new ArrayList<String[]>();
 
 
 int[] tmpArray = {0,1};
-arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray,3);
+arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray);
 
 
 //out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows));if (1==1) return; 
