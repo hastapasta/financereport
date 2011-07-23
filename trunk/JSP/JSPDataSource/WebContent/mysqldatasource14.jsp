@@ -47,6 +47,10 @@ String strRows = "30";
 if (request.getParameter("rows") != null)
 	strRows = request.getParameter("rows");
 
+String strMetricId = "1";
+if (request.getParameter("metricid") != null)
+	strMetricId = request.getParameter("metricid");
+
 if (strTimeEventId==null)
 {
 	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No timeeventid request parameter.","PF ERROR CODE 14-1"));
@@ -198,11 +202,13 @@ querymodel += " join entities on entities.id=alerts.entity_id ";
 querymodel += " join time_events on alerts.time_event_id=time_events.id ";
 querymodel += " join users on alerts.user_id=users.id ";
 querymodel += " join entities_entity_groups on entities_entity_groups.entity_id=alerts.entity_id ";
+querymodel += " join tasks on tasks.id=alerts.task_id ";
 querymodel += " where disabled=0 ";
 /*if (!strTaskId.toUpperCase().equals("ALL"))
 	querymodel += " and fd1.task_id=" + strTaskId;*/
 //querymodel += " and entities_entity_groups.entity_group_id=" +  strEntityGroupId
 querymodel += " and entities_entity_groups.entity_group_id in (" +  strGroupList + ") ";
+querymodel += " and tasks.metric_id=" + strMetricId;
 	
 if (!strTimeEventId.toUpperCase().equals("ALL"))
 	querymodel += " and time_event_id=" + strTimeEventId; 
