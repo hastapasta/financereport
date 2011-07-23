@@ -141,14 +141,14 @@ query3 += " order by date_collected DESC";
 
 
 String query = "(select metrics.name,(fact_data.calyear*10+fact_data.calquarter) as cyq,value,batch,t1.initval,";
-query += "(if (initval=0,initval,round(((value - initval)/initval) * 100,2)))as pctchange ";
+query += "(if (initval=0,initval,round(((value - initval)/(if (initval<0,initval*-1,initval))) * 100,2)))as pctchange ";
 query += " from fact_data ";
 query += " join metrics on fact_data.metric_id=metrics.id ";
 query += " join (" + query2 + ") as t1 on t1.entity_id=fact_data.entity_id ";
 query += " where metric_id=4 and fact_data.entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id) ";
 query += " union ";
 query += " (select metrics.name,(fact_data.calyear*10+fact_data.calquarter) as cyq,value,batch,t1.initval, ";
-query += "(if (initval=0,initval,round(((value - initval)/initval) * 100,2))) as pctchange ";
+query += "(if (initval=0,initval,round(((value - initval)/(if (initval<0,initval*-1,initval))) * 100,2))) as pctchange ";
 query += " from fact_data ";
 query += " join metrics on fact_data.metric_id=metrics.id ";
 query += " join (" + query2 + ") as t1 on t1.entity_id=fact_data.entity_id ";
@@ -169,6 +169,10 @@ query += " order by cyq asc,name,batch ";
 
 
 dbf = new DBFunctions();
+
+/*
+ * This data source needs to be fixed... if the initval is 
+ */
 
 
 //ResultSet rs=null;
@@ -203,23 +207,12 @@ finally
 		return;
 }
 
-/*out.println("<table>");
-for (int i=0;i<arrayListRows.size();i++)
-{
-	out.println("<tr>");
-	String[] temp = arrayListRows.get(i);
-	for (int j=0;j<temp.length;j++)
-	{
-		out.println("<td>" + temp[j] +"</td>");
-	}
-	out.println("</tr>");
-}
-out.println("</table>");
 
-out.println(query); if (1==1) return;*/
+
+/*out.println(query); if (1==1) return;*/
 
 int[] tmpArray = {0,1};
-arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray,3);
+arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray);
 
 
 
@@ -256,6 +249,8 @@ arrayListCols.add(col1);
 
 for (int i=0;i<pivotColumns.length;i++)
 {
+	if (pivotColumns[i].equals("price"))
+		pivotColumns[i] = "share price";
 	String[] col3 = new String[3];
 	col3[0] = pivotColumns[i];
 	col3[1] = pivotColumns[i];
@@ -286,82 +281,7 @@ for (int i=0;i<saveListRows.size();i++)
 	
 }
 
-
-/*try
-{
-	rs = dbf.db_run_query(query);
-	while (rs.next()) {
-		String [] tmp = new String[6];
-		tmp[0] = tmp[1] = rs.getString("fact_data.date_collected");
-		tmp[2] = tmp[3] = rs.getString("entities.ticker");
-		tmp[4] = tmp[5] = rs.getString("fdvalue");
-		
-
-
-		
-		
-		arrayListRows.add(tmp);
-	    
-	}
-}
-catch (SQLException sqle)
-{
-	out.println(sqle.toString());
-}*/
-
-
-
-
-
-
-
-
-
-
-;
-/*for (int i=0;i<tmpArrayList.size();i++)
-{
-	String[] tmp2 = tmpArrayList.get(i);
-	for (int j=0;j<tmp2.length;j++)
-	{
-		out.println(tmp2[j]);
-		out.println("<BR>");
-	}
-	
-	
-	
-}*/
-
-
-
-
-
-
-
-
-
-
-/*for (int i=0;i<arrayListCols.size();i++)
-{
-	String[] temp = arrayListCols.get(i);
-	for (int j=0;j<temp.length;j++)
-	{
-		out.println(temp[j]);
-		out.println("<BR>");
-	}
-		
-}
-
-for (int i=0;i<arrayListRows.size();i++)
-{
-	String[] temp = arrayListRows.get(i);
-	for (int j=0;j<temp.length;j++)
-	{
-		out.println(temp[j]);
-		out.println("<BR>");
-	}
-		
-}*/
+out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return;
 
 
 
