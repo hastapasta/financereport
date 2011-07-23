@@ -29,7 +29,27 @@ else
 
 String strAlertId = request.getParameter("alertid");
 String strUserId = request.getParameter("userid");
+String strObservationPeriod = request.getParameter("obperiod");
+int nOPeriodIndex = 0;
 //String strEntityId = request.getParameter("entityid");
+
+
+if (strObservationPeriod.toUpperCase().equals("HOURLY"))
+	nOPeriodIndex = 3;
+else if (strObservationPeriod.toUpperCase().equals("DAILY"))
+	nOPeriodIndex = 1;
+else if (strObservationPeriod.toUpperCase().equals("MONTHLY"))
+	nOPeriodIndex = 2;
+else if (strObservationPeriod.toUpperCase().equals("YEARLY"))
+	nOPeriodIndex = 4;
+else if (strObservationPeriod.toUpperCase().equals("ALLTIME"))
+	nOPeriodIndex = 5;
+
+	
+	
+
+
+
 
 
 
@@ -103,6 +123,8 @@ if (strAlertId != null)
 	query2 += " log_alerts.alert_id=" + strAlertId + " ";
 else
 	query2 += " log_alerts.user_id=" + strUserId + " ";
+if (nOPeriodIndex != 0)
+	query2 += " AND time_events.id=" + nOPeriodIndex;
 query2 += " order by dtf DESC limit 30 ";
 
 //out.println(query2); if (1==1) return;
