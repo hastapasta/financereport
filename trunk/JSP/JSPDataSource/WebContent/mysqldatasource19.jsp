@@ -123,26 +123,6 @@ finally
 		return;
 }
 
-out.println("<table>");
-for (int i=0;i<arrayListRows.size();i++)
-{
-	out.println("<tr>");
-	String[] temp = arrayListRows.get(i);
-	for (int j=0;j<temp.length;j++)
-	{
-		out.println("<td>" + temp[j] +"</td>");
-	}
-	out.println("</tr>");
-}
-out.println("</table>");
-
-out.println(query); if (1==1) return;
-
-int[] tmpArray = {0,1};
-arrayListRows = PopulateSpreadsheet.getMaxGroupBy(arrayListRows,tmpArray,4);
-
-
-
 /*out.println("<table>");
 for (int i=0;i<arrayListRows.size();i++)
 {
@@ -154,15 +134,12 @@ for (int i=0;i<arrayListRows.size();i++)
 	}
 	out.println("</tr>");
 }
-out.println("</table>");
+out.println("</table>");*/
 
-out.println(query); if (1==1) return;*/
+//out.println(query); if (1==1) return;
 
-
-
-
-
-
+int[] tmpArray = {0,1};
+arrayListRows = PopulateSpreadsheet.getMaxGroupBy(arrayListRows,tmpArray,4);
 
 
 
@@ -195,14 +172,14 @@ out.println(query); if (1==1) return;*/
 ArrayList<String[]> arrayListSave = new ArrayList<String[]>();
 for (int i=0;i<arrayListRows.size();i++)
 {
-	String[] tmp = new String[11];
+	String[] tmp = new String[12];
 	
 	tmp[0] = tmp[1] = arrayListRows.get(i)[0];
 	tmp[2] = tmp[3] = arrayListRows.get(i)[1];
 	tmp[4] = tmp[5] = arrayListRows.get(i)[2];
 	tmp[6] = tmp[7] = arrayListRows.get(i)[3];
 	tmp[8] = tmp[9] = arrayListRows.get(i)[4];
-	tmp[9] = tmp[10] = arrayListRows.get(i)[5];
+	tmp[10] = tmp[11] = arrayListRows.get(i)[5];
 	
 	arrayListSave.add(tmp);
 	
