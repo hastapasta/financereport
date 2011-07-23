@@ -83,33 +83,13 @@ for (int i=0;i<fields.length;i=i+4)
 }
 
 
-/*arrayListCols.add(blap1);
-arrayListCols.add(blap2);
-arrayListCols.add(blap3);
-arrayListCols.add(blap4);
-arrayListCols.add(blap5);
-arrayListCols.add(blap6);
-arrayListCols.add(blap7);
-arrayListCols.add(blap8);
-arrayListCols.add(blap9);
-arrayListCols.add(blap10);
-arrayListCols.add(blap11);*/
-
-//DBFunctions dbf = new DBFunctions("testdataload","3306","findata","root","madmax1.");
-
-
-
-
-
-
-
 //String query = "select tasks.name,entities.ticker,time_events.name,users.username,fd1.value, fd2.value, (if (fd1.value=0,fd1.value,round(((fd2.value - fd1.value)/fd1.value),3))) * 100 as pctchange,  ";
 //query += "fd1.date_collected,fd2.date_collected,time_events.last_datetime,time_events.next_datetime ";
 query += " from alerts ";
-query += "JOIN schedules on alerts.schedule_id=schedules.id ";
+query += "JOIN schedules on alerts.task_id=schedules.task_id ";
 query += "JOIN users on alerts.user_id=users.id ";
 query += "JOIN entities on alerts.entity_id=entities.id ";
-query += "JOIN tasks on schedules.task_id=tasks.id ";
+query += "JOIN tasks on alerts.task_id=tasks.id ";
 query += "JOIN time_events on alerts.time_event_id=time_events.id ";
 query += "LEFT JOIN fact_data as fd1 on alerts.initial_fact_data_id=fd1.id ";
 query += "LEFT JOIN fact_data as fd2 on alerts.current_fact_data_id=fd2.id ";
