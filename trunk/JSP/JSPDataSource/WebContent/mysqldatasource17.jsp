@@ -34,16 +34,18 @@ int nOPeriodIndex = 0;
 //String strEntityId = request.getParameter("entityid");
 
 
-if (strObservationPeriod.toUpperCase().equals("HOURLY"))
-	nOPeriodIndex = 3;
-else if (strObservationPeriod.toUpperCase().equals("DAILY"))
-	nOPeriodIndex = 1;
-else if (strObservationPeriod.toUpperCase().equals("MONTHLY"))
-	nOPeriodIndex = 2;
-else if (strObservationPeriod.toUpperCase().equals("YEARLY"))
-	nOPeriodIndex = 4;
-else if (strObservationPeriod.toUpperCase().equals("ALLTIME"))
-	nOPeriodIndex = 5;
+if (strObservationPeriod!=null) {
+	if (strObservationPeriod.toUpperCase().equals("HOURLY"))
+		nOPeriodIndex = 3;
+	else if (strObservationPeriod.toUpperCase().equals("DAILY"))
+		nOPeriodIndex = 1;
+	else if (strObservationPeriod.toUpperCase().equals("MONTHLY"))
+		nOPeriodIndex = 2;
+	else if (strObservationPeriod.toUpperCase().equals("YEARLY"))
+		nOPeriodIndex = 4;
+	else if (strObservationPeriod.toUpperCase().equals("ALLTIME"))
+		nOPeriodIndex = 5;
+}
 
 	
 	
