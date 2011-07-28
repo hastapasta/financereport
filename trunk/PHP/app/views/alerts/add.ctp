@@ -369,6 +369,7 @@ echo "</select>";
 		echo $this->Form->input('auto_reset_fired',array('label'=>'Auto Reset After Fired'));
 		echo $this->Form->input('auto_reset_period',array('label'=>'Auto Reset After Observation Period End'));
 		echo $this->Form->input('email_alert',array('label'=>'Email Notification'));
+		echo $this->Form->input('twitter_alert',array('label'=>'Twitter Notification'));
 		
 		
 	
