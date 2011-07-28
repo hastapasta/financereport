@@ -65,10 +65,10 @@ class AlertsController extends AppController {
 			$conditions = array('Alert.user_id'  => $tmpuserid['User']['id']);
 		}
 		
-		if ($this->Session->read('FilterValues') != null)
+		$filtervalues = $this->data;
+		if ($filtervalues != null)
 		{
 			
-				$filtervalues = $this->Session->read('FilterValues');
 				//debug($filtervalues,true);
 				if (!empty($filtervalues))
 				{
@@ -198,21 +198,25 @@ class AlertsController extends AppController {
 			{
 			
 				
-				debug('here1',true);
-				debug($this->data,true);
-			
 				
 				//restructure the data
 				$multiselect = $this->data['Alert']['entity_id'];
-				//$i=0;
 				$tmp2 = array();
 					
 				foreach ($multiselect as $item){
 					$tmp = $this->data['Alert'];
+					
+					/*
+					 *  Need to do a look up of the task_id based off of the entity_id and the metric_id
+					 */
+					
+					$taskid = $this->getTaskId($item,$this->data['Alert']['metric_id']);
+					
+					$tmp['task_id'] = $taskid;		
 					$tmp['entity_id'] = $item;
 					array_push($tmp2,$tmp);
-					//$i++;
 				}
+				//debug($tmp2);
 				$this->data['Alert'] = $tmp2;
 				$this->Alert->create();
 				
@@ -221,8 +225,11 @@ class AlertsController extends AppController {
 				
 	
 				if ($this->Alert->saveAll($this->data['Alert'])) {
-					$this->Session->setFlash(__('The alert(s) have been saved', true),'default',array('class'=>'green_message'));
+					//$this->Session->setFlash(__('The alert(s) have been saved', true),'default',array('class'=>'green_message'));
 					//$this->redirect(array('action' => 'index'));
+					$num_of_alert = sizeof($this->data['Alert']);
+					$this->Session->setFlash(__('The alert(s) have been saved', true),'default',array('class'=>'green_message'));
+					$this->redirect(array('action' => 'listview',$num_of_alert));
 				} else {
 					$this->Session->setFlash(__('The alert could not be saved. Please, try again.', true));
 				}
@@ -272,6 +279,20 @@ class AlertsController extends AppController {
 		
 //		$this->set('user',$userprops['User']['id']);
 	}
+	
+	// Call After Add A Alert For Display The Detail Of Recently Added Alert
+	function listview($totalAlert = null) {
+		if (!$totalAlert) {	//If Not Set Total Added Record
+			$this->Session->setFlash(__('Invalid alert', true));
+			$this->redirect(array('action' => 'index'));
+		}
+		
+		$this->Alert->recursive = 1;
+		
+		//Fetch Recently Added Record Into Alerts Table
+		$alertIds = $this->Alert->find('all',array('order'=>'Alert.id desc','limit'=>'0 ,'.$totalAlert));
+		$this->set('alerts',$alertIds);
+	}
 
 	function edit($id = null) {
 		$record = $this->Session->read('Record');
@@ -294,12 +315,20 @@ class AlertsController extends AppController {
 			/*
 			 * Here we need to reformat the data and covert the string ticker to an entity_id.
 			 */
-		
+
 			for($x=0;$x<sizeof($this->data['Alert']);$x++)
 			{
-				$tmpticker = $this->data['Entity'][$x]['ticker'];
-				$tmpentityid = $this->Entity->find('first', array('fields'=> 'id','conditions'=>array('Entity.ticker'=>$tmpticker)));
-				$this->data['Alert'][$x]['entity_id'] = $tmpentityid['Entity']['id'];
+				if (sizeof($this->data['Alert'][$x]['entity_id']) != 1 || empty($this->data['Alert'][$x]['entity_id'])) {
+					$this->Session->setFlash(__('Please select one and only one entity id.', true));
+					//I want to return back to the edit screen.
+					$this->redirect(array('action' => 'edit'),$this->data['Alert']['id']);
+				}
+				
+				//$tmpticker = $this->data['Alert'][$x]['ticker'];
+				//$tmpentityid = $this->Entity->find('first', array('fields'=> 'id','conditions'=>array('Entity.ticker'=>$tmpticker)));
+				//$this->data['Alert'][$x]['entity_id'] = $tmpentityid['Entity']['id'];
+				$this->data['Alert'][$x]['entity_id'] = $this->data['Alert'][$x]['entity_id'][0];
+				
 			}
 			
 			if ($this->Alert->saveAll($this->data['Alert'])) {
@@ -321,7 +350,8 @@ class AlertsController extends AppController {
 		if (empty($this->data)) {
 			$this->log('in edit @ invalid user',LOG_DEBUG);
 			$this->Session->setFlash(__('Invalid user', true));
-			$this->redirect(array('action' => 'index'));
+			//temporarily commented out
+			//$this->redirect(array('action' => 'index'));
 		}
 		//$task_names = $this->Task->find('list', array('fields'=> 'description',    'order'=>'Task.description ASC',  'conditions'=> array('1' => '1'),'group'=>'description'));
 		/*$task_names = $this->Task->find('list', array('fields'=> array('SchedulesAlias.id','description'),'joins'=>array(
@@ -388,6 +418,34 @@ class AlertsController extends AppController {
 			$ticker[] = $data[$i]['entities'];	
 		}
 		print(json_encode($ticker));
+	}
+	
+	function getTaskId($entityid,$metricid) {
+		
+		$sql = "select tasks.id ";
+		$sql.= " from entities_entity_groups,entity_groups_tasks,tasks ";
+		$sql.= " where entities_entity_groups.entity_id=".$entityid;
+		$sql.= " and tasks.metric_id=".$metricid;
+		$sql.= " and entities_entity_groups.entity_group_id=entity_groups_tasks.entity_group_id ";
+		$sql.= " and entity_groups_tasks.task_id=tasks.id ";
+		
+		
+		
+		$data = $this->Alert->query($sql);
+		
+	
+		
+		//debug($data,true);
+		
+		/* 
+		 * Right now we are just going to return the first result. If there is more than one task/entityid/metricid combo
+		 * then we will have to come up with some way to differentiate the source.
+		 */
+		
+		
+		return($data[0]['tasks']['id']);
+		
+	
 	}
 }
 ?>
