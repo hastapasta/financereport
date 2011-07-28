@@ -10,9 +10,8 @@
 <!-- Source file -->
 <script src="http://yui.yahooapis.com/2.8.2r1/build/json/json-min.js"></script>
 
-
+<div class="alerts none">
 <script type="text/javascript">
-	metricid="";
 	function get_type(thing){     
 		if(thing===null)return "[object Null]"; 
 	// special case   
@@ -36,28 +35,7 @@
 		}
 	}
 
-	$(document).ready(function() {
-        $("#filtersubmit").click(function() {
-        	selectobj = document.getElementById("filtermetric");
-        	checkboxobj = document.getElementById("filtersenabled");
-        	
-        	if (checkboxobj.checked == true)
-        		metricid = selectobj.value;
-        	else
-        		metricid = "";
-       
-            buildTree3();
-            //var src = $(this).val();
-
-            //$("#imagePreview").html(src ? "<img src='" + src + "'>" : "");
-        });
-    });
-
-	
-
-	
-
-	/*(function() {*/
+	(function() {
 
 		 function treeInit() {
 			
@@ -82,6 +60,20 @@
 
     	var tmpNode1;
  
+
+        
+
+        /*for (var i = 0; i < Math.floor((Math.random()*4) + 3); i++) {
+            var tmpNode = new YAHOO.widget.TextNode("label-" + i, tree.getRoot(), false);
+            // tmpNode.collapse();
+            // tmpNode.expand();
+            // buildRandomTextBranch(tmpNode);
+            buildLargeBranch(tmpNode);
+        }*/
+     
+
+        
+
        // Expand and collapse happen prior to the actual expand/collapse,
        // and can be used to cancel the operation
   
@@ -101,7 +93,7 @@
           		{
           	
           			var data = YAHOO.lang.JSON.parse(xmlhttp.responseText);
-          			var tmpNode
+          			var tmpNode;
 					/*
 					* Build the Group Nodes
 					*/
@@ -114,8 +106,17 @@
           			//for (i=0;i<1;i++)
           			for (i=0;i<data.length;i++)
           			{
-
-              			var label = "&nbsp<B>" + data[i].description + "</B>";
+              		
+              			//n = tree1.getNodeByProperty('id',data[i].parent_id)
+              			//tree1.removeChildren(n);
+              			
+              		
+              			if((data[i].description != null) && data[i].description != ''){
+							var label = "&nbsp<B>" + data[i].description + "</B>";
+						}else{
+							var label = "&nbsp<B>" + data[i].id + "</B>";
+						}
+						
 
               			label.replace('€','&#8364;');
               		
@@ -172,7 +173,10 @@
           	    	tree1.setNodesProperty('propagateHighlightUp',true);
           	    	tree1.setNodesProperty('propagateHighlightDown',true);
           	    	tree1.render();
-   			
+
+         
+          		
+          			
           		}
           	}
 
@@ -180,8 +184,9 @@
         	var users = document.getElementById("users");
         
         	//xmlhttp.open("POST","http://localhost/PHP/ajaxsample/cakeajax.php?q="+str+"&timestamp="+currentTime,true);
-       
-        	xmlhttp.open("POST",php_root_path + "/ajaxsample/cakeajax4.php?q=1002" + "&m=" + metricid ,true);
+        	//alert("http://localhost/PHP/ajaxsample/cakeajax2.php?q=" + users.value);
+        	
+        	xmlhttp.open("POST",php_root_path + "/ajaxsample/cakeajax4.php?q=1002" ,true);
 
         	xmlhttp.send();
 
@@ -193,7 +198,7 @@
 
 	YAHOO.util.Event.onDOMReady(treeInit);
 
-	//} )();
+	} )();
 	function buildTree2() {
 		var AppPath = "<?php echo $this->base;?>/alerts/getTicker/q:1000";
 	
@@ -226,7 +231,7 @@
 
 	function submitFunc()
 	{
-	
+		//alert('here');
 		/*if (!validate())
 			return false;*/
 		
@@ -288,46 +293,13 @@
 
 	</script>
 
-<table>
-<tr>
-<td>
-<table class="searchTable">
-<tr><td>
-<?php
-$checkboxdefault=false;
-?>
-<tr><td>
-<?php echo $this->Form->label('Metric:'); ?>
-</td></tr>
-<tr><td>
-<?php echo "<select id=\"filtermetric\" >";
-foreach ($this->getVar('metric_names') as $key=>$metric)
-{
-	echo "<option value=\"".$key."\">".$metric."</option>";
-}
-echo "</select>";
-?>
-</td></tr>
-<tr>
-<td><?php echo $this->Form->label('Filters Enabled:');?></td>
-<td><?php echo $this->Form->checkbox('filtersenabled', array('value' => '0','checked'=>$checkboxdefault)); ?></td>
-</tr>
-<tr><td>
-<div class="submit"><input type="submit" value="Refresh Entities" id="filtersubmit"/></div>
-</td></tr>
-
-</table>
-</td>
-<td style='width:99%;'>
-<div class="alerts index" style='float:left;'>
+<?php //echo $this->element('actions'); ?>
 <?php //echo $this->Form->create('Alert');
 	echo $this->Form->create('Alert', array (/*'default'=>false,'action'=>'multiAdd',*/'name'=>'testForm','onsubmit'=>'submitFunc();'))
 ?>
 	<fieldset>
  		<legend><?php __('Add Alert'); ?></legend>
 	<?php
-	
-
 
 
 
@@ -336,19 +308,21 @@ echo "</select>";
 		echo "</select>";
 		echo $this->Form->input('Alert.entity_id',array('type'=>'select','multiple'=> true));
 		echo "</div>";
-
+		//$group_id = $session->read('Auth.User.group_id');		
+		 
 		
-		
-		
-		echo "<BR>Entity Group:<BR>";
-		echo "<div id=\"treeDiv1\" class=\"ygtv-checkbox\"></div>";
+		//echo $this->Form->input('task_id',array('label'=>'Entity Group','onChange'=>'showUser(this.value)','options' => $this->getVar('entity_groups')));
+		//debug($this->Form,true);
+		//echo "<div style=\"position:relative; left:0px; top:0px; width:400px; height:0px; background-color:#ffffff; overflow:auto;\"";
+		//echo "id=\"treeDiv1\" class=\"ygtv-checkbox\"></div>";
+		echo "Entity Group:<BR>";
+		echo "<div id=\"treeDiv1\" class=\"ygtv-checkbox treeDiv\"></div>";
 		
 		echo "<div style=\"position:relative; left:0px; top:0px; width:400px; height:0px; background-color:#ffffff; overflow:auto;\"";
 		echo "id=\"treeDiv2\" class=\"ygtv-checkbox\"></div>";
-		echo $this->Form->input('Alert.metric_id',array('label'=>'Metric','options' => $this->getVar('metric_names')));
 		echo $this->Form->input('Alert.user_id',array('label'=>'User Name','options' => $this->getVar('usernames')));
 		echo $this->Form->input('Alert.time_event_id',array('label'=>'Observation Period','options' => $this->getVar('timeeventnames')));
-		
+		echo $this->Form->input('Alert.metric_id',array('label'=>'Metric','options' => $this->getVar('metric_names')));
 		echo $this->Form->input('limit_value');
 		//echo $this->Form->input('limit_adjustment');
 		echo $this->Form->input('limit_adjustment',array('value'=>0,'type'=>'hidden'));
@@ -368,7 +342,4 @@ echo "</select>";
 	</fieldset>
 <?php echo $this->Form->end(__('Submit', true));?>
 </div>
-</td>
-</tr>
-</table>
 
