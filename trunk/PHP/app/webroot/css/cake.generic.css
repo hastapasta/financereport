@@ -120,9 +120,9 @@ ul,li {
 	background: #fff;
 	clear: both;
 	color: #333;
-	padding: 10px 20px 40px 20px;
+	padding: 10px 0px 40px 20px;
 	float: left;
-	width: 100%;
+	width: 98.6%;
 	font: 13px/1.231 arial,helvetica,clean,sans-serif;
 	display:table-row;
 }
@@ -134,11 +134,24 @@ ul,li {
 }
 
 /** containers **/
-div.form,div.index,div.view {
+div.index {
+	float:right;
+	width: 80%;
 	
-	display:table-cell;
-	width: 82%;
 	border-left: 1px solid #666;
+	padding: 10px 2%;
+	
+}
+
+div.form {
+	float:left;
+	width: 100%;
+	padding: 10px 2%;
+	
+}
+
+div.view {
+	float:clear;
 	padding: 10px 2%;
 	
 }
@@ -320,10 +333,22 @@ form div {
 	vertical-align: text-top;
 }
 
-#treeDiv1 div {
+
+.treeDiv div {
 	margin-bottom: 0em;
 	padding: 0em;
 }
+
+form .searchTable .text {
+	margin-bottom: 0em;
+	padding: 0em;
+}
+
+form .searchTable .checkbox {
+	margin-bottom: 0em;
+	padding: 0em;
+}
+	
 
 form .input {
 	color: #444;
@@ -349,6 +374,7 @@ label {
 	display: block;
 	font-size: 110%;
 	margin-bottom: 3px;
+	font-weight: bold;
 }
 
 input,textarea {
@@ -371,6 +397,16 @@ select {
 	font-size: 120%;
 	vertical-align: text-bottom;
 	width: 260px;
+}
+
+#PagePageLimit{
+width: 70px;
+}
+
+#PageLimitLabel label{
+	float:left;
+	line-height: 25px;
+    vertical-align: middle;
 }
 
 select[multiple=multiple] {
@@ -410,20 +446,29 @@ input[type=submit] {
 }
 
 form .submit input[type=submit] {
-	background: #62af56;
-	background: -webkit-gradient(linear, left top, left bottom, from(#a8ea9c),
-		to(#62af56) );
-	background-image: -moz-linear-gradient(top, #a8ea9c, #62af56);
-	border-color: #2d6324;
+	background: #666;
+	/*background: -webkit-gradient(linear, left top, left bottom, from(#a8ea9c),
+		to(#62af56) );*/
+	background: -webkit-gradient(linear, left top, left bottom, from(#ccc),
+		to(#999) );
+/*	background-image: -moz-linear-gradient(top, #a8ea9c, #62af56);*/
+	background-image: -moz-linear-gradient(top, #ccc, #999);
+	border-color: #999;
 	color: #000;
-	text-shadow: #8cee7c 0px 1px 0px;
+	text-shadow: #ccc 0px 1px 0px;
 }
 
 form .submit input[type=submit]:hover {
-	background: #4ca83d;
-	background: -webkit-gradient(linear, left top, left bottom, from(#85e573),
+	/*
+	 * background: #4ca83d;
+	 * 	background: -webkit-gradient(linear, left top, left bottom, from(#85e573),
 		to(#4ca83d) );
-	background-image: -moz-linear-gradient(top, #85e573, #4ca83d);
+		background-image: -moz-linear-gradient(top, #85e573, #4ca83d);
+	*/
+	background: #666;
+	background: -webkit-gradient(linear, left top, left bottom, from(#999),
+		to(#666) );
+	background-image: -moz-linear-gradient(top, #999, #666);
 }
 
 /** Notices and Errors **/
@@ -513,7 +558,7 @@ div.actions ul li a:hover {
 	text-decoration: underline;
 }
 
-input[type=submit],div.actions ul li a,td.actions a,td.actions_button a,td.actions_button .editButton,td.actions_button .deleteButton
+input[type=submit],div.actions ul li a,td.actions a,td.actions_button a,td.actions_button .editButton,td.actions_button .deleteButton, .btn
 	{
 	font-weight: normal;
 	padding: 4px 8px;
@@ -674,7 +719,7 @@ div.code-coverage-results span.result-good {
 .searchTable{
 	vertical-align:top;
 	padding-top:10px;
-	display:table-cell;
+	float:left;
 	width:150px;
 	clear: none;
 	
@@ -782,18 +827,18 @@ div.code-coverage-results span.result-good {
 #topAction li a{
 	display:block;
 }
-.registration{
-	background: -moz-linear-gradient(center top , #A8EA9C, #62AF56) repeat scroll 0 0 #62AF56;
-    border-color: #2D6324;
+.registration{   
+	background: -moz-linear-gradient(center top , #ccc, #666) repeat scroll 0 0 #666;
+    border-color: #333;
     color: #000000;
-    text-shadow: 0 1px 0 #8CEE7C;
+    text-shadow: 0 1px 0 #666;
     -moz-border-radius: 8px 8px 8px 8px;   
-    border: 1px solid #2D6324;
+    border: 1px solid #333;
     cursor: pointer;
     font-weight: normal;
     min-width: 0;
     padding: 4px 8px;
-    text-decoration: none;    
+    text-decoration: none;   
 }
 #logIn{
 	list-style-type: none;
@@ -801,3 +846,53 @@ div.code-coverage-results span.result-good {
 #logIn li{
 	float: left;
 }
+
+/****************** Tabbed Interface ************/
+
+.main_tab{
+	background:#EBEFF9;
+	border-bottom:1px solid black;
+	padding: 10px 10px 5px 10px;
+	white-space:nowrap;
+}
+
+.main_tab a{
+	font-size:13px !important;
+	text-decoration: underline;
+	margin:5px 15px 6px 10px;
+	cursor: pointer;	
+}
+/*.main_tab a.logout{
+	color:black;
+	font-size: 13px !important;
+	font-weight: normal;
+}*/
+.main_tab a.active_tab{
+	background: #F1F1F1;
+    border-left:1px solid black;
+	border-right:1px solid  black;
+	border-top:1px solid  black;
+	color: #000000;
+    cursor: default;
+    font-weight: bold;
+    margin: 0 5px -1px 0;
+    padding: 5px 9px 6px;
+    text-decoration: none;
+}
+div.sub_tab{
+	background: #F1F1F1;	
+	height: 30px;
+	line-height: 30px;
+	padding-left:10px;
+}
+div.sub_tab a{
+	margin:3px 15px;
+	text-decoration:underline;
+	font-size:13px !important;
+}
+div.sub_tab a.active{
+	text-decoration: none;
+	color:black;
+}
+
+
