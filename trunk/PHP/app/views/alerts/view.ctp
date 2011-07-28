@@ -203,6 +203,18 @@
 	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Current Value Date'); ?></dt>
 	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $alert['CurrentFactDatum']['date_collected']; ?>
 	&nbsp;</dd>
+	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Auto Reset Fired'); ?></dt>
+	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $alert['Alert']['auto_reset_fired']; ?>
+	&nbsp;</dd>
+	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Auto Reset Period'); ?></dt>
+	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $alert['Alert']['auto_reset_period']; ?>
+	&nbsp;</dd>
+	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Email Alert'); ?></dt>
+	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $alert['Alert']['email_alert']; ?>
+	&nbsp;</dd>
+	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Twitter Alert'); ?></dt>
+	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $alert['Alert']['twitter_alert']; ?>
+	&nbsp;</dd>
 	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Notification Count'); ?></dt>
 	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $alert['Alert']['notification_count']; ?>
 	&nbsp;</dd>
