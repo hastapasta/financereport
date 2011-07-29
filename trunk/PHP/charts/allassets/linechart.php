@@ -12,8 +12,11 @@ if (isset($_GET['a']))
 	$alertid = $_GET['a'];
 elseif (isset ($_GET['e']))
 	$entityid = $_GET['e'];
+elseif (isset ($_GET['t']))
+	$ticker = $_GET['t'];
 else
-	die("No alert id or entity id parameter in url. Unable to render chart.");
+	$error =  "No alert id,entity id  or ticker parameter in url. Unable to render chart.";
+	//die("No alert id,entity id  or ticker parameter in url. Unable to render chart.");
 	
 if (!empty($alertid))
 {
@@ -25,12 +28,46 @@ if (!empty($alertid))
 	$entityid = $row1['entity_id'];
 }
 
+if (!empty($ticker)) {
+	$tickerarray = split(",",$ticker);
+	$sql1 = "select id from entities where ticker in (";
+	foreach ($tickerarray as $tmp) {
+		$sql1.="'".$tmp."',";
+	}
+	$sql1 = substr($sql1,0,strlen($sql1)-1);
+	$sql1.=")";
+	
+	$result1 = mysql_query($sql1);
+	$count=0;
+	while ($row1 = mysql_fetch_array($result1)) {
+		$entityid.=$row1['id'].",";	
+		$count++;
+	}
+	if ($count==0)
+		$error = "Ticker(s) ".$ticker." not found.";
+	$entityid=substr($entityid,0,strlen($entityid)-1);
+}
+
+$begindate="2011-01-01";
+$enddate="";
+
+if (isset($_GET['begindate']) && !empty($_GET['begindate']))
+	$begindate=$_GET['begindate'];
+	
+if (isset($_GET['enddate']) && !empty($_GET['enddate']))
+	$enddate=$_GET['enddate'];
+	
+	
+	
+	
+
 $title="";
 if (isset($_GET['title']))
 	$title=urldecode($_GET['title']);
 	
 
 $entityid = str_replace(' ',',',$entityid);
+$entities = split(",",$entityid);
 
 
 	
@@ -90,17 +127,47 @@ if (isset($_GET['group']))
 				},
     			minLength: 1,
     			select: function( event, ui ) {
-    				if(ui.item)
-    				{
-        				//loadChart("",  ui.item.value);
-        				//alert('value:' + ui.item.value);
-        				//var tmp[] = split(ui.item.value,'|');
-        				//$( "#a_c" ).val(ui.item.value.split("|")[1]);
-        				//sendAndDraw(ui.item.value.split("|")[0],ui.item.value.split("|")[1],ui.item.value.split("|")[2]);
-        				sendAndDraw(ui.item.id,ui.item.label,ui.item.full_name);
+    				if(ui.item)	{    
+        				
+        				//alert(ui.item.id);
+        				//sendAndDraw(ui.item.id,ui.item.label,ui.item.full_name);
+        				<?php
+        						echo "window.location.replace(\"";
+        						echo IncFunc::$PHP_ROOT_PATH;
+        						echo "/charts/allassets/linechart.php?title=";
+        						echo urlencode($title);
+        						/*
+        						 * There are other javascript enocde functions: escape() and encodeURIComponent()
+        						 */
+        						echo "&e=\"+encodeURI(ui.item.id));";
+        						
+        				?>
     				}
     			}
     		});
+    		$("#a_c").keypress(function (e,ui) { 
+        		if (e.which == 13) { 
+            		//yourFunction($('#yourAutoComplete').val()); return false;
+            		value = $("#a_c").val();
+      
+					<?php
+						echo "window.location.replace(\"";
+						echo IncFunc::$PHP_ROOT_PATH;
+						echo "/charts/allassets/linechart.php?title=";
+						echo urlencode($title);
+						/*
+						 * There are other javascript enocde functions: escape() and encodeURIComponent()
+						 */
+						echo "&t=\"+encodeURI(value));";
+						
+					?>
+					
+					
+					
+					
+        			//sendAndDraw(ui.item.id,ui.item.label,ui.item.full_name); 
+            	} 
+        	}); 
         });
 
         
@@ -144,6 +211,7 @@ if (isset($_GET['group']))
          	options.scaleType='maximized';
          	options.wmode='opaque';
          	options.thickness=2;
+         	options.legendPosition='newRow';
          	
             
 
@@ -155,7 +223,21 @@ if (isset($_GET['group']))
         	/*
         	* metric id of zero means use the default.
         	*/
-        	var queryPath = '<?php echo IncFunc::$JSP_ROOT_PATH;?>mysqldatasource15multiple.jsp?begindate=2011-01-01&alertid=0&metricid=0';
+			<?php 
+			if (sizeof($entities) > 1) {
+				echo "var queryPath = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource15multiple.jsp?begindate=".$begindate;
+				if (!empty($enddate))
+					echo "&enddate=".$enddate;
+				echo "&alertid=0&metricid=0';\n";
+			}
+			else {
+				echo "var queryPath = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource15.jsp?begindate=".$begindate;
+				if (!empty($enddate))
+					echo "&enddate=".$enddate;
+				echo "&alertid=0&metricid=0';\n";
+			}
+			
+			?>
         	title = document.getElementById('chart-title');
 			if(id != undefined){
 				queryPath += '&entityid=' + escape(id); 
@@ -173,7 +255,9 @@ if (isset($_GET['group']))
 				
 				<?php 
 					while ($row = mysql_fetch_array($result)) {
-						echo "title.innerHTML+='".$row['ticker']." - ".$row['full_name']."<BR>';";
+						
+						echo "title.innerHTML+='".$row['ticker']." - ".str_replace("'","&#39;",$row['full_name'])."<BR>';";
+						
 					}
 
 					
@@ -219,7 +303,18 @@ if (isset($_GET['group']))
 	IncFunc::yuiDropDownMenu();
 
 ?>
-<div id="chartTitle" style="margin: 20px 0 0 0;font-size: medium;font-weight:bold;"><u><?php echo $title ?></u></div>
+<BR>
+
+<?php 
+	if (!empty($error)) {
+		echo "<BR>";
+		echo "<div id=\"error\" style=\"font-size: medium\">";
+		echo "Error: ".$error;
+		echo "</div>";
+	}
+	else {
+?>
+<div id="chartTitle" style="margin: 20px 0 0 0;font-size: medium;font-weight:bold;"><u><?php echo $title; ?></u></div>
 
     <div id="pf-form" style="margin:20px 0 0 0;font-size:15px;">
     Enter entity name (stock ticker, equity index, currency cross, etc):
@@ -240,5 +335,8 @@ if (isset($_GET['group']))
     
 
 </div> <!--  siteContain -->  
+<?php 
+	}
+?>
 </body>
 </html>
