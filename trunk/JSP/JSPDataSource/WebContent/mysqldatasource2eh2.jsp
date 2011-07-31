@@ -84,11 +84,11 @@ if (Debug.RELEASE == true)
 {
 	calEnd.set(Calendar.YEAR,2011);
 	calEnd.set(Calendar.DAY_OF_MONTH,21);
-	calEnd.set(Calendar.MONTH,4);
+	calEnd.set(Calendar.MONTH,6);
 	
 	calBegin.set(Calendar.YEAR,2011);
 	calBegin.set(Calendar.DAY_OF_MONTH,21);
-	calBegin.set(Calendar.MONTH,4);
+	calBegin.set(Calendar.MONTH,6);
 
 	
 }
@@ -223,7 +223,7 @@ arrayListCols.add(blap4);
 
 
 
-String query2 = "select fact_data.entity_id,'placeholder',date_format(date_collected,'%Y-%m-%d %T') as date_begin,value,ticker ";
+String query2 = "select 'mysqldatasource2eh2',fact_data.entity_id,'placeholder',date_format(date_collected,'%Y-%m-%d %T') as date_begin,value,ticker ";
 query2 += " ,countries.name,entities.full_name ";
 query2 += " from fact_data ";
 query2 += " JOIN entities on entities.id=fact_data.entity_id ";
@@ -235,12 +235,12 @@ query2 += " AND entities_entity_groups.entity_group_id=" + strEntityGroupId;
 query2 += " AND metric_id=" + strMetricId;
 query2 += " ORDER BY fact_data.entity_id ";
 
-out.println(query2); if (1==1) return;
+//out.println(query2); if (1==1) return;
 
 
 
 
-String query3 = "select fact_data.entity_id,'placeholder',date_format(date_collected,'%Y-%m-%d %T') as date_end,value,ticker ";
+String query3 = "select 'mysqldatasource2eh2',fact_data.entity_id,'placeholder',date_format(date_collected,'%Y-%m-%d %T') as date_end,value,ticker ";
 query3 += " ,countries.name,entities.full_name ";
 query3 += " from fact_data ";
 query3 += " JOIN entities on entities.id=fact_data.entity_id ";
@@ -251,6 +251,8 @@ query3 += " AND date_collected<'" + formatter.format(calEnd.getTime()) + "' ";
 query3 += " AND entities_entity_groups.entity_group_id=" + strEntityGroupId;
 query3 += " AND metric_id=" + strMetricId;
 query3 += " ORDER BY fact_data.entity_id ";
+
+//out.println(query3); if (1==1) return;  
 
 
 
@@ -298,9 +300,10 @@ while (!bDone) {
 		//out.println(sqle.toString());
 		fulllogger.info("PF ERROR CODE 2eh2-1,subcode:"+code);
 		fulllogger.info(sqle.getMessage());	
-		if (!sqle.getMessage().contains("The last packet successfully recieved"))
+
+		
+		if (!sqle.getMessage().contains("The last packet successfully received")) {
 			bDone = true;
-		else {
 			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 2eh2-1,subcode:"+code));
 			bException = true;
 		}
@@ -355,9 +358,8 @@ while (!bDone) {
 		//out.println(sqle.toString());
 		fulllogger.info("PF ERROR CODE 2eh2-2,subcode:"+code);
 		fulllogger.info(sqle.getMessage());	
-		if (!sqle.getMessage().contains("The last packet successfully recieved"))
+		if (!sqle.getMessage().contains("The last packet successfully received")) {
 			bDone = true;
-		else {
 			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 2eh2-2"));
 			bException = true;
 		}
