@@ -18,6 +18,10 @@ else
 	$error =  "No alert id,entity id  or ticker parameter in url. Unable to render chart.";
 	//die("No alert id,entity id  or ticker parameter in url. Unable to render chart.");
 	
+$metricid="0";
+if (isset($_GET['m']))
+	$metricid = $_GET['m'];
+	
 if (!empty($alertid))
 {
 	$sql1 = "select entity_id from alerts where id=".$alertid;
@@ -234,7 +238,7 @@ if (isset($_GET['group']))
 				echo "var queryPath = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource15.jsp?begindate=".$begindate;
 				if (!empty($enddate))
 					echo "&enddate=".$enddate;
-				echo "&alertid=0&metricid=0';\n";
+					echo "&alertid=0&metricid=".$metricid."';\n";
 			}
 			
 			?>
