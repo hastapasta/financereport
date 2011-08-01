@@ -88,14 +88,15 @@ ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 
 //ideally i'd like to use last() here but mysql doesn't support it - it would have to be 
 //coded by hand - so going with max() instead.
-String query = "select date_format(fact_data.date_collected,'%m-%d-%Y') as date_col, date_format(fact_data.date_collected,'%H:%m:%s') as time_col, ";
-query += "fact_data.batch,fact_data.value as fdvalue,entities.ticker  ";
+String query = "select date_format(fact_data.date_collected,'%m-%d-%Y') as date_col, date_format(fact_data.date_collected,'%H:%i:%s') as time_col, ";
+query += "fact_data.batch_id,fact_data.value as fdvalue,entities.ticker  ";
 query += "from fact_data ";
 query += "JOIN entities on fact_data.entity_id=entities.id ";
+query += "JOIN batches on fact_data.batch_id=batches.id ";
 if (strMetricId.equals("0")) {
 	query += "JOIN entities_metrics on fact_data.entity_id=entities_metrics.entity_id ";
 }
-query += "JOIN tasks on fact_data.task_id=tasks.id ";
+query += "JOIN tasks on batches.task_id=tasks.id ";
 
 query += " where entities.id=" + strEntityId;
 if (strMetricId.equals("0")) {
@@ -104,7 +105,7 @@ if (strMetricId.equals("0")) {
 }
 else
 	query += " and tasks.metric_id=" + strMetricId;
-query += " AND date_format(fact_data.date_collected,'%Y-%m_%d')>'" + strBeginDate + "' ";
+query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')>'" + strBeginDate + "' ";
 if (strEndDate!=null && !strEndDate.isEmpty())
 	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
 //query += " group by date_format(fact_data.date_collected,'%Y-%m-%d'),entities.ticker,fact_data.value ";
