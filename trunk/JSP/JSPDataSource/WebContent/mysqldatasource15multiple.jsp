@@ -237,7 +237,7 @@ strInClause += ") ";
 
 //ideally i'd like to use last() here but mysql doesn't support it - it would have to be 
 //coded by hand - so going with max() instead.
-query = "select date_format(fact_data.date_collected,'%m-%d-%Y') as date_col, date_format(fact_data.date_collected,'%H:%m:%s') as time_col, ";
+query = "select date_format(fact_data.date_collected,'%m-%d-%Y') as date_col, date_format(fact_data.date_collected,'%H:%i:%s') as time_col, ";
 query += "fact_data.batch_id,fact_data.value as fdvalue,entities.ticker,fact_data.metric_id,metrics.name,fact_data.calyear ";
 query += "from fact_data ";
 query += "JOIN entities on fact_data.entity_id=entities.id ";
@@ -268,7 +268,7 @@ else
 	query += " and tasks.metric_id=" + strMetricId;*/
 	
 
-query += ") AND date_format(fact_data.date_collected,'%Y-%m_%d')>'" + strBeginDate + "' ";
+query += ") AND date_format(fact_data.date_collected,'%Y-%m-%d')>'" + strBeginDate + "' ";
 if (strEndDate!=null && !strEndDate.isEmpty())
 	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
 //query += " group by date_format(fact_data.date_collected,'%Y-%m-%d'),entities.ticker,fact_data.value ";
