@@ -152,7 +152,7 @@ for (int i=0;i<nCount;i++) {
 
 for (int i=0;i<metricIds.length;i++){
 	if (metricIds[i].equals("0")) {
-		query = "select default_metric from entities_metrics where entity_id=" + entityIds[i];
+		query = "select metric_id from entities_metrics where default_metric=1 AND entity_id=" + entityIds[i];
 		
 		dbf = null;
 		bException = false;
@@ -161,7 +161,7 @@ for (int i=0;i<metricIds.length;i++){
 			dbf = new DBFunctions();
 			dbf.db_run_query(query);
 			dbf.rs.next();
-			metricIds[i] = dbf.rs.getString("default_metric");
+			metricIds[i] = dbf.rs.getString("metric_id");
 		}
 		catch (SQLException sqle) {
 			
@@ -238,12 +238,13 @@ strInClause += ") ";
 //ideally i'd like to use last() here but mysql doesn't support it - it would have to be 
 //coded by hand - so going with max() instead.
 query = "select date_format(fact_data.date_collected,'%m-%d-%Y') as date_col, date_format(fact_data.date_collected,'%H:%m:%s') as time_col, ";
-query += "fact_data.batch,fact_data.value as fdvalue,entities.ticker,fact_data.metric_id,metrics.name,fact_data.calyear ";
+query += "fact_data.batch_id,fact_data.value as fdvalue,entities.ticker,fact_data.metric_id,metrics.name,fact_data.calyear ";
 query += "from fact_data ";
 query += "JOIN entities on fact_data.entity_id=entities.id ";
+query += "JOIN batches on fact_data.batch_id = batches.id ";
 /*if (strMetricId.equals("0"))
 	query += "JOIN entities_metrics on fact_data.entity_id=entities_metrics.entity_id ";*/
-query += " JOIN tasks on fact_data.task_id=tasks.id ";
+query += " JOIN tasks on batches.task_id=tasks.id ";
 query += " JOIN metrics on fact_data.metric_id = metrics.id ";
 query += " where (1=1) AND (";
 
