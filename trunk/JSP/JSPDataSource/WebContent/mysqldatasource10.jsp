@@ -98,12 +98,12 @@ strInClause += ") ";
 
 //ideally i'd like to use last() here but mysql doesn't support it - it would have to be 
 //coded by hand - so going with max() instead.
-String query = "select date_format(fact_data.date_collected,'%m-%d-%Y') as date_col, fact_data.batch,fact_data.value as fdvalue,entities.ticker  ";
+String query = "select date_format(fact_data.date_collected,'%m-%d-%Y') as date_col, fact_data.batch_id,fact_data.value as fdvalue,entities.ticker  ";
 query += "from fact_data ";
 query += "JOIN entities on fact_data.entity_id=entities.id ";
 //query += "JOIN tasks on fact_data.task_id=tasks.id ";
 query += " where entities.id " + strInClause;
-query += " AND date_format(fact_data.date_collected,'%Y-%m_%d')>'" + strBeginDate + "' ";
+query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')>'" + strBeginDate + "' ";
 if (strEndDate!=null && !strEndDate.isEmpty())
 	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
 //query += " group by date_format(fact_data.date_collected,'%Y-%m-%d'),entities.ticker,fact_data.value ";
@@ -134,7 +134,7 @@ try
 		tmp[0] = dbf.rs.getString("date_col");
 		tmp[1] = dbf.rs.getString("entities.ticker");
 		tmp[2] = dbf.rs.getString("fdvalue");
-		tmp[3] = dbf.rs.getString("fact_data.batch");
+		tmp[3] = dbf.rs.getString("fact_data.batch_id");
 				
 		
 		arrayListRows.add(tmp);
