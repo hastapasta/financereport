@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import org.apache.http.HttpEntity;
@@ -38,6 +39,9 @@ public class MultiTest {
 		else if (args[0].toUpperCase().equals("JOBDURATION"))
 		{
 			maxJobDuration();
+		}
+		else if (args[0].toUpperCase().equals("YAHOOTEST")) {
+			yahooDataTest(args);
 		}
 		else
 		{
@@ -196,6 +200,86 @@ public class MultiTest {
 			
 	
 			  in.close();
+			  
+			  if (returned_content.contains("FailureMode=1"))
+				  lElapsed=-3;
+			
+		}
+		catch(MalformedURLException MFUE)
+		{
+			lElapsed = -1;
+		}
+		catch (IOException ioe)
+		{
+			lElapsed = -2;
+		}
+		
+		
+	  
+	
+				
+	 
+		
+		System.out.println(lElapsed);
+	}
+	
+	public static void yahooDataTest(String[] args)
+	{
+		long lElapsed = 0;
+		
+		HttpEntity entity;
+		
+		try
+		{
+			String strURL = args[1];
+			
+			
+			
+			HttpClient httpclient = new DefaultHttpClient();
+			
+			Calendar calBegin = Calendar.getInstance();
+			
+			strURL = "http://download.finance.yahoo.com/d/quotes.csv?f=sl1d1t1c1ohgv&e=.csv&s=JCI,CPWR,IP,ETFC,ABC,AVB";
+			
+			HttpGet httpget = new HttpGet(strURL); 
+			
+			//httpclient.getParams().setParameter(HttpClientParams.SO_TIMEOUT, new Long(5000));
+	
+			
+			HttpResponse response = httpclient.execute(httpget);
+			
+			entity = response.getEntity();
+			
+			Calendar calEnd = Calendar.getInstance();
+			
+			lElapsed = (calEnd.getTimeInMillis() - calBegin.getTimeInMillis());
+			
+			BufferedReader in = new BufferedReader(
+					new InputStreamReader(
+					entity.getContent()));
+			
+			 int nTmp;			
+	
+			  String returned_content="";
+			
+			  while ((nTmp = in.read()) != -1)
+				returned_content = returned_content + (char)nTmp;
+			
+	
+			  in.close();
+			  
+			  String[] data = returned_content.split(",");
+			  
+			  
+			  ArrayList<String[]> list = new ArrayList<String[]>();
+			  
+			  data = UtilityFunctions.extendArray(data);
+			  
+			  data[data.length-1] = calBegin.getTime().toString();
+			  
+			  list.add(data);
+			  
+			  UtilityFunctions.createCSV(list, "/tmp/output.csv", true);
 			  
 			  if (returned_content.contains("FailureMode=1"))
 				  lElapsed=-3;
