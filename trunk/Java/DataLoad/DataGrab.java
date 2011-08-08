@@ -5,6 +5,9 @@
 //package com.roeschter.jsl; 
 
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.lang.reflect.Method;
 import java.net.*;
 import java.io.*;
 import java.util.regex.*;
@@ -22,6 +25,7 @@ import org.apache.http.impl.client.*;
 import org.apache.http.protocol.HTTP;
 import java.util.Arrays;
 import org.apache.log4j.NDC;
+import java.lang.reflect.InvocationTargetException;
 
 
 
@@ -169,79 +173,67 @@ DBFunctions dbf;
 	}
 	
 	public void run()
-	 {
+	{
 		
 		NDC.push("[Task:" + this.nCurTask + "]");
 		
-			UtilityFunctions.stdoutwriter.writeln("=========================================================",Logs.STATUS1,"");
+		UtilityFunctions.stdoutwriter.writeln("=========================================================",Logs.STATUS1,"");
 	  	
-	  		UtilityFunctions.stdoutwriter.writeln("PROCESSING TASK " + strCurTask,Logs.STATUS1,"DG37");
+	  	UtilityFunctions.stdoutwriter.writeln("PROCESSING TASK " + strCurTask,Logs.STATUS1,"DG37");
 	  		
-	 		if (bContinue == false)
-	 			return;
+	 	if (bContinue == false)
+	 		return;
 	 		
-	 		UtilityFunctions.stdoutwriter.writeln("JOB PROCESSING START TIME: " + calJobProcessingStart.getTime().toString(),Logs.STATUS1,"DG38");
+	 	UtilityFunctions.stdoutwriter.writeln("JOB PROCESSING START TIME: " + calJobProcessingStart.getTime().toString(),Logs.STATUS1,"DG38");
 	 		
-	 		UtilityFunctions.stdoutwriter.writeln("INITIATING THREAD",Logs.STATUS1,"DG1");
+	 	UtilityFunctions.stdoutwriter.writeln("INITIATING THREAD",Logs.STATUS1,"DG1");
 	 		
-	 		if (DataLoad.bLoadingHistoricalData == true)
-	 			NDC.push(HistoricalDataLoad.calCurrent.getTime().toString());
+	 	if (DataLoad.bLoadingHistoricalData == true)
+	 		NDC.push(HistoricalDataLoad.calCurrent.getTime().toString());
 	 		
-	 		/*try
+	 	dbf.insertBatchesEntry(this.nCurTask,this.nTaskBatch);
+	 		
+	 	for (int i=0;i<jobsArray.size();i++)
+	 	{
+	 		grab_data_set(jobsArray.get(i));
+	 	}
+	 		
+	 	calJobProcessingEnd = Calendar.getInstance();
+	 	UtilityFunctions.stdoutwriter.writeln("JOB PROCESSING END TIME: " + calJobProcessingEnd.getTime().toString(),Logs.STATUS1,"DG38.15");
+	 		
+	 	if (DataLoad.bLoadingHistoricalData == true)
+	 		NDC.pop();
+	 		
+ 		/*
+ 		 * Don't process alerts if loading historical data.
+ 		 */
+ 		if (DataLoad.bLoadingHistoricalData==false)
+ 		{
+ 		
+	 		calAlertProcessingStart = Calendar.getInstance();
+	 		UtilityFunctions.stdoutwriter.writeln("ALERT PROCESSING START TIME: " + calAlertProcessingStart.getTime().toString(),Logs.STATUS1,"DG38.25");
+	 		
+	 		Alerts al = new Alerts();
+	 		try
 	 		{
-	 			nTaskBatch = dbf.getBatchNumber();
-	 			
+	 			al.checkAlerts(this);
 	 		}
 	 		catch(SQLException sqle)
 	 		{
-	 			UtilityFunctions.stdoutwriter.writeln("Problem generating batch number. Aborting.",Logs.ERROR,"DG11.5");
+	 			UtilityFunctions.stdoutwriter.writeln("Problem process alerts.",Logs.ERROR,"DG11.52");
 	 			UtilityFunctions.stdoutwriter.writeln(sqle);
-	 			dbf.closeConnection();
-	 			NDC.pop();
-	 			return;
-	 		}*/
-	 		
-	 		for (int i=0;i<jobsArray.size();i++)
-	 		{
-	 			grab_data_set(jobsArray.get(i));
+	 			//dbf.closeConnection();
+	 			//return;
+	 			
 	 		}
 	 		
-	 		calJobProcessingEnd = Calendar.getInstance();
-	 		UtilityFunctions.stdoutwriter.writeln("JOB PROCESSING END TIME: " + calJobProcessingEnd.getTime().toString(),Logs.STATUS1,"DG38.15");
 	 		
-	 		if (DataLoad.bLoadingHistoricalData == true)
-	 			NDC.pop();
-	 		
-	 		/*
-	 		 * Don't process alerts if loading historical data.
-	 		 */
-	 		if (DataLoad.bLoadingHistoricalData==false)
-	 		{
-	 		
-		 		calAlertProcessingStart = Calendar.getInstance();
-		 		UtilityFunctions.stdoutwriter.writeln("ALERT PROCESSING START TIME: " + calAlertProcessingStart.getTime().toString(),Logs.STATUS1,"DG38.25");
-		 		
-		 		Alerts al = new Alerts();
-		 		try
-		 		{
-		 			al.checkAlerts(this);
-		 		}
-		 		catch(SQLException sqle)
-		 		{
-		 			UtilityFunctions.stdoutwriter.writeln("Problem process alerts.",Logs.ERROR,"DG11.52");
-		 			UtilityFunctions.stdoutwriter.writeln(sqle);
-		 			//dbf.closeConnection();
-		 			//return;
-		 			
-		 		}
-		 		
-		 		
-		 		calAlertProcessingEnd = Calendar.getInstance();
-		 		UtilityFunctions.stdoutwriter.writeln("ALERT PROCESSING END TIME: " + calAlertProcessingEnd.getTime().toString(),Logs.STATUS1,"DG54");
-	 		}
-	 		NDC.pop();
-	 		dbf.closeConnection();
-	
+	 		calAlertProcessingEnd = Calendar.getInstance();
+	 		UtilityFunctions.stdoutwriter.writeln("ALERT PROCESSING END TIME: " + calAlertProcessingEnd.getTime().toString(),Logs.STATUS1,"DG54");
+ 		}
+ 		NDC.pop();
+ 		dbf.closeConnection();
+
 
 	 
 	 	
@@ -571,126 +563,94 @@ public ArrayList<String[]> get_table_with_headers(String strTableSet) throws SQL
 	
 }
 
-public void get_url(String strDataSet) throws SQLException, MalformedURLException, IOException
-{
-	/*String query = "select * from extract_tables where data_set='" + strTableSet + "'";*/
+public void defaultURLProcessing(String strDataSet) throws SQLException, MalformedURLException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 	
-	
-	  String query;
+	String query;
 	 
-	  	/*retrieve url data */
-	  	/*if ((strDataSet.substring(0,5)).compareTo("table") == 0)
-	  		query = "select jobs.input_source,extract_tables.* from extract_tables where data_set='" + strDataSet + "'";
-	  	else 
-	  		query = "select jobs.input_srouce,extract* from extract_singles where data_set='" + strDataSet + "'";*/
-	    query = "select * from jobs where data_set='" + strDataSet + "'";
 	  
-		ResultSet rs2 = dbf.db_run_query(query);
-		rs2.next();
-		//URL urlFinal;
-		
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpResponse response;
+	query = "select * from jobs where data_set='" + strDataSet + "'";
+	  
+	ResultSet rs2 = dbf.db_run_query(query);
+	rs2.next();
 		
 		
-		 if ((rs2.getInt("input_source") != 0))
+	HttpClient httpclient = new DefaultHttpClient();
+	HttpResponse response;
+	
+	
+	 if ((rs2.getInt("input_source") != 0))
+	 {
+		 query = "select * from input_source where id=" + rs2.getInt("input_source");
+		 ResultSet rs3 = dbf.db_run_query(query);
+		 rs3.next();
+		 String strStProperties = rs3.getString("form_static_properties");
+		 String[] listItems = strStProperties.split(":");
+		 String[] listItems2;
+		 String data="";
+		 for (int i=0;i<listItems.length;i++)
 		 {
-			 query = "select * from input_source where id=" + rs2.getInt("input_source");
-			 ResultSet rs3 = dbf.db_run_query(query);
-			 rs3.next();
-			 String strStProperties = rs3.getString("form_static_properties");
-			 String[] listItems = strStProperties.split(":");
-			 String[] listItems2;
-			 String data="";
-			 for (int i=0;i<listItems.length;i++)
+			 listItems2 = listItems[i].split("=");
+			 if (i!=0)
 			 {
-				 listItems2 = listItems[i].split("=");
-				 if (i!=0)
-				 {
-					 data+= "&";
-				 }
-				 
-				 //check to see if there is an equal sign or a value on the right side of the equality
-				 if (listItems2.length ==1)
-					 data+= URLEncoder.encode(listItems2[0], "UTF-8") + "=";
-				 else
-					 data+= URLEncoder.encode(listItems2[0], "UTF-8") + "=" + URLEncoder.encode(listItems2[1], "UTF-8");
-				 
-				
-				 
+				 data+= "&";
 			 }
-
-			 //urlFinal = new URL(rs3.getString("url_form"));
 			 
-			 //urlFinal = new URL("http://data.bls.gov/cgi-bin/surveymost");
-			 
-			 UtilityFunctions.stdoutwriter.writeln("Retrieving URL Form: " + rs3.getString("url_form"),Logs.STATUS2,"DG24.5");
-			 //URLConnection conn = urlFinal.openConnection();
-	
-			 //HttpURLConnection hconn = (HttpURLConnection)urlFinal.openConnection();
-			 //hconn.setRequestMethod("POST");
-			 //HttpClient = new HttpClient();
-			 
-			 data="series_id=LNS14000000&survey=ln&format=&html_tables=&delimiter=&catalog=&print_line_length=&lines_per_page=&row_stub_key=&year=&date=&net_change_start=&net_change_end=&percent_change_start=&percent_change_end=";
-			 HttpPost httppost = new HttpPost("http://data.bls.gov/cgi-bin/surveymost");
-			 
-			 /*
-			 * Emulate a browser.
-			 */
-				
-			httppost.getParams().setParameter("http.protocol.user-agent", "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
-			 
-			 /*
-			  * The following line fixes an issue where a non-fatal error is displayed about an invalid cookie data format.
-			  */
-			httppost.getParams().setParameter("http.protocol.cookie-datepatterns", 
-						Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z", "EEE, dd MMM yyyy HH:mm:ss z"));
-			 
-			 List <NameValuePair> nvps = new ArrayList <NameValuePair>();
-		        nvps.add(new BasicNameValuePair("series_id", "LNS14000000"));
-		        nvps.add(new BasicNameValuePair("survey", "ln"));
-
-		     httppost.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
-
-		     response = httpclient.execute(httppost);
-
-			 
-			 
-
-			 
+			 //check to see if there is an equal sign or a value on the right side of the equality
+			 if (listItems2.length ==1)
+				 data+= URLEncoder.encode(listItems2[0], "UTF-8") + "=";
+			 else
+				 data+= URLEncoder.encode(listItems2[0], "UTF-8") + "=" + URLEncoder.encode(listItems2[1], "UTF-8");
 			 
 			
-			 
-
-
-
-			 
-			 /*hconn.setDoOutput(true);
-			 hconn.setDoInput(true);
-			 OutputStreamWriter wr = new OutputStreamWriter(hconn.getOutputStream());
-			 OutputStream os = hconn.getOutputStream();
-			 
-			 wr.write(data);
-			 wr.flush();*/
-			 //os.write(data);
-			 
-	
-
-			 
-			 
-			
-
 			 
 		 }
-		 else
-		 {
-	 
-			String strURL;
-			strURL = rs2.getString("url_static");
-					  
-			//if (rs2.getString("url_dynamic")!=null && !rs2.getString("url_dynamic").isEmpty())
-			//	strURL = strURL.replace("${dynamic}", rs2.getString("url_dynamic"));
+		 
+		 UtilityFunctions.stdoutwriter.writeln("Retrieving URL Form: " + rs3.getString("url_form"),Logs.STATUS2,"DG24.5");
+	
+		 
+		 data="series_id=LNS14000000&survey=ln&format=&html_tables=&delimiter=&catalog=&print_line_length=&lines_per_page=&row_stub_key=&year=&date=&net_change_start=&net_change_end=&percent_change_start=&percent_change_end=";
+		 HttpPost httppost = new HttpPost("http://data.bls.gov/cgi-bin/surveymost");
+		 
+		 /*
+		 * Emulate a browser.
+		 */
 			
+		httppost.getParams().setParameter("http.protocol.user-agent", "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
+		 
+		 /*
+		  * The following line fixes an issue where a non-fatal error is displayed about an invalid cookie data format.
+		  */
+		httppost.getParams().setParameter("http.protocol.cookie-datepatterns", 
+					Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z", "EEE, dd MMM yyyy HH:mm:ss z"));
+		 
+		 List <NameValuePair> nvps = new ArrayList <NameValuePair>();
+	        nvps.add(new BasicNameValuePair("series_id", "LNS14000000"));
+	        nvps.add(new BasicNameValuePair("survey", "ln"));
+
+	     httppost.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
+
+	     response = httpclient.execute(httppost);
+
+	 }
+	 else
+	 {
+ 
+		
+		String strURL=rs2.getString("url_static");
+		
+		/*if (strCustomURLFuncName != null) {
+			
+			Class[] args1 = new Class[1];
+            args1[0] = String.class;
+
+			Method m = this.getClass().getMethod(strCustomURLFuncName,args1);
+			strURL = (String)m.invoke(this, strURL);
+			
+			
+		}
+		else {*/
+			
+					
 			strURL = strURL.replace("${dynamic}", this.strCurrentTicker);
 			
 			UtilityFunctions.stdoutwriter.writeln("Retrieving URL: " + strURL,Logs.STATUS2,"DG25");
@@ -701,72 +661,99 @@ public void get_url(String strDataSet) throws SQLException, MalformedURLExceptio
 			//HttpGet chokes on the ^ character
 			
 			strURL = strURL.replace("^","%5E");
-			
-			HttpGet httpget = new HttpGet(strURL); 
-			
-			/*
-			 * Emulate a browser.
-			 */
-			
-			httpget.getParams().setParameter("http.protocol.user-agent", "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
-			/*
-			 * The following line fixes an issue where a non-fatal error is displayed about an invalid cookie data format.
-			 * It turns out that some sites generate a warning with this code, and others without it.
-			 * I'm going to kludge this for now until I get more data on which urls throw the
-			 * warning and which don't.
-			 * 
-			 * warning with code: www.exchange-rates.org
-			 */
-			
-			
-				if (!(strCurDataSet.contains("xrateorg") || strCurDataSet.contains("google") || strCurDataSet.contains("mwatch")))
-				{
-					httpget.getParams().setParameter("http.protocol.cookie-datepatterns", 
-							Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z", "EEE, dd MMM yyyy HH:mm:ss z"));
-				}
+		//}
 		
-				
-			/*
-			 * OFP 3/12/2011 - Need to keep an eye on this next line. There was an issue where because of a bug in DataLoad initiateJob() the same task
-			 * showed up in the running queue and there was a thread lock on this line. Not exactly sure if this method is thread safe. I wouldn't think that
-			 * it's thread-safedness (?) would depend on if you are issuing the same url, i.e. I would think that thread locks would occur even with different urls.
-			 */
-				
-			/*
-			 * OFP 3/15/2011 - Had another thread lock with one thread on this line:
-			 * response = httpclient.execute(httpget);
-			 * and another thread on this line:
-			 *  while ((nTmp = in.read()) != -1)
-			 *  
-			 *  Added the shutdown() call.
-			 * 
-			 */
-					  
-			response = httpclient.execute(httpget);
-			//urlFinal = new URL(strURL);
-		 }
-		 
-		 HttpEntity entity = response.getEntity();
-		 
-		  BufferedReader in = new BufferedReader(
-					new InputStreamReader(
-					entity.getContent()));
-	  
+		HttpGet httpget = new HttpGet(strURL); 
+		
+		/*
+		 * Emulate a browser.
+		 */
+		
+		httpget.getParams().setParameter("http.protocol.user-agent", "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
+		/*
+		 * The following line fixes an issue where a non-fatal error is displayed about an invalid cookie data format.
+		 * It turns out that some sites generate a warning with this code, and others without it.
+		 * I'm going to kludge this for now until I get more data on which urls throw the
+		 * warning and which don't.
+		 * 
+		 * warning with code: www.exchange-rates.org
+		 */
+		
 	
-				
-	  int nTmp;			
+		if (!(strCurDataSet.contains("xrateorg") || strCurDataSet.contains("google") || strCurDataSet.contains("mwatch")))
+		{
+			httpget.getParams().setParameter("http.protocol.cookie-datepatterns", 
+					Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z", "EEE, dd MMM yyyy HH:mm:ss z"));
+		}
+	
+			
+		/*
+		 * OFP 3/12/2011 - Need to keep an eye on this next line. There was an issue where because of a bug in DataLoad initiateJob() the same task
+		 * showed up in the running queue and there was a thread lock on this line. Not exactly sure if this method is thread safe. I wouldn't think that
+		 * it's thread-safedness (?) would depend on if you are issuing the same url, i.e. I would think that thread locks would occur even with different urls.
+		 */
+			
+		/*
+		 * OFP 3/15/2011 - Had another thread lock with one thread on this line:
+		 * response = httpclient.execute(httpget);
+		 * and another thread on this line:
+		 *  while ((nTmp = in.read()) != -1)
+		 *  
+		 *  Added the shutdown() call.
+		 * 
+		 */
+				  
+		response = httpclient.execute(httpget);
+		
+	}
+	 
+	HttpEntity entity = response.getEntity();
+	 
+	BufferedReader in = new BufferedReader(
+				new InputStreamReader(
+				entity.getContent()));
+  
 
-	  returned_content="";
-	
-	  while ((nTmp = in.read()) != -1)
-		returned_content = returned_content + (char)nTmp;
-	
+			
+	int nTmp;			
 
-	  in.close();
-	  
-	  httpclient.getConnectionManager().shutdown();
+	returned_content="";
+
+	while ((nTmp = in.read()) != -1)
+		returned_content += (char)nTmp;
+
+
+	in.close();
+  
+	httpclient.getConnectionManager().shutdown();
+
+	UtilityFunctions.stdoutwriter.writeln("Done reading url contents",Logs.STATUS2,"DG26");
 	
-	  UtilityFunctions.stdoutwriter.writeln("Done reading url contents",Logs.STATUS2,"DG26");
+	
+}
+
+public void get_url(String strDataSet) throws SQLException, MalformedURLException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException
+{
+	String query;
+	 
+	  
+	query = "select * from jobs where data_set='" + strDataSet + "'";
+	  
+	ResultSet rs2 = dbf.db_run_query(query);
+	rs2.next();
+	String strCustomURLFuncName = rs2.getString("custom_url_func_name");
+	if (strCustomURLFuncName == null) {
+		defaultURLProcessing(strDataSet);
+	}
+	else {
+		
+		Class[] args1 = new Class[1];
+        args1[0] = String.class;
+
+		Method m = this.getClass().getMethod(strCustomURLFuncName,args1);
+		m.invoke(this, strDataSet);
+	}
+	
 		 
   
 
@@ -970,26 +957,7 @@ public ArrayList<String[]> get_table(String strTableSet, String strSection) thro
 		}
   	   
 	
-	//}
-	/*catch (SQLException sqle)
-	{
-		UtilityFunctions.stdoutwriter.writeln("Problem with query",Logs.ERROR,"DG31");
-		UtilityFunctions.stdoutwriter.writeln(sqle);
-	}
-	catch (TagNotFoundException tnfe)
-	{
-		UtilityFunctions.stdoutwriter.writeln("TagNotFoundException thrown",Logs.ERROR,"DG32");
-		UtilityFunctions.stdoutwriter.writeln(tnfe);
-	}
-	catch (Exception ex)
-	{
-		UtilityFunctions.stdoutwriter.writeln("Exception thrown",Logs.ERROR,"DG33");
-		UtilityFunctions.stdoutwriter.writeln(ex);
-	}*/
-	/*finally
-	{
-		return(tabledata);
-	}*/
+	
 	return(tabledata);
 }
 
@@ -1035,36 +1003,17 @@ public ArrayList<String[]> get_table(String strTableSet, String strSection) thro
 
 public void grab_data_set(String strJobPrimaryKey)
 {
-	//UtilityFunctions.stdoutwriter.writeln("TEST2.5",Logs.ERROR);
+	
 	try
 	{
-	//String[] data_sets = {"yahoo_q109_income", "yahoo_q209_income", "yahoo_q309_income", "yahoo_q409_income"};
-	//String[] data_sets = {""};
 	
-	
-	
-	//ArrayList<String> data_sets = get_list_dataset_run_once();
-	
-	//UtilityFunctions.stdoutwriter.writeln("TEST3",Logs.ERROR);
-
-	
-	//for (int i=0;i<data_sets.size();i++)
-	//{
-		
-		//strCurDataSet = data_sets.get(i);
-		
-		
-		//nBatch = dbf.getBatchNumber();
-		
-				
-		
-		//String query = "select companygroup from schedules where task_id=" + nCurTask;
-		String query = "select entity_groups.id,tasks.metric_id,tasks.use_group_for_reading from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id=" + nCurTask;
+		String query = "select entity_groups.id,tasks.metric_id,tasks.use_group_for_reading,tasks.delay from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id=" + nCurTask;
 		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
 		int nMetricId = rs.getInt("tasks.metric_id");
 		int nGroupId = rs.getInt("entity_groups.id");
-		//String strGroup = rs.getString("entity_groups.name");
+		int nDelay = rs.getInt("tasks.delay");
+		
 		boolean bUseGroupForReading = rs.getBoolean("tasks.use_group_for_reading");
 		
 		boolean bTableExtraction = true;
@@ -1084,11 +1033,6 @@ public void grab_data_set(String strJobPrimaryKey)
 		
 		pf.preJobProcessing(strCurDataSet);
 		
-		//This should be handled in DataLoad.java
-		//query = "update schedule set last_run=NOW() where data_set='" + strCurDataSet + "'";
-		//dbf.db_update_query(query);
-		
-		//if (group.compareTo("none") == 0)
 		if (bUseGroupForReading == false)
 		{
 			//this extract process is not associated with a group of companies.
@@ -1097,7 +1041,7 @@ public void grab_data_set(String strJobPrimaryKey)
 			{
 				try
 				{
-					//pf.preProcessingTable(strCurDataSet,"");
+					
 					pf.preProcessing(strCurDataSet, "");
 					
 					get_url(strCurDataSet);
@@ -1112,19 +1056,13 @@ public void grab_data_set(String strJobPrimaryKey)
 					ResultSet rs2 = dbf.db_run_query("select custom_insert from jobs where data_set='" + strCurDataSet + "'");
 					rs2.next();
 					
-					//if (strCurDataSet.equals("table_sandp_co_list") != true) //already imported data in the processing function
+					
 					/*
 					 * Insert directly into fact_data now.
 					 */
 					if (rs2.getInt("custom_insert") != 1)	
 						dbf.importTableIntoDB(tabledata2,"fact_data",this.nTaskBatch,this.nCurTask,nMetricId);
-					/*if (rs2.getInt("custom_insert") != 1)	
-					{
-						if (strCurDataSet.contains("xrateorg"))
-							dbf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);
-						else
-							dbf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
-					}*/
+				
 					
 				}
 				catch (MalformedURLException mue)
@@ -1154,19 +1092,9 @@ public void grab_data_set(String strJobPrimaryKey)
 				}
 			
 				
-				/*String[] rowdata;
-				for (int x=0;x<tabledata.size();x++)
-				{
-					rowdata = tabledata.get(x);
-					for (int y=0;y<rowdata.length;y++)
-					{
-						System.out.print(rowdata[y]+"     ");
-					}
-				}*/
+			
 			}
-			/*
-			 * NEED to add code for ELSE condition, i.e. NON-GROUP, NON-TABLE EXTRACTIONS
-			 */
+			//Non-group, non-table extraction
 			else
 			{
 				if (pf.preProcessing(strCurDataSet,strCurrentTicker) != true)
@@ -1367,15 +1295,10 @@ public void grab_data_set(String strJobPrimaryKey)
 							{
 								
 							
-								//UtilityFunctions.stdoutwriter.writeln("Calling get value.",Logs.STATUS2,"DG45");
-								
 								if (pf.preProcessing(strCurDataSet,strCurrentTicker) != true)
 								{
 									throw new CustomEmptyStringException();
 								}
-								
-								/*query = "update jobs set url_dynamic='" + strCurrentTicker + "' where Data_Set='" + strCurDataSet + "'";
-								dbf.db_update_query(query);*/
 								
 								get_url(strCurDataSet);
 								
@@ -1409,29 +1332,8 @@ public void grab_data_set(String strJobPrimaryKey)
 							   	ResultSet rs2 = dbf.db_run_query("select custom_insert from jobs where data_set='" + strCurDataSet + "'");
 								rs2.next();
 								if (rs2.getInt("custom_insert") != 1)
-									//uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);
-									//mainlining the data right into the femoral artery
-									
-									/*
-									 * we're going to insert directly into fact_data now
-									 */
-									/*if (strCurDataSet.equals("yahoo_share_price_new"))
-										dbf.importTableIntoDB(tabledata2,"fact_data",this.nBatch);
-									else
-										dbf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);*/
-								
 									dbf.importTableIntoDB(tabledata2,"fact_data",this.nTaskBatch,this.nCurTask,nMetricId);
 								
-								/*{
-			
-									if (strCurDataSet.equals("nasdaq_fiscal_year_begin") || strCurDataSet.equals("sec_fiscal_year_begin"))
-								   		uf.updateTableIntoDB(tabledata2,"company");
-									//else do nothing
-							
-						
-								}
-							   	else
-							   		uf.importTableIntoDB(tabledata2,"fact_data_stage",this.nBatch);*/
 							}
 							catch (MalformedURLException mue)
 							{
@@ -1487,6 +1389,7 @@ public void grab_data_set(String strJobPrimaryKey)
   				
 				
 				count++;	
+				Thread.sleep(nDelay);
 			}
 		}
 		
@@ -1504,6 +1407,154 @@ public void grab_data_set(String strJobPrimaryKey)
 	}
 
 	}
+
+	public void customYahooBulkURL(String strDataSet) throws SQLException, IOException {
+		
+		//Get a list of all the tickers
+		
+		int nGroupSize = 100;
+		
+		String query2 = "select entity_groups.id,tasks.metric_id,tasks.use_group_for_reading from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id=" + nCurTask;
+		ResultSet rs = dbf.db_run_query(query2);
+		rs.next();	
+		int nGroupId = rs.getInt("entity_groups.id");
+		
+		
+		 
+		  
+		
+		
+		
+		String query = "select count(entities.id) as cnt from entities,entities_entity_groups ";
+		query += " where entities_entity_groups.entity_group_id=" + nGroupId;
+		query += " AND entities_entity_groups.entity_id=entities.id ";
+		rs = dbf.db_run_query(query);
+		rs.next();
+		
+		int nTotalCount = rs.getInt("cnt");
+		
+		query = "select * from jobs where data_set='" + strDataSet + "'";
+		  
+		ResultSet rs2 = dbf.db_run_query(query);
+		rs2.next();
+		
+		String strURLStatic=rs2.getString("url_static");
+		
+		int nGroupCount = 1;
+		int nCurrentCount = 0;
+		
+		
+		HttpResponse response;
+		
+		returned_content="<begintag>";
+		
+		
+		
+		boolean bDone = false;
+		
+		while (!bDone) {
+			
+			HttpClient httpclient = new DefaultHttpClient();
+			
+			query = "select entities.* from entities,entities_entity_groups ";
+			query += " where entities_entity_groups.entity_group_id=" + nGroupId;
+			query += " AND entities_entity_groups.entity_id=entities.id ";
+			query += " order by entities.id ";
+			query += " limit " + nGroupSize + " offset " + (nGroupSize * (nGroupCount -1));
+			rs = dbf.db_run_query(query);
+		
+			String strList = "";
+			while (rs.next()) {
+				
+		
+				
+				String strTicker = rs.getString("ticker");
+				
+				if (strTicker.equals("BF/B"))
+				{
+					//dg.strCurrentTicker = "BF-B";		
+					strTicker="BF-B";
+				}
+				else if (strTicker.equals("BRK/A"))
+				{
+					//dg.strCurrentTicker = "BRK-A";	
+					strTicker="BRK-A";
+				}
+				
+				strList+=strTicker+",";	
+				
+			}
+			
+			strList = strList.substring(0,strList.length()-1);
+			
+			String strURL = strURLStatic.replace("${dynamic}", strList);
+			
+			HttpGet httpget = new HttpGet(strURL); 
+			
+			httpget.getParams().setParameter("http.protocol.cookie-datepatterns", 
+					Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z", "EEE, dd MMM yyyy HH:mm:ss z"));
+			
+			httpget.getParams().setParameter("http.protocol.user-agent", "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
+			
+			response = httpclient.execute(httpget);
+			
+			HttpEntity entity = response.getEntity();
+			
+			BufferedReader in = new BufferedReader(
+					new InputStreamReader(
+					entity.getContent()));
+	  
+
+				
+			int nTmp;	
+			
+			String strTemp="";
+	
+			while ((nTmp = in.read()) != -1)
+				strTemp += (char)nTmp;
+	
+	
+			in.close();
+		  
+			httpclient.getConnectionManager().shutdown();
+			
+			int nBegin = strTemp.indexOf("<LastTradeDate>") + "<LastTradeDate>".length();
+			
+			int nEnd = strTemp.indexOf("</LastTradeDate>",nBegin);
+			
+			String strDate = strTemp.substring(nBegin,nEnd);
+			
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.MONTH,7);
+			cal.set(Calendar.DAY_OF_MONTH,2);
+			
+			DateFormat formatter = new SimpleDateFormat("M/d/yyyy");
+			
+			if (formatter.format(cal.getTime()).compareTo(strDate) == 0) {
+				//workaround for yahoo data issue, retrieve data again
+				continue;
+				
+				
+			}
+			
+			returned_content += strTemp;
+			
+			
+			
+			
+			if ((nGroupCount * nGroupSize) > nTotalCount)
+				bDone = true;
+			
+			nGroupCount++;
+			
+		}
+		
+		returned_content += "<endtag>";
+		
+		
+	}
+	
+	
 }
 
 
