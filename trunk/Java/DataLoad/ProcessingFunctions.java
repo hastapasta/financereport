@@ -1,6 +1,8 @@
 //package com.roeschter.jsl;
  
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -383,150 +385,7 @@ public ArrayList<String[]> postProcessingTable(ArrayList<String[]> tabledata,Str
 
 
 
-/*public void preNasdaqEPSEst() throws SQLException,TagNotFoundException,CustomRegexException
-{
-	
-	#*
-	 * NONTHREAD SAFE FUNCTION.
-	 *#
-	#*
-		I'm going to store the estimated values as the adjusted quarter values whereas the
-		actual eps values are stored unadjusted (hence the adjusting is done in the query for 
-		the actual values)
-	*#
-	//initialize the row value
-	String query="";
-	
-	//try
-	//{
-	boolean done = false;
-	//boolean bSuccess = false;
-	//loop through doing a data grab of all the dates
-	// when the correct data is found then do the actual data grab for the value
-	int nDataSetYear = Integer.parseInt(dg.strCurDataSet.substring(9,11));
-	int nDataSetQuarter = Integer.parseInt(dg.strCurDataSet.substring(8,9));
-	UtilityFunctions.stdoutwriter.writeln("DataSetYear: " + nDataSetYear + " DataSetQuarter: " + nDataSetQuarter,Logs.STATUS2,"PF18");
-	int curRowCount=4;
-	String ticker = dg.strCurrentTicker;
-	//try
-	//{
-		#*query = "select url_dynamic from jobs where jobs.data_set='" + dg.strCurDataSet + "'";
-		ResultSet rs = dbf.db_run_query(query);
-		rs.next();
-		ticker = rs.getString("url_dynamic");
-		UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + ticker,Logs.STATUS2,"PF19");Z*#
-		
-	//}
-	#*catch(SQLException sqle)
-	{
-		UtilityFunctions.stdoutwriter.writeln("Problem running query in prenasdaqEPSEst",Logs.ERROR,"PF20");
-		UtilityFunctions.stdoutwriter.writeln(sqle);
-		return(false);
-	}*#
-	
-	while (!done)
-	{
-		UtilityFunctions.stdoutwriter.writeln("Row Count: " + curRowCount,Logs.STATUS2,"PF21");
-		//query = "update extract_singles,jobs set extract_singles.Row_Count=" + curRowCount + ",jobs.url_dynamic='" + ticker + "' where jobs.extract_key=data_info.id and jobs.data_set='nasdaq_eps_est_quarter'";
-		
-		query = "update extract_singles,jobs set extract_singles.Row_Count=" + curRowCount + " where jobs.extract_key=data_info.id and jobs.data_set='nasdaq_eps_est_quarter'";
-		
-		//try
-		//{
-			dbf.db_update_query(query);
-		//}
-		#*catch (SQLException sqle)
-		{
-				UtilityFunctions.stdoutwriter.writeln("Problem with update query.",Logs.ERROR,"PF22");
-				UtilityFunctions.stdoutwriter.writeln(sqle);
-				return(false);
-			
-		}*#
-		String curValue;
-		//try
-		//{
-			curValue = dg.get_value("nasdaq_eps_est_quarter");
-		//}
-		#*catch (CustomRegexException cre)
-		{
-			UtilityFunctions.stdoutwriter.writeln("Problem with update query.",Logs.ERROR,"PF22.5");
-			UtilityFunctions.stdoutwriter.writeln(cre);
-			return(false);
-		}*#
-		if (curValue.length() < 7)
-		//string returned too short
-			break;
-		int nDataValueYear = Integer.parseInt(curValue.substring(5,7));
-		UtilityFunctions.stdoutwriter.writeln("DatValueYear: " + nDataValueYear,Logs.STATUS2,"PF23");
-		if (nDataValueYear != nDataSetYear)
-		{
-			curRowCount++;
-			continue;
-		}
-		String nDataValueMonth = curValue.substring(0,3);
-		UtilityFunctions.stdoutwriter.writeln("DataValueMonth: " + nDataValueMonth,Logs.STATUS2,"PF24");
-		UtilityFunctions.stdoutwriter.writeln("DatValueYear: " + nDataValueYear + " DataValueMonth: " + nDataValueMonth,Logs.STATUS2,"PF25");
-		
-		if ((nDataValueMonth.compareTo("Nov") == 0) || 
-		(nDataValueMonth.compareTo("Dec") == 0) || 
-		(nDataValueMonth.compareTo("Jan") == 0))
-		{
-			if (nDataSetQuarter == 4)
-			{
-				//bSuccess = true;
-				break;
-			}
 
-		}
-		else if ((nDataValueMonth.compareTo("Aug") == 0) || 
-		(nDataValueMonth.compareTo("Sep") == 0) || 
-		(nDataValueMonth.compareTo("Oct") == 0))
-		{
-			if (nDataSetQuarter == 3)
-			{
-				//bSuccess = true;
-				break;
-			}
-
-		}
-		else if ((nDataValueMonth.compareTo("May") == 0) || 
-		(nDataValueMonth.compareTo("Jun") == 0) || 
-		(nDataValueMonth.compareTo("Jul") == 0))
-		{
-			if (nDataSetQuarter == 2)
-			{
-				//bSuccess = true;
-				break;
-			}
-		
-		}
-		else if ((nDataValueMonth.compareTo("Feb") == 0) || 
-		(nDataValueMonth.compareTo("Mar") == 0) || 
-		(nDataValueMonth.compareTo("Apr") == 0))
-		{
-			if (nDataSetQuarter == 1)
-			{
-				//bSuccess = true;
-				break;
-			}
-
-		}
-		// or if a blank (or some incorrect value) is returned then the end was reached without
-		//finding the correct date
-		else
-			done = true;
-			
-			
-		curRowCount++;
-		
-		
-	}
-	dbf.db_update_query(query);
-	
-		
-	
-	
-}*/
 
 
 
@@ -567,6 +426,123 @@ public void postProcessYahooSharePrice() throws SQLException
 	propTableData.remove(0);
 	propTableData.add(tmpArray);
 	propTableData.add(rowdata);
+	
+	
+	
+	
+	
+	
+
+}
+
+public void postProcessYahooSharePriceYQL() throws SQLException
+{
+	//System.out.println("here");
+	String strTmpValue = propTableData.get(0)[0];
+	
+	//String[] values = strTmpValue[0].split(",");
+	
+	
+	boolean bDone = false;
+	
+	
+	
+	propTableData.remove(0);
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	propTableData.add(tmpArray);
+	
+	int nBegin=0;
+	int nEnd =0;
+	
+	int nCount = 0;
+	int nCount2 = 0;
+	
+	while (!bDone) {
+		
+		nCount2++;
+		
+		String[] rowdata = new String[tmpArray.length];
+		
+		nBegin = strTmpValue.indexOf("<LastTradeDate>",nEnd);
+		if (nBegin == -1)
+			break;
+		nBegin += "<LastTradeDate>".length();
+		nEnd = strTmpValue.indexOf("</LastTradeDate>",nBegin);
+		
+		String strDate = strTmpValue.substring(nBegin,nEnd);
+		
+		nBegin = strTmpValue.indexOf("<LastTradePriceOnly>",nEnd) + "<LastTradePriceOnly>".length();
+		nEnd = strTmpValue.indexOf("</LastTradePriceOnly>",nBegin);
+		
+		String strValue = strTmpValue.substring(nBegin,nEnd);
+		
+		nBegin = strTmpValue.indexOf("<Symbol>",nEnd) + "<Symbol>".length();
+		nEnd = strTmpValue.indexOf("</Symbol>",nBegin);
+		
+		String strSymbol = strTmpValue.substring(nBegin,nEnd);
+		
+		nBegin = strTmpValue.indexOf("<LastTradeTime>",nEnd) + "<LastTradeTime>".length();
+		nEnd = strTmpValue.indexOf("</LastTradeTime>",nBegin);
+		
+		String strTime = strTmpValue.substring(nBegin,nEnd);
+		
+		
+		rowdata[0] = strValue;
+		String[] strDateArray = strDate.split("/");
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MONTH, Integer.parseInt(strDateArray[0])-1);
+		cal.set(Calendar.DAY_OF_MONTH,Integer.parseInt(strDateArray[1]));
+		cal.set(Calendar.YEAR,Integer.parseInt(strDateArray[2]));
+		
+		
+		String strAMPM = strTime.substring(strTime.indexOf("m")-1,strTime.indexOf("m")+1);
+		String strNewTime = strTime.substring(0,strTime.indexOf("m")-1);
+		String[] strTimeArray = strNewTime.split(":");
+		
+		if (strAMPM.equals("pm"))
+			cal.set(Calendar.AM_PM,Calendar.PM);
+		else
+			cal.set(Calendar.AM_PM,Calendar.AM);
+		cal.set(Calendar.HOUR,Integer.parseInt(strTimeArray[0]));
+		cal.set(Calendar.MINUTE, Integer.parseInt(strTimeArray[1]));
+		cal.set(Calendar.SECOND, 0);
+
+		
+		
+		
+		
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	
+		rowdata[1] = "'" + formatter.format(cal.getTime()) + "'";
+		
+		if (strSymbol.equals("BRK-A"))
+			strSymbol = "BRK/A";
+		else if (strSymbol.equals("BF-B"))
+			strSymbol = "BF/B";
+		
+		try {
+			String query = "select id from entities where ticker='" + strSymbol + "'";
+			ResultSet rs = dbf.db_run_query(query);
+			rs.next();
+			rowdata[2] = rs.getInt("id") + "";
+		}
+		catch (SQLException sqle) {
+			UtilityFunctions.stdoutwriter.writeln("Issue looking up ticker " + strSymbol + ",skipping",Logs.ERROR,"PF50");
+			UtilityFunctions.stdoutwriter.writeln(sqle);
+			continue;
+			
+		}
+		
+		
+
+		//rowdata[4] = "share_price";
+		
+		nCount++;
+	
+		propTableData.add(rowdata);
+	}
+	
+	System.out.println("here");
 	
 	
 	
@@ -1135,7 +1111,7 @@ public void postProcessBloombergIndexes()
 		}
 		catch (SQLException sqle)
 		{
-			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + ticker + ",row skipped",Logs.ERROR,"PF42.5");
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + ticker + ",row skipped",Logs.ERROR,"PF42.51");
 			
 			/*
 			 * This is not a fatal error so we won't display the full exception.
@@ -1428,13 +1404,30 @@ public void postProcessTreasuryDirect() throws SQLException
 	data[1] = data[1].substring(0,data[1].indexOf("."));
 	long lIntraGov = Long.parseLong(data[1]);
 	lIntraGov = lIntraGov/10000000;
+	
+	String strQuery = "insert into batches ";
+	strQuery += " (id,date_collected,task_id) values (";
+	strQuery += dg.nTaskBatch + ",NOW()," + dg.nCurTask;
+	strQuery += ")";
+	
+	try
+	{
+		dbf.db_update_query(strQuery);
+	}
+	catch (SQLException sqle)
+	{
+		UtilityFunctions.stdoutwriter.writeln("Problem with custom insert",Logs.ERROR,"PF55.52");
+		UtilityFunctions.stdoutwriter.writeln(sqle);
+	}
+	
+	
 
 	
-	String strQuery = "insert into fact_data ";
-	strQuery += "(\"value\",\"scale\",\"date_collected\",\"task_id\",\"entity_id\",\"metric_id\",\"batch\") ";
+	strQuery = "insert into fact_data ";
+	strQuery += "(\"value\",\"scale\",\"date_collected\",\"entity_id\",\"metric_id\",\"batch_id\") ";
 	strQuery += " values (";
 	strQuery += lPublicDebt;
-	strQuery += ",7,NOW()," + dg.nCurTask + ",1360,9," + dg.nTaskBatch + ")";
+	strQuery += ",7,NOW(),1360,9," + dg.nTaskBatch + ")";
 	
 	try
 	{
@@ -1447,10 +1440,10 @@ public void postProcessTreasuryDirect() throws SQLException
 	}
 	
 	strQuery = "insert into fact_data ";
-	strQuery += "(\"value\",\"scale\",\"date_collected\",\"task_id\",\"entity_id\",\"metric_id\",\"batch\") ";
+	strQuery += "(\"value\",\"scale\",\"date_collected\",\"entity_id\",\"metric_id\",\"batch\") ";
 	strQuery += " values (";
 	strQuery += lIntraGov;
-	strQuery += ",7,NOW()," + dg.nCurTask + ",1360,10," + dg.nTaskBatch + ")";
+	strQuery += ",7,NOW(),1360,10," + dg.nTaskBatch + ")";
 	
 	try
 	{
