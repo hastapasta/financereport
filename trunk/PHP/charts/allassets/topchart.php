@@ -14,17 +14,132 @@ db_utility::db_connect();
 <!DOCTYPE html>
 <html>
 <head>
+<style type="text/css">
+  #rangeDemoStart, #rangeDemoFinish {
+    background-image:url("calendar.png");
+    background-position:right center;
+    background-repeat:no-repeat; }
+</style>
+
 
 <?php IncFunc::jQuery();?>
+<?php IncFunc::jQueryDatePicker();?>
+<?php IncFunc::generalDateFunctions();?>
 
-<script type='text/javascript'>
+<script>
+   
+	$(document).ready(function() {
+		var oneDay = 24*60*60*1000;
+		var td = new Date();
+		td.setDate(td.getDate() - 1);
+		td.setMonth(td.getMonth() - 1);
+		td.setMonth(td.getMonth() - 12);
+		//var fromDay = td.setDay(td.getDay() - 1); 
+	  rangeDemoFormat = "%e-%b-%Y %H:%i:%s";
+	  rangeDemoConv = new AnyTime.Converter({format:rangeDemoFormat});
+	 $("#rangeDemoToday").click( function(e) {
+	      $("#rangeDemoFinish").val(rangeDemoConv.format(new Date())).change(); } );
+	  $("#rangeDemoClear").click( function(e) {
+	      $("#rangeDemoStart").val("").change(); } );
+	  $("#rangeDemoStart").AnyTime_picker({format:rangeDemoFormat});
+	  $("#rangeDemoFinish").AnyTime_picker({format:rangeDemoFormat});
+	 /* $("#rangeDemoFinish").change( function(e) { try {
+		  var fromDay = new Date();
+		  //dt.setMonth(dt.getMonth() – 1);
+		  fromDay.setDate(fromDay.getDate() - 1);
+		 $("#rangeDemoFinish").
+		  	AnyTime_noPicker().
+		  	removeAttr("disabled");
+		  	#*val(rangeDemoConv.format(new Date())).
+		    AnyTime_picker(
+		              { //earliest: dayEarlier,
+		                format: rangeDemoFormat
+		                //latest: ninetyDaysLater
+		              } );*#
+		$("#rangeDemoStart").
+		  	AnyTime_noPicker().
+		  	removeAttr("disabled").
+		  	val(rangeDemoConv.format(fromDay)).
+		    AnyTime_picker(
+		              { //earliest: dayEarlier,
+		                format: rangeDemoFormat
+		                //latest: ninetyDaysLater
+		              } );
+	  } catch(e){ 
+		 // $("#rangeDemoStart").val("").attr("disabled","disabled"); 
+		  if (window.console && window.console.firebug) {e.getMessage()}
+		} } );*/
+		  
+	  /*$("#rangeDemoStart").change( function(e) { try {
+	      //var fromDay = rangeDemoConv.parse($("#rangeDemoStart").val()).getTime();
+	      var endDay = rangeDemoConv.parse($("#rangeDemoStart").val()).getTime();
+	      //var dayLater = new Date(fromDay+oneDay);
+	      var dayEarlier = new Date(endDay-oneDay);
+	      //dayLater.setHours(0,0,0,0);
+	     // var ninetyDaysLater = new Date(fromDay+(90*oneDay));
+	     // ninetyDaysLater.setHours(23,59,59,999);
+	      $("#rangeDemoFinish").
+	          AnyTime_noPicker().
+	          removeAttr("disabled").
+	          //val(rangeDemoConv.format(dayLater)).
+	          val(rangeDemoConv.format(dayEarlier)).
+	          AnyTime_picker(
+	              { //earliest: dayEarlier,
+	                format: rangeDemoFormat
+	                //latest: ninetyDaysLater
+	              } );
+	      } catch(e){ $("#rangeDemoFinish").val("").attr("disabled","disabled"); } } );*/
+				
+	});
 	$(function(){
-		$('#dialog').dialog({autoOpen:false, title : "HELP"});
+
+		 $("#timeframe").change( function(e) {
+		    	enddate = new Date();
+		    	begindate = new Date();
+		    	var tmp = $("#timeframe").val();
+		    	if (tmp == 'year')
+		        	begindate.setMonth(enddate.getMonth() - 12);
+		    	else if (tmp == 'month')
+		        	begindate.setMonth(enddate.getMonth() - 1);
+		    	else if (tmp == 'week')
+		        	begindate.setDate(enddate.getDate() - 7);
+		    	else if (tmp == 'day')
+		        	begindate.setDate(enddate.getDate() - 1);
+		    	else //tmp should == hour
+		        	begindate = new Date(enddate - (3600 * 1000));
+	        
+		    	$("#rangeDemoStart").
+			  	AnyTime_noPicker().
+			  	//removeAttr("disabled").
+			  	val(rangeDemoConv.format(begindate)).
+			    AnyTime_picker(
+			              { //earliest: dayEarlier,
+			                format: rangeDemoFormat
+			                //latest: ninetyDaysLater
+			              } );
+		    	$("#rangeDemoFinish").
+			  	AnyTime_noPicker().
+			  	//removeAttr("disabled").
+			  	val(rangeDemoConv.format(enddate)).
+			    AnyTime_picker(
+			              { //earliest: dayEarlier,
+			                format: rangeDemoFormat
+			                //latest: ninetyDaysLater
+			              } );
+		        	
+		        	    
+		        	    
+		    });
+		
+		
+		/*$('#dialog').dialog({autoOpen:false, title : "HELP"});
 		$('.help').click(function(){
 			$('#dialog').dialog('open')
-		});
+		});*/
+		
 	});
 </script>
+
 
 <?php IncFunc::icon();?>
 <?php IncFunc::title();?>
@@ -33,7 +148,7 @@ db_utility::db_connect();
 <?php IncFunc::googleGadget()?>
 <script type="text/javascript">
     google.load('visualization', '1', {'packages' : ['table']});
-    google.setOnLoadCallback(function() { sendAndDraw('') });
+    //google.setOnLoadCallback(function() { sendAndDraw('') });
     var firstpass = true;
 
     <?php 
@@ -76,7 +191,9 @@ db_utility::db_connect();
       //var users = document.getElementById('users');
       //var tasks = document.getElementById('tasks');
       // var timeeventid = document.getElementById('timeeventid');
-      var timeframe = document.getElementById('timeframe');
+      //var timeframe = document.getElementById('timeframe');
+      var rangeDemoStart = document.getElementById('rangeDemoStart');
+      var rangeDemoFinish = document.getElementById('rangeDemoFinish');
       //var userid= users.value;
       var taskid='1';
       var queryString1;
@@ -87,7 +204,7 @@ db_utility::db_connect();
       if (firstpass==true)
       {
           //taskid='0';
-          timeframe.value='week';
+          timeframe = 'week';
           firstpass=false;
       }
       
@@ -95,19 +212,19 @@ db_utility::db_connect();
       options['height'] = 400;
       options['width'] = 1000;
       
-
+      //alert (Date.parse(rangeDemoStart.value).getTime());
 
 
 
      	 //queryString1 = '?userid='+userid+'&taskid='+tasks.value+'&timeeventid='+timeeventid.value;
      	<?php 
-     	echo "queryString1 = '&entitygroupid=3&metricid=1&timeframe='+timeframe.value + '&order=DESC';\n";
+     	echo "queryString1 = '&entitygroupid=3&metricid=1&begindate='+ (Date.parse(rangeDemoStart.value)).getTime() + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime() + '&order=DESC';\n";
 
-     	echo "queryString2 = '&entitygroupid=5&metricid=1&timeframe='+timeframe.value + '&order=DESC';\n";
+     	echo "queryString2 = '&entitygroupid=5&metricid=1&begindate='+ (Date.parse(rangeDemoStart.value)).getTime()  + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime() + '&order=DESC';\n";
      	
-     	echo "queryString3 = '&entitygroupid=4&metricid=11&timeframe='+timeframe.value + '&order=DESC';\n";
+     	echo "queryString3 = '&entitygroupid=4&metricid=11&begindate='+ (Date.parse(rangeDemoStart.value)).getTime() + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime() + '&order=DESC';\n";
      	
-     	echo "queryString4 = '&entitygroupid=1008&metricid=11&timeframe='+timeframe.value + '&order=DESC';\n";
+     	echo "queryString4 = '&entitygroupid=1008&metricid=11&begindate='+ (Date.parse(rangeDemoStart.value)).getTime() + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime() + '&order=DESC';\n";
      	
      	?>
     	 
@@ -133,11 +250,23 @@ db_utility::db_connect();
 
       google.visualization.events.addListener(tableChart1, 'select', function(event){
 			var row = tableChart1.getSelection();
-			alert( "you selected row " + row[0].row + " of second table");
+			var test = tableChart1;
+			var test2 = tableChart1.tb.textContent;
+			var test4 = tableChart1.getDataTable();
+			//var test3 = tableChart1.getDataTable().getTableRowIndex(row[0].row);
+			
+			alert(row[0].ticker);
+			<?php //echo "alert(\"http://localhost".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?a=660&title=All Assets Indivdual Line Charts\");"; ?>
+			<?php echo "window.location.href = \"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?a=660&title=All Assets Indivdual Line Charts\";";?>
+
+			
+		
+
        });
 		
       google.visualization.events.addListener(tableChart2, 'select', function(event){
 	  		var row = tableChart2.getSelection();
+	  
 			alert( "you selected row " + row[0].row + " of third table");
    	   });
       google.visualization.events.addListener(tableChart3, 'select', function(event){
@@ -201,8 +330,18 @@ db_utility::db_connect();
 <br/>
 <div id="pf-form" style="text-align:left;font-size:1.5em;">
 
-<BR>
-Time Frame: <BR>
+
+<br>
+Time Frame:&nbsp;&nbsp;
+Start: <input type="text" id="rangeDemoStart" size="18" />
+&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="18" />
+<!-- <input type="button" id="rangeDemoToday" value="today" /> -->
+<input type="button" id="rangeDemoClear" value="clear" />
+
+<div id="displaycustom"></div>
+
+
+(Preset Time Frames: 
 <select id="timeframe" style="background-color: #FFFFFF">
 	<option value="year">Last Year</option>
 	<option value="month">Last Month</option>
@@ -210,9 +349,9 @@ Time Frame: <BR>
 	<option value="day">Last Day</option>
 	<option value="hour">Last Hour</option>	
 	
+	
 	<!-- <option value="Custom">Custom</option> -->
-</select> <BR>
-<BR>
+</select> )<BR>
 <BR>
 
 <input type="button" style="color: #000000;background-color: #FFFFFF" value="Update Tables"
@@ -233,7 +372,7 @@ Time Frame: <BR>
 	<!-- <span class='help' style='cursor:pointer'>
 		?
 	</span>
-	<div id="dialog" title="Basic dialog">
+	 <div id="dialog" title="Basic dialog">
 		<p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
 	</div> -->
 </div>
