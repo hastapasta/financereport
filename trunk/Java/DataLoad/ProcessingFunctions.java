@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -506,14 +507,23 @@ public void postProcessYahooSharePriceYQL() throws SQLException
 		cal.set(Calendar.HOUR,Integer.parseInt(strTimeArray[0]));
 		cal.set(Calendar.MINUTE, Integer.parseInt(strTimeArray[1]));
 		cal.set(Calendar.SECOND, 0);
-
 		
-		
-		
+		cal.setTimeZone(TimeZone.getTimeZone("America/New_York"));
 		
 		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		
+		formatter.setTimeZone(TimeZone.getTimeZone("America/Phoenix"));
 	
 		rowdata[1] = "'" + formatter.format(cal.getTime()) + "'";
+		
+		Calendar currentCal = Calendar.getInstance();
+		
+		DateFormat formatter2 = new SimpleDateFormat("M/d/yyyy");
+		
+		if (!formatter2.format(currentCal.getTime()).equals(formatter2.format(cal.getTime())))
+			UtilityFunctions.stdoutwriter.writeln("Bad Yahoo Data, in postProcessing function",Logs.ERROR,"PF50.5");
+		
+		
 		
 		if (strSymbol.equals("BRK-A"))
 			strSymbol = "BRK/A";
@@ -542,7 +552,7 @@ public void postProcessYahooSharePriceYQL() throws SQLException
 		propTableData.add(rowdata);
 	}
 	
-	System.out.println("here");
+	//System.out.println("here");
 	
 	
 	
@@ -916,7 +926,7 @@ public void postProcessBloombergCommodities()
 		}
 		catch (SQLException sqle)
 		{
-			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + tmp + ",row skipped",Logs.ERROR,"PF99.55");
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + tmp + ",row skipped",Logs.WARN,"PF99.55");
 			
 			/*
 			 * This is not a fatal error so we won't display the full exception.
@@ -1087,6 +1097,7 @@ public void postProcessBloombergIndexes()
 		String ticker = tmp.substring(tmp.indexOf(">")+1,tmp.indexOf("</"));
 		ticker = ticker.replace("&amp;", "&");
 		ticker = ticker.replace("&#x80;", "€");
+		ticker = ticker.replace("&#x20AC;", "€");
 		ticker = ticker.replace("&#x83;", "ƒ");
 		//Next line condenses multiple spaces down to one.
 		ticker = ticker.replaceAll("\\s+", " "); 
@@ -1111,7 +1122,7 @@ public void postProcessBloombergIndexes()
 		}
 		catch (SQLException sqle)
 		{
-			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + ticker + ",row skipped",Logs.ERROR,"PF42.51");
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + ticker + ",row skipped",Logs.WARN,"PF42.51");
 			
 			/*
 			 * This is not a fatal error so we won't display the full exception.
@@ -1575,7 +1586,7 @@ public void postProcessTableXrateorg()
 		}
 		catch (SQLException sqle)
 		{
-			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + strTmp + ",row skipped",Logs.ERROR,"PF42.5");
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + strTmp + ",row skipped",Logs.WARN,"PF42.5");
 			
 			/*
 			 * This is not a fatal error so we won't display the full exception.
