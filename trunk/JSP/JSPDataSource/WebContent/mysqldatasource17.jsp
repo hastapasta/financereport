@@ -30,6 +30,9 @@ else
 String strAlertId = request.getParameter("alertid");
 String strUserId = request.getParameter("userid");
 String strObservationPeriod = request.getParameter("obperiod");
+String strEntityGroupId = request.getParameter("entgroup");
+if (strEntityGroupId == null)
+	strEntityGroupId = "ALL";
 int nOPeriodIndex = 0;
 //String strEntityId = request.getParameter("entityid");
 
@@ -117,6 +120,8 @@ query2 += " fd1.date_collected, fd2.date_collected, log_alerts.limit_value, time
 query2 += " from log_alerts ";
 query2 += " join alerts on alerts.id=log_alerts.alert_id ";
 query2 += " join entities on entities.id=alerts.entity_id ";
+if (!strEntityGroupId.toUpperCase().equals("ALL"))
+	query2 += " join entities_entity_groups on entities_entity_groups.entity_id=entities.id ";
 query2 += " join fact_data as fd1 on fd1.id=log_alerts.bef_fact_data_id ";
 query2 += " join fact_data as fd2 on fd2.id=log_alerts.aft_fact_data_id ";
 query2 += " join time_events on time_events.id=alerts.time_event_id ";
@@ -127,6 +132,8 @@ else
 	query2 += " log_alerts.user_id=" + strUserId + " ";
 if (nOPeriodIndex != 0)
 	query2 += " AND time_events.id=" + nOPeriodIndex;
+if (!strEntityGroupId.toUpperCase().equals("ALL"))
+	query2 += " AND entities_entity_groups.entity_group_id=" + strEntityGroupId;
 query2 += " order by dtf DESC limit 30 ";
 
 //out.println(query2); if (1==1) return;
@@ -173,48 +180,6 @@ finally
 	if (bException == true)
 		return;
 }
-
-
-
-
-
-
-
-/*out.println("<table>");
-for (int i=0;i<arrayListRows.size();i++)
-{
-	out.println("<tr>");
-	String[] temp = arrayListRows.get(i);
-	for (int j=0;j<temp.length;j++)
-	{
-		out.println("<td>" + temp[j] +"</td>");
-	}
-	out.println("</tr>");
-}
-out.println("</table>");
-
-out.println(query); if (1==1) return;*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
