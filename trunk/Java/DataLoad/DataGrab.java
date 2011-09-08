@@ -175,16 +175,21 @@ DBFunctions dbf;
 	public void run()
 	{
 		
+		
 		NDC.push("[Task:" + this.nCurTask + "]");
 		
 		UtilityFunctions.stdoutwriter.writeln("=========================================================",Logs.STATUS1,"");
 	  	
 	  	UtilityFunctions.stdoutwriter.writeln("PROCESSING TASK " + strCurTask,Logs.STATUS1,"DG37");
 	  		
-	 	if (bContinue == false)
+	 	if (bContinue == false) {
+	 		NDC.pop();
+	 		dbf.closeConnection();
 	 		return;
+	 	}
 	 		
-	 	UtilityFunctions.stdoutwriter.writeln("JOB PROCESSING START TIME: " + calJobProcessingStart.getTime().toString(),Logs.STATUS1,"DG38");
+	 		
+	 	UtilityFunctions.stdoutwriter.writeln("JOB PROCESSING START TIME: " + calJobProcessingStart.getTime().toString(),Logs.STATUS1,"DG39");
 	 		
 	 	UtilityFunctions.stdoutwriter.writeln("INITIATING THREAD",Logs.STATUS1,"DG1");
 	 		
@@ -1189,7 +1194,7 @@ public void grab_data_set(String strJobPrimaryKey)
 					this.strOriginalTicker = this.strCurrentTicker = rs.getString("ticker");
 					this.nCurrentEntityId = rs.getInt("id");
 					
-					UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + this.strCurrentTicker,Logs.STATUS1,"DG39");
+					UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + this.strCurrentTicker,Logs.STATUS1,"DG39.1");
 					
 					/*Active only to debug individual tickers */
 					if (strStaticTickerLimit.isEmpty() != true)
@@ -1518,24 +1523,43 @@ public void grab_data_set(String strJobPrimaryKey)
 		  
 			httpclient.getConnectionManager().shutdown();
 			
-			int nBegin = strTemp.indexOf("<LastTradeDate>") + "<LastTradeDate>".length();
+			boolean bDone2 = false;
 			
-			int nEnd = strTemp.indexOf("</LastTradeDate>",nBegin);
-			
-			String strDate = strTemp.substring(nBegin,nEnd);
+			int nBegin = 0;
+			int nEnd = 0;
 			
 			Calendar cal = Calendar.getInstance();
-			cal.set(Calendar.MONTH,7);
-			cal.set(Calendar.DAY_OF_MONTH,2);
-			
 			DateFormat formatter = new SimpleDateFormat("M/d/yyyy");
 			
-			if (formatter.format(cal.getTime()).compareTo(strDate) == 0) {
-				//workaround for yahoo data issue, retrieve data again
-				continue;
+			
+			boolean bResubmit = false;
+			
+			while (bDone2 == false) {
+			
+				nBegin = strTemp.indexOf("<LastTradeDate>",nEnd);
 				
+				if (nBegin == -1)
+					break;
 				
+				nBegin += "<LastTradeDate>".length();
+				
+				nEnd = strTemp.indexOf("</LastTradeDate>",nBegin);
+				
+				String strDate = strTemp.substring(nBegin,nEnd);
+	
+				if (formatter.format(cal.getTime()).compareTo(strDate) != 0) {
+					//workaround for yahoo data issue, retrieve data again
+					UtilityFunctions.stdoutwriter.writeln("Bad Yahoo Data, Resubmitting URL",Logs.STATUS1,"DG55.8");
+					bResubmit = true;
+					break;
+					
+					
+				}
 			}
+			
+			
+			if (bResubmit == true)
+				continue;
 			
 			returned_content += strTemp;
 			
