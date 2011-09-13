@@ -47,7 +47,6 @@ public class Alerts {
 		  ResultSet rsTask = dg.dbf.db_run_query(query);
 		  if (rsTask.next())
 		  {
-			  //int nKey = rsSchedule.getInt("schedules.id");
 			  strTaskName = rsTask.getString("tasks.name");
 			  strTaskDescription = rsTask.getString("tasks.description");
 			  
@@ -67,14 +66,16 @@ public class Alerts {
 			  query += "alerts.auto_reset_period,alerts.auto_reset_fired,alerts.fired,";
 			  query += "alerts.email_alert,alerts.twitter_alert,";
 			  query += "entities.ticker,entities.id,entities.full_name,";
-			  query += "users.id,users.username,users.max_notifications,users.email,";
+			  query += "users.id,users.username,users.max_notifications,users.email,users.bulk_email,";
 			  query += "fact_data.value,fact_data.id,fact_data.date_collected,";
 			  query += "time_events.id,time_events.name,time_events.next_datetime,time_events.last_datetime ";
+			  query += "tasks.metric_id ";
 			  query += "from alerts ";
 			  query += "LEFT JOIN entities ON alerts.entity_id=entities.id ";
 			  query += "LEFT JOIN users ON alerts.user_id=users.id ";
 			  query += "LEFT JOIN fact_data ON alerts.initial_fact_data_id=fact_data.id ";
 			  query += "LEFT JOIN time_events ON alerts.time_event_id=time_events.id ";
+			  query += "LEFT JOIN tasks ON alerts.task_id=tasks.id ";
 			  //query += "where alerts.schedule_id=" + nKey;
 			  query += "where alerts.task_id=" + nCurTask;
 			  query += " order by time_events.id";
@@ -95,16 +96,17 @@ public class Alerts {
 			   * 
 			   * Moved this code outside of the loop to speed up processing.
 			   */
-			  query = "select max(batch) from fact_data where task_id=" + nCurTask;
+			  query = "select max(batch_id) from fact_data,batches where fact_data.batch_id=batches.id AND task_id=" + nCurTask;
 			  ResultSet rs7 = dg.dbf.db_run_query(query);
 			  rs7.next();
-			  int nMaxBatch = rs7.getInt("max(batch)");
+			  int nMaxBatch = rs7.getInt("max(batch_id)");
 			  
 			  String query3;
-			  query3 = "select * ";
-			  query3 += "from fact_data ";
-			  query3 += "where task_id=" + nCurTask;
-			  query3 += " and batch=" + nMaxBatch;
+			  query3 = "select fact_data.* ";
+			  query3 += "from fact_data, batches ";
+			  query3 += " where fact_data.batch_id=batches.id ";
+			  query3 += " and task_id=" + nCurTask;
+			  query3 += " and batch_id=" + nMaxBatch;
 			  /*if (!(strTicker==null) && !(strTicker.isEmpty()))
 				  query3 = "select * from fact_data where task_id=" + nCurTask + " and entity_id='" + nEntityId + "' and batch=" + nMaxBatch;
 				//  "(select max(batch) from fact_data where task=" + nCurTask + " and ticker='" + strTicker + "')";
@@ -124,9 +126,49 @@ public class Alerts {
                   return;
               }
 			  
+			  /*
+			   * Generate list of task_ids and time_event_ids to be excluded. 
+			   */
 			  
+			 /* String query11 = "select * from excludes where task_id=" + nCurTask;
+			  ResultSet rs11 = dg.dbf.db_run_query(query11);
+			  //variable to indicate if there are any entires in the excludes table for this task id
+			  boolean bTaskExcludes = false;
+			  ArrayList<String> listTimeEventExcludes = new ArrayList<String>();
+			  Calendar cal4 = Calendar.getInstance();
+			  
+			  while (rs11.next()) {
+				  
+				  
+				  bTaskExcludes = true;
+				  
+				  int nBeginDay = rs11.getInt("begin_day");
+				  int nEndDay = rs11.getInt("end_day");
+				  String strBeginTime = rs11.getString("begin_time");
+				  String strEndTime = rs11.getString("end_time");
+				 
+				  String[] arrayBeginTime = strBeginTime.split(":");
+				  String[] arrayEndTime = strEndTime.split(":");
+				  
+				  double test = ((3601 * Integer.parseInt(arrayBeginTime[0])) / (3600 * 24));
+				  double test2 = ((double)(3600 * Integer.parseInt(arrayBeginTime[0])) / (double)(3600 * 24));
+				  
+				  double fBegin = (double)nBeginDay + (double)(((3600 * Integer.parseInt(arrayBeginTime[0])) + (60 * Integer.parseInt(arrayBeginTime[1])) + (Integer.parseInt(arrayBeginTime[2]))) / (double)(3600 * 24));
+				  double fEnd = (double)nEndDay + (double)(((3600 * Integer.parseInt(arrayEndTime[0])) + (60 * Integer.parseInt(arrayEndTime[1])) + (Integer.parseInt(arrayEndTime[2]))) / (double)(3600 * 24));
+				  double fCurrent = (double)cal4.get(Calendar.DAY_OF_WEEK) + (double)(((3600 * cal4.get(Calendar.HOUR_OF_DAY)) + (60 * cal4.get(Calendar.MINUTE)) + (cal4.get(Calendar.SECOND))) / (double)(3600 * 24));
+				  
+		  
+				  if ((fCurrent >= fBegin) && (fCurrent <= fEnd)) {
+					  listTimeEventExcludes.add(rs11.getInt("time_event_id") + "");
+					  UtilityFunctions.stdoutwriter.writeln("Alerts with task id: " +nCurTask + " and time event id: " + rs11.getInt("time_events.id") + " are excluded. The alerts will be updated, but not be triggered.",Logs.WARN,"A5.6");			  
+				  }
+				 
+				  
+			  }*/
+			  
+	  
 			  int nAlertIndex = 0;
-			  //while (rsAlert.next())
+			 
 			  while (nAlertIndex<arrayListAlerts.size())
 			  {
 				  //HashMap<String,String> hmAlert = arrayListAlerts.get(nAlertIndex);
@@ -225,9 +267,10 @@ public class Alerts {
 							   * 
 							   */
 							  
-							  String strQuery = "select id from fact_data";
-							  strQuery += " where task_id=" + nCurTask + " AND entity_id=" + nEntityId + " AND date_collected>'" + formatter.format(calObservationPeriodBegin.getTime()) +"'";
-							  strQuery += " order by date_collected asc";
+							  String strQuery = "select fact_data.id from fact_data,batches ";
+							  strQuery += "where fact_data.batch_id = batches.id ";
+							  strQuery += " and task_id=" + nCurTask + " AND entity_id=" + nEntityId + " AND fact_data.date_collected>'" + formatter.format(calObservationPeriodBegin.getTime()) +"'";
+							  strQuery += " order by fact_data.date_collected asc";
 							  
 							  ResultSet rsFactData = dg.dbf.db_run_query(strQuery);
 							  
@@ -241,7 +284,7 @@ public class Alerts {
 							  
 							  String query4 = "update alerts set ";
 							  //query4 += "initial_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + ", ";
-							  query4 += "initial_fact_data_id=" +rsFactData.getInt("id") + ",";
+							  query4 += "initial_fact_data_id=" +rsFactData.getInt("fact_data.id") + ",";
 							  query4 += "current_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + ", ";
 							  query4 += "notification_count=0,";
 							  query4 += "fired=0 ";
@@ -256,12 +299,23 @@ public class Alerts {
 						  continue;
 					  }
 				  
-				  //String strType = rsAlert.getString("type");
+
+					  
+					//code here to check for excludes.
+					/*  boolean bContinue = false;
+					  if (bTaskExcludes) {
+						  for (String te : listTimeEventExcludes) {
+							  if (Integer.parseInt(hmAlert.get("time_events.id")) == Integer.parseInt(te))
+								  bContinue = true;
+							  
+						  }
+					  }
+					  if (bContinue)
+						  continue;*/
 				  
 				
 				
-				  //String strFrequency = hmAlert.get("alerts.frequency");//sAlert.getString("frequency");
-				  //String strEmail = rsAlert.getString("email");
+				
 				  int nUserId = Integer.parseInt(hmAlert.get("alerts.user_id"));//rsAlert.getInt("user_id");
 				  
 			
@@ -325,6 +379,8 @@ public class Alerts {
 							  String strEmail = hmAlert.get("users.email");
 							  int nMaxNotifications = Integer.parseInt(hmAlert.get("users.max_notifications"));
 							  
+							  boolean bEmailSent = false;
+							  
 							 /* The old protocol was if an alert was triggered, we will automatically reset the initial value.
 							  * The new protocol is to include a link to a form to increase the value. 
 							  * Alerts will continue to be sent until max_alerts in the account table is reached OR
@@ -337,7 +393,9 @@ public class Alerts {
 								  //send notification
 								  //System.out.println("ALERT: Send mail!");
 								  
-								  if (bEmailAlert == true)
+
+								  
+								  if (bEmailAlert == true && hmAlert.get("users.bulk_email").toUpperCase().equals("FALSE"))
 								  {
 								  
 									  if (nNotificationCount<nMaxNotifications)
@@ -349,7 +407,11 @@ public class Alerts {
 										  strMsg = "ALERT\r\n";
 										  
 										  if (strTicker != null && !(strTicker.isEmpty()))
-												  strMsg = strMsg + "Entity: " + strTicker + "\r\n";
+												  strMsg += "Entity: " + strTicker;				  
+									
+										  if (hmAlert.get("tasks.metric_id").equals("11"))
+											  strMsg += " (Futures)";
+										  strMsg += "\r\n";
 										  
 										  //Get the full ticker description
 										  //String query5 = "select full_name from entities where ticker='"+ strTicker + "'";
@@ -391,13 +453,6 @@ public class Alerts {
 										  //Add link for Increase Alert Limit form
 										  strMsg = strMsg + "Modify/View Alert Properties: " + (String)DataLoad.props.getProperty("cakebaseurl") + "alerts/edit?alert=" + nAlertId;
 										  
-										  
-										  
-										  //strMsg += "\r\n\r\nNote: The alert system will continue to send email alerts until 1 of the following conditions is met:";
-										  //strMsg += "\r\n1) The maximum alert notification count of " + rs6.getInt("max_alerts") + " is reached (configurable in the user properties).";
-										  //strMsg += "\r\n2) The user modifies the alert adjustment value (configurable in the alert properties)";
-										  //strMsg += "\r\n3) The alert condition is no longer true.";
-										  
 										  String strSubject = (String)DataLoad.props.get("subjecttext") + " : " + strTicker + " : " + hmAlert.get("time_events.name") + " Observation Period";
 										  
 										  //Emails and Tweets are globally disabled for testing
@@ -409,6 +464,8 @@ public class Alerts {
 										  String query9 = "update alerts set notification_count=" + (nNotificationCount+1) + " where id=" + nAlertId;
 										  
 										  dg.dbf.db_update_query(query9);
+										  
+										  bEmailSent = true;
 									  }
 								  }
 								  
@@ -417,9 +474,14 @@ public class Alerts {
 									  dChange = dChange.multiply(new BigDecimal(100)).setScale(2);
 									  String strTweet = dChange.toString() + "% ";
 									  strTweet += hmAlert.get("time_events.name");
+									  
+									  if (hmAlert.get("tasks.metric_id").equals("11"))
+										  strTweet += " Futures";
 									  strTweet += " move in " + strTicker;
 									  if (hmAlert.get("entities.full_name") != null)
 										  strTweet += " (" + hmAlert.get("entities.full_name") + ")";
+									  
+									
 									  
 									  
 									  String strUrl = (String)DataLoad.props.getProperty("phpbaseurl") + "charts/allassets/linechart.php?a=" + nAlertId;
@@ -430,7 +492,7 @@ public class Alerts {
 									  
 										  strTweet += " " + UtilityFunctions.shortenURL(strUrl);
 										  
-										  String strTmp = strTicker.replace(" ","").replace("(","").replace(")","").replace(".", "").replace("-", "").replace("#", "");
+										  
 										  
 										  /*
 										   * Figure out if this alert represents an actual stock ticker. If so, then use the $ tag; otherwise use the # tag.
@@ -441,9 +503,13 @@ public class Alerts {
 										  ResultSet rs10 = dg.dbf.db_run_query(tmpQuery);
 										  
 										  if (rs10.next())
-											  strTweet += " $" + tmpQuery;
-										  else
-											  strTweet += " #" + tmpQuery;
+											  strTweet += " $" + strTicker;
+										  else {
+											  String strTmp = strTicker.replace(" ","").replace("(","").replace(")","").replace(".", "").replace("-", "").replace("#", "");
+											  strTweet += " #" + strTmp;
+										  }
+										  
+										  //strTweet += " $$";
 										  
 										  UtilityFunctions.tweet(strTweet);
 									  }
@@ -455,7 +521,7 @@ public class Alerts {
 								  
 								 
 								  
-								  String query8 = "insert into log_alerts (alert_id,date_time_fired,bef_fact_data_id,aft_fact_data_id,limit_value,entity_id,user_id) values (" 
+								  String query8 = "insert into log_alerts (alert_id,date_time_fired,bef_fact_data_id,aft_fact_data_id,limit_value,entity_id,user_id,email_sent,diff) values (" 
 									  + nAlertId + ",'"
 									  
 									  /*
@@ -478,7 +544,12 @@ public class Alerts {
 									  //+ rsAlert.getInt("entity_id") + ","
 									  + hmAlert.get("entities.id") + ","
 									  //+ rsAlert.getInt("user_id") + ")";
-									  + hmAlert.get("users.id") + ")";
+									  + hmAlert.get("users.id") + ",";
+									  if (bEmailSent)
+										  query8 += "1,";
+									  else
+										  query8 += "0,";
+									  query8 += dChange + ")";
 								  
 								  dg.dbf.db_update_query(query8);
 								  
