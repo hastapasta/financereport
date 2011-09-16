@@ -269,7 +269,7 @@ public class Alerts {
 						  	  //test
 							  String strQuery = "select fact_data.id from fact_data,batches ";
 							  strQuery += "where fact_data.batch_id = batches.id ";
-							  strQuery += " and task_id=" + nCurTask + " AND entity_id=" + nEntityId + " AND fact_data.date_collected>'" + formatter.format(calObservationPeriodBegin.getTime()) +"'";
+							  strQuery += " and task_id=" + nCurTask + " AND entity_id=" + nEntityId + " AND fact_data.date_collected>='" + formatter.format(calObservationPeriodBegin.getTime()) +"'";
 							  strQuery += " order by fact_data.date_collected asc";
 							  
 							  ResultSet rsFactData = dg.dbf.db_run_query(strQuery);
