@@ -38,6 +38,7 @@ String returned_content;
 String strCurDataSet;
 String strCurTask="";
 int nCurTask;
+int nCount;
 String strScheduleId;
 String strRepeatTypeId;
 ArrayList<String> jobsArray;
@@ -723,9 +724,43 @@ public void defaultURLProcessing(String strDataSet) throws SQLException, Malform
 	int nTmp;			
 
 	returned_content="";
+	this.nCount = 0;
+	Calendar cal = Calendar.getInstance();
+	
+	/*
+	 * OFP 9/15/2011 - Added workaround for connection reset exception for bloomberg index tasks.
+	 */
+	boolean bDone = false;
+	while (!bDone) {
+		try {
+			
+			while ((nTmp = in.read()) != -1) {
+				this.nCount++;
+				returned_content += (char)nTmp;
+				if (nCount == 10000 && nCurTask == 6) {
+					Calendar cal2 = Calendar.getInstance();
+					System.out.println("b");
+				}
+			}
+			bDone = true;
+			
+		} 
+		catch (SocketException se) {
+			
+			if (!(this.nCurTask == 6 || this.nCurTask == 28)) {
+				UtilityFunctions.stdoutwriter.writeln("Issue with URL connection.",Logs.ERROR,"DG42.1");
+				UtilityFunctions.stdoutwriter.writeln(se);
+				bDone = true;
+			}
+			else {
+				UtilityFunctions.stdoutwriter.writeln("Issue with URL connection.",Logs.WARN,"DG42.3");
+				UtilityFunctions.stdoutwriter.writeln(se.getMessage(),Logs.WARN,"DG42.4");			
+				UtilityFunctions.stdoutwriter.writeln("Processing one of the bloomberg tasks, resubmitting URL",Logs.WARN,"DG42.2");
+			}
+			
+		}
+	}
 
-	while ((nTmp = in.read()) != -1)
-		returned_content += (char)nTmp;
 
 
 	in.close();
@@ -1494,7 +1529,23 @@ public void grab_data_set(String strJobPrimaryKey)
 			
 			String strURL = strURLStatic.replace("${dynamic}", strList);
 			
-			HttpGet httpget = new HttpGet(strURL); 
+			
+
+			
+			HttpGet httpget = null;
+			try {
+				/*URI uri = new URI(
+					    "http", 
+					    "search.barnesandnoble.com", 
+					    "/booksearch/first book.pdf",
+					    null);*/
+				//URI uri = new URI(strURL);
+				strURL = strURL.replace("^", "%5E");
+				httpget = new HttpGet(strURL);
+			}
+			catch (Exception ex) {
+				UtilityFunctions.stdoutwriter.writeln(ex);
+			}
 			
 			httpget.getParams().setParameter("http.protocol.cookie-datepatterns", 
 					Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z", "EEE, dd MMM yyyy HH:mm:ss z"));
