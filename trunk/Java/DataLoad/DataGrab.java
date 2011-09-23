@@ -14,6 +14,8 @@ import java.util.regex.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
+
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.NameValuePair;
@@ -1597,12 +1599,61 @@ public void grab_data_set(String strJobPrimaryKey)
 				nEnd = strTemp.indexOf("</LastTradeDate>",nBegin);
 				
 				String strDate = strTemp.substring(nBegin,nEnd);
+				
+				nBegin = strTemp.indexOf("<LastTradeTime>",nEnd);
+				
+				if (nBegin == -1) {
+					/*Technically we should never get here since it means a lasttradedate tag
+					 * without a lasttradetime tag.
+					 */
+					UtilityFunctions.stdoutwriter.writeln("Issue processing yahoo data. Lasttradedate tage without lasttradetime tag.",Logs.ERROR,"DG60.1");
+					bResubmit = true;
+					break;
+				}
+				
+				nBegin += "<LastTradeTime>".length();
+				nEnd = strTemp.indexOf("</LastTradeTime>",nBegin);
+				
+				String strTime = strTemp.substring(nBegin,nEnd);
+					
 	
 				if (formatter.format(cal.getTime()).compareTo(strDate) != 0) {
 					//workaround for yahoo data issue, retrieve data again
 					UtilityFunctions.stdoutwriter.writeln("Bad Yahoo Data, Resubmitting URL",Logs.STATUS1,"DG55.8");
+					UtilityFunctions.stdoutwriter.writeln("Date Collected:" + strDate + ",Time Collected:" + strTime,Logs.STATUS1,"DG55.9");
 					bResubmit = true;
 					break;
+					
+					
+				}
+				else {
+					//Now seeing issues where the day is correct but the time is off
+					String strHour = strTime.substring(0,strTime.indexOf(":"));
+					String strMinute = strTime.substring(strTime.indexOf(":")+1,strTime.indexOf(":")+3);
+					String strPeriod = strTime.substring(strTime.length()-2,strTime.length());
+					
+					Calendar cal2 = Calendar.getInstance();
+					cal2.setTimeZone(TimeZone.getTimeZone("America/New_York"));
+					cal2.set(Calendar.HOUR, Integer.parseInt(strHour) );
+					cal2.set(Calendar.MINUTE,Integer.parseInt(strMinute));
+					if (strPeriod.equals("pm"))
+						cal2.set(Calendar.AM_PM,Calendar.PM);
+					else
+						cal2.set(Calendar.AM_PM,Calendar.AM);
+					
+					
+					//cal2.setTimeZone(TimeZone.getTimeZone("America/Phoenix"));
+					
+					//Check if time difference is more than an hour
+					if (Math.abs(cal2.getTimeInMillis() - cal.getTimeInMillis()) > 3600000) {
+						UtilityFunctions.stdoutwriter.writeln("Bad Yahoo Data, Resubmitting URL",Logs.STATUS1,"DG55.10");
+						UtilityFunctions.stdoutwriter.writeln("Date Collected:" + strDate + ",Time Collected:" + strTime,Logs.STATUS1,"DG55.11");
+						bResubmit = true;
+						break;
+						
+					}
+				
+					
 					
 					
 				}
