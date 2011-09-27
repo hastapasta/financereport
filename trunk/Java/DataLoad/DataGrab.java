@@ -1617,46 +1617,44 @@ public void grab_data_set(String strJobPrimaryKey)
 				String strTime = strTemp.substring(nBegin,nEnd);
 					
 	
-				if (formatter.format(cal.getTime()).compareTo(strDate) != 0) {
-					//workaround for yahoo data issue, retrieve data again
-					UtilityFunctions.stdoutwriter.writeln("Bad Yahoo Data, Resubmitting URL",Logs.STATUS1,"DG55.8");
-					UtilityFunctions.stdoutwriter.writeln("Date Collected:" + strDate + ",Time Collected:" + strTime,Logs.STATUS1,"DG55.9");
+
+				String strHour = strTime.substring(0,strTime.indexOf(":"));
+				String strMinute = strTime.substring(strTime.indexOf(":")+1,strTime.indexOf(":")+3);
+				String strPeriod = strTime.substring(strTime.length()-2,strTime.length());
+				
+				int nHour = Integer.parseInt(strHour);
+				
+				if (strPeriod.equals("pm") && (nHour != 12))
+					nHour += 12;
+				else if (strPeriod.equals("am") && (nHour == 12))
+					nHour = 0;
+		
+				
+				String[] datearray = strDate.split("/");
+				
+				Calendar cal2 = Calendar.getInstance();
+				cal2.setTimeZone(TimeZone.getTimeZone("America/New_York"));
+				/* OFP 9/26/2011
+				 * I'm using the following method because with the indivdual set() methods, i.e.
+				 * cal2.set(Calendar.HOUR,x);, the logic is not absolute, meaning that what the hour 12 means is dependent
+				 * on what AM_PM is currently set to. Also the day can get flipped over, which is also behavior I don't want.
+				 */
+				cal2.set(Integer.parseInt(datearray[2]),Integer.parseInt(datearray[0])-1,Integer.parseInt(datearray[1]),nHour,Integer.parseInt(strMinute),0);
+
+					
+				//Check if time difference is more than an hour
+				if (Math.abs(cal2.getTimeInMillis() - cal.getTimeInMillis()) > 3600000) {
+					UtilityFunctions.stdoutwriter.writeln("Bad Yahoo Data, Resubmitting URL",Logs.STATUS1,"DG55.10");
+					UtilityFunctions.stdoutwriter.writeln("Date Collected:" + strDate + ",Time Collected:" + strTime,Logs.STATUS1,"DG55.11");
 					bResubmit = true;
 					break;
 					
-					
 				}
-				else {
-					//Now seeing issues where the day is correct but the time is off
-					String strHour = strTime.substring(0,strTime.indexOf(":"));
-					String strMinute = strTime.substring(strTime.indexOf(":")+1,strTime.indexOf(":")+3);
-					String strPeriod = strTime.substring(strTime.length()-2,strTime.length());
-					
-					Calendar cal2 = Calendar.getInstance();
-					cal2.setTimeZone(TimeZone.getTimeZone("America/New_York"));
-					cal2.set(Calendar.HOUR, Integer.parseInt(strHour) );
-					cal2.set(Calendar.MINUTE,Integer.parseInt(strMinute));
-					if (strPeriod.equals("pm"))
-						cal2.set(Calendar.AM_PM,Calendar.PM);
-					else
-						cal2.set(Calendar.AM_PM,Calendar.AM);
-					
-					
-					//cal2.setTimeZone(TimeZone.getTimeZone("America/Phoenix"));
-					
-					//Check if time difference is more than an hour
-					if (Math.abs(cal2.getTimeInMillis() - cal.getTimeInMillis()) > 3600000) {
-						UtilityFunctions.stdoutwriter.writeln("Bad Yahoo Data, Resubmitting URL",Logs.STATUS1,"DG55.10");
-						UtilityFunctions.stdoutwriter.writeln("Date Collected:" + strDate + ",Time Collected:" + strTime,Logs.STATUS1,"DG55.11");
-						bResubmit = true;
-						break;
-						
-					}
 				
 					
 					
 					
-				}
+				
 			}
 			
 			
