@@ -7,6 +7,9 @@
 error_reporting(E_ALL);
 
 $logname = $_GET['log'];
+$order = 'back';
+if (!empty($_GET['order']))
+	$order = $_GET['order'];
 
 
 
@@ -26,10 +29,19 @@ echo "<pre>";
 
 //echo $txt;
 $var=explode("\n", $txt);
-foreach (array_reverse($var) as $line=>$data) {
-echo $data;
-echo "\n";
-} 
+if (strtoupper($order) == 'FORWARD') {
+	foreach ($var as $line=>$data) {
+	echo $data;
+	echo "\n";
+	} 
+	
+}
+else {
+	foreach (array_reverse($var) as $line=>$data) {
+	echo $data;
+	echo "\n";
+	} 
+}
 
 
 echo "</pre>";
