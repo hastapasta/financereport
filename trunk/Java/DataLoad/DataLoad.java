@@ -47,6 +47,7 @@ class DataLoad extends Thread //implements Stopable
   ServerSocket ss;
   static boolean pause=false;
   static UtilityFunctions uf;
+  
   static int nMaxThreads;
   static Properties props;
   static boolean bDisableEmails;
@@ -59,6 +60,7 @@ class DataLoad extends Thread //implements Stopable
   
   DataGrab[] arrayRunningJobs;
   public static DBFunctions dbf;
+  Notification notification;
   GarbCollector gc;
   
   int nMaxBatch;
@@ -155,6 +157,7 @@ class DataLoad extends Thread //implements Stopable
 				 */
 				while (rs2.next())
 				{
+					
 					//check if job is already in queue, don't add it again if it is
 					boolean bInQ=false;
 					for (int i=0;i<listWaitingJobs.size();i++)
@@ -167,6 +170,10 @@ class DataLoad extends Thread //implements Stopable
 					
 					if (!bInQ)
 					{
+						//check if task is being excluded
+						if  (taskExcluded(rs2.getString("task_id")))
+								continue;
+						
 						String[] tmp = new String[3];
 						tmp[0] = rs2.getString("task_id");
 						tmp[1] = rs2.getString("id");
@@ -305,9 +312,11 @@ class DataLoad extends Thread //implements Stopable
 				   * dbf.getBatchNumber(). Now the batch number is maintained in the parent thread to avoid duplication.
 				   * 
 				   */
+				  UtilityFunctions.stdoutwriter.writeln("Initiating thread with batch # " + this.nMaxBatch,Logs.STATUS1,"DL4.35");
 				  dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,this.nMaxBatch,listWaitingJobs.get(i)[1],listWaitingJobs.get(i)[2]);
 				  
 				  this.nMaxBatch++;
+				  
 				  /*
 				   * OFP 3/12/2011 - move the writeKeepAlive function call here because we were running into instances were the DataLoad thread was running
 				   * fine but the DataGrab threads were locked up and no new DataGrab threads were being initiated.
@@ -553,7 +562,7 @@ class DataLoad extends Thread //implements Stopable
 	  {
 		
 		  /*
-		   * One thing about this logic is that the log_tasks table won't get update with the completed tasks
+		   * One thing about this logic is that the log_tasks table won't get updated with the completed tasks
 		   * until the gc finishes. 
 		   * The alerts will be sent out though, so maybe this isn't a major concern, but it could cause some confusion.
 		   */
@@ -699,6 +708,21 @@ class DataLoad extends Thread //implements Stopable
 		UtilityFunctions.stdoutwriter.writeln(pe);
 		return;
 	}
+	
+	try {
+		DBFunctions tmpdbf = new DBFunctions((String)props.get("dbhost"),(String)props.get("dbport"),(String)props.get("database"),(String)props.get("dbuser"),(String)props.get("dbpass"));
+		this.notification = new Notification(DataLoad.uf,tmpdbf);
+		this.notification.start();
+		UtilityFunctions.stdoutwriter.writeln("Started Notification Thread",Logs.STATUS1,"DL2.727");
+		
+	}
+	catch (SQLException sqle) {
+		UtilityFunctions.stdoutwriter.writeln("Problem opening database connection. Terminating.",Logs.ERROR,"DL2.726");
+		UtilityFunctions.stdoutwriter.writeln(sqle);
+		return;
+		
+	}
+	
 
   	arrayRunningJobs = new DataGrab[nMaxThreads];
   	listWaitingJobs = new ArrayList<String[]>();
@@ -881,10 +905,13 @@ class DataLoad extends Thread //implements Stopable
     //This is a decprecated feature only demontrated for backwards compatibility.
     //Please use the stopmethod,stopclass configuration parameter for stopping a service
     
-    //ServiceStopper.stop( echo );         
+    //ServiceStopper.stop( echo );  
+    
+    
     
     //Start the echo server thread
     dLoad.start();
+    //Start the Notification thre
 
   }
   
@@ -922,11 +949,20 @@ class DataLoad extends Thread //implements Stopable
 			Calendar calNext = Calendar.getInstance();
 			Calendar calLast = Calendar.getInstance();
 			Calendar calCurrent = Calendar.getInstance();
+			Calendar calNextDelay;
+			
+			
 			
 			int nYears = rsTimeEvents.getInt("years");
 			int nMonths = rsTimeEvents.getInt("months");
 			int nDays = rsTimeEvents.getInt("days");
 			int nHours = rsTimeEvents.getInt("hours");
+		
+			int nDelay = rsTimeEvents.getInt("delay");
+			
+			
+			
+			
 			
 			if ((nYears==0) && (nMonths==0) && (nDays==0) && (nHours==0))
 			{
@@ -951,7 +987,22 @@ class DataLoad extends Thread //implements Stopable
 				calLast.setTime(rsTimeEvents.getTimestamp("next_datetime"));
 			}
 			
-			if (!calNext.after(calCurrent) || (rsTimeEvents.getTimestamp("next_datetime") == null))
+			/*
+			 * OFP 9/14/2011 - Added the code for the delay. We needed a mechanism to handle the situation
+			 * where:
+			 * A) Data that is being collected is delayed. (this is true in the majority of cases)
+			 * AND
+			 * B) The data that is being collected is being populated using the actual trade time (NOT the collection time).
+			 * So if the date_collected field in fact_data is being populated with the correct time (without the delay), then
+			 * the alerts for that task need to use a delayed time event. This was discovered with the yahoo yql task when we went
+			 * to populating the correct last trade time instead of the collection time.
+			 */
+			
+			calNextDelay = (Calendar)calNext.clone();
+			
+			calNextDelay.add(Calendar.MINUTE, nDelay);
+			
+			if (!calNextDelay.after(calCurrent) || (rsTimeEvents.getTimestamp("next_datetime") == null))
 			{
 				
 				//Keep adding cycles until next is after current
@@ -983,6 +1034,45 @@ class DataLoad extends Thread //implements Stopable
 		
 		
 		
+	}
+	
+	public boolean taskExcluded(String strTaskId) throws SQLException {
+		
+		  String query11 = "select * from excludes where task_id=" + strTaskId;
+		  ResultSet rs11 = dbf.db_run_query(query11);
+		  //variable to indicate if there are any entires in the excludes table for this task id
+		 
+		  Calendar cal4 = Calendar.getInstance();
+		  
+		  while(rs11.next()) {
+		  
+  
+			  int nBeginDay = rs11.getInt("begin_day");
+			  int nEndDay = rs11.getInt("end_day");
+			  String strBeginTime = rs11.getString("begin_time");
+			  String strEndTime = rs11.getString("end_time");
+			 
+			  String[] arrayBeginTime = strBeginTime.split(":");
+			  String[] arrayEndTime = strEndTime.split(":");
+			  
+			  //double test = ((3601 * Integer.parseInt(arrayBeginTime[0])) / (3600 * 24));
+			  //double test2 = ((double)(3600 * Integer.parseInt(arrayBeginTime[0])) / (double)(3600 * 24));
+			  
+			  double fBegin = (double)nBeginDay + (double)(((3600 * Integer.parseInt(arrayBeginTime[0])) + (60 * Integer.parseInt(arrayBeginTime[1])) + (Integer.parseInt(arrayBeginTime[2]))) / (double)(3600 * 24));
+			  double fEnd = (double)nEndDay + (double)(((3600 * Integer.parseInt(arrayEndTime[0])) + (60 * Integer.parseInt(arrayEndTime[1])) + (Integer.parseInt(arrayEndTime[2]))) / (double)(3600 * 24));
+			  double fCurrent = (double)cal4.get(Calendar.DAY_OF_WEEK) + (double)(((3600 * cal4.get(Calendar.HOUR_OF_DAY)) + (60 * cal4.get(Calendar.MINUTE)) + (cal4.get(Calendar.SECOND))) / (double)(3600 * 24));
+			  
+	  
+			  if ((fCurrent >= fBegin) && (fCurrent <= fEnd)) {
+				  //listTimeEventExcludes.add(rs11.getInt("time_event_id") + "");
+				  UtilityFunctions.stdoutwriter.writeln("Excluding task " +strTaskId + " according to excludes id " + rs11.getInt("id"),Logs.WARN,"A5.6");
+				  return(true);
+			  }
+			 
+		  }
+		  
+		  return(false);
+	
 	}
 	
 	
