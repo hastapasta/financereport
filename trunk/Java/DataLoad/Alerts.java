@@ -68,7 +68,7 @@ public class Alerts {
 			  query += "entities.ticker,entities.id,entities.full_name,";
 			  query += "users.id,users.username,users.max_notifications,users.email,users.bulk_email,";
 			  query += "fact_data.value,fact_data.id,fact_data.date_collected,";
-			  query += "time_events.id,time_events.name,time_events.next_datetime,time_events.last_datetime ";
+			  query += "time_events.id,time_events.name,time_events.next_datetime,time_events.last_datetime, ";
 			  query += "tasks.metric_id ";
 			  query += "from alerts ";
 			  query += "LEFT JOIN entities ON alerts.entity_id=entities.id ";
@@ -505,13 +505,27 @@ public class Alerts {
 										  if (rs10.next())
 											  strTweet += " $" + strTicker;
 										  else {
-											  String strTmp = strTicker.replace(" ","").replace("(","").replace(")","").replace(".", "").replace("-", "").replace("#", "");
+											  String strTmp = strTicker.replace(" ","").replace("(","").replace(")","").replace(".", "").replace("-", "").replace("#", "").replace("&", "and");
 											  strTweet += " #" + strTmp;
 										  }
 										  
 										  //strTweet += " $$";
 										  
-										  UtilityFunctions.tweet(strTweet);
+										  String strErrorMsg = UtilityFunctions.tweet(strTweet);
+										  
+										  try {
+											  String strTweetLogQuery = "insert into log_tweets (datetime,message,alert_id,error_message) ";
+											  strTweetLogQuery += " values (NOW(),'" + strTweet.substring(0,150) + "'," + hmAlert.get("alerts.id");
+											  if (strErrorMsg.isEmpty())
+												  strTweetLogQuery += ",null)";
+											  else
+												  strTweetLogQuery += ",'" + strErrorMsg.substring(0,200) + "')";
+											  dg.dbf.db_update_query(strTweetLogQuery);
+										  } 
+										  catch (SQLException sqle) {
+											  UtilityFunctions.stdoutwriter.writeln("Issue inserting into log_tweets",Logs.ERROR,"A4.6");
+											  UtilityFunctions.stdoutwriter.writeln(sqle);
+										  }
 									  }
   
 									  
@@ -579,43 +593,7 @@ public class Alerts {
 						  
 							  }
 							  
-							  
-						
-							  
-							  
-							  
-							  
-							  
-							 
-							  
-							  
-								  
-							  
-						 // }
-						  
-						  
-						
-					 // }  
-				 // }
-				 /* else
-					  //fact_data_key not found, assume this is the first time this alert has been used and needs to be populated
-					  //if I base this off of the batch #, have to be very careful with how it is maintained.
-				  {
-					 
-					  //if (rsCurFactData.next())
-					  if (hmCurFactData.get(nEntityId+"") != null)
-					  { 
-						  String query2 = "update alerts set initial_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + " where id=" + nAlertId;
-						  dg.dbf.db_update_query(query2);
-					  }
-						  
-					  else
-					  //didn't find a fact_data_key with which to populate this notification and there should be at least one there
-					  //print a message
-						  UtilityFunctions.stdoutwriter.writeln("Attempting to initially populate alert id " + nAlertId + " but no recent fact data collected for entity id: " + nEntityId + " and batch: " + nMaxBatch,Logs.WARN,"A2.75");
-				  }*/
-				  
-				  
+	  
 				 
 				  }
 				  catch (ParseException pe)
