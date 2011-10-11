@@ -5,6 +5,8 @@ include ("../../site/includes/sitecommon.php");
 db_utility::db_connect();
 
 //$taskid = $_GET['taskid'];
+$begindate = $_GET['begindate'];
+$enddate = $_GET['enddate'];
 
 
 
@@ -40,55 +42,47 @@ db_utility::db_connect();
 	 $("#rangeDemoToday").click( function(e) {
 	      $("#rangeDemoFinish").val(rangeDemoConv.format(new Date())).change(); } );
 	  $("#rangeDemoClear").click( function(e) {
-	      $("#rangeDemoStart").val("").change(); } );
+	      $("#rangeDemoStart").val("").change();
+	      $("#rangeDemoFinish").val("").change(); } );
 	  $("#rangeDemoStart").AnyTime_picker({format:rangeDemoFormat});
 	  $("#rangeDemoFinish").AnyTime_picker({format:rangeDemoFormat});
-	 /* $("#rangeDemoFinish").change( function(e) { try {
-		  var fromDay = new Date();
-		  //dt.setMonth(dt.getMonth() – 1);
-		  fromDay.setDate(fromDay.getDate() - 1);
-		 $("#rangeDemoFinish").
-		  	AnyTime_noPicker().
-		  	removeAttr("disabled");
-		  	#*val(rangeDemoConv.format(new Date())).
-		    AnyTime_picker(
-		              { //earliest: dayEarlier,
-		                format: rangeDemoFormat
-		                //latest: ninetyDaysLater
-		              } );*#
-		$("#rangeDemoStart").
-		  	AnyTime_noPicker().
-		  	removeAttr("disabled").
-		  	val(rangeDemoConv.format(fromDay)).
-		    AnyTime_picker(
-		              { //earliest: dayEarlier,
-		                format: rangeDemoFormat
-		                //latest: ninetyDaysLater
-		              } );
-	  } catch(e){ 
-		 // $("#rangeDemoStart").val("").attr("disabled","disabled"); 
-		  if (window.console && window.console.firebug) {e.getMessage()}
-		} } );*/
-		  
-	  /*$("#rangeDemoStart").change( function(e) { try {
-	      //var fromDay = rangeDemoConv.parse($("#rangeDemoStart").val()).getTime();
-	      var endDay = rangeDemoConv.parse($("#rangeDemoStart").val()).getTime();
-	      //var dayLater = new Date(fromDay+oneDay);
-	      var dayEarlier = new Date(endDay-oneDay);
-	      //dayLater.setHours(0,0,0,0);
-	     // var ninetyDaysLater = new Date(fromDay+(90*oneDay));
-	     // ninetyDaysLater.setHours(23,59,59,999);
-	      $("#rangeDemoFinish").
-	          AnyTime_noPicker().
-	          removeAttr("disabled").
-	          //val(rangeDemoConv.format(dayLater)).
-	          val(rangeDemoConv.format(dayEarlier)).
-	          AnyTime_picker(
-	              { //earliest: dayEarlier,
-	                format: rangeDemoFormat
-	                //latest: ninetyDaysLater
-	              } );
-	      } catch(e){ $("#rangeDemoFinish").val("").attr("disabled","disabled"); } } );*/
+
+	  //t1 = new Date();
+	  //t1.setTime(1313290898000);
+	  //t1 = Date.parse(1313290898000);
+	  //alert(t1);
+
+	  <?php 
+	  if (!empty($begindate) && !empty($enddate)) {
+	
+	  	echo "t1 = new Date();\n";
+	  	echo "t1.setTime(".$begindate.");";
+	  	//echo "alert(rangeDemoConv.format(t1));";
+	  	echo "$(\"#rangeDemoStart\").
+	  		AnyTime_noPicker().\n
+			  	val(rangeDemoConv.format(t1)).\n
+			    AnyTime_picker(\n
+			              { 
+			                format: rangeDemoFormat
+			               
+			              } );\n";
+	  	echo "t1.setTime(".$enddate.");";
+	  	 	echo "$(\"#rangeDemoFinish\").
+	  		AnyTime_noPicker().\n
+			  	val(rangeDemoConv.format(t1)).\n
+			    AnyTime_picker(\n
+			              { 
+			                format: rangeDemoFormat
+			               
+			              } );\n";
+	  	 	
+	  	 echo "sendAndDraw();\n";
+	
+	  }
+	  
+	  		
+	  ?>
+
 				
 	});
 	$(function(){
@@ -99,6 +93,8 @@ db_utility::db_connect();
 		    	var tmp = $("#timeframe").val();
 		    	if (tmp == 'year')
 		        	begindate.setMonth(enddate.getMonth() - 12);
+		    	else if (tmp == 'custom1')
+			    	begindate = Date.parseExact("1/20/2011", "M/d/yyyy"); 
 		    	else if (tmp == 'month')
 		        	begindate.setMonth(enddate.getMonth() - 1);
 		    	else if (tmp == 'week')
@@ -138,6 +134,18 @@ db_utility::db_connect();
 		});*/
 		
 	});
+
+	function generateURL() {
+		var rangeDemoStart = document.getElementById('rangeDemoStart');
+	    var rangeDemoFinish = document.getElementById('rangeDemoFinish');
+		query = '?begindate='+ (Date.parse(rangeDemoStart.value)).getTime() + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime();
+
+
+		var url = location.href;
+		var url_parts = url.split('?');
+		var main_url = url_parts[0]; 		
+		alert(main_url + query);
+	}
 </script>
 
 
@@ -167,7 +175,18 @@ db_utility::db_connect();
     var query4;
  
 
+	function genericClickHandler(localTableChart,localQueryWrapper) {
 
+		var row = localTableChart.getSelection();
+		
+		//var test5 = queryWrapper2;
+
+		var dt = localQueryWrapper.currentDataTable;
+		var val = dt.getValue(row[0].row,8);
+		<?php //echo "window.location.href = \"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\";";?>
+		<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\");";?>
+
+	}
     
 
 
@@ -204,7 +223,7 @@ db_utility::db_connect();
       if (firstpass==true)
       {
           //taskid='0';
-          timeframe = 'week';
+          //timeframe = 'week';
           firstpass=false;
       }
       
@@ -241,45 +260,20 @@ db_utility::db_connect();
       var container2 = document.getElementById('table2');
       var container3 = document.getElementById('table3');
       var container4 = document.getElementById('table4');
+
+      /*wrapper = new google.visualization.ChartWrapper({
+    	    chartType: 'ColumnChart',
+    	    dataTable: [['Germany', 'USA', 'Brazil', 'Canada', 'France', 'RU'],
+    	                [700, 300, 400, 500, 600, 800]],
+    	    options: {'title': 'Countries'},
+    	    containerId: 'visualization'
+    	  });*/
      
       
       var tableChart1 = new google.visualization.Table(container1);
       var tableChart2 = new google.visualization.Table(container2);
       var tableChart3 = new google.visualization.Table(container3);
       var tableChart4 = new google.visualization.Table(container4);
-
-      google.visualization.events.addListener(tableChart1, 'select', function(event){
-			var row = tableChart1.getSelection();
-			var test = tableChart1;
-			var test2 = tableChart1.tb.textContent;
-			var test4 = tableChart1.getDataTable();
-			//var test3 = tableChart1.getDataTable().getTableRowIndex(row[0].row);
-			
-			alert(row[0].ticker);
-			<?php //echo "alert(\"http://localhost".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?a=660&title=All Assets Indivdual Line Charts\");"; ?>
-			<?php echo "window.location.href = \"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?a=660&title=All Assets Indivdual Line Charts\";";?>
-
-			
-		
-
-       });
-		
-      google.visualization.events.addListener(tableChart2, 'select', function(event){
-	  		var row = tableChart2.getSelection();
-	  
-			alert( "you selected row " + row[0].row + " of third table");
-   	   });
-      google.visualization.events.addListener(tableChart3, 'select', function(event){
-	  		var row = tableChart3.getSelection();
-			alert( "you selected row " + row[0].row + " of fourth table");
-   	  });
-
-      google.visualization.events.addListener(tableChart4, 'select', function(event){
-	  		var row = tableChart4.getSelection();
-			alert( "you selected row " + row[0].row + " of 1st table");
- 	  });
-
-	  //alert(dataSourceUrl + queryString3);   	  
 	  
 	  if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString1)}
       if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString2)}
@@ -289,25 +283,42 @@ db_utility::db_connect();
       query1 && query1.abort();
       query1 = new google.visualization.Query(dataSourceUrl + queryString1);
       query1.setTimeout(120);
-      var queryWrapper1 = new QueryWrapper(query1, tableChart1, options, container1);
+      queryWrapper1 = new QueryWrapper(query1, tableChart1, options, container1,[8]);
+
+      //var y = null;
+
+      google.visualization.events.addListener(tableChart1, 'select', function(event){
+    	  genericClickHandler(tableChart1,queryWrapper1);
+
+     });
       queryWrapper1.sendAndDraw();
 
       query2 && query2.abort();
       query2 = new google.visualization.Query(dataSourceUrl + queryString2);
       query2.setTimeout(120);
-      var queryWrapper2 = new QueryWrapper(query2, tableChart2, options, container2);
+      var queryWrapper2 = new QueryWrapper(query2, tableChart2, options, container2,[8]);
+
+      google.visualization.events.addListener(tableChart2, 'select', function(event){
+          genericClickHandler(tableChart2,queryWrapper2);
+ 	   });
       queryWrapper2.sendAndDraw();
 
       query3 && query3.abort();
       query3 = new google.visualization.Query(dataSourceUrl + queryString3);
       query3.setTimeout(120);
-      var queryWrapper3 = new QueryWrapper(query3, tableChart3, options, container3);
+      var queryWrapper3 = new QueryWrapper(query3, tableChart3, options, container3,[8]);
+      google.visualization.events.addListener(tableChart3, 'select', function(event){
+          genericClickHandler(tableChart3,queryWrapper3);
+ 	   });
       queryWrapper3.sendAndDraw();
 
       query4 && query4.abort();
       query4 = new google.visualization.Query(dataSourceUrl + queryString4);
       query4.setTimeout(120);
-      var queryWrapper4 = new QueryWrapper(query4, tableChart4, options, container4);
+      var queryWrapper4 = new QueryWrapper(query4, tableChart4, options, container4,[8]);
+      google.visualization.events.addListener(tableChart4, 'select', function(event){
+          genericClickHandler(tableChart4,queryWrapper4);
+ 	   });
       queryWrapper4.sendAndDraw();
     }
 
@@ -333,8 +344,8 @@ db_utility::db_connect();
 
 <br>
 Time Frame:&nbsp;&nbsp;
-Start: <input type="text" id="rangeDemoStart" size="18" />
-&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="18" />
+Start: <input type="text" id="rangeDemoStart" size="22" />
+&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="22" />
 <!-- <input type="button" id="rangeDemoToday" value="today" /> -->
 <input type="button" id="rangeDemoClear" value="clear" />
 
@@ -348,6 +359,7 @@ Start: <input type="text" id="rangeDemoStart" size="18" />
 	<option value="week">Last Week</option>
 	<option value="day">Last Day</option>
 	<option value="hour">Last Hour</option>	
+	<option value="custom1">Begin Data Collection (1/20/2011)</option>
 	
 	
 	<!-- <option value="Custom">Custom</option> -->
@@ -393,6 +405,9 @@ Start: <input type="text" id="rangeDemoStart" size="18" />
 <div id="tmp4A" style="font-size: small">Equity Futures Gainers/Losers:</div>
 <div id="table4" style="color: #000;"> </div>
 </div>
+
+<input type="button" style="float: left;clear: both;color: #000000;background-color: #FFFFFF" value="Generate URL"
+	onclick="generateURL();return false;"> <br />
 
 
 
