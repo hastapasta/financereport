@@ -320,7 +320,10 @@ if (isset($_GET['group']))
 ?>
 <div id="chartTitle" style="margin: 20px 0 0 0;font-size: medium;font-weight:bold;"><u><?php echo $title; ?></u></div>
 
+
     <div id="pf-form" style="margin:20px 0 0 0;font-size:15px;">
+    <A href=<?php echo "\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?".$_SERVER['QUERY_STRING']."\""?>>Day Granularity</A>&nbsp;/&nbsp;<A href=<?php echo "\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart15min.php?".$_SERVER['QUERY_STRING']."\""?>>Quarter Hour Granularity</A>
+    <BR><BR>
     Enter entity name (stock ticker, equity index, currency cross, etc):
     <BR>
   	<input type='text' id='a_c' style='z-index:3' /><br/>
