@@ -30,7 +30,123 @@ if (isset($_GET['metricid']))
 <!DOCTYPE html>
 <html>
 <head>
+<style type="text/css">
+  #rangeDemoStart, #rangeDemoFinish {
+    background-image:url("calendar.png");
+    background-position:right center;
+    background-repeat:no-repeat; }
+</style>
 <?php IncFunc::jQuery();?>
+<?php IncFunc::jQueryDatePicker();?>
+<?php IncFunc::generalDateFunctions();?>
+
+<script>
+   
+	$(document).ready(function() {
+		var oneDay = 24*60*60*1000;
+		var td = new Date();
+		td.setDate(td.getDate() - 1);
+		td.setMonth(td.getMonth() - 1);
+		td.setMonth(td.getMonth() - 12);
+		//var fromDay = td.setDay(td.getDay() - 1); 
+	  rangeDemoFormat = "%e-%b-%Y %H:%i:%s";
+	  rangeDemoConv = new AnyTime.Converter({format:rangeDemoFormat});
+	 $("#rangeDemoToday").click( function(e) {
+	      $("#rangeDemoFinish").val(rangeDemoConv.format(new Date())).change(); } );
+	  $("#rangeDemoClear").click( function(e) {
+	      $("#rangeDemoStart").val("").change();
+	      $("#rangeDemoFinish").val("").change(); } );
+	  $("#rangeDemoStart").AnyTime_picker({format:rangeDemoFormat});
+	  $("#rangeDemoFinish").AnyTime_picker({format:rangeDemoFormat});
+
+	  //t1 = new Date();
+	  //t1.setTime(1313290898000);
+	  //t1 = Date.parse(1313290898000);
+	  //alert(t1);
+
+	  <?php 
+	  if (!empty($begindate) && !empty($enddate)) {
+	
+	  	echo "t1 = new Date();\n";
+	  	echo "t1.setTime(".$begindate.");";
+	  	//echo "alert(rangeDemoConv.format(t1));";
+	  	echo "$(\"#rangeDemoStart\").
+	  		AnyTime_noPicker().\n
+			  	val(rangeDemoConv.format(t1)).\n
+			    AnyTime_picker(\n
+			              { 
+			                format: rangeDemoFormat
+			               
+			              } );\n";
+	  	echo "t1.setTime(".$enddate.");";
+	  	 	echo "$(\"#rangeDemoFinish\").
+	  		AnyTime_noPicker().\n
+			  	val(rangeDemoConv.format(t1)).\n
+			    AnyTime_picker(\n
+			              { 
+			                format: rangeDemoFormat
+			               
+			              } );\n";
+	  	 	
+	  	 echo "sendAndDraw();\n";
+	
+	  }
+	  
+	  		
+	  ?>
+
+				
+	});
+	$(function(){
+
+		 $("#timeframe").change( function(e) {
+		    	enddate = new Date();
+		    	begindate = new Date();
+		    	var tmp = $("#timeframe").val();
+		    	if (tmp == 'year')
+		        	begindate.setMonth(enddate.getMonth() - 12);
+		    	else if (tmp == 'custom1')
+			    	begindate = Date.parseExact("1/20/2011", "M/d/yyyy"); 
+		    	else if (tmp == 'month')
+		        	begindate.setMonth(enddate.getMonth() - 1);
+		    	else if (tmp == 'week')
+		        	begindate.setDate(enddate.getDate() - 7);
+		    	else if (tmp == 'day')
+		        	begindate.setDate(enddate.getDate() - 1);
+		    	else //tmp should == hour
+		        	begindate = new Date(enddate - (3600 * 1000));
+	        
+		    	$("#rangeDemoStart").
+			  	AnyTime_noPicker().
+			  	//removeAttr("disabled").
+			  	val(rangeDemoConv.format(begindate)).
+			    AnyTime_picker(
+			              { //earliest: dayEarlier,
+			                format: rangeDemoFormat
+			                //latest: ninetyDaysLater
+			              } );
+		    	$("#rangeDemoFinish").
+			  	AnyTime_noPicker().
+			  	//removeAttr("disabled").
+			  	val(rangeDemoConv.format(enddate)).
+			    AnyTime_picker(
+			              { //earliest: dayEarlier,
+			                format: rangeDemoFormat
+			                //latest: ninetyDaysLater
+			              } );
+		        	
+		        	    
+		        	    
+		    });
+		
+		
+		/*$('#dialog').dialog({autoOpen:false, title : "HELP"});
+		$('.help').click(function(){
+			$('#dialog').dialog('open')
+		});*/
+		
+	});
+</script>
 <?php IncFunc::icon();?>
 <?php IncFunc::title();?>
 <link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
@@ -45,7 +161,7 @@ if (isset($_GET['metricid']))
 		
 	 });
     google.load('visualization', '1', {'packages' : ['table']});
-    google.setOnLoadCallback(function() { sendAndDraw('') });
+    //google.setOnLoadCallback(function() { sendAndDraw('') });
     var firstpass = true;
 
     <?php 
@@ -57,6 +173,19 @@ if (isset($_GET['metricid']))
    // var dataSourceUrl = 'https://spreadsheets.google.com/tq?key=rCaVQNfFDMhOM6ENNYeYZ9Q&pub=1';
     var query1;
    // var query2;
+   
+   function genericClickHandler(localTableChart,localQueryWrapper) {
+
+		var row = localTableChart.getSelection();
+		
+		//var test5 = queryWrapper2;
+
+		var dt = localQueryWrapper.currentDataTable;
+		var val = dt.getValue(row[0].row,8);
+		<?php //echo "window.location.href = \"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\";";?>
+		<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\");";?>
+
+	}
  
 
 
@@ -77,7 +206,9 @@ if (isset($_GET['metricid']))
       //var users = document.getElementById('users');
       //var tasks = document.getElementById('tasks');
       // var timeeventid = document.getElementById('timeeventid');
-      var timeframe = document.getElementById('timeframe').value;
+      //var timeframe = document.getElementById('timeframe').value;
+      var rangeDemoStart = document.getElementById('rangeDemoStart');
+      var rangeDemoFinish = document.getElementById('rangeDemoFinish');
       //var userid= users.value;
       var taskid='1';
       var queryString1;
@@ -88,7 +219,7 @@ if (isset($_GET['metricid']))
       if (firstpass==true)
       {
           //taskid='0';
-          <?php if (!empty($timeframe)) echo "var timeframe='".$timeframe."';";?>
+          <?php //if (!empty($timeframe)) echo "var timeframe='".$timeframe."';";?>
           firstpass=false;
       }
       
@@ -103,14 +234,14 @@ if (isset($_GET['metricid']))
 
      	 //queryString1 = '?userid='+userid+'&taskid='+tasks.value+'&timeeventid='+timeeventid.value;
      	<?php 
-     	echo "queryString1 = '?order=".$order."&entitygroupid=".$entitygroupid."&timeframe='+timeframe + '&metricid=".$metricid."&order=ASC';\n";
+     	echo "queryString1 = '?order=".$order."&entitygroupid=".$entitygroupid."&begindate='+ (Date.parse(rangeDemoStart.value)).getTime() + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime() + '&metricid=".$metricid."&order=ASC';\n";
 
      //	echo "queryString2 = '?taskid=".$taskid."&timeframe='+timeframe.value + '&order=DESC';\n";
      	
      	?>
     	 
 
-     	if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString1)}
+ 
 
       
       var container1 = document.getElementById('table1');
@@ -120,13 +251,22 @@ if (isset($_GET['metricid']))
       var tableChart1 = new google.visualization.Table(container1);
       //var tableChart2 = new google.visualization.Table(container2);
       
-      //alert(dataSourceUrl + queryString1);
+  
+      
+      if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString1)}
      
       
       query1 && query1.abort();
       query1 = new google.visualization.Query(dataSourceUrl + queryString1);
       query1.setTimeout(120);
-      var queryWrapper1 = new QueryWrapper(query1, tableChart1, options, container1);
+      /*
+      * The [8] parameter is what is used to hide the data column index.
+      */
+      var queryWrapper1 = new QueryWrapper(query1, tableChart1, options, container1,[8]);
+      google.visualization.events.addListener(tableChart1, 'select', function(event){
+    	  genericClickHandler(tableChart1,queryWrapper1);
+
+     });
       queryWrapper1.sendAndDraw();
 
       /*query2 && query2.abort();
@@ -159,15 +299,27 @@ if (isset($_GET['metricid']))
 <div id="pf-form" style="text-align:left;font-size:1.5em;">
 
 <BR>
-Time Frame: <BR>
+Time Frame:&nbsp;&nbsp;
+Start: <input type="text" id="rangeDemoStart" size="22" />
+&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="22" />
+<!-- <input type="button" id="rangeDemoToday" value="today" /> -->
+<input type="button" id="rangeDemoClear" value="clear" />
+
+<div id="displaycustom"></div>
+
+
+(Preset Time Frames: 
 <select id="timeframe" style="background-color: #FFFFFF">
-	<option value="hour">Last Hour</option>
-	<option value="day">Last Day</option>
-	<option value="week">Last Week</option>
-	<option value="month">Last Month</option>
 	<option value="year">Last Year</option>
+	<option value="month">Last Month</option>
+	<option value="week">Last Week</option>
+	<option value="day">Last Day</option>
+	<option value="hour">Last Hour</option>	
+	<option value="custom1">Begin Data Collection (1/20/2011)</option>
+	
+	
 	<!-- <option value="Custom">Custom</option> -->
-</select> <BR>
+</select> )<BR>
 <BR>
 
 
