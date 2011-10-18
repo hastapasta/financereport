@@ -5,6 +5,9 @@ include ("../../site/includes/sitecommon.php");
 db_utility::db_connect();
 
 $entitygroupid = $_GET['entitygroupid'];
+$begindate = $_GET['begindate'];
+$enddate = $_GET['enddate'];
+
 
 $timeframe="hour";
 if (isset($_GET['timeframe']))
@@ -146,6 +149,19 @@ if (isset($_GET['metricid']))
 		});*/
 		
 	});
+
+	function generateURL() {
+		var rangeDemoStart = document.getElementById('rangeDemoStart');
+	    var rangeDemoFinish = document.getElementById('rangeDemoFinish');
+	    query = window.location.search;
+		query += '&begindate='+ (Date.parse(rangeDemoStart.value)).getTime() + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime();
+
+
+		var url = location.href;
+		var url_parts = url.split('?');
+		var main_url = url_parts[0]; 		
+		alert(main_url + query);
+	}
 </script>
 <?php IncFunc::icon();?>
 <?php IncFunc::title();?>
@@ -335,7 +351,9 @@ Start: <input type="text" id="rangeDemoStart" size="22" />
   
 
 	<div id="table1" style="color: #000;"> </div>
-
+<br>
+<input type="button" style="float: left;clear: both;color: #000000;background-color: #FFFFFF" value="Generate URL"
+	onclick="generateURL();return false;"> <br />
 
 </div> <!--  font-black -->
 
