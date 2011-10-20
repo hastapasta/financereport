@@ -416,9 +416,9 @@ public void postProcessYahooSharePrice() throws SQLException
 	}
 	else
 	{
-		// Just using some arbitrary after hours time
+		// Use market close in arizona time zone
 		rowdata[0] = values[4];
-		rowdata[1] = "'" + values[0] + " 20:00:00'";
+		rowdata[1] = "'" + values[0] + " 13:00:00'";
 	}
 	rowdata[2] = dg.nCurrentEntityId + "";
 	//rowdata[4] = "share_price";
@@ -500,13 +500,29 @@ public void postProcessYahooSharePriceYQL() throws SQLException
 		String strNewTime = strTime.substring(0,strTime.indexOf("m")-1);
 		String[] strTimeArray = strNewTime.split(":");
 		
-		if (strAMPM.equals("pm"))
+		/*if (strAMPM.equals("pm"))
 			cal.set(Calendar.AM_PM,Calendar.PM);
 		else
 			cal.set(Calendar.AM_PM,Calendar.AM);
-		cal.set(Calendar.HOUR,Integer.parseInt(strTimeArray[0]));
+		cal.set(Calendar.HOUR,Integer.parseInt(strTimeArray[0]));*/
+		
+		/*
+		 * There's an issue with setting the AMPM value and then the HOUR value. The conversion
+		 * happens incorrectly if the 2 values are set separately.
+		 */
+		
+		
+		int nHour = Integer.parseInt(strTimeArray[0]);
+		if (strAMPM.equals("pm") && nHour != 12)
+			cal.set(Calendar.HOUR_OF_DAY, nHour + 12);
+		else if (strAMPM.equals("am") && nHour == 12)
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+		else
+			cal.set(Calendar.HOUR_OF_DAY,nHour);
+		
 		cal.set(Calendar.MINUTE, Integer.parseInt(strTimeArray[1]));
 		cal.set(Calendar.SECOND, 0);
+		
 		
 		cal.setTimeZone(TimeZone.getTimeZone("America/New_York"));
 		
@@ -542,6 +558,117 @@ public void postProcessYahooSharePriceYQL() throws SQLException
 			continue;
 			
 		}
+		
+		
+
+		//rowdata[4] = "share_price";
+		
+		nCount++;
+	
+		propTableData.add(rowdata);
+	}
+	
+	//System.out.println("here");
+	
+	
+	
+	
+	
+	
+
+}
+
+public void postProcessGoogleSharePrice() throws SQLException
+{
+	//System.out.println("here");
+	String strTmpValue = propTableData.get(0)[0];
+	
+	String lines[] = strTmpValue.split("\\r?\\n");
+	
+	
+	
+	
+	propTableData.remove(0);
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	propTableData.add(tmpArray);
+
+	
+	int nCount = 0;
+	int nCount2 = 0;
+	
+	//skip the first and last lines 
+	for (int i=1;i<lines.length-1;i++) {
+		
+		nCount2++;
+		
+		String[] rowdata = new String[tmpArray.length];
+		String[] inputrow = lines[i].split(",");
+		if (inputrow[2].contains("#")) {
+			UtilityFunctions.stdoutwriter.writeln("Invalid data returned for ticker " + inputrow[0],Logs.WARN,"PF62.3");			
+			continue;
+		}
+		
+		String strSymbol = inputrow[0];
+		
+		if (strSymbol.equals("BRK.A"))
+			strSymbol = "BRK/A";
+		else if (strSymbol.equals("BF.B"))
+			strSymbol = "BF/B";
+		
+		try {
+			String query = "select id from entities where ticker='" + strSymbol + "'";
+			ResultSet rs = dbf.db_run_query(query);
+			rs.next();
+			rowdata[2] = rs.getInt("id") + "";
+		}
+		catch (SQLException sqle) {
+			UtilityFunctions.stdoutwriter.writeln("Issue looking up ticker " + strSymbol + ",skipping",Logs.ERROR,"PF50");
+			UtilityFunctions.stdoutwriter.writeln(sqle);
+			continue;
+			
+		}
+		
+		rowdata[0] = inputrow[1];
+		
+		inputrow[2].trim();
+		
+		String strDate = inputrow[2].substring(0,inputrow[2].indexOf(" "));
+		String strTime = inputrow[2].substring(inputrow[2].indexOf(" ") + 1,inputrow[2].length());
+		
+		String[] strDateArray = strDate.split("/");
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MONTH, Integer.parseInt(strDateArray[0])-1);
+		cal.set(Calendar.DAY_OF_MONTH,Integer.parseInt(strDateArray[1]));
+		cal.set(Calendar.YEAR,Integer.parseInt(strDateArray[2]));
+		
+		
+		//String strAMPM = strTime.substring(strTime.indexOf("m")-1,strTime.indexOf("m")+1);
+		//String strNewTime = strTime.substring(0,strTime.indexOf("m")-1);
+		String[] strTimeArray = strTime.split(":");
+		
+
+		cal.set(Calendar.HOUR_OF_DAY,Integer.parseInt(strTimeArray[0]));
+		cal.set(Calendar.MINUTE, Integer.parseInt(strTimeArray[1]));
+		cal.set(Calendar.SECOND, Integer.parseInt(strTimeArray[2]));
+		
+		cal.setTimeZone(TimeZone.getTimeZone("America/New_York"));
+		
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		
+		formatter.setTimeZone(TimeZone.getTimeZone("America/Phoenix"));
+	
+		rowdata[1] = "'" + formatter.format(cal.getTime()) + "'";
+		
+		//Calendar currentCal = Calendar.getInstance();
+		
+		//DateFormat formatter2 = new SimpleDateFormat("M/d/yyyy");
+		
+		//if (!formatter2.format(currentCal.getTime()).equals(formatter2.format(cal.getTime())))
+		//	UtilityFunctions.stdoutwriter.writeln("Bad Yahoo Data, in postProcessing function",Logs.ERROR,"PF50.5");
+		
+		
+		
+	
 		
 		
 
@@ -1975,9 +2102,26 @@ public void postProcessImfGdp() throws SQLException
 			else
 				continue;
 		}
-		else {
-			bdTmp = new BigDecimal(newrow[0]);
+		else if (this.dg.nCurTask == 22){
+			if (newrow[0].contains("bgcolor")) {
+				bdTmp = new BigDecimal(newrow[0].substring(newrow[0].indexOf("\">")+2,newrow[0].length()));
+			}
+			else
+				continue;
 		}
+		else if (this.dg.nCurTask == 33) {
+			if (!newrow[0].contains("bgcolor")) {
+				bdTmp = new BigDecimal(newrow[0].substring(newrow[0].indexOf("right\">")+7,newrow[0].length()));
+			}
+			else
+				continue;
+			
+		}
+		else {
+			UtilityFunctions.stdoutwriter.writeln("Task id not found, should not have reached this point in the code. Terminating processing of task.",Logs.ERROR,"PF44.32");
+			return;
+		}
+			
 
 
 		newrow[0] = bdTmp.toString();
@@ -2537,7 +2681,7 @@ public void postProcessMWatchEPSEstTable() throws SQLException
 			
 			for (int col=0;col<colheaders.length;col++)
 			{
-				newrow = new String[16];
+				newrow = new String[7];
 				if (rowdata[col].compareTo("void") != 0)
 				{
 				
@@ -2589,7 +2733,7 @@ public void postProcessMWatchEPSEstTable() throws SQLException
 					//newrow[4] = colheaders[col].substring(5,7);//Integer.toString(row-1);
 					
 					
-					/*don't use they year returned from getFiscalYearAndQuarter - use the one retrieved from the web page*/
+					/*don't use the year returned from getFiscalYearAndQuarter - use the one retrieved from the web page*/
 					if (propStrTableDataSet.contains("q"))
 					{
 						String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, nFiscalQuarter, nFiscalYear,dbf);
