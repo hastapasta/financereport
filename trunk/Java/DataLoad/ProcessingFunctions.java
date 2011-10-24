@@ -213,7 +213,7 @@ public boolean preProcessing(String strDataSet, String strTicker)
 }
 
 
-public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , String strDataSet) throws SkipLoadException
+public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , String strDataSet) throws SkipLoadException,CustomEmptyStringException
 {
 	
 		String query = "select post_process_func_name from jobs where Data_Set='" + strDataSet + "'";
@@ -257,8 +257,13 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Stri
 		{
 			if (ite.getTargetException().getClass().getSimpleName().equals("SkipLoadException"))
 				throw new SkipLoadException();
-			else
-			{
+			else if (ite.getTargetException().getClass().getSimpleName().equals("CustomEmptyStringException")) {
+				/*
+				 * To do: pass along the exception message.
+				 */
+				throw new CustomEmptyStringException();
+			}
+			else{ 
 				UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF16.3");
 				UtilityFunctions.stdoutwriter.writeln(ite);
 			}
@@ -1188,6 +1193,160 @@ public void postProcessOneTimeYahooIndex()
 	}
 	
 	
+}
+
+public void postProcessBloombergGovtBonds() {
+	
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	String[] rowheaders = propTableData.get(1);
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	
+	String[] rowdata, newrow;
+	
+	for (int row=2;row<propTableData.size();row++) {
+		rowdata = propTableData.get(row);
+		
+		newrow = new String[tmpArray.length];
+		
+		
+		String strQuery = null;
+		String strTicker = null;
+		
+		newrow[1] = "NOW()";
+		if (dg.strCurDataSet.contains("_japan")) {
+			
+			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_japan";
+			strQuery = "select id from entities where ticker='" + strTicker + "'";
+			newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+		}
+		else if (dg.strCurDataSet.contains("_australia")) {
+			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_australia";
+			strQuery = "select id from entities where ticker='" + strTicker + "'";
+			newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+		}
+		else if (dg.strCurDataSet.contains("_us")) {
+			
+			/* 
+			 * Prices aren't displayed and haven't figured out the proper way to cacluate them yet.
+			 */
+			if (rowheaders[row-2].contains("Month"))
+				continue;
+			
+			if (rowdata[0].contains("&"))
+				newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("&")).trim();
+			else if (rowdata[0].contains("+"))
+				newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("+")).trim();
+			else if (rowdata[0].contains("/"))
+				newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+			else {
+				UtilityFunctions.stdoutwriter.writeln("Unable to parse numeric value " + rowdata[0],Logs.ERROR,"PF46.51");
+				continue;
+			}
+				
+			newrow[0].replace("-", ".");
+			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_us";
+			strQuery = "select id from entities where ticker='" + strTicker + "'";
+		}
+		else if (dg.strCurDataSet.contains("_uk")) {
+			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_uk";
+			strQuery = "select id from entities where ticker='" + strTicker + "'";
+			newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+		}
+		else if (dg.strCurDataSet.contains("_germany")) {
+			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_germany";
+			strQuery = "select id from entities where ticker='" + strTicker + "'";
+			newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+			
+		}
+		else if (dg.strCurDataSet.contains("_brazil")) {
+			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_brazil";
+			strQuery = "select id from entities where ticker='" + strTicker + "'";
+			newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+		}
+		else if (dg.strCurDataSet.contains("_hongkong")) {
+			if (rowheaders[row-2].contains("Bill") || rowheaders[row-2].contains("HKSAR"))
+				continue;
+			
+			newrow[0] = rowdata[0].trim();
+			strTicker = rowheaders[row-2].substring(0,3);
+			if (strTicker.contains("W"))
+				strTicker = strTicker.replace("W","_week_");
+			else if (strTicker.contains("M"))
+				strTicker = strTicker.replace("M","_month_");
+			else if (strTicker.contains("Y"))
+				strTicker = strTicker.replace("Y","_year_");
+			strTicker += "hongkong";
+			strTicker = strTicker.replace(" ","");
+			//strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_hongkong";
+			strQuery = "select id from entities where ticker='" + strTicker + "'";
+		}
+		else {
+			UtilityFunctions.stdoutwriter.writeln("Unable to find dataset " + dg.strCurDataSet,Logs.ERROR,"PF44.51");
+			continue;
+		}
+		
+		newrow[0] = newrow[0].replace(",", "");
+
+		
+		try {
+			ResultSet rs = dbf.db_run_query(strQuery);
+			rs.next();
+			newrow[2] = rs.getInt("id") + "";
+		}
+		catch (SQLException sqle) {
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + strTicker  + ",row skipped",Logs.WARN,"PF43.51");
+			continue;
+		}
+		
+		newTableData.add(newrow);
+	}
+
+	newTableData.add(0, tmpArray);
+	propTableData = newTableData;
+	
+}
+
+public void postProcessBloombergQuote() throws CustomEmptyStringException {
+
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	String[] rowdata, newrow;
+	
+	rowdata = this.propTableData.get(0);
+	
+	
+	newrow = new String[tmpArray.length];
+	newrow[0] = rowdata[0].replace("\n","").trim();
+	if (newrow[0].isEmpty()) {
+		UtilityFunctions.stdoutwriter.writeln("Empty Value Retrieved for ticker " + dg.strCurrentTicker + ",row skipped",Logs.WARN,"PF48.33");
+		throw (new CustomEmptyStringException());
+	}
+	else if (newrow[0].equals("N.A.")) {
+		UtilityFunctions.stdoutwriter.writeln("N.A. Value Retrieved for ticker " + dg.strCurrentTicker + ",row skipped",Logs.WARN,"PF48.40");
+		throw (new CustomEmptyStringException());
+	}
+	
+	newrow[1] = "NOW()";
+	
+	String query = "select id from entities where ticker='" + dg.strCurrentTicker + "'";
+	
+	try {
+		ResultSet rs = dbf.db_run_query(query);
+		rs.next();
+		newrow[2] = rs.getInt("id") + "";
+		
+		
+	} catch (SQLException sqle) {
+		UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + dg.strCurrentTicker + ",row skipped",Logs.WARN,"PF47.33");
+		return;
+	}
+	
+	
+	
+	newTableData.add(tmpArray);
+	newTableData.add(newrow);
+
+	propTableData = newTableData;
 }
 
 
