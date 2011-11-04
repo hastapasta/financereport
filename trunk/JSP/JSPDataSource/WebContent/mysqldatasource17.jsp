@@ -5,6 +5,7 @@
 <%@ page import="org.json.*" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
+<%@ page import="java.math.BigDecimal" %>
 
 
 
@@ -38,7 +39,8 @@ int nOPeriodIndex = 0;
 
 
 if (strObservationPeriod!=null) {
-	if (strObservationPeriod.toUpperCase().equals("HOURLY"))
+	nOPeriodIndex = Integer.parseInt(strObservationPeriod);
+	/*if (strObservationPeriod.toUpperCase().equals("HOURLY"))
 		nOPeriodIndex = 3;
 	else if (strObservationPeriod.toUpperCase().equals("DAILY"))
 		nOPeriodIndex = 1;
@@ -47,7 +49,7 @@ if (strObservationPeriod!=null) {
 	else if (strObservationPeriod.toUpperCase().equals("YEARLY"))
 		nOPeriodIndex = 4;
 	else if (strObservationPeriod.toUpperCase().equals("ALLTIME"))
-		nOPeriodIndex = 5;
+		nOPeriodIndex = 5;*/
 }
 
 	
@@ -96,27 +98,31 @@ String[] blap2 = {"initial value","initial value","number"};
 String[] blap3 = {"final value","final value","number"};
 String[] blap4 = {"initial date collected","initial date collected","string"};
 String[] blap5 = {"final date collected","final date collected","string"};
-String[] blap6 = {"limit","limit","number"};
+String[] blap6 = {"% limit","% limit","number"};
 String[] blap7 = {"ticker","ticker","string"};
 String[] blap8 = {"description","description","string"};
 String[] blap9 = {"observation period","observation period","string"};
+String[] blap10 = {"% change","% change","number"};
+String[] blap11 = {"alertid","alertid","number"};
 
 
 arrayListCols.add(blap1);
 arrayListCols.add(blap7);
 arrayListCols.add(blap8);
 arrayListCols.add(blap9);
+arrayListCols.add(blap10);
+arrayListCols.add(blap6);
 arrayListCols.add(blap2);
 arrayListCols.add(blap3);
 arrayListCols.add(blap4);
 arrayListCols.add(blap5);
-arrayListCols.add(blap6);
+arrayListCols.add(blap11);
 
 
 
 
 String query2 = "select ticker,full_name,date_format(date_time_fired,'%m/%d/%y %T') as dtf,fd1.value,fd2.value, ";
-query2 += " fd1.date_collected, fd2.date_collected, log_alerts.limit_value, time_events.name";
+query2 += " fd1.date_collected, fd2.date_collected, log_alerts.limit_value, time_events.name,log_alerts.alert_id ";
 query2 += " from log_alerts ";
 query2 += " join alerts on alerts.id=log_alerts.alert_id ";
 query2 += " join entities on entities.id=alerts.entity_id ";
@@ -151,18 +157,39 @@ try
 	dbf = new DBFunctions();
 	dbf.db_run_query(query2);
 	while (dbf.rs.next()) {
-		String [] tmp = new String[18];
+		String [] tmp = new String[22];
+	
+		
 		tmp[0] = tmp[1] = dbf.rs.getString("dtf");
 		tmp[2] = tmp[3] = dbf.rs.getString("ticker");
 		tmp[4] = tmp[5] = dbf.rs.getString("full_name");
 		tmp[6] = tmp[7] = dbf.rs.getString("time_events.name");
-		tmp[8] = tmp[9] = dbf.rs.getString("fd1.value");
-		tmp[10] = tmp[11] = dbf.rs.getString("fd2.value");
-		tmp[12] = tmp[13] = dbf.rs.getString("fd1.date_collected");
-		tmp[14] = tmp[15] = dbf.rs.getString("fd2.date_collected");
-		tmp[16] = tmp[17] = dbf.rs.getString("log_alerts.limit_value");
-
-				
+		
+		BigDecimal bdBef = new BigDecimal(dbf.rs.getString("fd1.value"));
+		BigDecimal bdAft = new BigDecimal(dbf.rs.getString("fd2.value"));
+		
+		bdAft = bdAft.subtract(bdBef);
+		if (bdBef.compareTo(new BigDecimal(0)) == 0)
+			//Bad Data
+			bdAft = new BigDecimal(0);
+		else
+			bdAft = bdAft.divide(bdBef,BigDecimal.ROUND_HALF_UP);
+		bdAft = bdAft.multiply(new BigDecimal(100));
+		
+		tmp[8] = tmp[9] = bdAft.toString();
+		
+		BigDecimal bdLimit = new BigDecimal(dbf.rs.getString("log_alerts.limit_value"));
+		bdLimit = bdLimit.multiply(new BigDecimal(100));
+		
+		tmp[10] = tmp[11] = bdLimit.toString();
+		
+		tmp[12] = tmp[13] = dbf.rs.getString("fd1.value");
+		tmp[14] = tmp[15] = dbf.rs.getString("fd2.value");
+		tmp[16] = tmp[17] = dbf.rs.getString("fd1.date_collected");
+		tmp[18] = tmp[19] = dbf.rs.getString("fd2.date_collected");
+		
+		tmp[20] = tmp[21] = dbf.rs.getString("log_alerts.alert_id");
+		
 		
 		arrayListRows.add(tmp);
 	    
