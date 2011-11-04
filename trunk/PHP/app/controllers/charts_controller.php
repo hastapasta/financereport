@@ -9,6 +9,12 @@ class ChartsController extends AppController {
 		
 		$userprops = $this->Auth->user();
 		$this->set('userid', $userprops['User']['id']);
+		if ($userprops['User']['group_id'] == 1){
+			//put the group condition here			
+			$this->set('admin', true);
+		}else{
+			$this->set('admin',false);
+		}
 		
 		//debug($userprops,true);
 		
