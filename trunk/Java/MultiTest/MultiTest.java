@@ -43,6 +43,9 @@ public class MultiTest {
 		else if (args[0].toUpperCase().equals("YAHOOTEST")) {
 			yahooDataTest(args);
 		}
+		else if (args[0].toUpperCase().equals("TWITTERTEST")) {
+			twitterURLTest(args);
+		}
 		else
 		{
 			System.out.println("valid commands are: LINKTEST,DATAGRABALIVE,JOBDURATION");
@@ -222,6 +225,93 @@ public class MultiTest {
 		
 		System.out.println(lElapsed);
 	}
+	
+	public static void twitterURLTest(String[] args) {
+		long lElapsed = 0;
+		Calendar cal = Calendar.getInstance();
+		
+		/* 
+		 * Only run the test in the first 7 minutes of the hour to avoid overloading
+		 * the twitter system with requests.
+		 */
+		if (cal.get(Calendar.MINUTE) < 45) {
+			System.out.println(lElapsed);
+			return;
+		}
+		
+		HttpEntity entity;
+		
+		try
+		{
+			//String strURL = args[1];
+			
+			
+			
+			HttpClient httpclient = new DefaultHttpClient();
+			
+			Calendar calBegin = Calendar.getInstance();
+			
+			//strURL = "http://download.finance.yahoo.com/d/quotes.csv?f=sl1d1t1c1ohgv&e=.csv&s=JCI,CPWR,IP,ETFC,ABC,AVB";
+			String strURL = "http://api.twitter.com/1/statuses/user_timeline.json?screen_name=pikefindotcom&callback=TWTR.Widget.receiveCallback_1&include_rts=true&count=4&clientsource=TWITTERINC_WIDGET&1318454632840=cachebust";
+			
+			HttpGet httpget = new HttpGet(strURL); 
+			
+			//httpclient.getParams().setParameter(HttpClientParams.SO_TIMEOUT, new Long(5000));
+	
+			
+			HttpResponse response = httpclient.execute(httpget);
+			
+			entity = response.getEntity();
+			
+			Calendar calEnd = Calendar.getInstance();
+			
+			//lElapsed = (calEnd.getTimeInMillis() - calBegin.getTimeInMillis());
+			
+			BufferedReader in = new BufferedReader(
+					new InputStreamReader(
+					entity.getContent()));
+			
+			 int nTmp;			
+	
+			  String returned_content="";
+			
+			  while ((nTmp = in.read()) != -1)
+				returned_content = returned_content + (char)nTmp;
+			
+	
+			  in.close();
+			  
+			  if (returned_content.contains("retweet_count"))
+				  lElapsed = 1;
+			  else if (returned_content.contains("\"error\":\"Rate limit exceeded.\""))
+				  lElapsed = -3;
+			  else 
+				  lElapsed = -4;
+			  
+			  
+			
+			
+		}
+		catch(MalformedURLException MFUE)
+		{
+			lElapsed = -1;
+		}
+		catch (IOException ioe)
+		{
+			lElapsed = -2;
+		}
+		
+		
+	  
+	
+				
+	 
+		
+		System.out.println(lElapsed);
+	}
+	
+		
+	
 	
 	public static void yahooDataTest(String[] args)
 	{
