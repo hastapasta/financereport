@@ -16,7 +16,7 @@
         //google.load('visualization', '1', {packages: ['corechart','table']});
         //google.setOnLoadCallback(function() { sendAndDraw('') });
         
-         google.load('visualization', 1, {packages: ['table']});
+        google.load('visualization', 1, {packages: ['table']});
         google.setOnLoadCallback(function() { sendAndDraw('') });
 
         google.load('visualization', 1, {packages: ['corechart']});
@@ -25,9 +25,9 @@
         
 
         <?php 
-        	echo "var dataSourceUrl =  jsp_root_path + '/mysqldatasource9.jsp?userid=".$this->getVar('userid')."';\n";
+        	echo "var dataSourceUrl =  jsp_root_path + '/mysqldatasource9.jsp?pholder=val';\n";
         	
-        	echo "var dataSourceUrl2 = jsp_root_path + '/mysqldatasource17.jsp?userid=".$this->getVar('userid')."';\n";
+        	echo "var dataSourceUrl2 = jsp_root_path + '/mysqldatasource17.jsp?pholder=val';\n";
         	
         	//echo "var dataSourceUrl3 = jsp_root_path + '/mysqldatasource18.jsp?userid=".$this->getVar('userid')."';\n";
 
@@ -35,6 +35,22 @@
         var query,query2;
         var options = {};
         var options2 = {};
+
+        function genericClickHandler(localTableChart,localQueryWrapper) {
+
+    		var row = localTableChart.getSelection();
+    		
+    		//var test5 = queryWrapper2;
+
+    		var dt = localQueryWrapper.currentDataTable;
+    		var val = dt.getValue(row[0].row,10);
+
+    		 localTableChart.setSelection("");
+
+    	    window.open(php_root_path + "/charts/allassets/linechart.php?a=" + val + "&title=\"All Assets Indivdual Line Charts\"");
+    	   
+
+    	}
 
    
 
@@ -56,8 +72,10 @@
          		options.chartArea.height = '50%';
          		
          		var prop1 = document.getElementById("observationperiod");
+         		var prop2 = document.getElementById("entitygroup");
+         		var prop3 = document.getElementById("user");
 
-         		queryString = prop1.value;
+         		queryString = prop1.value + prop2.value + prop3.value;
          		
 
            	  
@@ -75,16 +93,7 @@
               var chart2 = new google.visualization.Table(container2);
 
               if (window.console && window.console.firebug) {console.log(dataSourceUrl2 + queryString)}
-
-              google.visualization.events.addListener(chart2, 'select', function(event){
-        			var row = chart2.getSelection();
-        			//alert( "you selected row " + row[0].row + " of first table");
-
-        			
-               });
-
-              
-              
+  
              /* query && query.abort();
               //alert(dataSourceUrl + queryString);
               query = new google.visualization.Query(dataSourceUrl+queryString);
@@ -94,7 +103,10 @@
               query2 && query2.abort();
               //alert(dataSourceUrl + queryString);
               query2 = new google.visualization.Query(dataSourceUrl2 + queryString);
-              var queryWrapper2 = new QueryWrapper(query2, chart2, options2, container2);
+              var queryWrapper2 = new QueryWrapper(query2, chart2, options2, container2,[10]);
+              google.visualization.events.addListener(chart2, 'select', function(event){
+                  genericClickHandler(chart2,queryWrapper2);
+         	 	  });
               queryWrapper2.sendAndDraw();
 
           
@@ -116,8 +128,11 @@
 
 	       		var prop1 = document.getElementById("number");
 	            var prop2 = document.getElementById("timeframe");
+	            var prop3 = document.getElementById("entitygroup2");
+	            var prop4 = document.getElementById("user2");
+	            var prop5 = document.getElementById("observationperiod2");
 
-	            queryString = prop1.value + prop2.value;
+	            queryString = prop1.value + prop2.value + prop3.value + prop4.value + prop5.value;
 	            
        		
 
@@ -168,14 +183,54 @@
 
   Observation Periods: <BR>
 	<select id="observationperiod" style="background-color: #FFFFFF">
-	<option value="&obperiod=all">All Periods</option>
-	<option value="&obperiod=hourly">Hourly</option>	
-	<option value="&obperiod=daily">Daily</option>
-	<option value="&obperiod=monthly">Monthly</option>
-	<option value="&obperiod=yearly">Yearly</option>
-	<option value="&obperiod=alltime">All Time</option>
+	<option value="&obperiod=0">All Periods</option>
+	<?php 
+	$sql = "select description,id from time_events ";
+	$result = mysql_query($sql);
+	for ($j=0;$j<mysql_num_rows($result);$j++)
+	{
+		$row1 = mysql_fetch_array($result);
+		echo "<option value=\"&obperiod=".$row1['id']."\">".$row1['description']."</option>";
+	}	
+	?>
 	
-</select> <BR><BR>
+	
+</select> <BR>
+Entity Group: <BR>
+<select id="entitygroup" style="background-color: #FFFFFF">
+<option value="&entgroup=all">All Groups</option>
+<?php 
+	$sql = "select description,id from entity_groups where type='b' OR type='d'";
+	$result = mysql_query($sql);
+	for ($j=0;$j<mysql_num_rows($result);$j++)
+	{
+		$row1 = mysql_fetch_array($result);
+		echo "<option value=\"&entgroup=".$row1['id']."\">".$row1['description']."</option>";
+	}	
+?>
+</select> 
+<?php if ($this->getVar('admin')==true) {?>
+<BR>
+User: <BR>
+<select id="user" style="background-color: #FFFFFF">
+<?php 
+	$sql = "select username,id from users ";
+	$result = mysql_query($sql);
+	for ($j=0;$j<mysql_num_rows($result);$j++)
+	{
+		$row1 = mysql_fetch_array($result);
+		
+		if ($row1['id'] == $this->getVar('userid'))
+			echo "<option selected=\"selected\" value=\"&userid=".$row1['id']."\">".$row1['username']."</option>";
+		else
+			echo "<option value=\"&userid=".$row1['id']."\">".$row1['username']."</option>";
+	}	
+?>
+</select> 
+<?php } else {?>
+<input type="hidden" id="user"  value=<?php echo "\"&userid=".$this->getVar('userid')."\"";  ?>>
+<?php }?>
+<BR><BR>
 <input type="button" style="color: #000000;background-color: #FFFFFF" value="Refresh Table"	onclick="sendAndDraw();return false;"> <br />
 <BR>
 </form>
@@ -209,7 +264,58 @@
 	<option value="&timeframe=month">Last Month</option>
 	<option value="&timeframe=year">Last Year</option>
 	
-</select> <BR><BR>
+</select> <BR>
+  Alert Observation Period: <BR>
+	<select id="observationperiod2" style="background-color: #FFFFFF">
+	<option value="&timeeventid=all">All Periods</option>
+	<?php 
+	$sql = "select description,id from time_events ";
+	$result = mysql_query($sql);
+	for ($j=0;$j<mysql_num_rows($result);$j++)
+	{
+		$row1 = mysql_fetch_array($result);
+		echo "<option value=\"&timeeventid=".$row1['id']."\">".$row1['description']."</option>";
+	}	
+	?>
+	
+	
+</select> <BR>
+Entity Group: <BR>
+	<select id="entitygroup2" style="background-color: #FFFFFF">
+	<option value="&entgroup=all">All Groups</option>
+<?php 
+	$sql = "select description,id from entity_groups where type='b' OR type='d'";
+	$result = mysql_query($sql);
+	for ($j=0;$j<mysql_num_rows($result);$j++)
+	{
+		$row1 = mysql_fetch_array($result);
+		echo "<option value=\"&entgroup=".$row1['id']."\">".$row1['description']."</option>";
+	}	
+?>
+	
+	
+</select> 
+<?php if ($this->getVar('admin')==true) {?>
+<BR>
+User: <BR>
+<select id="user2" style="background-color: #FFFFFF">
+<?php 
+	$sql = "select username,id from users ";
+	$result = mysql_query($sql);
+	for ($j=0;$j<mysql_num_rows($result);$j++)
+	{
+		$row1 = mysql_fetch_array($result);
+		if ($row1['id'] == $this->getVar('userid'))
+			echo "<option selected=\"selected\" value=\"&userid=".$row1['id']."\">".$row1['username']."</option>";
+		else
+			echo "<option value=\"&userid=".$row1['id']."\">".$row1['username']."</option>";
+	}	
+?>
+</select>
+<?php } else {?>
+<input type="hidden" id="user2"  value=<?php echo "\"&userid=".$this->getVar('userid')."\"";  ?>>
+<?php }?>
+<BR><BR>
 <input type="button" style="color: #000000;background-color: #FFFFFF" value="Refresh Bar Chart"	onclick="sendAndDraw2();return false;"> <br />
 <BR>
 </form>
