@@ -12,7 +12,7 @@
 
 
 
-<%
+<% 
 
 /*
 * This data_source pulls from the fact_data based off of entities and a date range
@@ -44,6 +44,16 @@ String strLimitCount = "20";
 if (request.getParameter("limitcount") != null)
 	strLimitCount = request.getParameter("limitcount");
 
+String strEntityGroupId = "all";
+
+if (request.getParameter("entgroup") != null)
+	strEntityGroupId = request.getParameter("entgroup");
+
+String strTimeEventId = "all";
+if (request.getParameter("timeeventid") != null)
+	strTimeEventId = request.getParameter("timeeventid");
+
+
 String strTimeFrame = "all";
 
 if (request.getParameter("timeframe") != null)
@@ -56,7 +66,7 @@ Calendar calBegin = Calendar.getInstance();
 
 
 
-if (Debug.RELEASE == true) 
+if (Debug.RELEASE == true)  
 {
 	calEnd.set(Calendar.YEAR,2011);
 	calEnd.set(Calendar.DAY_OF_MONTH,15);
@@ -142,12 +152,17 @@ query2 += " from log_alerts ";
 query2 += "join entities on entities.id=log_alerts.entity_id ";
 query2 += "join alerts on alerts.id = log_alerts.alert_id ";
 query2 += "join time_events on time_events.id=alerts.time_event_id ";
+query2 += " join entities_entity_groups on entities_entity_groups.entity_id=entities.id ";
 query2 += " where log_alerts.user_id=" + strUserId + " ";
 if (!strTimeFrame.toUpperCase().equals("ALL"))
 {
 	query2 += " AND date_time_fired> '" + formatter.format(calBegin.getTime()) + "' ";
 	query2 += " AND date_time_fired< '" + formatter.format(calEnd.getTime()) + "' ";
 }
+if (!strEntityGroupId.toUpperCase().equals("ALL"))
+	query2 += " AND entities_entity_groups.entity_group_id=" + strEntityGroupId;
+if (!strTimeEventId.toUpperCase().equals("ALL"))
+	query2 += " AND alerts.time_event_id=" + strTimeEventId;
 query2 += " group by entities.ticker ";
 query2 += " order by alert_count DESC limit " + strLimitCount;
 
