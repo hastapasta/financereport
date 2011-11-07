@@ -13,10 +13,11 @@ class IncFunc
 	static public $CAKE_ROOT_PATH="/cakepftest";
 	
 	
-	//static public $JSP_ROOT_PATH="http://localhost:8080/JSPDataSource/";	
-	//static public $JSP_ROOT_PATH="http://www.pikefin.com/devjsp/JSPDataSource/";
+	static public $JSP_ROOT_PATH="http://devdataload:8080/JSPDataSource/";
+	//static public $JSP_ROOT_PATH="http://testdataload:8080/JSPDataSource/";	
+	//static public $JSP_ROOT_PATH="http://www.testpikefin.com/devjsp/JSPDataSource/";
 	//static public $JSP_ROOT_PATH="http://www.pikefin.com/testjsp/JSPDataSource/";
-	static public $JSP_ROOT_PATH="http://192.168.122.133:8080/JSPDataSource/";
+	//static public $JSP_ROOT_PATH="http://192.168.122.133:8080/JSPDataSource/";
 	
 	
 	
@@ -34,7 +35,7 @@ class IncFunc
 
 	static function logo()
 	{
-		echo "<a id=\"jq-siteLogo\" href=\"http://www.pikefin.com\" title=\"PikeFin Home\"><img src=\"/PHP/site/images/33pctsizecrop.jpg\"/></a>";
+		echo "<a id=\"jq-siteLogo\" href=\"http://www.pikefin.com\" title=\"PikeFin Home\"><img src=\"".self::$PHP_ROOT_PATH."/site/images/33pctsizecrop.jpg\"/></a>";
 	}
 	
 	static function title()
@@ -49,15 +50,48 @@ class IncFunc
     	echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-ui-1.8.11.custom.min.js\"></script>";		
 	}
 	
+	static function jQueryDatePicker() {
+		echo "<link rel=\"stylesheet\" href=\"../../site/includes/anytimec.css\" type=\"text/css\" />";
+		echo "<script type=\"text/javascript\" src=\"../../site/includes/anytimec.js\"></script>";	
+	}
+	
+	static function generalDateFunctions() {
+		//Documentation here: http://www.datejs.com/
+		echo "<script type=\"text/javascript\" src=\"../../site/includes/date.js\"></script>";	
+	}
+	
+	
 	static function googleGadget()
 	{
 		
-		echo "<script type=\"text/javascript\" src=\"../../site/includes/querywrapper.js\"></script>";
+		//echo "<script type=\"text/javascript\" src=\"../../site/includes/querywrapper.js\"></script>";
+		echo "<script type=\"text/javascript\" src=\"".self::$PHP_ROOT_PATH."/site/includes/querywrapper.js\"></script>";
 		//echo "<script type=\"text/javascript\" src=\"".IncFunc::$CAKE_ROOT_PATH."/webroot/js/querywrapper.js\"></script>";
 		echo "<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>";
 		
 		echo   "<STYLE type=\"text/css\">\n";
 		echo "#google-visualization-errors-0 span{\n";
+		echo "font:1.8em arial,sans-serif;\n";
+		echo "}";
+		echo "#google-visualization-errors-1 span{\n";
+		echo "font:1.8em arial,sans-serif;\n";
+		echo "}";
+		echo "#google-visualization-errors-2 span{\n";
+		echo "font:1.8em arial,sans-serif;\n";
+		echo "}";
+		echo "#google-visualization-errors-3 span{\n";
+		echo "font:1.8em arial,sans-serif;\n";
+		echo "}";
+		echo "#google-visualization-errors-4 span{\n";
+		echo "font:1.8em arial,sans-serif;\n";
+		echo "}";
+		echo "#google-visualization-errors-5 span{\n";
+		echo "font:1.8em arial,sans-serif;\n";
+		echo "}";
+		echo "#google-visualization-errors-6 span{\n";
+		echo "font:1.8em arial,sans-serif;\n";
+		echo "}";
+		echo "#google-visualization-errors-7 span{\n";
 		echo "font:1.8em arial,sans-serif;\n";
 		echo "}";
 		echo "</STYLE>";
@@ -75,7 +109,7 @@ class IncFunc
 		echo "<div id=\"jq-primaryNavigation\">\n";
 		echo "<ul>\n";
 		echo "<li class=\"jq-home ".($Page=="home"?"jq-current":"")."\"><a href=\"".self::$PHP_ROOT_PATH."/site/main/index.php\" title=\"Pikefin Home\">Home</a></li>\n";
-		echo "<li class=\"jq-alerts ".($Page=="alerts"?"jq-current":"")."\"><a href=\"".self::$CAKE_ROOT_PATH."/users/chart\" title=\"Pikefin Alert Manager\">Alert Manager</a></li>\n";
+		echo "<li class=\"jq-alerts ".($Page=="alerts"?"jq-current":"")."\"><a href=\"".self::$CAKE_ROOT_PATH."/charts/chart\" title=\"Pikefin Alert Manager\">Alert Manager</a></li>\n";
 		echo "<li class=\"jq-charts ".($Page=="charts"?"jq-current":"")."\"><a href=\"".self::$PHP_ROOT_PATH."/charts/allassets/topchart.php\" title=\"Pikefin Charts\">Charts</a></li>";
 		//echo "<li class=\"jq-blog ".($Page=="blog"?"jq-current":"")."\"><a href=\"/PHP/site/main/blog.php\" title=\"Pikefin Blog\">Blog</a></li>";
 		//echo "<li class=\"jq-about ".($Page=="about"?"jq-current":"")."\"><a href=\"/PHP/site/main/about.php\" title=\"About Pikefin\">About</a></li>";
@@ -94,8 +128,15 @@ class IncFunc
 	{
 		//require_once '../../common/functions.php';
 		echo "<div id=\"jq-header\" >";
+		
+	
+		
 		self::logo();
 		self::primaryNav($context);
+		
+		echo "<P style=\"font-size: 10pt;\">";
+		echo "Note: All times are UTC-07:00.";
+		echo "</P>";
 		echo "</div> <!-- header -->";
 	}
 	
@@ -138,6 +179,22 @@ class IncFunc
 		
 		
 		
+	}
+	
+	static function googleAnalytics() {
+		echo "<script type=\"text/javascript\">\n";
+
+		  echo "var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-26582307-1']);
+		  _gaq.push(['_trackPageview']);
+		
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();\n";
+		
+		echo "</script>\n";
 	}
 	
 	static function chartSecondaryNav()
@@ -229,7 +286,7 @@ class IncFunc
 					<a href='#'>Equities</a>
 					<ul class='sub_menu'>
 						<li>
-						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?taskid=10&amp;title=US%2520Equities%2520Top%2520Gainers/Losers' >US Equities Top Gainers/Losers</a>
+						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=1&amp;title=US%2520Equities%2520Top%2520Gainers/Losers' >US Equities Top Gainers/Losers</a>
 						</li>
 						<li>
 						<a href='".self::$PHP_ROOT_PATH."/charts/equities/epslinechart3.php?entityid=1'>US Equities Quarterly Earnings</a>
@@ -238,22 +295,32 @@ class IncFunc
 						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=1&group=1&amp;title=US%20Equities%20Indivdual%20Line%20Charts' >US Equities Individual Charts</a>
 						</li>
 						<li>
-						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=5&amp;title=Global%2520Indexes%2520Top%2520Gainers/Losers' >Global Indexes Top Gainers/Losers</a>
+						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=5&amp;title=Global%2520Equity%2520Indexes' >Global Equity Indexes Table</a>
+						</li>
+						<li>
+						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=1008&amp;metricid=11&amp;title=Global%2520Equity%2520Futures' >Global Equity Futures Table</a>
 						</li>
 					</ul>
 				</li>
 				<li>
 					<a href='#'>Commodities</a>
 					<ul class='sub_menu'>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=4&amp;title=Commodity%2520Futures%2520Top%2520Gainers/Losers' >Commodity Futures Top Gainers/Losers</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=4&amp;metricid=11&amp;title=Commodity%2520Futures%2520Table' >Commodity Futures Table</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=673&group=4&amp;title=Commodity%20Futures%20Indivdual%20Line%20Charts' >Commodity Futures Individual Charts</a></li>
 					</ul>
 				</li>
 				<li>
 					<a href='#'>Foreign Exchange</a>
 					<ul class='sub_menu'>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=3&title=Forex%2520Top%2520Gainers/Losers'>Forex Top Gainers/Loosers</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=3&title=Global%2520Forex'>Global Forex Table</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=508&group=3&title=Forex%20Indivdual%20Line%20Charts'>Forex Individual Charts</a></li>
+					</ul>
+				</li>
+					<li>
+					<a href='#'>Bonds</a>
+					<ul class='sub_menu'>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101023&metricid=1&title=Global%2520Sovereign%2520Bonds'>Global Sovereign Bonds Table</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101024&metricid=1&title=Global%2520CDS'>Global CDS Table</a></li>		
 					</ul>
 				</li>
 				<li>
@@ -262,6 +329,7 @@ class IncFunc
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/fed/balsheet.php'>Federal Reserve Balance Sheet</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/other/comingsoon.php'>Federal Reserve Change WOW</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/gdp/motionchart.php'>GDP Growth Estimates</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/topchart.php'>All Assets - Tables</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?a=660&amp;title=All%20Assets%20Indivdual%20Line%20Charts''>All Assets - Inidivdual Line Charts</a></li>
 					</ul>
 				</li>
