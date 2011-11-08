@@ -54,7 +54,7 @@ class DataLoad extends Thread //implements Stopable
   static boolean bLoadingHistoricalData=false;
 
   /*
-   * listWaitingJobs now holds  tasks.id,schedules.id and repeat_types.id
+   * listWaitingJobs now holds  tasks.id,schedules.id,repeat_types.id,priority,queued time
    */
   ArrayList<String[]> listWaitingJobs;
   
@@ -65,8 +65,11 @@ class DataLoad extends Thread //implements Stopable
   
   int nMaxBatch;
   
+  static int nMinimumPriority;
+  
   public static int nMailMessageCount;
   Calendar calMailBegin,calMailEnd;
+  static DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   //static printwriter
                                                                  
@@ -158,6 +161,10 @@ class DataLoad extends Thread //implements Stopable
 				while (rs2.next())
 				{
 					
+					//check if task is being excluded
+					if  (taskExcluded(rs2.getString("task_id")))
+							continue;
+					
 					//check if job is already in queue, don't add it again if it is
 					boolean bInQ=false;
 					for (int i=0;i<listWaitingJobs.size();i++)
@@ -170,14 +177,14 @@ class DataLoad extends Thread //implements Stopable
 					
 					if (!bInQ)
 					{
-						//check if task is being excluded
-						if  (taskExcluded(rs2.getString("task_id")))
-								continue;
+					
 						
-						String[] tmp = new String[3];
+						String[] tmp = new String[5];
 						tmp[0] = rs2.getString("task_id");
 						tmp[1] = rs2.getString("id");
 						tmp[2] = rs2.getString("repeat_type_id");
+						tmp[3] = rs2.getString("priority");
+						tmp[4] = formatter.format(Calendar.getInstance().getTime());
 						listWaitingJobs.add(tmp);
 					}
 				
@@ -224,7 +231,7 @@ class DataLoad extends Thread //implements Stopable
 	  
 	  String query;
 	  query = "delete from job_queue";
-	  DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	  
 	  
 	  try
 	  {
@@ -245,7 +252,8 @@ class DataLoad extends Thread //implements Stopable
 		  }
 		  for (int k=0;k<listWaitingJobs.size();k++)
 		  {
-			  query = "insert into job_queue (task_id,status) values (" + listWaitingJobs.get(k)[0] + ",'QUEUED')";
+			  query = "insert into job_queue (task_id,status,queued_time,priority) values (" + listWaitingJobs.get(k)[0] + 
+			  ",'QUEUED','" + listWaitingJobs.get(k)[4] + "'," + listWaitingJobs.get(k)[3] + ")";
 			  dbf.db_update_query(query);
 		  }
 		  
@@ -260,7 +268,7 @@ class DataLoad extends Thread //implements Stopable
 	 
   }
   
-  public DataGrab initiateJob() throws SQLException
+  public DataGrab initiateJob(int nPriority) throws SQLException
   {
 	  //String strDataSet;
 	  String strTask;
@@ -268,17 +276,23 @@ class DataLoad extends Thread //implements Stopable
 	  //Calendar cal;
 	 
 	 
-		  
+		  sortJobsByPriority();
 		  
 		  /*
 		   * Loop through the list of waiting jobs and only execute one that isn't already running
 		   * 
 		   * NOTE: the non concurrency rule is based off of task not schedule!!!
-		   * Ultimately I think I want to base it off of schedule (this would be less restrictive.
+		   * Ultimately I think I want to base it off of schedule (this would be less restrictive.)
 		   */
 		  boolean bAlreadyRunning;
 		  for (int i=0;i<listWaitingJobs.size();i++)
 		  {
+			  
+			  if (Integer.parseInt(listWaitingJobs.get(i)[3]) < nPriority) {
+				  UtilityFunctions.stdoutwriter.writeln("Not initiating schedule because priority is too low. Task: " + listWaitingJobs.get(i)[0] + ", Priority: " + listWaitingJobs.get(i)[0], Logs.STATUS1, "DL4.36");
+				  continue;
+			  }
+			  
 			  bAlreadyRunning = false;
 			  strTask = listWaitingJobs.get(i)[0];
 			  for (int j=0;j<arrayRunningJobs.length;j++)
@@ -313,9 +327,9 @@ class DataLoad extends Thread //implements Stopable
 				   * 
 				   */
 				  UtilityFunctions.stdoutwriter.writeln("Initiating thread with batch # " + this.nMaxBatch,Logs.STATUS1,"DL4.35");
-				  dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,this.nMaxBatch,listWaitingJobs.get(i)[1],listWaitingJobs.get(i)[2]);
+				  dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,0,listWaitingJobs.get(i)[1],listWaitingJobs.get(i)[2]);
 				  
-				  this.nMaxBatch++;
+				 // this.nMaxBatch++;
 				  
 				  /*
 				   * OFP 3/12/2011 - move the writeKeepAlive function call here because we were running into instances were the DataLoad thread was running
@@ -377,16 +391,21 @@ class DataLoad extends Thread //implements Stopable
   {
 	 
 	  //Clean out terminated threads and count open slots 
+	  /*
+	   * We are going to reserve slot 1 for high priority jobs
+	   */
 	  for (int j=0;j<nMaxThreads;j++)
 	  {
-		  if (arrayRunningJobs[j] == null)
-			  arrayRunningJobs[j] = initiateJob();
-		  /*else if (Thread.State.TERMINATED == arrayRunningJobs[j].getState())
-		  {
-			  UtilityFunctions.stdoutwriter.writeln("Cleaning up thread " + arrayRunningJobs[j].getName(),Logs.THREAD,"DL3");
-			  arrayRunningJobs[j] = initiateJob();
-		  }*/
 		  
+		  if (arrayRunningJobs[j] == null) {
+			  if (j==1){
+				  arrayRunningJobs[j] = initiateJob(this.nMinimumPriority);
+			  }
+			  else
+				  arrayRunningJobs[j] = initiateJob(0);	  
+			  
+		  }
+			  
 	  }
 	  
 	 
@@ -896,11 +915,12 @@ class DataLoad extends Thread //implements Stopable
     
     //System.out.println( props );
     
-  
+    nMinimumPriority = 5;
     
     			                         
     //Create echo server class
     DataLoad dLoad = new DataLoad();
+    
     //Register it with the ServiceStopper
     //This is a decprecated feature only demontrated for backwards compatibility.
     //Please use the stopmethod,stopclass configuration parameter for stopping a service
@@ -1085,6 +1105,55 @@ class DataLoad extends Thread //implements Stopable
 		  DataLoad.nMailMessageCount = 0;
 		  calMailBegin = calCurrent;
 	  }
+	  
+	  
+  }
+  
+  public void sortJobsByPriority() {
+	  /*
+	   * Sort in descending order. Higher priority tasks get executed first.
+	   */
+	  
+	  Comparator<String[]> comp2 = new Comparator<String[]>() {
+		  public int compare(String[] first, String[] second) {
+			int nFirst = Integer.parseInt(first[3]);
+			int nSecond = Integer.parseInt(second[3]);
+			
+			
+			if(nFirst > nSecond)
+				return -1;
+			else if(nSecond > nFirst)
+				return 1;
+			else {
+				Calendar calFirst= Calendar.getInstance();
+				Calendar calSecond= Calendar.getInstance();
+				try {
+					Date d1 = formatter.parse(first[4]);
+					Date d2 = formatter.parse(second[4]);
+					calFirst.setTime(d1);
+					calSecond.setTime(d2);
+					if (calFirst.before(calSecond))
+						return -1;
+					else if (calSecond.before(calFirst))
+						return 1;
+					else
+						return 0;
+				}
+				catch (ParseException pe) {
+					/*
+					 * If parse exception, just return 0.
+					 */
+					return 0;
+				}
+				
+			    
+			}
+		
+		  }
+	};
+
+
+	Collections.sort(listWaitingJobs,comp2);
 	  
 	  
   }
