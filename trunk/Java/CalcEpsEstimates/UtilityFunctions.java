@@ -2,6 +2,8 @@
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Random;
 //import java.util.Calendar;
 import java.io.*;
 //import java.util.StringTokenizer;
@@ -37,7 +39,7 @@ public class UtilityFunctions
 
 		
 	
-	public UtilityFunctions(String strDatabase, String strUser, String strPass, String strFullLog, String strErrorLog, String strSQLLog, String strThreadLog)
+	public UtilityFunctions(String strHost, String strDatabase, String strUser, String strPass, String strFullLog, String strErrorLog, String strSQLLog, String strThreadLog)
 	{
 	
 		//try
@@ -45,7 +47,7 @@ public class UtilityFunctions
 		try
 		{
 			Class.forName("com.mysql.jdbc.Driver");
-			String url = "jdbc:mysql://localhost:3306/" + strDatabase;
+			String url = "jdbc:mysql://" + strHost + ":3306/" + strDatabase;
 			UtilityFunctions.con = DriverManager.getConnection(url,strUser, strPass);
 			//this.bCalledByJsp = bCalled;
 			UtilityFunctions.stdoutwriter = new CustomBufferedWriter(strFullLog, strErrorLog, strSQLLog,strThreadLog, true, true, true);
@@ -122,6 +124,29 @@ public class UtilityFunctions
 		
 		
 		
+	}
+	
+public int insertBatchesEntry(int nCurTask) throws SQLException {
+		
+		/*
+		 * Although in theory, two processes with the same task id should not be running simultaneously, I'm
+		 * taking the extra effort to use the random_unique column to ensure that each thread is using the proper batch id.
+		 */
+
+
+		Random rand = new Random(Calendar.getInstance().getTimeInMillis() + Thread.currentThread().getId());
+  		int nRandom = rand.nextInt();
+  		String strUpdate = "insert into batches (batch_date_collected,task_id,random_unique) values (NOW()," + nCurTask + "," + nRandom + ") ";
+  		
+ 
+  		this.db_update_query(strUpdate);
+	  	
+  		
+  		String strQuery2 = "select id from batches where random_unique=" + nRandom;
+  		ResultSet rs = this.db_run_query(strQuery2);
+  		rs.next();
+  		return(rs.getInt("id"));
+  		
 	}
 	
 	public void importTableIntoDB(ArrayList<String[]> tabledata, String tablename, Integer nBatch)
