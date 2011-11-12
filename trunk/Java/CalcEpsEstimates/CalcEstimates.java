@@ -25,7 +25,7 @@ public class CalcEstimates
 		
 		try
 		{
-			uf = new UtilityFunctions("findata","root","madmax1.","full.log","error.log","sql.log","thread.log");
+			uf = new UtilityFunctions("localhost", "findata","root","madmax1.","full.log","error.log","sql.log","thread.log");
 			
 			String query = "select max(fiscalyear) from fact_data";
 			ResultSet rs = UtilityFunctions.db_run_query(query);
@@ -42,7 +42,8 @@ public class CalcEstimates
 			
 			
 			
-			nBatch = getBatchNumber();
+			//nBatch = getBatchNumber();
+			nBatch = uf.insertBatchesEntry(-1);
 			
 			for (int nProcessYear=nCurYear;nProcessYear<=nMaxYear;nProcessYear++)
 			{
@@ -142,9 +143,16 @@ public class CalcEstimates
 			" AND fd.data_set IN ('table_nasdaq_q_eps_body','table_google_q_eps_excxtra_body') ORDER BY ji.data_set_alias ASC, date_collected DESC";*/
 			
 			
-			query = "select fact_data.date_collected,tasks.name,fact_data.value,entities.ticker,fact_data.id,tasks.eps_est_priority from fact_data,tasks,entities " + 
-					"where entities.ticker='" + strTicker + "' AND fiscalyear=" + nProcessYear + " AND fiscalquarter=" + nQtr + " AND tasks.name IN ('nasdaq_q_eps','google_q_eps_excxtra') AND " +
-					"fact_data.entity_id=entities.id AND fact_data.task_id=tasks.id order by tasks.eps_est_priority, fact_data.date_collected DESC";
+			query = "select fact_data.date_collected,tasks.name,fact_data.value,entities.ticker,fact_data.id,tasks.eps_est_priority ";
+			query += " from fact_data ";
+			query += " JOIN batches on fact_data.batch_id=batches.id ";
+			query += " JOIN tasks on batches.task_id=tasks.id ";
+			query += " JOIN entities on fact_data.entity_id=entities.id ";
+			query += " where entities.ticker='" + strTicker +"' ";
+			query += " AND fiscalyear=" + nProcessYear;
+			query += " AND fiscalquarter=" + nQtr;
+			query += " AND tasks.name IN ('nasdaq_q_eps','google_q_eps_excxtra') ";
+			query += " order by tasks.eps_est_priority, fact_data.date_collected DESC";
 			
 			rs2 = UtilityFunctions.db_run_query(query);
 			if (rs2.next())
@@ -164,9 +172,16 @@ public class CalcEstimates
 				nProcessYear + " AND fiscalquarter=" + nQtr + " AND fd.data_set=ji.data_set " +
 				" AND fd.data_set IN ('table_nasdaq_q_eps_est_body','table_mwatch_q_eps_est') order by ji.data_set_alias ASC, date_collected DESC";*/
 				
-				query = "select fact_data.date_collected,tasks.name,fact_data.value,entities.ticker,fact_data.id,tasks.eps_est_priority from fact_data,tasks,entities " + 
-				"where entities.ticker='" + strTicker + "' AND fiscalyear=" + nProcessYear + " AND fiscalquarter=" + nQtr + " AND tasks.name IN ('nasdaq_q_eps_est','marketwatch_q_eps_est') AND " +
-				"fact_data.entity_id=entities.id AND fact_data.task_id=tasks.id order by tasks.eps_est_priority, fact_data.date_collected DESC";
+				query = "select fact_data.date_collected,tasks.name,fact_data.value,entities.ticker,fact_data.id,tasks.eps_est_priority ";
+				query += " from fact_data ";
+				query += " JOIN batches on fact_data.batch_id=batches.id ";
+				query += " JOIN tasks on batches.task_id=tasks.id ";
+				query += " JOIN entities on fact_data.entity_id=entities.id ";
+				query += " where entities.ticker='" + strTicker + "' ";
+				query += " AND fiscalyear=" + nProcessYear;
+				query += " AND fiscalquarter=" + nQtr;
+				query += " AND tasks.name IN ('nasdaq_q_eps_est','marketwatch_q_eps_est') ";
+				query += " order by tasks.eps_est_priority, fact_data.date_collected DESC";
 				
 				rs2 = UtilityFunctions.db_run_query(query);
 				if (rs2.next())
@@ -209,8 +224,15 @@ public class CalcEstimates
 		/*query = "select count(*) from fact_data where data_set in ('table_nasdaq_y_eps_est_body','table_mwatch_y_eps_est') AND ticker='" + 
 		strTicker + "' AND fiscalyear=" + nProcessYear;*/
 		
-		query = "select count(*) from fact_data,tasks,entities where tasks.name in ('nasdaq_y_eps_est','marketwatch_y_eps_est') AND entities.ticker='" + 
-		strTicker + "' AND fact_data.fiscalyear=" + nProcessYear + " AND fact_data.entity_id=entities.id AND fact_data.task_id=tasks.id";
+		query = "select count(*) ";
+		query += " from fact_data ";
+		query += " JOIN batches on fact_data.batch_id=batches.id ";
+		query += " JOIN tasks on batches.task_id=tasks.id ";
+		query += " JOIN entities on fact_data.entity_id=entities.id ";
+		query += " where tasks.name in ('nasdaq_y_eps_est','marketwatch_y_eps_est') ";
+		query += " AND entities.ticker='" + strTicker + "' ";
+		query += " AND fact_data.fiscalyear=" + nProcessYear;
+
 		ResultSet rs = UtilityFunctions.db_run_query(query);
 		rs.next();
 		int nCountYearEstimates = rs.getInt("count(*)");
@@ -226,9 +248,15 @@ public class CalcEstimates
 		" where fd.data_set in ('table_nasdaq_y_eps_est_body','table_mwatch_y_eps_est') AND fd.data_set=ji.data_set AND ticker='" + 
 		strTicker + "' AND fiscalyear=" + nProcessYear + " ORDER BY ji.data_set_alias ASC, date_collected DESC";*/
 		
-		query = "select fact_data.date_collected,fact_data.value from fact_data,tasks,entities " + 
-		"where entities.ticker='" + strTicker + "' AND fiscalyear=" + nProcessYear + " AND tasks.name IN ('nasdaq_y_eps_est','marketwatch_y_eps_est') AND " +
-		"fact_data.entity_id=entities.id AND fact_data.task_id=tasks.id order by tasks.eps_est_priority, fact_data.date_collected DESC";
+		query = "select fact_data.date_collected,fact_data.value ";
+		query += " from fact_data ";
+		query += " JOIN batches on fact_data.batch_id=batches.id ";
+		query += " JOIN tasks on batches.task_id=tasks.id ";
+		query += " JOIN entities on fact_data.entity_id=entities.id ";
+		query += " where entities.ticker='" + strTicker + "' ";
+		query += " AND fiscalyear=" + nProcessYear;
+		query += " AND tasks.name IN ('nasdaq_y_eps_est','marketwatch_y_eps_est') ";
+		query += " order by tasks.eps_est_priority, fact_data.date_collected DESC ";
 		
 		
 		rs = UtilityFunctions.db_run_query(query);
@@ -287,10 +315,10 @@ public class CalcEstimates
 			if (bMissQuarters[i] == true)
 			{
 				query = "insert into fact_data " +
-				"(value,entity_id,task_id,fiscalquarter,fiscalyear,batch,date_collected,data_group,calquarter,calyear,metric_id,meta_set_id) values" +
+				"(value,entity_id,fiscalquarter,fiscalyear,batch_id,date_collected,data_group,calquarter,calyear,metric_id,meta_set_id) values" +
 				"(" + dAdjustedQuarterEst + "," +
 				nEntityId + "," + 
-				nTaskId + "," +
+				//nTaskId + "," +
 				(i+1) + "," +
 				nProcessYear + "," +
 				nBatch + "," +
@@ -304,14 +332,20 @@ public class CalcEstimates
 				
 				UtilityFunctions.db_update_query(query);
 				
-				if (CalcEstimates.bFirstUpdate==true)
-				{
-					String strDelete = "delete from fact_data where task_id=-1";
+				/*
+				 * OFP 11/7/2011 - Can't figure out why this FirstUpdate code is here.
+				 * Going to remove it for now.
+				 */
+				
+				/*if (CalcEstimates.bFirstUpdate==true) {
+					String strDelete = "delete fd from fact_data fd ";
+					strDelete += " JOIN batches on fd.batch_id=batches.id ";
+					strDelete += " where batches.task_id=-1";
 					
 					UtilityFunctions.db_update_query(strDelete);
 					
 					CalcEstimates.bFirstUpdate=false;
-				}
+				}*/
 				
 				UtilityFunctions.stdoutwriter.writeln(strTicker + ": Generated estimate for fiscalyear: " + nProcessYear + " fiscalquarter: " + (i + 1),Logs.STATUS1,"CE44");
 			}
@@ -339,6 +373,7 @@ public class CalcEstimates
 			catch(SQLException sql)
 			{
 				UtilityFunctions.stdoutwriter.writeln("Update meta_set_id failed for id: " + vMetaDataSet.get(i),Logs.ERROR,"CE44.5");
+				UtilityFunctions.stdoutwriter.writeln(sql);
 			}
 		}
 	}
@@ -403,35 +438,31 @@ public class CalcEstimates
 		
 	}
 	
-	public static Integer getBatchNumber() throws SQLException
+	/*public static Integer getBatchNumber() throws SQLException
 	{
-		/*
+		#*
 		 * Get the current highest batch number from both fact_data & fact_data_stage and increase that by 1
-		 */
+		 *#
 		
+		String strQuery1 = "select max(batch
 
 		
-		String query = "select max(batch) from ";
-		query = query + "(select batch from fact_data union all ";
-		//query = query + "select batch from fact_data_stage union all ";
-		query = query + "select batch from fact_data_stage_est) t1";
-		ResultSet rs = UtilityFunctions.db_run_query(query);
-		rs.next();
-		int nMaxBatch = rs.getInt("max(batch)") + 1;
 		
-		//Insert a batch # placeholder row in fact_data
-		//This is super kludgy and there is a very narrow window where this is not thread safe. This CalcEstimates should be integrated with DataLoad.
-		String strInsert = "insert into fact_data (value,date_collected,task_id,batch) values ";
-		strInsert += "(-1,NOW(),-1," + nMaxBatch + ")";
+		String strInsert = "insert into batches (batch_date_collected,task_id) values ";
+		strInsert += "(NOW(),-1)";
 		
 		UtilityFunctions.db_update_query(strInsert);
 		
 		
-		return (nMaxBatch);
+		String strQuery = "select max(id) from batches where task_id=-1";
+		ResultSet rs = UtilityFunctions.db_run_query(strQuery);
+		rs.next();
+		
+		return (rs.getInt("max(id)"));
 			
 	
 		
-	}
+	}*/
 	
 	public static void cleanData()
 	{
