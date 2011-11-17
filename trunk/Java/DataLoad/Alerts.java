@@ -300,99 +300,74 @@ public class Alerts {
 					  }
 				  
 
-					  
-					//code here to check for excludes.
-					/*  boolean bContinue = false;
-					  if (bTaskExcludes) {
-						  for (String te : listTimeEventExcludes) {
-							  if (Integer.parseInt(hmAlert.get("time_events.id")) == Integer.parseInt(te))
-								  bContinue = true;
-							  
-						  }
-					  }
-					  if (bContinue)
-						  continue;*/
-				  
+					 
 				
 				
 				
 				  int nUserId = Integer.parseInt(hmAlert.get("alerts.user_id"));//rsAlert.getInt("user_id");
 				  
-			
-					 
-					  
-				 
-				  
-				  //Add the base limit adjustment to the base limit value
 				  
 				  BigDecimal bdLimitValue = new BigDecimal(hmAlert.get("alerts.limit_value"));
-				  //BigDecimal bdLimitAdjustment = new BigDecimal(hmAlert.get("alerts.limit_adjustment"));
-				 
-				  //BigDecimal dLimit = bdLimitValue.add(bdLimitAdjustment);//rsAlert.getBigDecimal("limit_value").add(rsAlert.getBigDecimal("limit_adjustment"));
-				  
-				  //int nFactKey = Integer.parseInt(hmAlert.get("alerts.initial_fact_data_id"));//rsAlert.getInt("fact_data_key");
-				 // int nNotifyKey = Integer.parseInt(hmAlert.get("alerts.id"));//rsAlert.getInt("id");
+			
 				  int nNotificationCount = Integer.parseInt(hmAlert.get("alerts.notification_count"));//rsAlert.getInt("alert_count");
 				  
 	
 						  	
-						  	String strUpdateQuery = "update alerts set current_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + " where alerts.id=" + nAlertId;
-						  	dg.dbf.db_update_query(strUpdateQuery);
-						  	
+					String strUpdateQuery = "update alerts set current_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + " where alerts.id=" + nAlertId;
+					dg.dbf.db_update_query(strUpdateQuery);
+					
+					  
+					//BigDecimal dJustCollectedValue = rsCurFactData.getBigDecimal("value");
+					  BigDecimal dJustCollectedValue = new BigDecimal(hmCurFactData.get(nEntityId+"").get("fact_data.value"));
+					  
+					  //Not sure of the scale
+					  if (dJustCollectedValue.equals(new BigDecimal("0.000")) || dJustCollectedValue.equals(new BigDecimal("0.00")))
+					  {
+						  UtilityFunctions.stdoutwriter.writeln("Zero was the last value collected. Probably a bad print. Skipping ticker " + strTicker,Logs.WARN,"A2.7385");
+						  continue;
+					  }
+					
+					  BigDecimal dInitialFactDataValue = new BigDecimal(hmAlert.get("fact_data.value"));
+					  			  
+					  BigDecimal dChange;
 							  
-						  	//BigDecimal dJustCollectedValue = rsCurFactData.getBigDecimal("value");
-							  BigDecimal dJustCollectedValue = new BigDecimal(hmCurFactData.get(nEntityId+"").get("fact_data.value"));
-							  
-							  //Not sure of the scale
-							  if (dJustCollectedValue.equals(new BigDecimal("0.000")) || dJustCollectedValue.equals(new BigDecimal("0.00")))
-							  {
-								  UtilityFunctions.stdoutwriter.writeln("Zero was the last value collected. Probably a bad print. Skipping ticker " + strTicker,Logs.WARN,"A2.7385");
-								  continue;
-							  }
-						
-							  BigDecimal dInitialFactDataValue = new BigDecimal(hmAlert.get("fact_data.value"));
-							  			  
-							  BigDecimal dChange;
-							  
-							  try
-							  {
-								  dChange = dJustCollectedValue.subtract(dInitialFactDataValue).divide(dInitialFactDataValue,BigDecimal.ROUND_HALF_UP);
-							  }
-							  catch (ArithmeticException ae)
-							  {
-								  UtilityFunctions.stdoutwriter.writeln("Error doing BigDecimal arithmetic",Logs.ERROR,"A2.7385");
-								  UtilityFunctions.stdoutwriter.writeln("Error occured processing alert id: " + nAlertId,Logs.ERROR,"A2.7386");
-								  UtilityFunctions.stdoutwriter.writeln(ae);
-								  continue;
-							  }
-							  
-							  //String query6 = "select max_alerts,email from users where id='" + nUserId + "'";
-							  //ResultSet rs6 = dg.dbf.db_run_query(query6);
-							  
-							  if (hmAlert.get("users.email") == null)
-							  {
-								  UtilityFunctions.stdoutwriter.writeln("Id " + nUserId + " not found in users table.",Logs.WARN,"A2.738");
-								  UtilityFunctions.stdoutwriter.writeln("Problem occured processing task: " + strTaskName + ",entity_id: " + nEntityId + ",ticker: " + strTicker,Logs.WARN,"A2.739");
-								  continue;
-							  }
-							  
-							  String strEmail = hmAlert.get("users.email");
-							  int nMaxNotifications = Integer.parseInt(hmAlert.get("users.max_notifications"));
-							  
-							  boolean bEmailSent = false;
-							  
-							 /* The old protocol was if an alert was triggered, we will automatically reset the initial value.
-							  * The new protocol is to include a link to a form to increase the value. 
-							  * Alerts will continue to be sent until max_alerts in the account table is reached OR
-							  * the an alert adjustment is submitted.
-							  * 
-							  */
-							 // String query4 = "update notify set fact_data_key=" + rsCurFactData.getInt("primary_key") + " where primary_key=" + nNotifyKey;
+					  try
+					  {
+						  dChange = dJustCollectedValue.subtract(dInitialFactDataValue).divide(dInitialFactDataValue,BigDecimal.ROUND_HALF_UP);
+					  }
+					  catch (ArithmeticException ae)
+					  {
+						  UtilityFunctions.stdoutwriter.writeln("Error doing BigDecimal arithmetic",Logs.ERROR,"A2.7385");
+						  UtilityFunctions.stdoutwriter.writeln("Error occured processing alert id: " + nAlertId,Logs.ERROR,"A2.7386");
+						  UtilityFunctions.stdoutwriter.writeln(ae);
+						  continue;
+					  }
+					  
+					  //String query6 = "select max_alerts,email from users where id='" + nUserId + "'";
+					  //ResultSet rs6 = dg.dbf.db_run_query(query6);
+					  
+					  if (hmAlert.get("users.email") == null)
+					  {
+						  UtilityFunctions.stdoutwriter.writeln("Id " + nUserId + " not found in users table.",Logs.WARN,"A2.738");
+						  UtilityFunctions.stdoutwriter.writeln("Problem occured processing task: " + strTaskName + ",entity_id: " + nEntityId + ",ticker: " + strTicker,Logs.WARN,"A2.739");
+						  continue;
+					  }
+					  
+					  String strEmail = hmAlert.get("users.email");
+					  int nMaxNotifications = Integer.parseInt(hmAlert.get("users.max_notifications"));
+					  
+					  boolean bEmailSent = false;
+					  
+					 /* The old protocol was if an alert was triggered, we will automatically reset the initial value.
+					  * The new protocol is to include a link to a form to increase the value. 
+					  * Alerts will continue to be sent until max_alerts in the account table is reached OR
+					  * the an alert adjustment is submitted.
+					  * 
+					  */
+			
 							  if ((dChange.abs().compareTo(bdLimitValue) > 0) && (bAlreadyFired == false))
 							  {
-								  //send notification
-								  //System.out.println("ALERT: Send mail!");
-								  
+							
 
 								  
 								  if (bEmailAlert == true && hmAlert.get("users.bulk_email").toUpperCase().equals("FALSE"))
@@ -515,11 +490,12 @@ public class Alerts {
 										  
 										  try {
 											  String strTweetLogQuery = "insert into log_tweets (datetime,message,alert_id,error_message) ";
-											  strTweetLogQuery += " values (NOW(),'" + strTweet.substring(0,150) + "'," + hmAlert.get("alerts.id");
+										
+											  strTweetLogQuery += " values (NOW(),'" + (strTweet.length()>140?strTweet.substring(0,140):strTweet) + "'," + hmAlert.get("alerts.id");
 											  if (strErrorMsg.isEmpty())
 												  strTweetLogQuery += ",null)";
 											  else
-												  strTweetLogQuery += ",'" + strErrorMsg.substring(0,200) + "')";
+												  strTweetLogQuery += ",'" + (strErrorMsg.length()>200?strErrorMsg.substring(0,200):strErrorMsg) + "')";
 											  dg.dbf.db_update_query(strTweetLogQuery);
 										  } 
 										  catch (SQLException sqle) {
