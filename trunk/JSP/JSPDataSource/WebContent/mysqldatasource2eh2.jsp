@@ -449,6 +449,22 @@ if (1==1) return;*/
 
 ArrayList<String[]> arrayListRows = PopulateSpreadsheet.joinListsInner(arrayListRows1,arrayListRows2,0);
 
+Calendar calA = Calendar.getInstance();
+Calendar calB = Calendar.getInstance();
+
+for (int k=0;k<arrayListRows.size();k++) {
+	String[] row = arrayListRows.get(k);
+	calA.setTime(formatter.parse(row[1]));
+	calB.setTime(formatter.parse(row[7]));
+	if (calA.after(calB)) {
+		out.println(PopulateSpreadsheet.createGoogleError(strReqId,"narrow_date_range","Date range is too narrow. Please pick a wider date range.","PF ERROR CODE 2eh2-5"));
+		return;	
+	}
+		
+		
+	
+}
+
 
 
 
