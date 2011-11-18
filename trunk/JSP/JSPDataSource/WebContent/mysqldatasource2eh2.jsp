@@ -36,18 +36,22 @@ Calendar calBeginTimer = Calendar.getInstance();
 Logger fulllogger = Logger.getLogger("FullLogging");
 
 DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+DateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd");
 
 String strTimeFrame = request.getParameter("timeframe");
-//String strBeginDate = request.getParameter("begindate"); 
-//String strEndDate = request.getParameter("enddate");
+String strBeginDate = request.getParameter("begindate"); 
+String strEndDate = request.getParameter("enddate");
 //String strTaskId = request.getParameter("taskid");
 String strMetricId = request.getParameter("metricid");
 String strEntityGroupId = request.getParameter("entitygroupid");
+String strTopMovers = request.getParameter("topmovers");
 
 
-if (strTimeFrame==null)
+
+
+if (strTimeFrame==null && (strBeginDate == null || strEndDate == null))
 {
-	out.println("No timeframe parameter passed in the url. Exiting.");
+	out.println("No timeframe or begindate/enddate parameters passed in the url. Exiting.");
 	return;
 }
 
@@ -76,64 +80,73 @@ if (request.getParameter("order") != null)
 Calendar calEnd = Calendar.getInstance();
 Calendar calBegin = Calendar.getInstance();
 
-//System.out.println(calBegin.getTime().toString());
-
-
-
-if (Debug.RELEASE == true)  
-{
-	calEnd.set(Calendar.YEAR,2011);
-	calEnd.set(Calendar.DAY_OF_MONTH,21);
-	calEnd.set(Calendar.MONTH,6);
-	
-	calBegin.set(Calendar.YEAR,2011);
-	calBegin.set(Calendar.DAY_OF_MONTH,21);
-	calBegin.set(Calendar.MONTH,6);
-
-	
-}
 
 
 //System.out.println(calBegin.getTime().toString());
 
+if (strTimeFrame != null) {
 
+	
+	if (Debug.RELEASE == true)   
+	{
+		calEnd.set(Calendar.YEAR,2011);
+		calEnd.set(Calendar.DAY_OF_MONTH,21);
+		calEnd.set(Calendar.MONTH,6);
+		
+		calBegin.set(Calendar.YEAR,2011);
+		calBegin.set(Calendar.DAY_OF_MONTH,21);
+		calBegin.set(Calendar.MONTH,6);
 
-String strGranularity;
-
-if (strTimeFrame.toUpperCase().equals("HOUR"))
-{
-	calBegin.add(Calendar.HOUR,-1);
+		
+	}
+	
+	//System.out.println(calBegin.getTime().toString());
+	
+	
+	
+	String strGranularity;
+	
+	if (strTimeFrame.toUpperCase().equals("HOUR"))
+	{
+		calBegin.add(Calendar.HOUR,-1);
+	}
+	else if (strTimeFrame.toUpperCase().equals("DAY"))
+	{
+		calBegin.add(Calendar.DAY_OF_YEAR,-1);
+	}
+	else if (strTimeFrame.toUpperCase().equals("WEEK"))
+	{
+		calBegin.add(Calendar.WEEK_OF_YEAR,-1);
+	}
+	else if (strTimeFrame.toUpperCase().equals("MONTH"))
+	{
+		calBegin.add(Calendar.MONTH,-1);
+	}
+	else if (strTimeFrame.toUpperCase().equals("YEAR"))
+	{
+		calBegin.add(Calendar.YEAR,-1);
+	}
+	
+	/* We don't have much historical data*/
+	SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	Calendar calEarliest = Calendar.getInstance();
+	calEarliest.setTime(inputFormat.parse("2011-01-20 00:00:00"));
+	
+	/*
+	*Futures didn't get added until later.
+	*/
+	if (strEntityGroupId.equals("1008"))
+		calEarliest.setTime(inputFormat.parse("2011-06-21 00:00:00"));
+	
+	if (calBegin.before(calEarliest))
+		calBegin = calEarliest;
 }
-else if (strTimeFrame.toUpperCase().equals("DAY"))
-{
-	calBegin.add(Calendar.DAY_OF_YEAR,-1);
-}
-else if (strTimeFrame.toUpperCase().equals("WEEK"))
-{
-	calBegin.add(Calendar.WEEK_OF_YEAR,-1);
-}
-else if (strTimeFrame.toUpperCase().equals("MONTH"))
-{
-	calBegin.add(Calendar.MONTH,-1);
-}
-else if (strTimeFrame.toUpperCase().equals("YEAR"))
-{
-	calBegin.add(Calendar.YEAR,-1);
-}
+else {
+	
+	calBegin.setTime(new Date(Long.parseLong(strBeginDate)));
+	calEnd.setTime(new Date(Long.parseLong(strEndDate)));
 
-/* We don't have much historical data*/
-SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-Calendar calEarliest = Calendar.getInstance();
-calEarliest.setTime(inputFormat.parse("2011-01-20 00:00:00"));
-
-/*
-*Futures didn't get added until later.
-*/
-if (strEntityGroupId.equals("1008"))
-	calEarliest.setTime(inputFormat.parse("2011-06-21 00:00:00"));
-
-if (calBegin.before(calEarliest))
-	calBegin = calEarliest;
+}
 
 
 
@@ -163,8 +176,26 @@ Calendar calEndAdjust = Calendar.getInstance();
 calBeginAdjust.setTime(calBegin.getTime());
 calEndAdjust.setTime(calEnd.getTime());
 
-calBeginAdjust.add(Calendar.DAY_OF_MONTH,2);
-calEndAdjust.add(Calendar.DAY_OF_MONTH,-2);
+
+Calendar calBeginThreshold1 = Calendar.getInstance();
+calBeginThreshold1.setTime(formatter.parse("2011-01-19 00:00:00"));
+Calendar calBeginThreshold2 = Calendar.getInstance();
+calBeginThreshold2.setTime(formatter.parse("2010-12-01 00:00:00"));
+
+Calendar calEndThreshold1 = Calendar.getInstance();
+calEndThreshold1.setTime(formatter.parse("2011-02-01 00:00:00"));
+
+if (calBeginAdjust.after(calBeginThreshold1))
+	calBeginAdjust.add(Calendar.DAY_OF_MONTH,2);
+else if (calBeginAdjust.after(calBeginThreshold2))
+	calBeginAdjust.setTime(formatter.parse("2011-01-22 23:59:59"));
+else
+	calBeginAdjust.add(Calendar.MONTH,1);
+
+if (calEndAdjust.after(calEndThreshold1))
+	calEndAdjust.add(Calendar.DAY_OF_MONTH,-2);
+else
+	calEndAdjust.add(Calendar.MONTH,-1);
 
 //System.out.println(calBegin.getTime().toString());
 
@@ -186,6 +217,7 @@ UtilityFunctions uf = new UtilityFunctions();
 ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 //String[] columns = tmpArrayList.get(0);
 //String[] blap1 = {"task name","task name","string"};
+String[] blap1 = {"entityid", "entityid", "number"};
 String[] blap2 = {"ticker","ticker","string"};
 
 //String[] blap3 = {"time event name","time event name","string"};
@@ -198,13 +230,15 @@ String[] blap7 = {"% change","% change","number"};
 String[] blap8 = {"date initial","date initial","datetime"};
 String[] blap9 = {"date current","date current","datetime"};
 
+String[] blap10 = {"metricid","metricid","number"};
+
 //String[] blap10 = {"te period last","te period last","datetime"};
 //String[] blap11 = {"te period next","te period next","datetime"};
 
 
 
 
-//arrayListCols.add(blap1);
+
 arrayListCols.add(blap2);
 
 //arrayListCols.add(blap3);
@@ -216,6 +250,8 @@ arrayListCols.add(blap8);
 arrayListCols.add(blap9);
 arrayListCols.add(blap3);
 arrayListCols.add(blap4);
+arrayListCols.add(blap1);
+arrayListCols.add(blap10);
 //arrayListCols.add(blap10);
 //arrayListCols.add(blap11);
 
@@ -224,7 +260,7 @@ arrayListCols.add(blap4);
 
 
 String query2 = "select 'mysqldatasource2eh2',fact_data.entity_id,'placeholder',date_format(date_collected,'%Y-%m-%d %T') as date_begin,value,ticker ";
-query2 += " ,countries.name,entities.full_name ";
+query2 += " ,countries.name,entities.full_name,fact_data.metric_id ";
 query2 += " from fact_data ";
 query2 += " JOIN entities on entities.id=fact_data.entity_id ";
 query2 += " LEFT JOIN countries on entities.country_id=countries.id ";
@@ -241,7 +277,7 @@ query2 += " ORDER BY fact_data.entity_id ";
 
 
 String query3 = "select 'mysqldatasource2eh2',fact_data.entity_id,'placeholder',date_format(date_collected,'%Y-%m-%d %T') as date_end,value,ticker ";
-query3 += " ,countries.name,entities.full_name ";
+query3 += " ,countries.name,entities.full_name,fact_data.metric_id ";
 query3 += " from fact_data ";
 query3 += " JOIN entities on entities.id=fact_data.entity_id ";
 query3 += " LEFT JOIN countries on entities.country_id=countries.id ";
@@ -276,7 +312,7 @@ while (!bDone) {
 		calEndTimer = Calendar.getInstance();
 		code=3;
 		while (dbf.rs.next()) {
-			String [] tmp = new String[6];
+			String [] tmp = new String[7];
 			
 			tmp[0] = dbf.rs.getString("fact_data.entity_id");
 			tmp[1] = dbf.rs.getString("date_begin");
@@ -284,6 +320,7 @@ while (!bDone) {
 			tmp[3] = dbf.rs.getString("ticker");
 			tmp[4] = dbf.rs.getString("full_name");
 			tmp[5] = dbf.rs.getString("name");
+			tmp[6] = dbf.rs.getString("fact_data.metric_id");
 			
 	
 		
@@ -325,7 +362,7 @@ while (!bDone) {
 
 
 
-//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows1));if (1==1) return; 
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows1,1000));if (1==1) return; 
 
 bDone = false;
 
@@ -338,7 +375,7 @@ while (!bDone) {
 		dbf.db_run_query(query3);
 	
 		while (dbf.rs.next()) {
-			String [] tmp = new String[6];
+			String [] tmp = new String[7];
 			
 			tmp[0] = dbf.rs.getString("fact_data.entity_id");
 			tmp[1] = dbf.rs.getString("date_end");
@@ -346,6 +383,7 @@ while (!bDone) {
 			tmp[3] = dbf.rs.getString("ticker");
 			tmp[4] = dbf.rs.getString("full_name");
 			tmp[5] = dbf.rs.getString("name");
+			tmp[6] = dbf.rs.getString("fact_data.metric_id");
 	
 			
 			arrayListRows2.add(tmp);
@@ -414,7 +452,7 @@ ArrayList<String[]> arrayListRows = PopulateSpreadsheet.joinListsInner(arrayList
 
 
 
-
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
 
 
 
@@ -431,7 +469,7 @@ for (int i=0;i<saveListRows.size();i++)
 	String[] tmpSave = saveListRows.get(i);
 	
 	
-	String[] tmp = new String[16];
+	String[] tmp = new String[20];
 	
 	/*for (int j=0;j<tmpSave.length;j++)
 	{
@@ -442,11 +480,11 @@ for (int i=0;i<saveListRows.size();i++)
 	
 	
 	tmp[2] = tmp[3] = tmpSave[2];
-	tmp[4] = tmp[5] = tmpSave[7];
+	tmp[4] = tmp[5] = tmpSave[8];
 	
 	
 	BigDecimal bdBef = new BigDecimal(tmpSave[2]);
-	BigDecimal bdAft = new BigDecimal(tmpSave[7]);
+	BigDecimal bdAft = new BigDecimal(tmpSave[8]);
 	
 	bdAft = bdAft.subtract(bdBef);
 	if (bdBef.compareTo(new BigDecimal(0)) == 0)
@@ -463,14 +501,47 @@ for (int i=0;i<saveListRows.size();i++)
 	tmp[6] = tmp[7] =  bdAft.toString();
 		
 	tmp[8] = tmp[9] = tmpSave[1];
-	tmp[10] = tmp[11] = tmpSave[6];
+	tmp[10] = tmp[11] = tmpSave[7];
 	
 	tmp[12] = tmp[13] = tmpSave[5];
 	tmp[14] = tmp[15] = tmpSave[4];
+	tmp[16] = tmp[17] = tmpSave[0];
+	tmp[18] = tmp[19] = tmpSave[6];
 	
 	arrayListRows.add(tmp);
 	
 }
+/*
+ * Code to take only the X top movers (in both directions)
+ *
+ */
+
+if (strTopMovers != null) {
+	Comparator<String[]> comp3 = new Comparator<String[]>() {
+		  public int compare(String[] first, String[] second) {
+			BigDecimal bdFirst = new BigDecimal(first[6]);
+			bdFirst = bdFirst.abs();
+			BigDecimal bdSecond = new BigDecimal(second[6]);
+			bdSecond = bdSecond.abs();
+			
+			return bdSecond.compareTo(bdFirst);
+			
+		    //return first[1].compareTo(second[1]);
+		  }
+	};
+	
+	
+	Collections.sort(arrayListRows,comp3);
+	
+	arrayListRows = PopulateSpreadsheet.limitRows(arrayListRows,strTopMovers);
+	
+	
+}
+
+
+
+
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,10));if (1==1) return; 
 
 Comparator<String[]> comp = new Comparator<String[]>() {
 	  public int compare(String[] first, String[] second) {
