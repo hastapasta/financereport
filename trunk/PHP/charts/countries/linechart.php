@@ -1,6 +1,10 @@
 <?php
 //require_once 'init2.php';
 
+/* OFP 11/20/2011 - I don't know why we're still passing task ids into the datasource. Seems redundant. We don't
+ * have multiple tasks gathering GDP or equity index data (yet). 
+ */
+
 require_once '../../common/functions.php';
 include ("../../site/includes/sitecommon.php");
 
@@ -8,17 +12,24 @@ db_utility::db_connect();
 
 $alertid="";
 
-if (isset($_GET['countryid']))
-	$countryid = $_GET['countryid'];
-else
-	$error =  "No country id in url. Unable to render chart.";
+//if (isset($_GET['countryid']))
+$countryid = $_GET['countryid'];
+//else
+//	$error =  "No country id in url. Unable to render chart.";
 	//die("No alert id,entity id  or ticker parameter in url. Unable to render chart.");
+	
+$gdptype = "cp";
+if (isset($_GET['gdptype']))
+	$gdptype = $_GET['gdptype'];
+	
+	
+
 	
 
 
 
 
-$begindate="2011-01-01";
+$begindate="2008-01-01";
 $enddate="";
 
 if (isset($_GET['begindate']) && !empty($_GET['begindate']))
@@ -34,43 +45,54 @@ if (isset($_GET['enddate']) && !empty($_GET['enddate']))
 $title="";
 if (isset($_GET['title']))
 	$title=urldecode($_GET['title']);
-	
-$sql = "select name from countries where id=".$countryid;
-$result = mysql_query($sql);
-$row = mysql_fetch_array($result);
-$countryname = $row['name'];
-	
-	
-$sql = "select entities.id ";
-$sql .= " from entities,entities_entity_groups ";
-$sql .= " where entities.id=entities_entity_groups.entity_id ";
-$sql .= " and entities.country_id=".$countryid;
-$sql .= " and entities_entity_groups.entity_group_id=5";
 
-$result = mysql_query($sql);
-$count = 0;
-while ($row= mysql_fetch_array($result)) {
-	$entities.=$row['id'].",";
-	$metrics.="1,";
-	$tasks.="0,";
-	$count++;
+if (!empty($countryid)) {
+	$sql = "select name from countries where id=".$countryid;
+	$result = mysql_query($sql);
+	$row = mysql_fetch_array($result);
+	$countryname = $row['name'];
+		
+		
+	$sql = "select entities.id ";
+	$sql .= " from entities,entities_entity_groups ";
+	$sql .= " where entities.id=entities_entity_groups.entity_id ";
+	$sql .= " and entities.country_id=".$countryid;
+	$sql .= " and entities_entity_groups.entity_group_id=5";
+	
+	$result = mysql_query($sql);
+	$count = 0;
+	while ($row= mysql_fetch_array($result)) {
+		$entities.=$row['id'].",";
+		$metrics.="1,";
+		$tasks.="0,";
+		$count++;
+	}
+	
+	if ($count == 0) {
+		$error = "No equity index data for the country: ".$countryname;
+	}
+	//$entities = substr($entities,0,strlen($entities)-1);
+	//$metrics.="12,13";
+	//$metrics.="30,29";
 }
 
-if ($count == 0) {
-	$error = "No equity index data for the country: ".$countryname;
+
+if ($gdptype=="ppp") {
+	$metrics.="12,13";
+	$tasks.="30,29";
 }
-//$entities = substr($entities,0,strlen($entities)-1);
-//$metrics.="12,13";
-//$metrics.="30,29";
-$metrics.="2,3";
-$tasks.="22,33";
+else if ($gdptype=="cp") { //we'll default to current prices gdp
+	$metrics.="2,3";
+	$tasks.="22,33";
+}
 
-$sql = "select id from entities where ticker='macro' and country_id=".$countryid;
-$result = mysql_query($sql);
-$row = mysql_fetch_array($result);
-$entities.=$row['id'].",".$row['id'];
+if (!empty($countryid)) {
+	$sql = "select id from entities where ticker='macro' and country_id=".$countryid;
+	$result = mysql_query($sql);
+	$row = mysql_fetch_array($result);
+	$entities.=$row['id'].",".$row['id'];
+}
 
-echo $entities;
 
 
 
@@ -100,11 +122,81 @@ if (isset($_GET['group']))
     <?php IncFunc::title();?>
     <?php IncFunc::linkStyleCSS();?> 
     <?php IncFunc::jQuery();?>   
+    <?php IncFunc::jQueryDatePicker();?>
+	<?php IncFunc::generalDateFunctions();?>
     <?php //IncFunc::yuiDropDownJavaScript(); ?>
     <?php IncFunc::googleGadget(); ?>
    
     <script type="text/javascript">
 
+    	var countryid;
+    	$(document).ready(function() {
+
+        	<?php 
+        	if (!empty($countryid)) {
+        		echo "$( \"#a_c\" ).val(\"".$countryname."\");\n";
+        		echo "countryid=\"".$countryid."\";\n";
+        		if ($gdptype=="ppp") {
+        			echo "$(\"#checkPPP\").attr('checked','checked');\n";
+        			//echo "$('#checkPPP').checked = true;";
+        		}
+        		else if ($gdptype=="cp") {
+        			echo "$(\"#checkCP\").attr('checked','checked');\n";
+        			//echo "$('#checkCP').checked = true;";
+        		}
+        		
+        			
+        	}
+        	?>
+
+        	
+    		var oneDay = 24*60*60*1000;
+    		var td = new Date();
+    		td.setDate(td.getDate() - 1);
+    		td.setMonth(td.getMonth() - 1);
+    		td.setMonth(td.getMonth() - 12);
+    		//var fromDay = td.setDay(td.getDay() - 1); 
+    	  rangeDemoFormat = "%e-%b-%Y";
+    	  rangeDemoConv = new AnyTime.Converter({format:rangeDemoFormat});
+    	 $("#rangeDemoToday").click( function(e) {
+    	      $("#rangeDemoFinish").val(rangeDemoConv.format(new Date())).change(); } );
+    	  $("#rangeDemoClear").click( function(e) {
+    	      $("#rangeDemoStart").val("").change();
+    	      $("#rangeDemoFinish").val("").change(); } );
+    	  $("#rangeDemoStart").AnyTime_picker({format:rangeDemoFormat});
+    	  $("#rangeDemoFinish").AnyTime_picker({format:rangeDemoFormat});
+
+    	  <?php 
+    			  if (!empty($begindate) && !empty($enddate)) {
+    			
+    			  	//echo "t1 = new Date();\n";
+    			  	echo "t1 = Date.parse('".$begindate."');\n";
+    			  	//echo "t1.setTime(".$begindate.");";
+    			  	//echo "alert(rangeDemoConv.format(t1));";
+    			  	echo "$(\"#rangeDemoStart\").
+    			  		AnyTime_noPicker().\n
+    					  	val(rangeDemoConv.format(t1)).\n
+    					    AnyTime_picker(\n
+    					              { 
+    					                format: rangeDemoFormat
+    					               
+    					              } );\n";
+    			  	//echo "t1.setTime(".$enddate.");";
+    			  	echo "t1 = Date.parse('".$enddate."');\n";
+    			  	 	echo "$(\"#rangeDemoFinish\").
+    			  		AnyTime_noPicker().\n
+    					  	val(rangeDemoConv.format(t1)).\n
+    					    AnyTime_picker(\n
+    					              { 
+    					                format: rangeDemoFormat
+    					               
+    					              } );\n";
+    			  	 	
+    			  	
+    			
+    			  }
+    	?>
+    	});
     	$(function(){
     		$( "#a_c" ).autocomplete({
     			source: function( request, response ) {
@@ -135,9 +227,10 @@ if (isset($_GET['group']))
     			minLength: 1,
     			select: function( event, ui ) {
     				if(ui.item)	{    
-        				
+        				countryid = ui.item.id;
         				//alert(ui.item.id);
         				//sendAndDraw(ui.item.id,ui.item.label,ui.item.full_name);
+        				/*
         				<?php
         						echo "window.location.replace(\"";
         						echo IncFunc::$PHP_ROOT_PATH;
@@ -149,10 +242,59 @@ if (isset($_GET['group']))
         						echo "?countryid=\"+encodeURI(ui.item.id));";
         						
         				?>
+        				*/
     				}
     			}
     		});
-    		$("#a_c").keypress(function (e,ui) { 
+			$("#timeframe").change( function(e) {
+    				 /* Called when the 'preset' drop down box is changed. */
+    			    	enddate = new Date();
+    			    	begindate = new Date();
+    			    	var tmp = $("#timeframe").val();
+    			    	if (tmp == 'year')
+    			        	begindate.setMonth(enddate.getMonth() - 12);
+    			    	else if (tmp == 'custom1')
+    				    	begindate = Date.parseExact("1/20/2011", "M/d/yyyy"); 
+    			    	else if (tmp == 'month')
+    			        	begindate.setMonth(enddate.getMonth() - 1);
+    			    	else if (tmp == 'week')
+    			        	begindate.setDate(enddate.getDate() - 7);
+    			    	else if (tmp == 'day')
+    			        	begindate.setDate(enddate.getDate() - 1);
+    			    	else //tmp should == hour
+    			        	begindate = new Date(enddate - (3600 * 1000));
+    		        
+    			    	$("#rangeDemoStart").
+    				  	AnyTime_noPicker().
+    				  	//removeAttr("disabled").
+    				  	val(rangeDemoConv.format(begindate)).
+    				    AnyTime_picker(
+    				              { //earliest: dayEarlier,
+    				                format: rangeDemoFormat
+    				                //latest: ninetyDaysLater
+    				              } );
+    			    	$("#rangeDemoFinish").
+    				  	AnyTime_noPicker().
+    				  	//removeAttr("disabled").
+    				  	val(rangeDemoConv.format(enddate)).
+    				    AnyTime_picker(
+    				              { //earliest: dayEarlier,
+    				                format: rangeDemoFormat
+    				                //latest: ninetyDaysLater
+    				              } );
+    			        	
+    			        	    
+    			        	    
+    		});
+    			
+    			
+    			/*$('#dialog').dialog({autoOpen:false, title : "HELP"});
+    			$('.help').click(function(){
+    				$('#dialog').dialog('open')
+    			});*/
+    			
+
+    		/*$("#a_c").keypress(function (e,ui) { 
         		if (e.which == 13) { 
             		//yourFunction($('#yourAutoComplete').val()); return false;
             		value = $("#a_c").val();
@@ -174,7 +316,7 @@ if (isset($_GET['group']))
 					
         			//sendAndDraw(ui.item.id,ui.item.label,ui.item.full_name); 
             	} 
-        	}); 
+        	}); */
         });
 
         
@@ -183,10 +325,66 @@ if (isset($_GET['group']))
 	
         google.load('visualization', '1', {packages: ['corechart']});
         //google.load('visualization', '1', {packages: ['annotatedtimeline']});
-        google.setOnLoadCallback(function() { sendAndDraw(null) });
+        <?php
+         if (!empty($countryid))
+       	 	echo "google.setOnLoadCallback(function() { sendAndDraw(null) });\n";
+       	?>
         var firstpass = true;
         var options = {};
         var query1;
+
+        function submitForm() {
+        	//value = $("#a_c").id;
+        	value = countryid;
+
+        	var checkbox;
+
+        	
+   
+        	if ($("#checkPPP").attr("checked")==true) {
+				if ($("#checkCP").attr("checked")==true)
+					checkbox = "&gdptype=both";
+				else
+					checkbox = "&gdptype=ppp";
+					
+			}
+			else {
+				if ($("#checkCP").attr("checked")==true)
+					checkbox = "&gdptype=cp";
+				else
+					checkbox = "&gdptype=none";
+
+			}
+
+			//datebegin = (Date.parse($("#rangeDemoStart").val())).getTime();
+			datebegin = $("#rangeDemoStart").val();
+
+			//dateend = (Date.parse($("#rangeDemoFinish").val())).getTime();
+			dateend = $("#rangeDemoFinish").val();
+
+
+            
+			<?php
+			
+			echo "url=\"?title=".urlencode($title)."\";\n";
+			echo "url+=\"&countryid=\"+encodeURI(value);\n";
+			echo "url+=checkbox;\n";
+			echo "url+=\"&begindate=\"+datebegin;\n";
+			echo "url+=\"&enddate=\"+dateend;\n";
+
+			
+        	echo "window.location.replace(\"";
+			echo IncFunc::$PHP_ROOT_PATH;
+			echo "/charts/countries/linechart2.php\"+url);\n";
+			//echo urlencode($title);
+			/*
+			 * There are other javascript enocde functions: escape() and encodeURIComponent()
+			 */
+			//echo "&countryid=\"+encodeURI(value)+checkbox+\"&);";
+			?>
+
+
+        }
 
         
         function sendAndDraw(id,ticker,fullname) {
@@ -224,7 +422,15 @@ if (isset($_GET['group']))
          	options.hAxis.slantedText = true;
          	options.hAxis.slantedTextAngle = 45;
          	options['width'] = 1000;
-         	<?php echo "options.title='Comparison of GDP Growth (Actual and Estimated) to Equity Indexes for Country: ".$countryname."';";?>
+         	
+         	<?php 
+         		if ($gdptype=='ppp')
+         			$gdpstring = 'PPP';
+         		else if ($gdptype='cp')
+         			$gdpstring = 'Current Prices';
+         			
+         		echo "options.title='Comparison of GDP Growth (".$gdpstring." - Actual and Estimated) to Equity Indexes for Country: ".$countryname."';";
+         	?>
          	
             
 
@@ -237,41 +443,54 @@ if (isset($_GET['group']))
         	* metric id of zero means use the default.
         	*/
 			<?php 
-
-			echo "var queryPath = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource15multiplecountry.jsp?begindate=".$begindate;
+			//echo "alert(\"".$begindate."\");\n";
+			echo "var queryPath = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource15multiplecountry.jsp";
+			echo "?begindate='+(Date.parse('".$begindate."')).getTime()+'";
 			if (!empty($enddate))
-				echo "&enddate=".$enddate;
+				echo "&enddate='+(Date.parse('".$enddate."')).getTime()+'";
 			echo "&entityid=".$entities;
 			echo "&countryid=".$countryid;
-			echo "&taskid=".$tasks;
+			echo "&taskid=".$tasks;		
+			//echo "&gdptype=.".$gdptype;
 			echo "&metricid=".$metrics."';";
 	
 			?>
-        	title = document.getElementById('chart-title');
-			if(id != undefined){
-				//queryPath += '&entityid=' + escape(id); 
 
+	
 		
-				title.innerHTML = ticker + " - " + fullname;
-				//options.title = ticker + " - " + fullname;
+				
+			<?php 
+			if (!empty($countryid)) {
+			?>
 
-				
-			}
-			else
-			{
-				//queryPath += <?php //echo "'&entityid=".$entityid."';"; ?>
-				
-				
-				<?php 
-					while ($row = mysql_fetch_array($result)) {
-						
-						echo "title.innerHTML+='".$row['ticker']." - ".str_replace("'","&#39;",$row['full_name'])."<BR>';";
-						
-					}
-
+	        	title = document.getElementById('chart-title');
+				if(id != undefined){
+					//queryPath += '&entityid=' + escape(id); 
+	
+			
+					title.innerHTML = ticker + " - " + fullname;
+					//options.title = ticker + " - " + fullname;
+	
 					
-				?>
+				}
+				else
+				{
+					//queryPath += <?php //echo "'&entityid=".$entityid."';"; ?>
+					
+					
+					<?php 
+						while ($row = mysql_fetch_array($result)) {
+							
+							echo "title.innerHTML+='".$row['ticker']." - ".str_replace("'","&#39;",$row['full_name'])."<BR>';";
+							
+						}
+	
+						
+					?>
+				}
+			<?php 
 			}
+			?>
 
 			var chart = document.getElementById('chart-div');
             chart.innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
@@ -325,15 +544,28 @@ if (isset($_GET['group']))
 	else {
 ?>
 <div id="chartTitle" style="margin: 20px 0 0 0;font-size: medium;font-weight:bold;"><u><?php echo $title; ?></u></div>
+<div id="pf-body">
 
-    <div id="pf-form" style="margin:20px 0 0 0;font-size:15px;">
+    <div id="pf-form">
     Enter country name:
     <BR>
   	<input type='text' id='a_c' style='z-index:3' /><br/>
   	<BR>
-  
+  	<input type="radio" name="vehicle" value="checkPPP" id="checkPPP"/>&nbsp;PPP
+  	<BR>
+	<input type="radio" name="vehicle" value="checkCP" id="checkCP" />&nbsp;Current Prices
+   	<BR>
+   	Time Frame:&nbsp;&nbsp;
+Start: <input type="text" id="rangeDemoStart" size="11" />
+&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="11" />
+<!-- <input type="button" id="rangeDemoToday" value="today" /> -->
+<input type="button" id="rangeDemoClear" value="clear" />
+<BR>
+   	<input type="button" style="color: #000000;background-color: #FFFFFF" value="Display Chart"	onclick="submitForm();return false;"> <br />
+   	<BR>
+<BR>
 	<div style="font-size:30;margin: 10px 0 0 0;" id="chart-title"></div>
-	</div>
+	</div> <!--  pf-form -->
 	
 	
 
@@ -343,7 +575,7 @@ if (isset($_GET['group']))
 
  
     
-
+</div> <!--  pf-body -->
 </div> <!--  siteContain -->  
 <?php 
 	}
