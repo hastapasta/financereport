@@ -9,6 +9,9 @@
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="java.util.Formatter" %>
 <%@ page import="java.util.Locale" %>
+<%@ page import="java.util.Calendar" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.text.DateFormat" %>
 
  
 
@@ -21,7 +24,10 @@
 also pulls from log_alerts based off of either entity_id & user_id combo, or alert_id
 
 NOTE: This datasource, which also provides annotated alerts, can only handle a single entity id.
+
+
 */
+DateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd");
 
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
@@ -39,6 +45,7 @@ String strEntityId = request.getParameter("entityid");
 String strMetrics = request.getParameter("metricid");
 String strTickers = request.getParameter("tickers");
 String strTaskIds = request.getParameter("taskid");
+String strGDPType = request.getParameter("gdptype");
 
 boolean bDebug = false;
 if (request.getParameter("debug")!=null)
@@ -52,10 +59,10 @@ if (request.getParameter("debug")!=null)
 String strEndDate = request.getParameter("enddate");
 String strBeginDate = request.getParameter("begindate"); 
 
-if (strBeginDate==null) {
+/*if (strBeginDate==null) {
 	out.println("No begindate request parameter.");
 	return;
-}
+}*/
 
 /*if (strMetricId == null)
 {
@@ -71,7 +78,7 @@ if (strEntityId == null && strTickers == null) {
 
 
 
-if (!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19"))
+/*if (!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19"))
 {
 	out.println("begindate format needs to be yyyy-mm-dd");
 	return;
@@ -84,7 +91,20 @@ if (strEndDate!=null)
 		out.println("enddate format needs to be yyyy-mm-dd");
 		return;
 	}
-}
+}*/
+
+Calendar calBegin = Calendar.getInstance(); 
+Calendar calEnd = Calendar.getInstance();
+if (strBeginDate!=null)
+	calBegin.setTime(new Date(Long.parseLong(strBeginDate)));
+else
+	calBegin.setTime(formatter2.parse("2011-01-01"));
+
+
+if (strEndDate!=null)
+	calEnd.setTime(new Date(Long.parseLong(strEndDate)));
+else 
+	calEnd.setTime(formatter2.parse("2015-12-31"));
 
 /*
 * Look up the id for each ticker.
@@ -183,7 +203,7 @@ for (int i=0;i<metricIds.length;i++){
 				return;
 			
 		}
-		
+		 
 		
 		
 		
@@ -239,19 +259,14 @@ strInClause += ") ";
 //DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
 
 
-
-
-
-
-//ideally i'd like to use last() here but mysql doesn't support it - it would have to be 
-//coded by hand - so going with max() instead.
-query = "select date_format(fact_data.date_collected,'%Y-%m') as date_col, date_format(fact_data.date_collected,'%d-%H:%m:%s') as time_col, ";
-query += "fact_data.batch,fact_data.value as fdvalue,entities.ticker as ticker,date_format(fact_data.date_collected,'%Y-%m-%d') as date_col2 ";
+query = "select date_format(fact_data.date_collected,'%Y-%m') as date_col, date_format(fact_data.date_collected,'%d-%H:%i:%s') as time_col, ";
+query += "fact_data.batch_id,fact_data.value as fdvalue,entities.ticker as ticker,date_format(fact_data.date_collected,'%Y-%m-%d') as date_col2 ";
 query += " from fact_data ";
 query += "JOIN entities on fact_data.entity_id=entities.id ";
+query += "JOIN batches on fact_data.batch_id = batches.id ";
 /*if (strMetricId.equals("0"))
 	query += "JOIN entities_metrics on fact_data.entity_id=entities_metrics.entity_id ";*/
-query += " JOIN tasks on fact_data.task_id=tasks.id ";
+query += " JOIN tasks on batches.task_id=tasks.id ";
 query += " JOIN metrics on fact_data.metric_id = metrics.id ";
 query += " where (1=1) AND (";
 
@@ -267,18 +282,19 @@ for (int i=0;i<entityIds.length-2;i++) {
 
 	
 
-query += ") AND date_format(fact_data.date_collected,'%Y-%m_%d')>'" + strBeginDate + "' ";
+query += ") AND date_format(fact_data.date_collected,'%Y-%m-%d')>'" + formatter2.format(calBegin.getTime()) + "' ";
 if (strEndDate!=null && !strEndDate.isEmpty())
-	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
+	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + formatter2.format(calEnd.getTime()) + "' ";
 
 query += " UNION ";
-query += " select concat(calyear+1,'-01') as date_col, '01-00:00:00' as time_col, fact_data.batch,fact_data.value as fdvalue,'gdp' as ticker ";
+query += " select concat(calyear+1,'-01') as date_col, '01-00:00:00' as time_col, fact_data.batch_id,fact_data.value as fdvalue,'GDP' as ticker ";
 query += " ,concat(calyear+1,'-01-01') date_col2 ";
 query += " from fact_data ";
 query += " JOIN entities on fact_data.entity_id=entities.id ";
+query += " JOIN batches on fact_data.batch_id=batches.id ";
 /*if (strMetricId.equals("0"))
 	query += "JOIN entities_metrics on fact_data.entity_id=entities_metrics.entity_id ";*/
-query += " JOIN tasks on fact_data.task_id=tasks.id ";
+query += " JOIN tasks on batches.task_id=tasks.id ";
 query += " JOIN metrics on fact_data.metric_id = metrics.id ";
 query += " where (1=1) AND (";
 for (int i=entityIds.length-2;i<entityIds.length;i++) {
@@ -291,16 +307,19 @@ for (int i=entityIds.length-2;i<entityIds.length;i++) {
     query += ") ";
 } 
 
-query += ") AND concat(calyear,'-01-01')>='" + strBeginDate + "' ";
+query += ") AND concat(calyear+1,'-01-01')>='" + formatter2.format(calBegin.getTime()) + "' ";
 if (strEndDate!=null && !strEndDate.isEmpty())
-	query += " AND concat(calyear,'-01-01')<'" + strEndDate + "' ";
+	query += " AND concat(calyear,'-01-01')<'" + formatter2.format(calEnd.getTime()) + "' ";
 
+/*
+This last union section seemed superfluous. Added +1 to the calyear in the where clause in the above union section.
 query += " UNION ";
-query += "select concat(calyear+1,'-01') as date_col, '01-00:00:00' as time_col, fact_data.batch,fact_data.value as fdbalue, 'gdp' as ticker ";
+query += "select concat(calyear+1,'-01') as date_col, '01-00:00:00' as time_col, fact_data.batch_id,fact_data.value as fdbalue, 'GDP' as ticker ";
 query += " ,concat(calyear+1,'-01-01') date_col2 ";
 query += " from fact_data ";
 query += " JOIN entities on fact_data.entity_id=entities.id ";
-query += " JOIN tasks on fact_data.task_id=tasks.id ";
+query += " JOIN batches on fact_data.batch_id=batches.id ";
+query += " JOIN tasks on batches.task_id=tasks.id ";
 query += " JOIN metrics on fact_data.metric_id = metrics.id ";
 query += " where (1=1) AND (";
 for (int i=entityIds.length-2;i<entityIds.length;i++) {
@@ -313,6 +332,7 @@ for (int i=entityIds.length-2;i<entityIds.length;i++) {
     query += ") ";
 } 
 query += ") AND calyear+1=year('" + strBeginDate + "')";
+*/
 query += " order by date_col ASC ,ticker ASC, time_col ASC";
 
 
@@ -373,7 +393,7 @@ finally
 
 int[] tmpArray = {0,1};
 
-
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
 
 
 arrayListRows = PopulateSpreadsheet.getFirstGroupBy(arrayListRows,tmpArray);
@@ -385,6 +405,29 @@ arrayListRows = PopulateSpreadsheet.removeLastColumn(arrayListRows);
 
 
 arrayListRows = PopulateSpreadsheet.pivotRowsToColumnsArrayList(arrayListRows);
+
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
+
+String[] tmp2 = arrayListRows.get(0).clone();
+
+arrayListRows =  PopulateSpreadsheet.fillDateSeries(arrayListRows,formatter2.format(calBegin.getTime()),formatter2.format(calEnd.getTime()),0);
+
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return;
+
+for (int k=0;k<entityIds.length-1;k++) {
+	arrayListRows = PopulateSpreadsheet.removeColumn(arrayListRows,1);
+	
+}
+
+
+/*
+* Because fillDateSeries does a left outer join, the first row (the column headers) of arrayListRows
+* gets dropped. The following line puts it back in.
+*/
+
+arrayListRows.add(0,tmp2);
+
+
 
 //out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
 
