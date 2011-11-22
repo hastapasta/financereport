@@ -21,9 +21,35 @@ class db_utility
 	
 	}
 	
+	static public function setDatabase($db) {
+		self::$functions_database = $db;
+	}
+	
 	static public function get_database()
 	{
 		return(self::$functions_database);
+	}
+	
+	function maketable($query, $fieldarray){
+	//count number of columns
+	 $columns = count($fieldarray);
+	//run the query
+	 $result = mysql_query($query) or die(mysql_error()) ;
+	 $itemnum = mysql_num_rows($result);
+	 echo "<tr>";
+	 for($x = 0; $x < $columns; $x++){
+	    echo "<th>" .$fieldarray[$x]. "</th>" ;
+	   }
+	  echo "</tr>";
+	 if($itemnum > 0){
+	  do{
+	   echo "<tr>" ;
+	   for($x = 0; $x < $columns; $x++){
+	    echo "<td>" .$items[$fieldarray[$x]]. "</td>" ;
+	   }
+	   echo "</tr>" ;
+	  }while($items = mysql_fetch_assoc($result));
+	 }
 	}
 }
 
@@ -84,6 +110,26 @@ function wl($the_string)
 	fclose( $fi );
 }
 
+function get_entity_group_list($entitygroup)
+{
+	$list = $entitygroup;
+	
+	$query = "select * from entity_groups where parent_id=".$entitygroup;
+	
+	$result = mysql_query($query);
+	
+	while($row = mysql_fetch_assoc($result))
+	{
+		//strList += "," + getEntityGroupList(dbf.rs.getInt("id") + "");
+		$list.=",".get_entity_group_list($row['id']);
+	}
+	
+	return($list);
+	
+	
+	
+}
+
 
 
 function get_data($url,$form_properties)
@@ -92,11 +138,12 @@ function get_data($url,$form_properties)
 /* IF CURL_EXEC RETURNS NOTHING and no errors are being generated, check
 the selinux configuration or disable selinux completely.*/
 
-	$timeout = 5;
+	$timeout = 20;
 	wl("in get data");
 	 wl("url:".$url);
-  if ($form_properties == "")
-  {
+	 
+	if ($form_properties == "")
+	{
 	  $ch = curl_init();
 	  wl("no form properties");
 	 
@@ -119,12 +166,11 @@ the selinux configuration or disable selinux completely.*/
 		curl_setopt($ch, CURLOPT_POSTFIELDS    ,POSTVARS);
 		curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
 	  curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
-		
-		
-		
-				
+
 				 
 		}
+		
+		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
 
 		wl("Still here");
 		curl_error($ch);
