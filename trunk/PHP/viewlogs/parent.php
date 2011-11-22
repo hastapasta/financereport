@@ -2,7 +2,11 @@
 <body>
 
 
-<table>
+<table cellpadding="30">
+<tr><td>
+<a href="./displayjobqueue.php">Job Queue</a>
+</td>
+</tr>
 <tr><td>
 <a href="./displaylog.php?log=log4jError.log">Error Logs (backward)</a>
 </td><td>
