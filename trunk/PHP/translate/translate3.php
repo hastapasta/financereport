@@ -1,6 +1,6 @@
 <?php
 
-include ("../../site/includes/sitecommon.php");
+include ("../site/includes/sitecommon.php");
 
 ?>
 
@@ -9,6 +9,8 @@ include ("../../site/includes/sitecommon.php");
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <?php IncFunc::jQuery();?>
+
+
 <script>
 $(document).ready(function() {
 <?php 
@@ -20,9 +22,10 @@ if(isset($_POST['submit_msg'])) {
 
 
 
+
 ?>
 
-}
+});
 </script>
 </head>
 
@@ -37,7 +40,7 @@ if (isset($_POST['val1'])) {
 	db_utility::setDatabase("translate");
 	db_utility::db_connect();
 	$query1 = "insert into fact_data (text_original,text_translate,date_collected) values ";
-	$query1.= "('".$_POST['val1']."','".$_POST['val2']."',NOW())";
+	$query1.= "('".str_replace('\'','\\\'',$_POST['val1'])."','".str_replace('\'','\\\'',$_POST['val2'])."',NOW())";
 	$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
 	echo "New translation was published.<BR>";
 	echo "val1: ".$_POST['val1']."<BR>";
