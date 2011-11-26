@@ -43,12 +43,17 @@ ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 
 
 
-String query = "(select name,(calyear*10+calquarter) as cyq,value,batch ";
+/*String query2 = "(select name,(calyear*10+calquarter) as cyq,value,batch_id ";
+query2 += " from fact_data,metrics ";
+query2 += " where metric_id=4 and entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id) ";
+query2 += " union ";
+query2 += " (select name,(calyear*10+calquarter) as cyq,value,batch_id ";
+query2 += " from fact_data,metrics where metric_id=5 and entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id) ";
+query2 += " order by cyq asc,name";*/
+
+String query = "(select name,(calyear*10+calquarter) as cyq,value,batch_id ";
 query += " from fact_data,metrics ";
-query += " where metric_id=4 and entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id) ";
-query += " union ";
-query += " (select name,(calyear*10+calquarter) as cyq,value,batch ";
-query += " from fact_data,metrics where metric_id=5 and entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id) ";
+query += " where (metric_id=4 or metric_id=5) and entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id) ";
 query += " order by cyq asc,name";
 
 ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
@@ -63,7 +68,7 @@ try
 		tmp[0] = dbf.rs.getString("cyq");
 		tmp[1] = dbf.rs.getString("name");
 		tmp[2] = dbf.rs.getString("value");
-		tmp[3] = dbf.rs.getString("batch");
+		tmp[3] = dbf.rs.getString("batch_id");
 				
 		
 		arrayListRows.add(tmp);
