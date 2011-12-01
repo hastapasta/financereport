@@ -9,6 +9,7 @@ $begindate = $_GET['begindate'];
 $enddate = $_GET['enddate'];
 
 
+
 $timeframe="hour";
 if (isset($_GET['timeframe']))
 	$timeframe = strtolower($_GET['timeframe']);
@@ -69,7 +70,7 @@ if (isset($_GET['metricid']))
 
 	  <?php 
 	  if (!empty($begindate) && !empty($enddate)) {
-	
+	  		
 	  	echo "t1 = new Date();\n";
 	  	echo "t1.setTime(".$begindate.");";
 	  	//echo "alert(rangeDemoConv.format(t1));";
@@ -81,7 +82,13 @@ if (isset($_GET['metricid']))
 			                format: rangeDemoFormat
 			               
 			              } );\n";
-	  	echo "t1.setTime(".$enddate.");";
+	  	if (strtoupper($enddate) == 'CURRENT') {
+	  		echo "t1 = new Date();\n";
+	  	}
+	  	else {
+	  		echo "t1.setTime(".$enddate.");";
+	  	}
+	  	
 	  	 	echo "$(\"#rangeDemoFinish\").
 	  		AnyTime_noPicker().\n
 			  	val(rangeDemoConv.format(t1)).\n
@@ -103,6 +110,7 @@ if (isset($_GET['metricid']))
 	$(function(){
 
 		 $("#timeframe").change( function(e) {
+			 /* Called when the 'preset' drop down box is changed. */
 		    	enddate = new Date();
 		    	begindate = new Date();
 		    	var tmp = $("#timeframe").val();
@@ -165,7 +173,7 @@ if (isset($_GET['metricid']))
 </script>
 <?php IncFunc::icon();?>
 <?php IncFunc::title();?>
-<link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
+<?php IncFunc::linkStyleCSS();?>
 <?php //IncFunc::yuiDropDownJavaScript(); ?>
 <?php IncFunc::googleGadget(); ?>
 
@@ -278,7 +286,7 @@ if (isset($_GET['metricid']))
       /*
       * The [8] parameter is what is used to hide the data column index.
       */
-      var queryWrapper1 = new QueryWrapper(query1, tableChart1, options, container1,[8]);
+      var queryWrapper1 = new QueryWrapper(query1, tableChart1, options, container1,[8,9],3);
       google.visualization.events.addListener(tableChart1, 'select', function(event){
     	  genericClickHandler(tableChart1,queryWrapper1);
 
@@ -306,13 +314,14 @@ if (isset($_GET['metricid']))
 	IncFunc::yuiDropDownMenu();
 
 ?>
+<div id="pf-body">
 
 
 
 
 <br/>
 <div id="chartTitle" style="font-size: medium;font-weight:bold;"><u><?php echo $title ?></u></div>
-<div id="pf-form" style="text-align:left;font-size:1.5em;">
+<div id="pf-form">
 
 <BR>
 Time Frame:&nbsp;&nbsp;
@@ -341,7 +350,6 @@ Start: <input type="text" id="rangeDemoStart" size="22" />
 
 <input type="button" style="color: #000000;background-color: #FFFFFF" value="Display Table"	onclick="sendAndDraw();return false;"> <br />
 <br />
-<br />
 </div><!-- pf-form -->
 
 <div id="tmp1" style="float: left;margin-bottom: 20px">
@@ -354,6 +362,7 @@ Start: <input type="text" id="rangeDemoStart" size="22" />
 <br>
 <input type="button" style="float: left;clear: both;color: #000000;background-color: #FFFFFF" value="Generate URL"
 	onclick="generateURL();return false;"> <br />
+</div> <!--  pf-body -->
 
 </div> <!--  font-black -->
 
