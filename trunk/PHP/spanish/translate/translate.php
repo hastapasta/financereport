@@ -44,7 +44,7 @@ This is an example web page. You can preview and test the website translator her
 <p>
 
 This is some text.
-</div>
+
 Esta es una página web de ejemplo. Puedes obtener una vista previa de la página y probar el traductor de sitios web desde aquí. Prueba a cambiar las opciones anteriores y haz clic en el botón "Obtener vista previa y probar" para ver cómo queda la página. Por ejemplo, si seleccionas idiomas de traducción específicos, los idiomas del menú desplegable cambiarán. ¡No esperes para probar!
 
 
