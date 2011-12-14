@@ -18,9 +18,19 @@ $order = "ASC";
 if (isset($_GET['order']))
 	$order = $_GET['order'];
 
-$title="";
+/*$title="";
 if (isset($_GET['title']))
-	$title=urldecode($_GET['title']);
+	$title=urldecode($_GET['title']);*/
+	
+$title="";
+if ($entitygroupid==3)
+	$title = "Global Forex";
+else if ($entitygroupid==4)
+	$title = "Commodity Futures";
+else if ($entitygroupid==5)
+	$title = "Global Equity Indexes";
+else if ($entitygroupid==1008)
+	$title = "Global Equity Index Futures";
 	
 $metricid="1";
 if (isset($_GET['metricid']))
