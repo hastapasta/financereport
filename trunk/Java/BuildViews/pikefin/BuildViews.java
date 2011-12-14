@@ -29,6 +29,9 @@ import pikefin.CustomInvalidInputException;
 public class BuildViews {
 	
 	static UtilityFunctions uf;
+	
+	static String strJSPHost = "www.pikefin.com/testjsp/JSPDataSource/";
+	//static String strJSPHost = "localhost:8080/JSPDataSource/";
 
 	/**
 	 * @param args
@@ -73,14 +76,14 @@ public class BuildViews {
 	
 	public static void mysqldatasource7() {
 		
-		String strURL = "http://devdataload:8080/JSPDataSource//mysqldatasource7.jsp?metricid=2&filename=gdpmotion";
+		String strURL = "http://" + strJSPHost + "mysqldatasource7.jsp?metricid=2&filename=gdpmotion";
 		BuildViews.issueURL(strURL);
 		
 	}
 	
 	public static void mysqldatasource12() {
 		
-		String strURL = "http://devdataload:8080/JSPDataSource//mysqldatasource7.jsp?metricid=2&filename=gdpmotion";
+		String strURL = "http://" + strJSPHost + "mysqldatasource7.jsp?metricid=2&filename=gdpmotion";
 		BuildViews.issueURL(strURL);
 		
 	}
@@ -96,7 +99,7 @@ public class BuildViews {
 		
 			
 		for (int i=0;i<4;i++) {
-			baseurl = "http://devdataload:8080/JSPDataSource/mysqldatasource2eh2.jsp?topmovers=8&timeframe=day&order=DESC";
+			baseurl = "http://" + strJSPHost + "mysqldatasource2eh2.jsp?topmovers=8&timeframe=day&order=DESC";
 			switch (i) {
 			
 			case 0: 
