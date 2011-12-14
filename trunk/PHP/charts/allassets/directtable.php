@@ -46,67 +46,7 @@ if (isset($_GET['metricid']))
 
 <script>
    
-	$(document).ready(function() {
-		var oneDay = 24*60*60*1000;
-		var td = new Date();
-		td.setDate(td.getDate() - 1);
-		td.setMonth(td.getMonth() - 1);
-		td.setMonth(td.getMonth() - 12);
-		//var fromDay = td.setDay(td.getDay() - 1); 
-	  rangeDemoFormat = "%e-%b-%Y %H:%i:%s";
-	  rangeDemoConv = new AnyTime.Converter({format:rangeDemoFormat});
-	 $("#rangeDemoToday").click( function(e) {
-	      $("#rangeDemoFinish").val(rangeDemoConv.format(new Date())).change(); } );
-	  $("#rangeDemoClear").click( function(e) {
-	      $("#rangeDemoStart").val("").change();
-	      $("#rangeDemoFinish").val("").change(); } );
-	  $("#rangeDemoStart").AnyTime_picker({format:rangeDemoFormat});
-	  $("#rangeDemoFinish").AnyTime_picker({format:rangeDemoFormat});
-
-	  //t1 = new Date();
-	  //t1.setTime(1313290898000);
-	  //t1 = Date.parse(1313290898000);
-	  //alert(t1);
-
-	  <?php 
-	  if (!empty($begindate) && !empty($enddate)) {
-	  		
-	  	echo "t1 = new Date();\n";
-	  	echo "t1.setTime(".$begindate.");";
-	  	//echo "alert(rangeDemoConv.format(t1));";
-	  	echo "$(\"#rangeDemoStart\").
-	  		AnyTime_noPicker().\n
-			  	val(rangeDemoConv.format(t1)).\n
-			    AnyTime_picker(\n
-			              { 
-			                format: rangeDemoFormat
-			               
-			              } );\n";
-	  	if (strtoupper($enddate) == 'CURRENT') {
-	  		echo "t1 = new Date();\n";
-	  	}
-	  	else {
-	  		echo "t1.setTime(".$enddate.");";
-	  	}
-	  	
-	  	 	echo "$(\"#rangeDemoFinish\").
-	  		AnyTime_noPicker().\n
-			  	val(rangeDemoConv.format(t1)).\n
-			    AnyTime_picker(\n
-			              { 
-			                format: rangeDemoFormat
-			               
-			              } );\n";
-	  	 	
-	  	 echo "sendAndDraw();\n";
 	
-	  }
-	  
-	  		
-	  ?>
-
-				
-	});
 	$(function(){
 
 		 $("#timeframe").change( function(e) {
@@ -158,6 +98,81 @@ if (isset($_GET['metricid']))
 		
 	});
 
+	$(document).ready(function() {
+		var oneDay = 24*60*60*1000;
+		var td = new Date();
+		td.setDate(td.getDate() - 1);
+		td.setMonth(td.getMonth() - 1);
+		td.setMonth(td.getMonth() - 12);
+		//var fromDay = td.setDay(td.getDay() - 1); 
+	  rangeDemoFormat = "%e-%b-%Y %H:%i:%s";
+	  rangeDemoConv = new AnyTime.Converter({format:rangeDemoFormat});
+	 $("#rangeDemoToday").click( function(e) {
+	      $("#rangeDemoFinish").val(rangeDemoConv.format(new Date())).change(); } );
+	  $("#rangeDemoClear").click( function(e) {
+	      $("#rangeDemoStart").val("").change();
+	      $("#rangeDemoFinish").val("").change(); } );
+	  $("#rangeDemoStart").AnyTime_picker({format:rangeDemoFormat});
+	  $("#rangeDemoFinish").AnyTime_picker({format:rangeDemoFormat});
+
+	 
+	
+	  //t1 = new Date();
+	  //t1.setTime(1313290898000);
+	  //t1 = Date.parse(1313290898000);
+	  //alert(t1);
+
+	  <?php 
+	  if (!empty($begindate) && !empty($enddate)) {
+	  		
+	  	echo "t1 = new Date();\n";
+	  	echo "t1.setTime(".$begindate.");";
+	  	//echo "alert(rangeDemoConv.format(t1));";
+	  	echo "$(\"#rangeDemoStart\").
+	  		AnyTime_noPicker().\n
+			  	val(rangeDemoConv.format(t1)).\n
+			    AnyTime_picker(\n
+			              { 
+			                format: rangeDemoFormat
+			               
+			              } );\n";
+	  	if (strtoupper($enddate) == 'CURRENT') {
+	  		echo "t1 = new Date();\n";
+	  	}
+	  	else {
+	  		echo "t1.setTime(".$enddate.");";
+	  	}
+	  	
+	  	 	echo "$(\"#rangeDemoFinish\").
+	  		AnyTime_noPicker().\n
+			  	val(rangeDemoConv.format(t1)).\n
+			    AnyTime_picker(\n
+			              { 
+			                format: rangeDemoFormat
+			               
+			              } );\n";
+	  	 	
+	  	 echo "sendAndDraw();\n";
+	
+	  }
+	  else if (!empty($timeframe)) {
+		echo  "$(\"#timeframe\").val('".$timeframe."');\n";
+		/*
+		 * Trigger has to appear in file after the event handler function!
+		 */
+		echo "$(\"#timeframe\").trigger('change');\n";
+		echo "sendAndDraw();\n";
+
+	  } 
+	  ?>
+	
+	  
+	  		
+	 
+
+				
+	});
+
 	function generateURL() {
 		var rangeDemoStart = document.getElementById('rangeDemoStart');
 	    var rangeDemoFinish = document.getElementById('rangeDemoFinish');
@@ -177,13 +192,13 @@ if (isset($_GET['metricid']))
 <?php //IncFunc::yuiDropDownJavaScript(); ?>
 <?php IncFunc::googleGadget(); ?>
 
-<script type="text/javascript">
+<script>
 
-	$(document).ready(function(){
+	/*$(document).ready(function(){
 	   // Your code here
 		$("#timeframe").val(<?php echo "'".$timeframe."'"?>);
 		
-	 });
+	 });*/
     google.load('visualization', '1', {'packages' : ['table']});
     //google.setOnLoadCallback(function() { sendAndDraw('') });
     var firstpass = true;
@@ -304,7 +319,7 @@ if (isset($_GET['metricid']))
  
  
 
-  
+<?php IncFunc::googleAnalytics();?>
 </head>
 
 <body>
