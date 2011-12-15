@@ -60,18 +60,21 @@ public class Alerts {
 			query += "alerts.auto_reset_period,alerts.auto_reset_fired,alerts.fired,";
 			//query += "alerts.email_alert,alerts.twitter_alert,";
 			//query += " alert_targets.type, ";
-			query += "entities.ticker,entities.id,entities.full_name,";
+			query += "entities.ticker,entities.id,entities.full_name, entities.hash, ";
 			//query += "users.id,users.username,users.max_notifications,users.email,users.bulk_email,";
 			query += "users.id, ";
 			query += "fact_data.value,fact_data.id,fact_data.date_collected,";
 			query += "time_events.id,time_events.name,time_events.next_datetime,time_events.last_datetime, ";
-			query += "tasks.metric_id ";
+			query += "tasks.metric_id, ";
+			query += "countries.hash ";
 			query += "from alerts ";
 			query += "LEFT JOIN entities ON alerts.entity_id=entities.id ";
 			query += "LEFT JOIN users ON alerts.user_id=users.id ";
 			query += "LEFT JOIN fact_data ON alerts.initial_fact_data_id=fact_data.id ";
 			query += "LEFT JOIN time_events ON alerts.time_event_id=time_events.id ";
 			query += "LEFT JOIN tasks ON alerts.task_id=tasks.id ";
+			query += "LEFT JOIN countries_entities ON countries_entities.entity_id=entities.id ";
+			query += "LEFT JOIN countries ON countries.id=countries_entities.country_id ";
 			//query += " LEFT JOIN alerts_alert_targets on alerts_alert_targets.alert_id=alerts.id ";
 			//query += " LEFT JOIN alert_targets on alerts_alert_targets.alert_target_id=alert_targets.id ";
 			query += "where alerts.task_id=" + nCurTask;
@@ -409,17 +412,62 @@ public class Alerts {
 										/*
 										 * Figure out if this alert represents an actual stock ticker. If so, then use the $ tag; otherwise use the # tag.
 										 */
-										  
-										String tmpQuery = "select * from entities_entity_groups where entity_id=" + hmAlert.get("entities.id") + " AND entity_group_id=1";
+										String tmpQuery = "select entity_group_id from entities_entity_groups where entity_id=" + hmAlert.get("entities.id");
+										tmpQuery += " AND entity_group_id in (1,3,4,5,1008) ";
 										  
 										ResultSet rs10 = dg.dbf.db_run_query(tmpQuery);
-								
-										if (rs10.next())
-											strTweet += " $" + strTicker;
-										else {
-											String strTmp = strTicker.replace(" ","").replace("(","").replace(")","").replace(".", "").replace("-", "").replace("#", "").replace("&", "and");
-											strTweet += " #" + strTmp;
+										
+										if (rs10.next()) {
+											switch (rs10.getInt("entity_group_id")) {
+												
+												/* S&P 500 */
+												case 1:
+													strTweet += " $" + strTicker;
+													break;
+													
+												/* Forex */
+												case 3:
+													strTweet += " #" + strTicker;
+													break;
+												
+												/* Global Equity Index Futures */
+												/* Global Equity Indexes */
+												case 1008:
+												case 5:
+													if (hmAlert.get("countries.hash") != null) {
+														if (!hmAlert.get("countries.hash").isEmpty()) {
+															strTweet += " " + hmAlert.get("countries.hash");
+														}
+													}
+													if (rs10.getInt("entity_group_id")==1008)
+														strTweet += " #Futures";
+													break;
+												
+												
+												/* Commodity Futures */
+												case 4:
+													break;
+													
+												default:
+													//should never get here.
+													break;
+												
+											}
+											
+											
+											
 										}
+										
+										if (hmAlert.get("entities.hash") != null) {
+											if (!hmAlert.get("entities.hash").isEmpty()) {
+												strTweet += " " + hmAlert.get("entities.hash");
+											}
+										}
+										
+										
+								
+								
+										
 												  
 										String strTweetLimitQuery="select count(log_tweets.id) as cnt from log_tweets ";
 										strTweetLimitQuery += " join alerts on log_tweets.alert_id=alerts.id ";
