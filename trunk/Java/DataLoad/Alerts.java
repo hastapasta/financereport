@@ -19,7 +19,7 @@ public class Alerts {
 	/*
 	 * 
 	 * PLEASE READ THIS!!!!
-	 * Notes on Boolean.parseBoolean(String) - There is an issue with using this method since if the String parameter
+	 * Notes on Boolean.parseBoolean(String) - There is an issue with using this method. If the String parameter
 	 * is null, parseBoolean accepts it and returns false. This can cause a problem in a line like the following:
 	 *  boolean bAutoResetPeriod = Boolean.parseBoolean(hmAlert.get("alerts.auto_reset_period"));
 	 *  
@@ -58,9 +58,11 @@ public class Alerts {
 			query = "select alerts.disabled,alerts.id,alerts.initial_fact_data_id,";
 			query += "alerts.notification_count,alerts.user_id,alerts.limit_value,";
 			query += "alerts.auto_reset_period,alerts.auto_reset_fired,alerts.fired,";
-			query += "alerts.email_alert,alerts.twitter_alert,";
+			//query += "alerts.email_alert,alerts.twitter_alert,";
+			//query += " alert_targets.type, ";
 			query += "entities.ticker,entities.id,entities.full_name,";
-			query += "users.id,users.username,users.max_notifications,users.email,users.bulk_email,";
+			//query += "users.id,users.username,users.max_notifications,users.email,users.bulk_email,";
+			query += "users.id, ";
 			query += "fact_data.value,fact_data.id,fact_data.date_collected,";
 			query += "time_events.id,time_events.name,time_events.next_datetime,time_events.last_datetime, ";
 			query += "tasks.metric_id ";
@@ -70,6 +72,8 @@ public class Alerts {
 			query += "LEFT JOIN fact_data ON alerts.initial_fact_data_id=fact_data.id ";
 			query += "LEFT JOIN time_events ON alerts.time_event_id=time_events.id ";
 			query += "LEFT JOIN tasks ON alerts.task_id=tasks.id ";
+			//query += " LEFT JOIN alerts_alert_targets on alerts_alert_targets.alert_id=alerts.id ";
+			//query += " LEFT JOIN alert_targets on alerts_alert_targets.alert_target_id=alert_targets.id ";
 			query += "where alerts.task_id=" + nCurTask;
 			query += " order by time_events.id";
 			  
@@ -137,8 +141,11 @@ public class Alerts {
 					boolean bAutoResetPeriod = customParseBoolean(hmAlert.get("alerts.auto_reset_period"));
 					boolean bAutoResetFired = customParseBoolean(hmAlert.get("alerts.auto_reset_fired"));
 					boolean bAlreadyFired = customParseBoolean(hmAlert.get("alerts.fired"));
-					boolean bEmailAlert = customParseBoolean(hmAlert.get("alerts.email_alert"));
-					boolean bTwitterAlert = customParseBoolean(hmAlert.get("alerts.twitter_alert"));
+					/*
+					 * These settings are obsolete. Replace with alert_targets.type field.
+					 */
+					//boolean bEmailAlert = customParseBoolean(hmAlert.get("alerts.email_alert"));
+					//boolean bTwitterAlert = customParseBoolean(hmAlert.get("alerts.twitter_alert"));
 					  
 					if ((hmCurFactData.get(nEntityId+"") == null)) {
 						UtilityFunctions.stdoutwriter.writeln("No recent fact data collected for ticker: " + strTicker  + ", batch: " + nMaxBatch + ",alert id: "+ nAlertId + ",entity id: " + nEntityId + ". Skipping alert processing",Logs.WARN,"A2.7358");
@@ -218,6 +225,7 @@ public class Alerts {
 						/*
 						 * We're past the end of the time period so don't do anything else and proceed to the next alert.
 						 */
+						
 						continue;
 					}
 			
@@ -254,14 +262,15 @@ public class Alerts {
 					}
 					  
 					
-					if (hmAlert.get("users.email") == null) {
+					/*if (hmAlert.get("users.email") == null) {
 						UtilityFunctions.stdoutwriter.writeln("Id " + nUserId + " not found in users table.",Logs.WARN,"A2.738");
 						UtilityFunctions.stdoutwriter.writeln("Problem occured processing task: " + strTaskName + ",entity_id: " + nEntityId + ",ticker: " + strTicker,Logs.WARN,"A2.739");
 						continue;
-					}
+					}*/
 					  
-					String strEmail = hmAlert.get("users.email");
-					int nMaxNotifications = Integer.parseInt(hmAlert.get("users.max_notifications"));
+					//String strEmail = hmAlert.get("users.email");
+					
+					int nMaxNotifications = 1;
 					  
 					boolean bEmailSent = false;
 					  
@@ -272,133 +281,218 @@ public class Alerts {
 					 * 
 					 */
 			
+				
 					if ((dChange.abs().compareTo(bdLimitValue) > 0) && (bAlreadyFired == false))  {
+					 
+					//if (dChange.abs().compareTo(bdLimitValue) < 100) {
+				
 							
-						/*String strQuery10 = "select * from alerts_alerts_targets where alert_id=" + nAlertId;
+						String strQuery20 = "select alert_targets.*,security_accounts.* from alerts_alert_targets ";
+						strQuery20 += " JOIN alert_targets on alerts_alert_targets.alert_target_id=alert_targets.id ";
+						strQuery20 += " LEFT JOIN security_accounts on alert_targets.security_account_id=security_accounts.id ";
+						strQuery20 += " where alert_id=" + nAlertId;
 						  
-						ResultSet rs10 = dg.dbf.db_run_query(strQuery10);*/
-								  
-
-								  
-						if (bEmailAlert == true && hmAlert.get("users.bulk_email").toUpperCase().equals("FALSE")) {
-								  
-							if (nNotificationCount<nMaxNotifications)  {
-								String strMsg;
-								strMsg = "ALERT\r\n";
-										  
-								if (strTicker != null && !(strTicker.isEmpty()))
-									strMsg += "Entity: " + strTicker;				  
-									
-								if (hmAlert.get("tasks.metric_id").equals("11"))
-									  strMsg += " (Futures)";
-								strMsg += "\r\n";
-										  
-								//Get the full ticker description
-										
-										  
-								if (hmAlert.get("entities.full_name") != null)
-									strMsg = strMsg + "Full Description: " + hmAlert.get("entities.full_name") +" \r\n";
-								else
-									strMsg = strMsg + "Full Description: \r\n";
-										  
-										  
-								strMsg = strMsg + "Task: " + strTaskDescription + "\r\n";
-								strMsg = strMsg + "Amount: " + dChange.multiply(new BigDecimal(100)).toString() + "%\r\n";
-								strMsg = strMsg + "Current Value : " + dJustCollectedValue.toString() + "\r\n";
-								strMsg = strMsg + "Previous Value: " + dInitialFactDataValue.toString() + "\r\n";
-										
-										 
-										  
-								SimpleDateFormat sdf = new SimpleDateFormat("MMM d,yyyy HH:mm:ss Z");
-
-								 
-							
-								strMsg = strMsg + "Current Timestamp : " + sdf.format(calJustCollected.getTime()) + "\r\n";
-								strMsg = strMsg + "Previous Timestamp: " + sdf.format(calInitialFactDataCollected.getTime()) + "\r\n";
-								
+						ResultSet rs20 = dg.dbf.db_run_query(strQuery20);
 						
-								strMsg += "Observation Period End: " + sdf.format(calObservationPeriodEnd.getTime()) + "\r\n";
-								strMsg += "Observation Period Begin: " + sdf.format(calObservationPeriodBegin.getTime()) + "\r\n";
-								 
-								  
-								strMsg += "Chart: " + (String)DataLoad.props.getProperty("phpbaseurl") + "charts/allassets/linechart.php?a=" + nAlertId + "\r\n";
-										  
-								//Add link for Increase Alert Limit form
-								strMsg = strMsg + "Modify/View Alert Properties: " + (String)DataLoad.props.getProperty("cakebaseurl") + "alerts/edit?alert=" + nAlertId;
-								  
-								String strSubject = (String)DataLoad.props.get("subjecttext") + " : " + strTicker + " : " + hmAlert.get("time_events.name") + " Observation Period";
-								  
-								//Emails and Tweets are globally disabled for testing
-								if (DataLoad.bDisableEmails == false)  {
-									UtilityFunctions.mail(strEmail,strMsg,strSubject,(String)DataLoad.props.get("fromaddy"));
-								}
-								  
-								String query9 = "update alerts set notification_count=" + (nNotificationCount+1) + " where id=" + nAlertId;
-								  
-								dg.dbf.db_update_query(query9);
-								  
-								bEmailSent = true;
-							}
-						}
-								  
-						if (bTwitterAlert == true)  {
-							dChange = dChange.multiply(new BigDecimal(100)).setScale(2);
-							String strTweet = dChange.toString() + "% ";
-							strTweet += hmAlert.get("time_events.name");
-							  
-							if (hmAlert.get("tasks.metric_id").equals("11"))
-								 strTweet += " Futures";
-							strTweet += " move in " + strTicker;
-							if (hmAlert.get("entities.full_name") != null)
-								strTweet += " (" + hmAlert.get("entities.full_name") + ")";
-									  
+						while (rs20.next()) {
+							
+							int nTargetType = rs20.getInt("type");
+							
+							
+							switch (nTargetType) {
+
+
+								case 1:
+									/*
+									 * Email notification.
+									 */
 									
-									  
-									  
-							String strUrl = (String)DataLoad.props.getProperty("phpbaseurl") + "charts/allassets/linechart.php?a=" + nAlertId;
-							  
-							//Emails and Tweets are globally disabled for testing
-							if (DataLoad.bDisableEmails == false)  {
-									  
-								strTweet += " " + UtilityFunctions.shortenURL(strUrl);
-								  
-								  
-								  
-								/*
-								 * Figure out if this alert represents an actual stock ticker. If so, then use the $ tag; otherwise use the # tag.
-								 */
-								  
-								String tmpQuery = "select * from entities_entity_groups where entity_id=" + hmAlert.get("entities.id") + " AND entity_group_id=1";
-								  
-								ResultSet rs10 = dg.dbf.db_run_query(tmpQuery);
-								  
-								if (rs10.next())
-									strTweet += " $" + strTicker;
-								else {
-									String strTmp = strTicker.replace(" ","").replace("(","").replace(")","").replace(".", "").replace("-", "").replace("#", "").replace("&", "and");
-									strTweet += " #" + strTmp;
-								}
-										  
-								//strTweet += " $$";
-								  
-								String strErrorMsg = UtilityFunctions.tweet(strTweet);
-								  
-								try {
-									String strTweetLogQuery = "insert into log_tweets (datetime,message,alert_id,error_message) ";
+									nMaxNotifications = rs20.getInt("max_notifications");
+
 								
-									strTweetLogQuery += " values (NOW(),'" + (strTweet.length()>140?strTweet.substring(0,140):strTweet) + "'," + hmAlert.get("alerts.id");
-									if (strErrorMsg.isEmpty())
-										strTweetLogQuery += ",null)";
-									else
-										strTweetLogQuery += ",'" + (strErrorMsg.length()>200?strErrorMsg.substring(0,200):strErrorMsg) + "')";
-									dg.dbf.db_update_query(strTweetLogQuery);
-								} 
-								catch (SQLException sqle) {
-									UtilityFunctions.stdoutwriter.writeln("Issue inserting into log_tweets",Logs.ERROR,"A4.6");
-									UtilityFunctions.stdoutwriter.writeln(sqle);
-								}
+									
+									/*
+									 * Need to check the bulk_email for each alert_target
+									 */
+									if (rs20.getInt("bulk_email")==0) {
+											  
+										if (nNotificationCount<nMaxNotifications)  {
+											String strMsg;
+											strMsg = "ALERT\r\n";
+													  
+											if (strTicker != null && !(strTicker.isEmpty()))
+												strMsg += "Entity: " + strTicker;				  
+												
+											if (hmAlert.get("tasks.metric_id").equals("11"))
+												  strMsg += " (Futures)";
+											strMsg += "\r\n";
+													  
+											//Get the full ticker description
+													
+													  
+											if (hmAlert.get("entities.full_name") != null)
+												strMsg = strMsg + "Full Description: " + hmAlert.get("entities.full_name") +" \r\n";
+											else
+												strMsg = strMsg + "Full Description: \r\n";
+													  
+													  
+											strMsg = strMsg + "Task: " + strTaskDescription + "\r\n";
+											strMsg = strMsg + "Amount: " + dChange.multiply(new BigDecimal(100)).toString() + "%\r\n";
+											strMsg = strMsg + "Current Value : " + dJustCollectedValue.toString() + "\r\n";
+											strMsg = strMsg + "Previous Value: " + dInitialFactDataValue.toString() + "\r\n";
+													
+													 
+													  
+											SimpleDateFormat sdf = new SimpleDateFormat("MMM d,yyyy HH:mm:ss Z");
+			
+											 
+										
+											strMsg = strMsg + "Current Timestamp : " + sdf.format(calJustCollected.getTime()) + "\r\n";
+											strMsg = strMsg + "Previous Timestamp: " + sdf.format(calInitialFactDataCollected.getTime()) + "\r\n";
+											
+									
+											strMsg += "Observation Period End: " + sdf.format(calObservationPeriodEnd.getTime()) + "\r\n";
+											strMsg += "Observation Period Begin: " + sdf.format(calObservationPeriodBegin.getTime()) + "\r\n";
+											 
+											  
+											strMsg += "Chart: " + (String)DataLoad.props.getProperty("phpbaseurl") + "charts/allassets/linechart.php?a=" + nAlertId + "\r\n";
+													  
+											//Add link for Increase Alert Limit form
+											strMsg = strMsg + "Modify/View Alert Properties: " + (String)DataLoad.props.getProperty("cakebaseurl") + "alerts/edit?alert=" + nAlertId;
+											  
+											String strSubject = (String)DataLoad.props.get("subjecttext") + " : " + strTicker + " : " + hmAlert.get("time_events.name") + " Observation Period";
+											  
+											/*
+											 * Removed the following line. debugmode is handled insdie mail().
+											 */
+											//if (DataLoad.bDebugMode == false)  {
+											UtilityFunctions.mail(rs20.getString("address"),strMsg,strSubject,(String)DataLoad.props.get("fromaddy"));
+											//}
+											  
+											String query9 = "update alerts set notification_count=" + (nNotificationCount+1) + " where id=" + nAlertId;
+											  
+											dg.dbf.db_update_query(query9);
+											  
+											bEmailSent = true;
+										}
+									}
+									break;
+									
+								case 2:
+									/*
+									 * Twitter update.
+									 */
+										  
+									//if (bTwitterAlert == true)  {
+									dChange = dChange.multiply(new BigDecimal(100)).setScale(2);
+									String strTweet = dChange.toString() + "% ";
+									strTweet += hmAlert.get("time_events.name");
+									  
+									if (hmAlert.get("tasks.metric_id").equals("11"))
+										 strTweet += " Futures";
+									strTweet += " move in " + strTicker;
+									if (hmAlert.get("entities.full_name") != null)
+										strTweet += " (" + hmAlert.get("entities.full_name") + ")";
+											  
+											
+											  
+											  
+									String strUrl = (String)DataLoad.props.getProperty("phpbaseurl") + "charts/allassets/linechart.php?a=" + nAlertId;
+									  
+									//Emails and Tweets are globally disabled for testing
+									//if (DataLoad.bDisableEmails == false)  {
+											  
+										strTweet += " " + UtilityFunctions.shortenURL(strUrl);
+										  
+										  
+										  
+										/*
+										 * Figure out if this alert represents an actual stock ticker. If so, then use the $ tag; otherwise use the # tag.
+										 */
+										  
+										String tmpQuery = "select * from entities_entity_groups where entity_id=" + hmAlert.get("entities.id") + " AND entity_group_id=1";
+										  
+										ResultSet rs10 = dg.dbf.db_run_query(tmpQuery);
+								
+										if (rs10.next())
+											strTweet += " $" + strTicker;
+										else {
+											String strTmp = strTicker.replace(" ","").replace("(","").replace(")","").replace(".", "").replace("-", "").replace("#", "").replace("&", "and");
+											strTweet += " #" + strTmp;
+										}
+												  
+										String strTweetLimitQuery="select count(log_tweets.id) as cnt from log_tweets ";
+										strTweetLimitQuery += " join alerts on log_tweets.alert_id=alerts.id ";
+										//strTweetLimitQuery += " where datetime > date_format(NOW(),'%Y-%m-%d %H')||':00:00' "; 
+										//strTweetLimitQuery += " and datetime < date_format(NOW(),'%Y-%m-%d ')||(date_format(NOW(),'%H')+1)||':00:00' ";
+										strTweetLimitQuery += " where date_format(datetime,'%Y-%m-%d %H')=date_format(NOW(),'%Y-%m-%d %H') ";
+										strTweetLimitQuery += " and (minute(datetime) div 15)=(minute(NOW()) div 15) ";
+										strTweetLimitQuery += " and alerts.user_id=" + nUserId;
+										
+										/*select count(log_tweets.id) as cnt
+										from log_tweets
+										join alerts on log_tweets.alert_id=alerts.id
+										where date_format(datetime,'%Y-%m-%d %H')=date_format('2011-12-14 10:15:00','%Y-%m-%d %H')
+										and (minute(datetime) div 15)=(minute('2011-12-14 10:15:00') div 15)*/
+										  
+										ResultSet rs11 = dg.dbf.db_run_query(strTweetLimitQuery);
+										  
+										rs11.next();
+										int nTweetLimit = 2;
+										String strErrorMsg = "";
+										if (rs11.getInt("cnt") >= nTweetLimit) {
+											strErrorMsg = "Tweet not sent because internal tweet limit of " + nTweetLimit + " exceeded.";
+										}
+										else {
+											/*
+											 * Removed the following line. Debug mode is handled inside the tweet function
+											 */
+											//if (DataLoad.bDebugMode==false)
+												strErrorMsg = UtilityFunctions.tweet(strTweet,rs20.getString("username"),rs20.getString("password"),rs20.getString("auth1"),rs20.getString("auth2"),rs20.getString("auth3"),rs20.getString("auth4"));
+										}  
+										
+										  
+										try {
+											String strTweetLogQuery = "insert into log_tweets (datetime,message,alert_id,error_message) ";
+										
+											strTweetLogQuery += " values (NOW(),'" + (strTweet.length()>140?strTweet.substring(0,140):strTweet) + "'," + hmAlert.get("alerts.id");
+											if (strErrorMsg.isEmpty())
+												strTweetLogQuery += ",null)";
+											else
+												strTweetLogQuery += ",'" + (strErrorMsg.length()>200?strErrorMsg.substring(0,200):strErrorMsg) + "')";
+											dg.dbf.db_update_query(strTweetLogQuery);
+										} 
+										catch (SQLException sqle) {
+											UtilityFunctions.stdoutwriter.writeln("Issue inserting into log_tweets",Logs.ERROR,"A4.6");
+											UtilityFunctions.stdoutwriter.writeln(sqle);
+										}
+									//}
+			  				  
+									//}
+									break;
+								
+								case 3:
+									/*
+									 * Facebook update.
+									 */
+									break;
+									
+								case 4:
+									/*
+									 * Google+ update.
+									 */
+									break;
+									
+								default:
+									/*
+									 * Invalid target code
+									 */
+									UtilityFunctions.stdoutwriter.writeln("Invalid alert target code.",Logs.ERROR,"A4.72");
+									
+									break;
 							}
-  				  
+						
+						
 						}
 			 
 						  
