@@ -32,6 +32,10 @@ else if ($entitygroupid==5)
 else if ($entitygroupid==1008)
 	$title = "Global Equity Index Futures";
 	
+$showRowNumber='false';
+if (isset($_GET['showrow']))
+	$showRowNumber=$_GET['showrow'];
+	
 $metricid="1";
 if (isset($_GET['metricid']))
 	$metricid=$_GET['metricid'];
@@ -276,6 +280,11 @@ if (isset($_GET['metricid']))
       var options = {};
       options['height'] = 600;
       options['width'] = 800;
+      <?php 
+      if ($showRowNumber!='false')
+      	echo "options['showRowNumber'] = true;\n";
+      
+      ?>
       
 
 
