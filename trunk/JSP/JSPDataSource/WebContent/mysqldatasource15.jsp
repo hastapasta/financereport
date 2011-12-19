@@ -7,6 +7,10 @@
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.Comparator" %>
+<%@ page import="java.math.BigDecimal" %>
+<%@ page import="java.util.Collections" %>
+<%@ page import="java.util.Calendar" %>
 
  
 
@@ -30,6 +34,11 @@ if (strTqx!=null)
 }
 else
 	strReqId="0";
+
+String strGranularity = "day";
+if (request.getParameter("granularity")!=null)
+	if (request.getParameter("granularity").toUpperCase().equals("MINUTE"))
+		strGranularity = "minute";
 
 
 
@@ -86,10 +95,9 @@ ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 
 
 
-//ideally i'd like to use last() here but mysql doesn't support it - it would have to be 
-//coded by hand - so going with max() instead.
+
 String query = "select date_format(fact_data.date_collected,'%m-%d-%Y') as date_col, date_format(fact_data.date_collected,'%H:%i:%s') as time_col, ";
-query += "fact_data.batch_id,fact_data.value as fdvalue,entities.ticker  ";
+query += "fact_data.batch_id,fact_data.value as fdvalue,entities.ticker ";
 query += "from fact_data ";
 query += "JOIN entities on fact_data.entity_id=entities.id ";
 query += "JOIN batches on fact_data.batch_id=batches.id ";
@@ -109,7 +117,7 @@ query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')>'" + strBeginDat
 if (strEndDate!=null && !strEndDate.isEmpty())
 	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
 //query += " group by date_format(fact_data.date_collected,'%Y-%m-%d'),entities.ticker,fact_data.value ";
-query += " order by date_col ASC ,entities.ticker ASC, time_col ASC";
+query += " order by date_col ASC , entities.ticker ASC, time_col ASC";
 
 String query2 = "select count(log_alerts.id) as cnt,date_format(log_alerts.date_time_fired,'%m-%d-%Y') as datefired,entities.ticker ";
 query2 += " from log_alerts ";
@@ -158,6 +166,7 @@ try
 		tmp[1] = dbf.rs.getString("entities.ticker");	
 		tmp[2] = dbf.rs.getString("fdvalue");
 		tmp[3] = dbf.rs.getString("time_col");
+
 				
 		
 		arrayListRows.add(tmp);
@@ -175,6 +184,12 @@ finally
 	if (dbf !=null) dbf.closeConnection();
 	if (bException == true)
 		return;
+}
+
+
+if (arrayListRows.size() == 0) {
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_no_data","Query returned no data.","PF ERROR CODE 15-6"));
+	return;	
 }
 
 ArrayList<String[]> arrayListRows2 = new ArrayList<String[]>();
@@ -211,17 +226,87 @@ finally
 		return;
 }
 
-int[] tmpArray = {0,1};
-arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray);
 
 
+Comparator<String[]> comp2 = new Comparator<String[]>() {
+	  public int compare(String[] first, String[] second) {
+		//BigDecimal bdFirst = new BigDecimal(first[2]);
+		//BigDecimal bdSecond = new BigDecimal(second[2]);
+		
+		String[] strFirstDay = first[0].split("-");
+		String[] strSecondDay = second[0].split("-");
+		String[] strFirstTime = first[3].split(":");
+		String[] strSecondTime = second[3].split(":");
+		
+		Calendar calFirst = Calendar.getInstance();
+		Calendar calSecond = Calendar.getInstance();
+		
+		calFirst.set(Calendar.MONTH,Integer.parseInt(strFirstDay[0])-1);
+		calFirst.set(Calendar.DAY_OF_MONTH,Integer.parseInt(strFirstDay[1]));
+		calFirst.set(Calendar.YEAR,Integer.parseInt(strFirstDay[2]));
+		
+		calSecond.set(Calendar.MONTH,Integer.parseInt(strSecondDay[0])-1);
+		calSecond.set(Calendar.DAY_OF_MONTH,Integer.parseInt(strSecondDay[1]));
+		calSecond.set(Calendar.YEAR,Integer.parseInt(strSecondDay[2]));
+		
+		calFirst.set(Calendar.HOUR_OF_DAY,Integer.parseInt(strFirstTime[0]));
+		calFirst.set(Calendar.MINUTE,Integer.parseInt(strFirstTime[1]));
+		calFirst.set(Calendar.SECOND,Integer.parseInt(strFirstTime[2]));
+		
+		calSecond.set(Calendar.HOUR_OF_DAY,Integer.parseInt(strSecondTime[0]));
+		calSecond.set(Calendar.MINUTE,Integer.parseInt(strSecondTime[1]));
+		calSecond.set(Calendar.SECOND,Integer.parseInt(strSecondTime[2]));
+		
+		return calSecond.compareTo(calFirst);
+		
+		
+		
+		
+		
+		
+		
+		
+		//return bdFirst.compareTo(bdSecond);
+		
+	    //return first[1].compareTo(second[1]);
+	  }
+};
+
+//Collections.sort(arrayListRows,comp2);
+
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,100));if (1==1) return; 
+
+if (strGranularity.equals("day")) {
+	int[] tmpArray= {0,1};
+	arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray);
+	arrayListRows = PopulateSpreadsheet.removeLastColumn(arrayListRows);
+}
 
 
+if (strGranularity.equals("minute")) {
+	for (int i=0;i<arrayListRows.size();i++) {
+		String[] row = arrayListRows.get(i);
+		
+		row[0] += " " + row[3];
+		
+		arrayListRows.set(i,row);
+		
+		
+	}
+	
+	arrayListRows = PopulateSpreadsheet.removeLastColumn(arrayListRows);
+	
+	
+	
+}
+
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
 
 
-arrayListRows = PopulateSpreadsheet.removeLastColumn(arrayListRows);
 
 arrayListRows = PopulateSpreadsheet.pivotRowsToColumnsArrayList(arrayListRows);
+
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
 
 
 if (arrayListRows2.size()!=0)
@@ -229,10 +314,10 @@ if (arrayListRows2.size()!=0)
 
 
 
-arrayListRows = PopulateSpreadsheet.joinListsOuter(arrayListRows,arrayListRows2,0);
+arrayListRows = PopulateSpreadsheet.joinListsLeftOuter(arrayListRows,arrayListRows2,0);
 
 
-
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
 
 
 
