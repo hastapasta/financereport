@@ -441,6 +441,13 @@ public void postProcessYahooSharePrice() throws SQLException
 
 }
 
+public void postProcessCNBCCDSJson() throws SQLException {
+	
+	String strData = this.propTableData.get(0)[0];
+	System.out.println("");
+	
+}
+
 public void postProcessYahooSharePriceYQL() throws SQLException
 {
 	//System.out.println("here");
@@ -468,6 +475,10 @@ public void postProcessYahooSharePriceYQL() throws SQLException
 		nCount2++;
 		
 		String[] rowdata = new String[tmpArray.length];
+		
+		
+		
+		
 		
 		nBegin = strTmpValue.indexOf("<LastTradeDate>",nEnd);
 		if (nBegin == -1)
@@ -534,15 +545,39 @@ public void postProcessYahooSharePriceYQL() throws SQLException
 		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		
 		formatter.setTimeZone(TimeZone.getTimeZone("America/Phoenix"));
-	
-		rowdata[1] = "'" + formatter.format(cal.getTime()) + "'";
 		
 		Calendar currentCal = Calendar.getInstance();
 		
 		DateFormat formatter2 = new SimpleDateFormat("M/d/yyyy");
 		
-		if (!formatter2.format(currentCal.getTime()).equals(formatter2.format(cal.getTime())))
-			UtilityFunctions.stdoutwriter.writeln("Bad Yahoo Data, in postProcessing function",Logs.ERROR,"PF50.5");
+		/*
+		 * Only perform this check for task 10.
+		 */
+		if (dg.nCurTask == 10)
+			if (!formatter2.format(currentCal.getTime()).equals(formatter2.format(cal.getTime())))
+				UtilityFunctions.stdoutwriter.writeln("Bad Yahoo Data, in postProcessing function for Symbol " + strSymbol,Logs.ERROR,"PF50.5");
+		
+		
+		/*
+		 * If the taskid is 10, we are going to use the input time for date_collected.
+		 * Otherwise we are going to use real time collection time - delay (for yahoo, 20 minutes) for date_collected.
+		 */
+		if (dg.nCurTask == 10)
+			rowdata[1] = "'" + formatter.format(cal.getTime()) + "'";
+		else {
+			currentCal.add(Calendar.MINUTE, -20);
+			rowdata[1] = "'" + formatter.format(currentCal.getTime()) + "'";
+		}
+			
+		
+		
+		
+		
+			
+			
+		/*
+		 * These are the 5 non US tickers for task 24: ^N225, ^AORD, ^TWII, ^NZ50, ^AXJO
+		 */
 		
 		
 		
@@ -1243,7 +1278,13 @@ public void postProcessBloombergGovtBonds() {
 				continue;
 			}
 				
-			newrow[0].replace("-", ".");
+			String[] tmp = newrow[0].split("-");
+					
+			
+			Double dTmp = (Double.parseDouble(tmp[0]) + (Double.parseDouble(tmp[1]) / 32));
+			dTmp = Math.round(1000*dTmp) / 1000d;
+			newrow[0] = dTmp + "";
+			//newrow[0] = newrow[0].replace("-", ".");
 			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_us";
 			strQuery = "select id from entities where ticker='" + strTicker + "'";
 		}
@@ -1286,6 +1327,14 @@ public void postProcessBloombergGovtBonds() {
 		}
 		
 		newrow[0] = newrow[0].replace(",", "");
+		/* This dataset can involve extended ascii characters. */
+		newrow[0] = newrow[0].replaceAll("[^\\p{ASCII}]", "");
+		
+		if (newrow[0].isEmpty()) {
+			UtilityFunctions.stdoutwriter.writeln("Ticker returned an empty value: " + strTicker + ", skipping",Logs.WARN,"PF44.59");
+			continue;
+		}
+	
 
 		
 		try {
@@ -1568,8 +1617,7 @@ public void postProcessMsnMoneyEPSEst()
 		
 }
 
-public boolean preProcessYahooEPSEst() throws SQLException
-{
+public boolean preProcessYahooEPSEst() throws SQLException {
 
 
 	
@@ -1586,6 +1634,40 @@ public boolean preProcessYahooEPSEst() throws SQLException
 	{
 		//dg.strCurrentTicker = "BRK-A";	
 		dg.strCurrentTicker="BRK-A";
+	}
+	
+	
+	
+	/*
+	 * Need to get rid of these return values and go with exceptions 
+	 */
+	return(true);
+	
+
+	
+
+	
+		
+}
+
+public boolean preProcessGoogleEPS() throws SQLException {
+
+
+	
+
+	/*
+	 * Negative values are enclosed in font changing tags which have to be removed
+	 */
+	if (strTicker.equals("BF/B")) {
+		//dg.strCurrentTicker = "BF-B";		
+		dg.strCurrentTicker="NYSE:BF.B";
+	}
+	else if (strTicker.equals("BRK/A")) {
+		//dg.strCurrentTicker = "BRK-A";	
+		dg.strCurrentTicker="NYSE:BRK.A";
+	}
+	else if (strTicker.equals("PG") || strTicker.equals("SCHW") || strTicker.equals("DF") || strTicker.equals("MHS") || strTicker.equals("NWL")) {
+		dg.strCurrentTicker="NYSE:" + strTicker;
 	}
 	
 	
@@ -1853,7 +1935,7 @@ public void postProcessTableXrateorg()
 			if (i==0)
 				strTmp = "EURUSD";
 			else if (i==1)
-				strTmp = "EURGBP";
+				strTmp = "GBPUSD";
 		}
 		String[] tmpA = new String[tmpArray.length];
 		//tmpA[0] = propStrTableDataSet;
@@ -2213,8 +2295,7 @@ public void postProcessIMFGdpPPPEst() throws SQLException {
 	
 }*/
 
-public void postProcessImfGdp() throws SQLException
-{
+public void postProcessImfGdp() throws SQLException {
 	
 	String[] tmpArray = {"value","date_collected","entity_id","calyear","scale"};
 	
@@ -2304,7 +2385,12 @@ public void postProcessImfGdp() throws SQLException
 			strCountry = "South Korea";
 		
 		//String query = "select * from entities where ticker='"+strCountry+"'";
-		String query = "select entities.id from entities,countries where countries.name= '" + strCountry + "' AND ticker='macro' AND entities.country_id=countries.id";
+		String query = "select entities.id from entities ";
+		query += " join countries_entities on countries_entities.entity_id=entities.id ";
+		query += " join countries on countries.id=countries_entities.country_id ";
+		query += " where ticker='macro' ";
+		query += " and countries.name='"+strCountry+"'";
+			
 		
 		try
 		{
@@ -2728,8 +2814,7 @@ public void postProcessYahooFiscalYearEndRaw()
 
 }
 
-public void postProcessGoogleEPSTable() throws SQLException
-{
+public void postProcessGoogleEPSTable() throws SQLException {
 
 
 		String strTicker = dg.strOriginalTicker;
@@ -2763,6 +2848,13 @@ public void postProcessGoogleEPSTable() throws SQLException
 					else
 						newrow[0] = tmpVal;
 					
+					/*
+					 * Some tickers have tables with only 4 columns. The table
+					 * processing will wrap around to the next row in those cases.
+					 */
+					if (newrow[0].contains("Diluted"))
+						continue;
+					
 					//Berkshire tends to be the only company with an EPS in the thousands.
 					newrow[0] = newrow[0].replace(",", "");
 			
@@ -2771,12 +2863,35 @@ public void postProcessGoogleEPSTable() throws SQLException
 					
 					newrow[2] = dg.nCurrentEntityId + "";
 					
-					//newrow[4] = "eps_exc_xtsra";
+					/*
+					 * OFP 11/12/2011 - I have to deal with this wacky issue where google has the end of quarter
+					 * days off by one in some instances. 
+					 * 
+					 * CSC is one example. For calendar quarter 2, cal year 2011, they have the end date listed as 7/1/2011
+					 * instead of 6/30/2011. 
+					 * 
+					 * So as a workaround, if the Day of month is 1, I'm going to subtract one day from the date.
+					 * 
+					 * It's not known at this time if this will screw up other tickers.
+					 * 
+					 * If other tickers behave differently then I may have to set up ticker specific code in here.
+					 */
 					
-					String strFiscalYearQuarter = MoneyTime.getFiscalYearAndQuarter(strTicker,Integer.parseInt(colheaders[col].substring(5,7)), Integer.parseInt(colheaders[col].substring(0,4)),dbf);
+					Calendar cal = Calendar.getInstance();
+					String[] date = colheaders[col].split("-");
+					
+					cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(date[2]));
+					cal.set(Calendar.MONTH,Integer.parseInt(date[1])-1);
+					cal.set(Calendar.YEAR,Integer.parseInt(date[0]));
+					
+					if (cal.get(Calendar.DAY_OF_MONTH)==1)
+						cal.add(Calendar.DAY_OF_MONTH,-1);
+					
+					//String strFiscalYearQuarter = MoneyTime.getFiscalYearAndQuarter(strTicker,Integer.parseInt(colheaders[col].substring(5,7)), Integer.parseInt(colheaders[col].substring(0,4)),dbf);
+					String strFiscalYearQuarter = MoneyTime.getFiscalYearAndQuarter(strTicker, cal.get(Calendar.MONTH)+1, cal.get(Calendar.YEAR), dbf);
 					String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, Integer.parseInt(strFiscalYearQuarter.substring(0,1)), Integer.parseInt(strFiscalYearQuarter.substring(1,5)),dbf);
 					
-					//newrow[4] = colheaders[col].substring(5,7);//Integer.toString(row-1);
+				
 					newrow[3] = strFiscalYearQuarter.substring(0,1);
 					
 					/*don't use they year returned from getFiscalYearAndQuarter - use the one retrieved from the web page*/
@@ -2800,20 +2915,26 @@ public void postProcessGoogleEPSTable() throws SQLException
 	
 }
 
-public void postProcessMWatchEPSEstTable() throws SQLException
-{
+public void postProcessMWatchEPSEstTable() throws SQLException,SkipLoadException {
+	
+		/* OFP 11/12/2011 - One issue with this data source is because the column headers are
+		 * relative (i.e. "this quarter", "next quarter") there is no way to guarantee which quarter
+		 * marketwatch is referring to. If they are slow in updating the website, then the data will
+		 * be collected for the wrong quarters.
+		 */
 		/*
 		 * As of 12/15/2010 there is no data for RAND nor VIA and no obvious string to key off of for a no data check.
 		 */
 
-		//String strTicker = dg.strOriginalTicker;
 		
 
 		String[] rowdata, newrow;
 		String[] colheaders = propTableData.get(0);
-		//String[] rowheaders = propTableData.get(1);
 		
 		Calendar cal = Calendar.getInstance();
+		
+		
+		
 		
 		
 		ArrayList<String[]> newTableData = new ArrayList<String[]>();
@@ -2830,10 +2951,24 @@ public void postProcessMWatchEPSEstTable() throws SQLException
 			tmpArray[nSize+1] = "calquarter";
 			tmpArray[nSize+2] = "calyear";
 			
+			/*
+			 * OFP 11/12/2011 - Ran into an issue where the column headers weren't being
+			 * read correctly.
+			 */
+			
+			if (!colheaders[0].toUpperCase().equals("THIS QUARTER")) {
+				UtilityFunctions.stdoutwriter.writeln("Invalid column header format for entity_id " + dg.nCurrentEntityId,Logs.STATUS2,"PF46");
+				throw new SkipLoadException();
+			}
+				
+			
 			
 		}
 		newTableData.add(tmpArray);
 		String tmpVal;
+		
+		
+
 		for (int row=2;row<propTableData.size();row++)
 		{
 			rowdata = propTableData.get(row);
@@ -2844,8 +2979,6 @@ public void postProcessMWatchEPSEstTable() throws SQLException
 				if (rowdata[col].compareTo("void") != 0)
 				{
 				
-					//newrow[0] = propStrTableDataSet;
-					//newrow[0] = dg.nCurTask + "";
 					
 					tmpVal = rowdata[col];
 					
@@ -2863,14 +2996,12 @@ public void postProcessMWatchEPSEstTable() throws SQLException
 					
 					newrow[2] = dg.nCurrentEntityId + "";
 					
-					//newrow[4] = "eps_exc_xtsra";
-					
 					String strFiscalYearQuarter = MoneyTime.getFiscalYearAndQuarter(strTicker,cal.get(Calendar.MONTH), cal.get(Calendar.YEAR),dbf);
 					
 					int nFiscalQuarter=Integer.parseInt(strFiscalYearQuarter.substring(0,1));
 					int nFiscalYear = Integer.parseInt(strFiscalYearQuarter.substring(1,5));
 					
-					if (colheaders[col].equals("Next Quarter"))
+					if (colheaders[col].toUpperCase().equals("NEXT QUARTER"))
 					{
 						nFiscalQuarter++;
 						if (nFiscalQuarter == 5)
@@ -2879,7 +3010,7 @@ public void postProcessMWatchEPSEstTable() throws SQLException
 							nFiscalQuarter=1;
 						}
 					}
-					else if (colheaders[col].equals("Next Fiscal"))
+					else if (colheaders[col].toUpperCase().equals("NEXT FISCAL"))
 					{
 						nFiscalYear++;
 					}
