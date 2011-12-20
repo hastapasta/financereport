@@ -113,6 +113,8 @@ String query;
 DBFunctions dbf;
 boolean bException;
 
+//out.println("here1"); if (1==1) return;
+
 if (strTickers != null) {
 
 
@@ -145,7 +147,7 @@ if (strTickers != null) {
 	catch (SQLException sqle)
 	{
 		//out.println(sqle.toString());
-		out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 15-2"));
+		out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 15multiple-2"));
 		bException = true;
 	}
 	finally
@@ -155,6 +157,8 @@ if (strTickers != null) {
 			return;
 	}
 }
+
+//out.println("here2"); if (1==1) return;
 
 
 
@@ -193,7 +197,7 @@ for (int i=0;i<metricIds.length;i++){
 		}
 		catch (SQLException sqle) {
 			
-			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 15-2"));
+			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 15multiple-2"));
 			bException = true;
 			
 		}
@@ -213,6 +217,10 @@ for (int i=0;i<metricIds.length;i++){
 	
 }
 
+
+
+//out.println("here3"); if (1==1) return;
+
 /*
  * Set up the task ids.
  */ 
@@ -231,6 +239,12 @@ if (strTaskIds != null) {
 	}
 	
 }
+
+if ((entityIds.length < 3) || (metricIds.length<3) || (taskIds.length<3)) {
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"invalid_parameter","Need to provide at least 3 entity, task and metric ids.","PF ERROR CODE 15multiple-4"));
+	return; 
+}
+	
 	
 
 
@@ -254,39 +268,49 @@ for (int i=0;i<entityIds.length;i++)
 	strInClause += entityIds[i];
 }
 strInClause += ") ";
+
+//out.println("here4"); if (1==1) return;
 //String[] columns = tmpArrayList.get(0);
 
 //DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
-
-
-query = "select date_format(fact_data.date_collected,'%Y-%m') as date_col, date_format(fact_data.date_collected,'%d-%H:%i:%s') as time_col, ";
-query += "fact_data.batch_id,fact_data.value as fdvalue,entities.ticker as ticker,date_format(fact_data.date_collected,'%Y-%m-%d') as date_col2 ";
-query += " from fact_data ";
-query += "JOIN entities on fact_data.entity_id=entities.id ";
-query += "JOIN batches on fact_data.batch_id = batches.id ";
-/*if (strMetricId.equals("0"))
-	query += "JOIN entities_metrics on fact_data.entity_id=entities_metrics.entity_id ";*/
-query += " JOIN tasks on batches.task_id=tasks.id ";
-query += " JOIN metrics on fact_data.metric_id = metrics.id ";
-query += " where (1=1) AND (";
-
-for (int i=0;i<entityIds.length-2;i++) {
-	if (i!=0)
-		query += " OR ";
-	query += "(entities.id= " + entityIds[i] + " AND fact_data.metric_id=" + metricIds[i];
-	if (!taskIds[i].equals("0"))
-		query += " AND tasks.id=" + taskIds[i];
-	                                                                                                                                                            
-    query += ") ";
-} 
-
+query="";
+if (entityIds.length>2) {
+	query = "select date_format(fact_data.date_collected,'%Y-%m') as date_col, date_format(fact_data.date_collected,'%d-%H:%i:%s') as time_col, ";
+	query += "fact_data.batch_id,fact_data.value as fdvalue,entities.ticker as ticker,date_format(fact_data.date_collected,'%Y-%m-%d') as date_col2 ";
+	query += " from fact_data ";
+	query += "JOIN entities on fact_data.entity_id=entities.id ";
+	query += "JOIN batches on fact_data.batch_id = batches.id ";
+	/*if (strMetricId.equals("0"))
+		query += "JOIN entities_metrics on fact_data.entity_id=entities_metrics.entity_id ";*/
+	query += " JOIN tasks on batches.task_id=tasks.id ";
+	query += " JOIN metrics on fact_data.metric_id = metrics.id ";
+	query += " where (1=1) "; 
 	
+	
+		query += " AND (";
+		for (int i=0;i<entityIds.length-2;i++) {
+			if (i!=0)
+				query += " OR ";
+			query += "(entities.id= " + entityIds[i] + " AND fact_data.metric_id=" + metricIds[i];
+			if (!taskIds[i].equals("0"))
+				query += " AND tasks.id=" + taskIds[i];
+			                                                                                                                                                            
+		    query += ") ";
+		}
+		query += ") ";
+	
+	
+		
+	
+	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')>'" + formatter2.format(calBegin.getTime()) + "' ";
+	if (strEndDate!=null && !strEndDate.isEmpty())
+		query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + formatter2.format(calEnd.getTime()) + "' ";
+	
+	query += " UNION ";
+}
 
-query += ") AND date_format(fact_data.date_collected,'%Y-%m-%d')>'" + formatter2.format(calBegin.getTime()) + "' ";
-if (strEndDate!=null && !strEndDate.isEmpty())
-	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + formatter2.format(calEnd.getTime()) + "' ";
+//out.println("here5"); if (1==1) return;
 
-query += " UNION ";
 query += " select concat(calyear+1,'-01') as date_col, '01-00:00:00' as time_col, fact_data.batch_id,fact_data.value as fdvalue,'GDP' as ticker ";
 query += " ,concat(calyear+1,'-01-01') date_col2 ";
 query += " from fact_data ";
@@ -306,6 +330,8 @@ for (int i=entityIds.length-2;i<entityIds.length;i++) {
 	                                                                                                                                                            
     query += ") ";
 } 
+
+//out.println("here6"); if (1==1) return;
 
 query += ") AND concat(calyear+1,'-01-01')>='" + formatter2.format(calBegin.getTime()) + "' ";
 if (strEndDate!=null && !strEndDate.isEmpty())
@@ -379,7 +405,7 @@ try
 catch (SQLException sqle)
 {
 	//out.println(sqle.toString());
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 15-2"));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 15multiple-2"));
 	bException = true;
 }
 finally
