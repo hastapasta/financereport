@@ -19,24 +19,20 @@ $countryid = $_GET['countryid'];
 	//die("No alert id,entity id  or ticker parameter in url. Unable to render chart.");
 	
 $gdptype = "cp";
-if (isset($_GET['gdptype']))
+if (isset($_GET['gdptype']) && !empty($_GET['gdptype']))
 	$gdptype = $_GET['gdptype'];
 	
 	
 
-	
-
-
-
-
-$begindate="2008-01-01";
-$enddate="";
-
 if (isset($_GET['begindate']) && !empty($_GET['begindate']))
 	$begindate=$_GET['begindate'];
+else 
+	$begindate='01-Jan-2007';
 	
 if (isset($_GET['enddate']) && !empty($_GET['enddate']))
 	$enddate=$_GET['enddate'];
+else 
+	$enddate='01-Jan-2016';
 	
 	
 	
@@ -54,10 +50,16 @@ if (!empty($countryid)) {
 		
 		
 	$sql = "select entities.id ";
-	$sql .= " from entities,entities_entity_groups ";
-	$sql .= " where entities.id=entities_entity_groups.entity_id ";
-	$sql .= " and entities.country_id=".$countryid;
-	$sql .= " and entities_entity_groups.entity_group_id=5";
+	$sql .= " from entities ";
+	$sql .= " join entities_entity_groups on entities_entity_groups.entity_id=entities.id ";
+	$sql .= " join countries_entities on countries_entities.entity_id = entities.id ";
+	$sql .= " join countries on countries_entities.country_id=countries.id ";
+	$sql .= " where  ";
+	$sql .= " countries.id=".$countryid;
+	$sql .= " and entities_entity_groups.entity_group_id=5 ";
+	$sql .= " limit 5 ";
+	
+	//echo $sql;
 	
 	$result = mysql_query($sql);
 	$count = 0;
@@ -68,9 +70,9 @@ if (!empty($countryid)) {
 		$count++;
 	}
 	
-	if ($count == 0) {
-		$error = "No equity index data for the country: ".$countryname;
-	}
+	//if ($count == 0) {
+	//	$error = "No equity index data for the country: ".$countryname;
+	//}
 	//$entities = substr($entities,0,strlen($entities)-1);
 	//$metrics.="12,13";
 	//$metrics.="30,29";
@@ -87,7 +89,12 @@ else if ($gdptype=="cp") { //we'll default to current prices gdp
 }
 
 if (!empty($countryid)) {
-	$sql = "select id from entities where ticker='macro' and country_id=".$countryid;
+	$sql = "select entities.id from entities ";
+	$sql.= " join countries_entities on countries_entities.entity_id=entities.id ";
+	$sql.= " where ticker='macro' and country_id=".$countryid;
+	
+	//echo $sql;
+	
 	$result = mysql_query($sql);
 	$row = mysql_fetch_array($result);
 	$entities.=$row['id'].",".$row['id'];
@@ -133,19 +140,20 @@ if (isset($_GET['group']))
     	$(document).ready(function() {
 
         	<?php 
+        	
+        	if ($gdptype=="ppp") {
+        		echo "$(\"#checkPPP\").attr('checked','checked');\n";
+        		//echo "$('#checkPPP').checked = true;";
+        	}
+        	else if ($gdptype=="cp") {
+        		echo "$(\"#checkCP\").attr('checked','checked');\n";
+        		//echo "$('#checkCP').checked = true;";
+        	}
+        	
         	if (!empty($countryid)) {
         		echo "$( \"#a_c\" ).val(\"".$countryname."\");\n";
         		echo "countryid=\"".$countryid."\";\n";
-        		if ($gdptype=="ppp") {
-        			echo "$(\"#checkPPP\").attr('checked','checked');\n";
-        			//echo "$('#checkPPP').checked = true;";
-        		}
-        		else if ($gdptype=="cp") {
-        			echo "$(\"#checkCP\").attr('checked','checked');\n";
-        			//echo "$('#checkCP').checked = true;";
-        		}
-        		
-        			
+	
         	}
         	?>
 
@@ -375,7 +383,7 @@ if (isset($_GET['group']))
 			
         	echo "window.location.replace(\"";
 			echo IncFunc::$PHP_ROOT_PATH;
-			echo "/charts/countries/linechart2.php\"+url);\n";
+			echo "/charts/countries/linechart.php\"+url);\n";
 			//echo urlencode($title);
 			/*
 			 * There are other javascript enocde functions: escape() and encodeURIComponent()
@@ -551,7 +559,7 @@ if (isset($_GET['group']))
     <BR>
   	<input type='text' id='a_c' style='z-index:3' /><br/>
   	<BR>
-  	<input type="radio" name="vehicle" value="checkPPP" id="checkPPP"/>&nbsp;PPP
+  	<input type="radio" name="vehicle" value="checkPPP" id="checkPPP"/>&nbsp;Purchasing Power Parity&nbsp;&nbsp;&nbsp;<a target='_blank' href="http://en.wikipedia.org/wiki/Gross_domestic_product#Cross-border_comparison">Difference between Purchasing Power Parity and Current Prices</a>
   	<BR>
 	<input type="radio" name="vehicle" value="checkCP" id="checkCP" />&nbsp;Current Prices
    	<BR>
