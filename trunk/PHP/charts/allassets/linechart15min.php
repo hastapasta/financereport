@@ -71,10 +71,18 @@ if (isset($_GET['enddate']) && !empty($_GET['enddate']))
 	
 	
 	
-
-$title="";
-if (isset($_GET['title']))
-	$title=urldecode($_GET['title']);
+$type="";
+if (isset($_GET['type']))
+	$type=urldecode($_GET['type']);
+	
+if ($type==1)
+	$title = "Line Chart - All Assets";
+else if ($type==2)
+	$title = "Line Chart - Foreign Exchange";
+else if ($type==3)
+	$title = "Line Chart - Commodities";
+else if ($type==4)
+	$title = "Line Chart - Equities";
 	
 
 $entityid = str_replace(' ',',',$entityid);
@@ -104,6 +112,33 @@ if (isset($_GET['group']))
     <?php IncFunc::jQuery();?>   
     <?php //IncFunc::yuiDropDownJavaScript(); ?>
     <?php IncFunc::googleGadget(); ?>
+    <style type="text/css">
+<!--
+#tabs {
+	border-bottom: .5em solid #0F1923;
+	margin: 0;
+	padding: 0;
+	font-size: 1.5em;
+}
+#tabs li { 
+	display:inline; 
+	border-top: .1em solid #000000;
+	border-left: .1em solid #000000;
+	border-right: .1em solid #000000;
+}
+#tabs li a {
+	text-decoration: none;
+	padding: 0.25em 1em;
+	color: #fff;
+}
+#page1 #tabs li#tab1 a, #page2 #tabs li#tab2 a, #page3 #tabs li#tab3 a, .page4 li#tab4 a {
+	padding: 0.25em 1em;
+	background-color: #0F1923;
+	color: #fff;
+}
+
+-->
+</style>
    
     <script type="text/javascript">
 
@@ -288,7 +323,8 @@ if (isset($_GET['group']))
             //var tableChart2 = new google.visualization.Table(container2);
             
          
-            if (window.console && window.console.firebug) {console.log(queryPath)}
+            if (window.console && window.console.firebug) 
+                console.log(queryPath);
 
             
             query1 && query1.abort();
@@ -307,7 +343,7 @@ if (isset($_GET['group']))
        
     </script>
 </head>
-<body>
+<body id="page2">
 <div id="jq-siteContain">
 
 <?php 
@@ -315,6 +351,7 @@ if (isset($_GET['group']))
 	IncFunc::yuiDropDownMenu();
 
 ?>
+<div id="pf-body">
 <BR>
 
 <?php 
@@ -326,10 +363,10 @@ if (isset($_GET['group']))
 	}
 	else {
 ?>
-<div id="chartTitle" style="margin: 20px 0 0 0;font-size: medium;font-weight:bold;"><u><?php echo $title; ?></u></div>
+<div id="chartTitle" style="margin: 20px 0 0 0;font-size: medium;font-weight:bold;"><?php echo $title; ?></div>
 	
-    <div id="pf-form" style="margin:20px 0 0 0;font-size:15px;">
-    <A href=<?php echo "\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?".$_SERVER['QUERY_STRING']."\""?>>Day Granularity</A>&nbsp;/&nbsp;<A href=<?php echo "\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart15min.php?".$_SERVER['QUERY_STRING']."\""?>>Quarter Hour Granularity</A>
+    <div id="pf-form">
+   
     <BR><BR>
     Enter entity name (stock ticker, equity index, currency cross, etc):
     <BR>
@@ -337,16 +374,19 @@ if (isset($_GET['group']))
   	<BR>
   
 	<div style="font-size:30;margin: 10px 0 0 0;" id="chart-title"></div>
+	<BR><BR>
 	</div>
 	
-	
-
-	
-	<div style="font-size:20" id="chart-description"></div>
+	<div style="font-size:20" id="charttabs";>
+	<ul id="tabs">
+	<li id="tab1"><a href=<?php echo "\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?".$_SERVER['QUERY_STRING']."\""?>>Day Granularity</a></li>
+	<li id="tab2"><a href=<?php echo "\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart15min.php?".$_SERVER['QUERY_STRING']."\""?>>Quarter Hour Granularity</a></li>
+	</ul>
+	</div>
     <div id="chart-div" style="margin: 30px 0 20px 0;width:800px;height:600px"></div>
 
  
-    
+</div> <!--  pf-body --> 
 
 </div> <!--  siteContain -->  
 <?php 
