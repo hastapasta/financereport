@@ -31,6 +31,7 @@ class IncFunc
 	{
 		
 		echo "<link rel=\"stylesheet\" href=\"".self::$PHP_ROOT_PATH."/site/includes/style.css\" type=\"text/css\" />"; 
+		echo "<link rel=\"stylesheet\" href=\"".self::$PHP_ROOT_PATH."/site/includes/shared.css\" type=\"text/css\" />"; 
 	}
 
 	static function logo()
@@ -105,8 +106,17 @@ class IncFunc
 	static function primaryNav($Page)
 	{
 
-
+	    
 		echo "<div id=\"jq-primaryNavigation\">\n";
+		
+		/*
+		 * This is really kludgy. First, the font sizes still don't match up exactly. Second,
+		 * the css styling for this tag isn't even in effect (in theory) but in practice it is.
+		 * Might be a bug in the browser (firefox).
+		 */
+		if ($Page=="alerts") {
+			echo "<div id=\"cakefontsize\">\n";
+		}
 		echo "<ul>\n";
 		echo "<li class=\"jq-home ".($Page=="home"?"jq-current":"")."\"><a href=\"".self::$PHP_ROOT_PATH."/site/main/index.php\" title=\"Pikefin Home\">Home</a></li>\n";
 		echo "<li class=\"jq-alerts ".($Page=="alerts"?"jq-current":"")."\"><a href=\"".self::$CAKE_ROOT_PATH."/charts/chart\" title=\"Pikefin Alert Manager\">Alert Manager</a></li>\n";
@@ -114,6 +124,9 @@ class IncFunc
 		//echo "<li class=\"jq-blog ".($Page=="blog"?"jq-current":"")."\"><a href=\"/PHP/site/main/blog.php\" title=\"Pikefin Blog\">Blog</a></li>";
 		//echo "<li class=\"jq-about ".($Page=="about"?"jq-current":"")."\"><a href=\"/PHP/site/main/about.php\" title=\"About Pikefin\">About</a></li>";
 		echo "</ul>\n";
+		if ($Page=="alerts") {
+			echo "</div><!-- /#cakefontsize -->\n";
+		}
 		echo "</div><!-- /#primaryNavigation -->\n";
 		
 		
@@ -134,7 +147,7 @@ class IncFunc
 		self::logo();
 		self::primaryNav($context);
 		
-		echo "<P style=\"font-size: 10pt;\">";
+		echo "<P style=\"font-size: 10pt;padding-left:50px;\">";
 		echo "Note: All times are UTC-07:00.";
 		echo "</P>";
 		echo "</div> <!-- header -->";
@@ -142,7 +155,7 @@ class IncFunc
 	
 	static function header2($context)
 	{
-		self::pageCounter();
+		//self::pageCounter();
 		self::header1($context);
 		
 	}
@@ -181,7 +194,11 @@ class IncFunc
 		
 	}
 	
-	static function googleAnalytics() {
+	static function googleAnalytics () {
+		
+	}
+	
+	static function googleAnalyticsTest() {
 		echo "<script type=\"text/javascript\">\n";
 
 		  echo "var _gaq = _gaq || [];
@@ -280,47 +297,50 @@ class IncFunc
 	static function dropdownMenu()
 	{
 		echo "
-			<div style='padding-left:240px;margin-bottom:20px;'>
+			<div style='padding-left:350px;margin-bottom:20px;z-index:10;position:relative;'>
 			<ul class='dropdown'>
 				<li>
 					<a href='#'>Equities</a>
 					<ul class='sub_menu'>
 						<li>
-						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=1&amp;title=US%2520Equities%2520Top%2520Gainers/Losers' >US Equities Top Gainers/Losers</a>
+						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=1' >US Equities Top Gainers/Losers</a>
 						</li>
 						<li>
 						<a href='".self::$PHP_ROOT_PATH."/charts/equities/epslinechart3.php?entityid=1'>US Equities Quarterly Earnings</a>
 						</li>
 						<li>
-						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=1&group=1&amp;title=US%20Equities%20Indivdual%20Line%20Charts' >US Equities Individual Charts</a>
+						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=1&group=1&amp;type=4' >US Equities Individual Charts</a>
 						</li>
 						<li>
-						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=5&amp;title=Global%2520Equity%2520Indexes' >Global Equity Indexes Table</a>
+						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=5' >Global Equity Indexes Table</a>
 						</li>
 						<li>
-						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=1008&amp;metricid=11&amp;title=Global%2520Equity%2520Futures' >Global Equity Futures Table</a>
+						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101027&amp;begindate=1293865200000&amp;enddate=current' >Benchmark Global Equity Indexes Table</a>
+						</li>
+						<li>
+						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=1008&amp;metricid=11' >Global Equity Futures Table</a>
 						</li>
 					</ul>
 				</li>
 				<li>
 					<a href='#'>Commodities</a>
 					<ul class='sub_menu'>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=4&amp;metricid=11&amp;title=Commodity%2520Futures%2520Table' >Commodity Futures Table</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=673&group=4&amp;title=Commodity%20Futures%20Indivdual%20Line%20Charts' >Commodity Futures Individual Charts</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=4&amp;metricid=11' >Commodity Futures Table</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=673&group=4&amp;type=3' >Commodity Futures Individual Charts</a></li>
 					</ul>
 				</li>
 				<li>
 					<a href='#'>Foreign Exchange</a>
 					<ul class='sub_menu'>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=3&title=Global%2520Forex'>Global Forex Table</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=508&group=3&title=Forex%20Indivdual%20Line%20Charts'>Forex Individual Charts</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=3'>Global Forex Table</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=508&group=3&type=2'>Forex Individual Charts</a></li>
 					</ul>
 				</li>
 					<li>
 					<a href='#'>Bonds</a>
 					<ul class='sub_menu'>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101023&metricid=1&title=Global%2520Sovereign%2520Bonds'>Global Sovereign Bonds Table</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101024&metricid=1&title=Global%2520CDS'>Global CDS Table</a></li>		
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101023&order=DESC&metricid=1'>Global Sovereign Bonds Table</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101024&order=DESC&metricid=1'>Global CDS Table</a></li>		
 					</ul>
 				</li>
 				<li>
@@ -329,8 +349,9 @@ class IncFunc
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/fed/balsheet.php'>Federal Reserve Balance Sheet</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/other/comingsoon.php'>Federal Reserve Change WOW</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/gdp/motionchart.php'>GDP Growth Estimates</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/countries/linechart.php'>GDP/Equity Index Line Chart</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/topchart.php'>All Assets - Tables</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?a=660&amp;title=All%20Assets%20Indivdual%20Line%20Charts''>All Assets - Inidivdual Line Charts</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?a=660&amp;type=1''>All Assets - Inidivdual Line Charts</a></li>
 					</ul>
 				</li>
 			</ul>
