@@ -1,0 +1,78 @@
+/*
+This file is for styles that are shared between cake and non-cake php files.
+*/
+
+#jq-siteContain {
+	width: 1300px;
+	margin: 0 auto;
+}
+
+#jq-header {
+	/*rockstar removed */
+	height: 156px;
+	padding: 0 200px;
+	position: relative;
+}
+
+#jq-primaryNavigation {
+float: right;
+background: #192839 url(../images/bg_primaryNav_left.gif) left bottom no-repeat;
+
+}
+
+#jq-primaryNavigation ul {
+float: left;
+background: url(../images/bg_primaryNav_right.gif) right bottom no-repeat;
+padding: 0 .8em 2px;
+margin: 0;
+}
+#jq-primaryNavigation li {
+float: left;
+list-style: none;
+margin: 0;
+background: none;
+padding: 0;
+}
+
+
+#jq-primaryNavigation li a {
+float: left;
+padding: 0 1em;
+line-height: 25px;
+font-size: 1.2em;
+color: #D0D0D0;
+text-decoration: none;
+margin-bottom: 2px;
+font-weight: normal;
+
+}
+
+#cakefontsize {
+	font-size: 1.2em; 
+}
+
+#jq-primaryNavigation li.jq-ui, #jq-primaryNavigation li.jq-blog {
+border-right: 1px solid #0F1924;
+}
+#jq-primaryNavigation li.jq-current a, #jq-primaryNavigation li.jq-current a:hover {
+	border-bottom: 2px solid #176092;
+	background: #192839;
+	margin-bottom: 0;
+	cursor: default;
+	color: #D0D0D0;
+}
+
+#jq-primaryNavigation li a:hover {
+color: #fff;
+border-bottom: 2px solid #4082ae;
+margin-bottom: 0;
+}
+
+#jq-siteLogo {
+	display: block;
+	/*top: 59px; */
+	top: 48px;
+	position: absolute;
+	border: 0 !important;
+	margin: 0 50px;
+}
