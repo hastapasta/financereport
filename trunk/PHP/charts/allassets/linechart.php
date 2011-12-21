@@ -175,8 +175,8 @@ if (isset($_GET['group']))
         				<?php
         						echo "window.location.replace(\"";
         						echo IncFunc::$PHP_ROOT_PATH;
-        						echo "/charts/allassets/linechart.php?title=";
-        						echo urlencode($title);
+        						echo "/charts/allassets/linechart.php?type=";
+        						echo $type;
         						/*
         						 * There are other javascript enocde functions: escape() and encodeURIComponent()
         						 */
@@ -371,7 +371,7 @@ if (isset($_GET['group']))
   	<input type='text' id='a_c' style='z-index:3' /><br/>
   	<BR>	
   	<div style="font-size:30;margin: 10px 0 0 0;" id="chart-title"></div>
-  	<BR><BR>
+  	<BR>
 	</div>
 	
 	<div style="font-size:20" id="charttabs">
