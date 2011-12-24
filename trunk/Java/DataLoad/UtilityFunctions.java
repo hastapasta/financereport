@@ -37,13 +37,19 @@ import javax.mail.PasswordAuthentication;
 
 import twitter4j.Status;
 import twitter4j.Twitter;
+import twitter4j.TwitterBase;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
+import twitter4j.conf.Configuration;
+import twitter4j.conf.ConfigurationBuilder;
 
 import com.rosaloves.bitlyj.Url;
 import static com.rosaloves.bitlyj.Bitly.*;
+
+import org.apache.commons.mail.*;
+
 
 
 
@@ -169,312 +175,24 @@ public class UtilityFunctions
 	
 	
 	
-	/*public static ResultSet db_run_query(String query) throws SQLException
-	{
-
-		ResultSet rs =null;
-		//try
-		//{
-
-			stdoutwriter.writeln("Executing query: " + query, Logs.SQL,"UF3");
-			Statement stmt = con.createStatement();
-			stdoutwriter.writeln(query, Logs.SQL,"UF4");
-			rs = stmt.executeQuery(query);
-
 	
-		}
-		
-		
-		return(rs);
-		//Not going to worry about closing the connection, we'll let it be garbage collected.
-		
-		
-		
-	}*/
-	
-	/*public void importTableIntoDB(ArrayList<String[]> tabledata, String tablename, Integer nBatch)
-	{
-		#* This function expects an arraylist with 2X of the number of values to be inserted with each value
-		preceeded by the datatype with the current 3 datatypes being VARCHAR, FUNCTIONS, INT *#
-		#*OFP 9/28/2010 - I believe passing in the datatypes with the table data is redundant since the types
-		 * are retrieved from the database meta data.
-		 *#
-		String[] rowdata;
-		String query ="";
-		//String columns= "";
-		String values = "";
-		
-		if (tabledata.size() < 2)
-		{
-			stdoutwriter.writeln("Not enough rows of data passed into importTableIntoDB\nThis may be a custom import and the flag needs to be set",Logs.ERROR,"UF4.5");
-			return;
-		}
-		
-		String[] columnnames = tabledata.get(0);
-		tabledata.remove(0);
-		
-		if (tablename.equals("fact_data_stage") || tablename.equals("fact_data"))
-		{
-				columnnames = extendArray(columnnames);
-				columnnames[columnnames.length - 1] = "batch";
-				
-		}
-		
-		String[] datatypes = new String[columnnames.length];
-	
-		try
-		{
-			ResultSet rsColumns = null;
-			DatabaseMetaData meta = con.getMetaData();
-
-		
-	
-			int nCount=0;
-			for (int j=0;j<columnnames.length;j++)
-			{	
-	
-			  rsColumns = meta.getColumns(null, null, tablename, null);
-
-			  nCount=0;
-	    	while (rsColumns.next())
-				{
-		
-					#*System.out.println(rsColumns.getString("COLUMN_NAME"));
-					System.out.println(rsColumns.getString("TYPE_NAME"));*#
-					//stdoutwriter.writeln(columnnames[j],Logs.STATUS2,"UF5");
-					if (columnnames[j].compareTo(rsColumns.getString("COLUMN_NAME")) == 0)
-					{
-						datatypes[j] = rsColumns.getString("TYPE_NAME");
-						stdoutwriter.writeln(datatypes[j],Logs.STATUS2,"UF6");
-						break;
-					}
-					nCount++;
-				}
-			}
-		}
-		catch (SQLException sqle)
-		{
-			stdoutwriter.writeln("Problem retrieving column data types",Logs.ERROR,"UF7");
-			stdoutwriter.writeln(sqle);
-		}
-		stdoutwriter.writeln("Finished retrieving column data types",Logs.STATUS2,"UF8");
-		String strColumns;
-	
-		int nInsertCount=0;
-		
-	
-		
-		
-		for (int x=0;x<tabledata.size();x++)
-		{
-			//for debugging purposes
-			//if (x!= 5052)
-				//continue;
-				
-			rowdata = tabledata.get(x);
-		
-			//query = "INSERT INTO fact_data_stage (data_set,value,quarter,ticker,date_collected) VALUES ('" + strCurDataSe
-			values ="";
-			strColumns="";
-			
-			if (tablename.equals("fact_data_stage") || tablename.equals("fact_data"))
-			{
-					rowdata = extendArray(rowdata);
-					//using columnnames here since that is guaranteed to be the correct length
-					rowdata[columnnames.length - 1] = Integer.toString(nBatch);
-					
-			}
-			
-			
-			for (int y=0;y<columnnames.length;y++)
-			{
-				
-				if (y!=0)
-				{
-					values = values + ",";
-					strColumns = strColumns + ",";
-				}
-
-				//System.out.println("{" + rowdata[y] + "} " + rowdata[y].length() + " " + datatypes[y]);
-				if (datatypes[y].compareTo("VARCHAR") == 0)
-				{
-					values = values + "'" + rowdata[y].replace("'","\\'") + "'";
-				}
-				else if (((datatypes[y].compareTo("INT") == 0) || (datatypes[y].compareTo("BIGINT") == 0)) && ((rowdata[y].length() == 0)))
-				{
-
-					values = values + "'0'";
-				}
-				else
-					values = values + rowdata[y];	
-				
-					
-				strColumns = strColumns + columnnames[y];
-
-				
-			}
-			query = "insert into " + tablename + " (" + strColumns + ") values (" + values + ")";
-			//System.out.println("insert row: " + query);
-			try
-			{
-				db_update_query(query);
-				nInsertCount++;
-			}
-			catch (SQLException sqle)
-			{
-				stdoutwriter.writeln("SQLException failed at row " + (x+1) + " " + query,Logs.ERROR,"UF9");
-				stdoutwriter.writeln(sqle);
-			}
-		
-		}
-		stdoutwriter.writeln(nInsertCount + " records inserted in db.",Logs.STATUS2,"UF10");
-	}*/
-	
-	/*public void updateTableIntoDB(ArrayList<String[]> tabledata, String tablename)
-	{
-		
-		#*OFP 9/28/2010 - I believe passing in the datatypes with the table data is redundant since the types
-		 * are retrieved from the database meta data.
-		 *#
-		String[] rowdata;
-		String query ="";
-		//String columns= "";
-		//String values = "";
-		
-		String[] columnnames = tabledata.get(0);
-		tabledata.remove(0);
-		
-		String[] datatypes = new String[columnnames.length];
-	
-		try
-		{
-			ResultSet rsColumns = null;
-			DatabaseMetaData meta = con.getMetaData();
-
-		
-	
-			int nCount=0;
-			for (int j=0;j<columnnames.length;j++)
-			{	
-	
-			  rsColumns = meta.getColumns(null, null, tablename, null);
-
-			  nCount=0;
-	    	while (rsColumns.next())
-				{
-		
-					#*System.out.println(rsColumns.getString("COLUMN_NAME"));
-					System.out.println(rsColumns.getString("TYPE_NAME"));*#
-					stdoutwriter.writeln(columnnames[j],Logs.STATUS2,"UF11");
-					if (columnnames[j].compareTo(rsColumns.getString("COLUMN_NAME")) == 0)
-					{
-						datatypes[j] = rsColumns.getString("TYPE_NAME");
-						stdoutwriter.writeln(datatypes[j],Logs.STATUS2,"UF12");
-						break;
-					}
-					nCount++;
-				}
-			}
-		}
-		catch (SQLException sqle)
-		{
-			stdoutwriter.writeln("Problem retrieving column data types",Logs.ERROR,"UF13");
-			stdoutwriter.writeln(sqle);
-		}
-		stdoutwriter.writeln("Finished retrieving column data types",Logs.STATUS2,"UF14");
-		//String strColumns;
-	
-		int nInsertCount=0;
-		for (int x=0;x<tabledata.size();x++)
-		{
-			//for debugging purposes
-			//if (x!= 5052)
-				//continue;
-				
-			rowdata = tabledata.get(x);
-		
-			
-			//values ="";
-			//strColumns="";
-			
-			
-			
-			
-			query = "update " + tablename + " set " + columnnames[1] + "='" + rowdata[1] + "' where " + columnnames[0] + "='" + rowdata[0] + "'";
-			
-			try
-			{
-				db_update_query(query);
-				nInsertCount++;
-			}
-			catch (SQLException sqle)
-			{
-				stdoutwriter.writeln("SQLException failed at row " + (x+1) + " " + query,Logs.ERROR,"UF15");
-				stdoutwriter.writeln(sqle);
-			}
-		
-		}
-		stdoutwriter.writeln("Updated " + nInsertCount + " records.",Logs.STATUS2,"UF16");
-	}*/
-	
-	/*public void customDataCheck(ArrayList<String[]> tabledata, String strTicker)
-	{
-		#*This is a custom function to compare the begin_fiscal_calendar from the nasdaq and the sec
-		 * websites.
-		 *#
-		try
-		{
-			String query = "select begin_fiscal_calendar from company where ticker='" + strTicker + "'";
-			ResultSet rs = db_run_query(query);
-			rs.next();
-			String strNasdaqValue = rs.getString("begin_fiscal_calendar");
-			
-			if (strNasdaqValue.compareTo(tabledata.get(1)[1]) != 0)
-				System.out.println("VALUES DO NOT MATCH. Nasdaq: " + strNasdaqValue + ". SEC: " + tabledata.get(1)[1]);
-				
-			
-		}
-		catch (SQLException sqle)
-		{
-			stdoutwriter.writeln("SQL statement failed.",Logs.ERROR,"UF17");
-			stdoutwriter.writeln(sqle);
-		
-		}
-		
-		
-	}*/
-	
-	/*public static void getColumnNames(ResultSet rs) throws SQLException {
-	    if (rs == null) {
-	      return;
-	    }
-	    ResultSetMetaData rsMetaData = rs.getMetaData();
-	    int numberOfColumns = rsMetaData.getColumnCount();
-
-	    // get the column names; column indexes start from 1
-	    for (int i = 1; i < numberOfColumns + 1; i++) {
-	      String columnName = rsMetaData.getColumnName(i);
-	      // Get the name of the column's table name
-	      String tableName = rsMetaData.getTableName(i);
-	      System.out.println("column name=" + columnName + " table=" + tableName + "");
-	    }
-	  }*/
 	
 	//public static HashMap<String,HashMap<String,String>> convertResultSetToHashMap(ResultSet rs,String strColumnKey) throws SQLException
-	public static HashMap<String,HashMap<String,String>> convertResultSetToHashMap(ResultSet rs,String strColumnKey) throws SQLException
+	public static HashMap<TheKey,HashMap<String,String>> convertResultSetToHashMap(ResultSet rs,String strColumnKey1,String strColumnKey2) throws SQLException
 	{
 		//HashMap<String,HashMap<String,String>> parentHash = null;
-		HashMap<String,HashMap<String,String>> parentHash = null;
+		HashMap<TheKey,HashMap<String,String>> parentHash = null;
 	
 		ResultSetMetaData rsMetaData = rs.getMetaData();
 		int numberOfColumns = rsMetaData.getColumnCount();
-		String strHashKey=null;
+		String strHashKey1=null;
+		String strHashKey2=null;
 		
 		while (rs.next())
 		{
 			if (parentHash==null)
 				//parentHash = new HashMap<String,HashMap<String,String>>();
-				parentHash = new HashMap<String,HashMap<String,String>>();
+				parentHash = new HashMap<TheKey,HashMap<String,String>>();
 				
 			//String[] tmpArray = new String[numberOfColumns];
 			HashMap<String,String> childHash = new HashMap<String,String>();
@@ -491,6 +209,13 @@ public class UtilityFunctions
 						strValue = "false";
 						if (rs.getInt(i) != 0)
 							strValue = "true";
+						break;
+						
+					case java.sql.Types.DATE:
+						if (rs.getDate(i) != null)
+							strValue = rs.getDate(i).toString();
+						else
+							strValue = null;
 						break;
 						
 						
@@ -515,7 +240,7 @@ public class UtilityFunctions
 							strValue = null;
 						else
 						{
-							//rs.getData() drops the time						
+							//rs.getDate() drops the time						
 							strValue = rs.getTimestamp(i).toString();
 						}
 						break;
@@ -526,22 +251,108 @@ public class UtilityFunctions
 						
 						
 				}
-				if (rsMetaData.getColumnName(i).equals(strColumnKey))
-					strHashKey = strValue;
+				if (rsMetaData.getColumnName(i).equals(strColumnKey1))
+					strHashKey1 = strValue;
+				if (rsMetaData.getColumnName(i).equals(strColumnKey2))
+					strHashKey2 = strValue;
 					
 				childHash.put(rsMetaData.getTableName(i)+"."+rsMetaData.getColumnName(i), strValue);
 				//tmpArray[i-1] = strValue;
 			
 			}
-			if (strHashKey == null)
-			{
+			if (strHashKey1 == null) {
 				stdoutwriter.writeln("Problem converting ResultSet to HashMap - column for hash key not found",Logs.ERROR,"UF18.7");
 				throw new SQLException("Custom SQL Exception - Unable to convert ResultSet to HashMap");
 			}
-			parentHash.put(strHashKey,childHash);
+			
+			TheKey tk = new TheKey(strHashKey1,strHashKey2);
+			//parentHash.put(strHashKey,childHash);
+			parentHash.put(tk, childHash);
 		}
 		
 		return(parentHash);
+	}
+	
+	public static ArrayList<String[]> convertResultSetToArrayList2(ResultSet rs) throws SQLException {
+		ArrayList<String[]> tmpArrayList = new ArrayList<String[]>();
+		ResultSetMetaData rsMetaData = rs.getMetaData();
+		int numberOfColumns = rsMetaData.getColumnCount();
+		int nRow=0;
+		
+		while (rs.next())
+		{
+			String[] tmpArray = new String[numberOfColumns];
+			for (int i=1;i<=numberOfColumns;i++)
+			{
+				int j = rsMetaData.getColumnType(i);
+				String strValue="";
+				switch(j)
+				{
+				
+			
+					case java.sql.Types.BIT:
+						strValue = "false";
+						if (rs.getInt(i) != 0)
+							strValue = "true";
+						break;
+						
+					case java.sql.Types.DATE:
+						if (rs.getDate(i) != null)
+							strValue = rs.getDate(i).toString();
+						else
+							strValue = null;
+						break;
+						
+					case java.sql.Types.INTEGER:
+						strValue = rs.getInt(i) + "";
+						break;
+						
+					case java.sql.Types.VARCHAR:
+						strValue = rs.getString(i);
+						break;
+						
+					case java.sql.Types.DECIMAL:
+						if (rs.getBigDecimal(i) == null)
+							strValue = null;
+						else
+							strValue = rs.getBigDecimal(i).toString();
+						break;
+						  
+						  //try to find the fact key in fact_data
+					case java.sql.Types.TIMESTAMP:
+						if (rs.getDate(i) == null)
+							strValue = null;
+						else
+							strValue = rs.getTimestamp(i).toString();
+						break;
+						
+					default:
+						stdoutwriter.writeln("Problem converting ResultSet to ArrayList - unhandled column type",Logs.ERROR,"UF18.5");
+						throw new SQLException("Custom SQL Exception - Unable to convert ResultSet to ArrayList");
+						
+						
+				}
+				//tmpHash.put(rsMetaData.getTableName(i)+"."+rsMetaData.getColumnName(i), strValue);
+				tmpArray[i-1] = strValue;
+				
+			}
+			tmpArrayList.add(tmpArray);
+			nRow++;
+			/*if (nRow==ntmp)
+			{
+				String tmp = "blap";
+			}*/
+		}
+		
+		
+		return(tmpArrayList);
+		
+		
+		
+		
+		
+		
+		
 	}
 	
 	//public static ArrayList<HashMap<String,String>> convertResultSetToArrayList(ResultSet rs) throws SQLException
@@ -574,6 +385,13 @@ public class UtilityFunctions
 						strValue = "false";
 						if (rs.getInt(i) != 0)
 							strValue = "true";
+						break;
+						
+					case java.sql.Types.DATE:
+						if (rs.getDate(i) != null)
+							strValue = rs.getDate(i).toString();
+						else
+							strValue = null;
 						break;
 						
 					case java.sql.Types.INTEGER:
@@ -659,16 +477,13 @@ public class UtilityFunctions
 		
 	}
 	
-	public static void loadCSV(String filename)
-	//not quite functional yet
-	{
-	
-		filename = filename.replace("\\","\\\\");
-	
-		//String query = "LOAD DATA INFILE '" + filename + "' REPLACE INTO TABLE 'fact_data_stage' FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n'('ticker','data_set','value')";
-		//db_update_query(query);
-
+	public static ArrayList<String[]> convertCSV(String strData, String strDelimiter, String strEncloseString) {
+		//not fully implemented yet
+		return null;
+		
+		
 	}
+	
 	
 	public static ArrayList<String[]> readInCSV(String strFilename, String strDelimiter, String strEncloseString)
 	{
@@ -890,12 +705,16 @@ public class UtilityFunctions
 	  {	
 	  	//String host = "smtp.gmail.com";
 	  	//int port = 587;
-	  	String username = "hastapasta99";
-	  	String password = "madmax1.";
+	  	//String username = "hastapasta99";
+	  	//String password = "ginger1.";
+		String username = (String)DataLoad.props.getProperty("emailuser");
+		String password = (String)DataLoad.props.getProperty("emailpass");
 
 	  	Properties props = new Properties();
-	  	props.put("mail.smtp.port","587");
-	  	props.put("mail.smtp.host", "smtp.gmail.com");
+	  	//props.put("mail.smtp.port","587");
+	  	//props.put("mail.smtp.host", "smtp.gmail.com");
+	  	props.put("mail.smtp.port", Integer.parseInt((String)DataLoad.props.getProperty("emailport")));
+	  	props.put("mail.smtp.host", (String)DataLoad.props.getProperty("emailhost"));
 	  	props.put("mail.smtp.auth", "true");
 	  	props.put("mail.smtp.starttls.enable", "true");
 	  	props.put("mail.debug", "false");
@@ -927,7 +746,7 @@ public class UtilityFunctions
 		    
 		    
 		    //emails are disabled for testing
-		    if (DataLoad.bDisableEmails == false)
+		    if (DataLoad.bDebugMode == false)
 		    	Transport.send(message);
 
 		    DataLoad.nMailMessageCount++;	
@@ -943,19 +762,136 @@ public class UtilityFunctions
 	  	
 	  }
 	
+	public static void htmlMail(String strEmail, String strMessage, String strSubject) {
+		
+		HtmlEmail email = new HtmlEmail();
+
+		try {
+			email.setHostName((String)DataLoad.props.getProperty("emailhost"));
+			email.setAuthentication((String)DataLoad.props.getProperty("emailuser"), (String)DataLoad.props.getProperty("emailpass"));
+			email.setSmtpPort(Integer.parseInt((String)DataLoad.props.getProperty("emailport")));
+			email.setFrom((String)DataLoad.props.getProperty("fromaddy"));
+			email.addTo(strEmail);
+			email.setSubject(strSubject);
+	
+			email.setTextMsg("Pikefin Alert");
+			email.setHtmlMsg(strMessage);
+			email.setTLS(true);
+	
+			email.setDebug(false);
+			
+	
+			email.send();
+		}
+		catch (EmailException ee) {
+			stdoutwriter.writeln("Problem sending html email.",Logs.ERROR,"UF30.5");
+	  		//stdoutwriter.writeln("Message Count: " + DataLoad.nMailMessageCount,Logs.ERROR,"UF28.52");
+	  		stdoutwriter.writeln(ee);
+			
+		}
+
+		
+	}
+	
 	//public static void tweet(String strEmail, String strMessage, String strSubject, String strFromAddy)
-	public static void tweet(String strTweet)
-	{	
+	public static String tweet(String strTweet,String strUser, String strPass, String strAuth1, String strAuth2, String strAuth3, String strAuth4) {	
 	  	//String host = "smtp.gmail.com";
 	  	//int port = 587;
 	  	//String username = "hastapasta99";
 	  	//String password = "madmax1.";
-		try
-		{
-			Twitter twitter = new TwitterFactory().getInstance();
+		
+		//boolean bSuccess = true;
+		String strErrorMsg = "";
+		try	{
+			ConfigurationBuilder cb = new ConfigurationBuilder();
+	
+			/*cb.setUser("pikefindotcom");
+			cb.setPassword("ginger1.");
+			
+			cb.setDebugEnabled(true)
+			  .setOAuthConsumerKey("5Fe0I6bfXMgizg1MQ1jMQ")
+			  .setOAuthConsumerSecret("sSbfFG5GEqAxUqSy1newCgkEAvTuIHf7y9HwB2QNA0")
+			  .setOAuthAccessToken("260464945-DQseZfWVTzAzuOSqz8ZkVCJqSm2Y44p5TQdVxhzU")
+			  .setOAuthAccessTokenSecret("1UwoxCB63MhTPSs0EECCHLAPxn6p9iKZNqM298Sqs88");
+			
+			
+			cb.setUser("pfin_forex");
+			cb.setPassword("madmax1.");
+			
+			cb.setDebugEnabled(true)
+			  .setOAuthConsumerKey("KPkMWKCAV8CYXQeyCG9VA")
+			  .setOAuthConsumerSecret("cp4bW9UgQ04NWK9pcQHjesUiR6Ya37ahtvdOXOGyCOw")
+			  .setOAuthAccessToken("382701296-AZNdnD7E5xZK610LZHYD4IkqxinI12Td9hA5CQNy")
+			  .setOAuthAccessTokenSecret("KhnKstEri9xMA7oeoLzzY4br9H4iyjBjMvCNEpvahcQ");
+			
+			cb.setUser("pfin_commodity");
+			cb.setPassword("madmax1.");
+			
+			cb.setDebugEnabled(true)
+			  .setOAuthConsumerKey("7GWDzfijJ9KGaW9q8oLOvw")
+			  .setOAuthConsumerSecret("AbkTMtmMdC3IEOnyxJw1SB5EHcXXfdlEt6pEPif6HnQ")
+			  .setOAuthAccessToken("382679101-KBaGgDu8ry1Rl2VwlNGpXW7WzM2L4FgCt5Fyrabb")
+			  .setOAuthAccessTokenSecret("V5IKgsNQCBccJy3w6DW4Keuk9Qh95MJkVQtsVrIuM");
+			
+			cb.setUser("pfin_us_stocks");
+			cb.setPassword("madmax1.");
+			
+			cb.setDebugEnabled(true)
+			  .setOAuthConsumerKey("wyxaktdjEu6OmQWEcRdCw")
+			  .setOAuthConsumerSecret("PuXYGpfWbW1OE1RnmC0YlF8gHxiUwbmDspMhrmrcSW0")
+			  .setOAuthAccessToken("382684624-adVHfgSxLXiJK8Xr6RHINraC8HBr626gSbNNr2IB")
+			  .setOAuthAccessTokenSecret("eKdTKG1602YW1kDOqpzFScbg3pH56MJnr3TVHVEtk");
+			
+			cb.setUser("pfin_equity_idx");
+			cb.setPassword("madmax1.");
+			
+			cb.setDebugEnabled(true)
+			  .setOAuthConsumerKey("nuRiyfSn9kLiXXCNtIu7g")
+			  .setOAuthConsumerSecret("00lfsRJEhpwtEiN3rIo7TSp24ykvNbm4DjLmVZUs9sI")
+			  .setOAuthAccessToken("382688292-2VkgKjeZUp1qcPsURlMveGqmBenFvl6lg04f3ptb")
+			  .setOAuthAccessTokenSecret("fSuZttQlp7RiJGxDHeudg9t74AZc1Ksj5WLNfyj7uU");*/
+			
+			/*cb.setUser("pfin_gdp");
+			cb.setPassword("madmax1.");
+			
+			cb.setDebugEnabled(true)
+			  .setOAuthConsumerKey("PWXUU8IZMw9ECnyHulpaAQ")
+			  .setOAuthConsumerSecret("iMWNlt0epLYVoCa7WNqHa9wsd2Vxd2cEKKBUg3NqE")
+			  .setOAuthAccessToken("382694496-BGmNTLvseK7HXUC49271xJzArE3bHBJdeZr3fe8")
+			  .setOAuthAccessTokenSecret("M1ECA4FJadLK4WY5ZVQDAB0T3nRHlRpdjx1L4opu0U");*/
+			
+			cb.setUser(strUser);
+			cb.setPassword(strPass);
+			
+			cb.setDebugEnabled(true)
+			  .setOAuthConsumerKey(strAuth1)
+			  .setOAuthConsumerSecret(strAuth2)
+			  .setOAuthAccessToken(strAuth3)
+			  .setOAuthAccessTokenSecret(strAuth4);
+			
+			
+
+			
+					
+			TwitterFactory tf = new TwitterFactory(cb.build());
+			
+			Twitter twitter = tf.getInstance();
+		
+			
+			/*c.setUser(strUser);
+			c.setPassword(strPass);
+			c.setOtherThings(UNIQUE);
+			c.setOAuthConsumer/Secret(CONSTANT);
+			c.OAuthAccessToken/Secret(UNIQUE);*/
+			
+			//AccessToken accessToken = loadAccessToken(Integer.parseInt(args[0]));
 			try
 			{
-				RequestToken requestToken = twitter.getOAuthRequestToken();
+				//RequestToken requestToken = twitter.getOAuthRequestToken();
+				
+				
+				//twitter.getOAuthRequestToken("x");
+
 				/*AccessToken accessToken = null;
 				while (null == accessToken)
 				{
@@ -990,26 +926,30 @@ public class UtilityFunctions
 			}
 			catch (IllegalStateException ie)
 			{
+				
 			    // access token is already available, or consumer key/secret is not set.
 				if (!twitter.getAuthorization().isEnabled())
 				{
 				    //System.out.println("OAuth consumer key/secret is not set.");
 					stdoutwriter.writeln("OAuth consumer key/secret is not set.",Logs.ERROR,"UF47.5");
+					strErrorMsg = "OAuth consumer key/secret is not set.";
 				        //System.exit(-1);
 				}
+				else
+					strErrorMsg = ie.getMessage();
+				return(strErrorMsg);
 			}
 			
 			if (strTweet.length() > 140)
 			{
+			
 				stdoutwriter.writeln("Tweet longer than 140 characters; tweet truncated.",Logs.WARN,"UF49.5");
 				stdoutwriter.writeln(strTweet,Logs.WARN,"UF49.5");
+				strErrorMsg = "Tweet longer than 140 characters; tweet truncated.";
 			}
 				
-			/*
-			 * Right now we're using the same property for both emails and tweets for 
-			 * global disable.
-			 */
-			//if (DataLoad.bDisableEmails == false)
+			
+			if (DataLoad.bDebugMode == false)
 				twitter.updateStatus(strTweet);
 		
 		}
@@ -1020,7 +960,12 @@ public class UtilityFunctions
 		    //System.exit(-1);
 			stdoutwriter.writeln("Problem sending tweet",Logs.ERROR,"UF48.5");
 			stdoutwriter.writeln(te);
+			strErrorMsg = te.getMessage();
 		}
+		
+		
+		return(strErrorMsg);
+		
 		    
 	}
 	  	
@@ -1044,6 +989,7 @@ public class UtilityFunctions
 		
 		
 	}  
+	
 
 
 	
@@ -1077,6 +1023,7 @@ public class UtilityFunctions
 		
 	}
 	
+
 	class MyPasswordAuthenticator extends Authenticator 
 	{
 		String user;
@@ -1093,6 +1040,14 @@ public class UtilityFunctions
 			
 		}
 	}
+	
+	
+		 
+		 
+		
+		
+		
+	
 
 	
 	 
