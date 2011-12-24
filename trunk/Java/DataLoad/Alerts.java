@@ -11,8 +11,7 @@ import java.util.HashMap;
 
 public class Alerts {
 	
-	public Alerts()
-	{
+	public Alerts()	{
 		
 	}
 	
@@ -56,28 +55,23 @@ public class Alerts {
 			  
 			  
 			query = "select alerts.disabled,alerts.id,alerts.initial_fact_data_id,";
-			query += "alerts.notification_count,alerts.user_id,alerts.limit_value,";
-			query += "alerts.auto_reset_period,alerts.auto_reset_fired,alerts.fired,";
-			//query += "alerts.email_alert,alerts.twitter_alert,";
-			//query += " alert_targets.type, ";
-			query += "entities.ticker,entities.id,entities.full_name, entities.hash, ";
-			//query += "users.id,users.username,users.max_notifications,users.email,users.bulk_email,";
-			query += "users.id, ";
-			query += "fact_data.value,fact_data.id,fact_data.date_collected,";
-			query += "time_events.id,time_events.name,time_events.next_datetime,time_events.last_datetime, ";
-			query += "tasks.metric_id, ";
-			query += "countries.hash ";
-			query += "from alerts ";
-			query += "LEFT JOIN entities ON alerts.entity_id=entities.id ";
-			query += "LEFT JOIN users ON alerts.user_id=users.id ";
-			query += "LEFT JOIN fact_data ON alerts.initial_fact_data_id=fact_data.id ";
-			query += "LEFT JOIN time_events ON alerts.time_event_id=time_events.id ";
-			query += "LEFT JOIN tasks ON alerts.task_id=tasks.id ";
-			query += "LEFT JOIN countries_entities ON countries_entities.entity_id=entities.id ";
-			query += "LEFT JOIN countries ON countries.id=countries_entities.country_id ";
-			//query += " LEFT JOIN alerts_alert_targets on alerts_alert_targets.alert_id=alerts.id ";
-			//query += " LEFT JOIN alert_targets on alerts_alert_targets.alert_target_id=alert_targets.id ";
-			query += "where alerts.task_id=" + nCurTask;
+			query += " alerts.notification_count,alerts.user_id,alerts.limit_value,";
+			query += " alerts.auto_reset_period,alerts.auto_reset_fired,alerts.fired, alerts.calyear, ";
+			query += " entities.ticker,entities.id,entities.full_name, entities.hash, ";
+			query += " users.id, ";
+			query += " fact_data.value,fact_data.id,fact_data.date_collected,";
+			query += " time_events.id,time_events.name,time_events.next_datetime,time_events.last_datetime, ";
+			query += " tasks.metric_id, ";
+			query += " countries.hash ";
+			query += " from alerts ";
+			query += " LEFT JOIN entities ON alerts.entity_id=entities.id ";
+			query += " LEFT JOIN users ON alerts.user_id=users.id ";
+			query += " LEFT JOIN fact_data ON (alerts.initial_fact_data_id=fact_data.id and alerts.calyear=fact_data.calyear) ";
+			query += " LEFT JOIN time_events ON alerts.time_event_id=time_events.id ";
+			query += " LEFT JOIN tasks ON alerts.task_id=tasks.id ";
+			query += " LEFT JOIN countries_entities ON countries_entities.entity_id=entities.id ";
+			query += " LEFT JOIN countries ON countries.id=countries_entities.country_id ";
+			query += " where alerts.task_id=" + nCurTask;
 			query += " order by time_events.id";
 			  
 			 
@@ -111,7 +105,7 @@ public class Alerts {
 			ResultSet rsCurFactData1 = dg.dbf.db_run_query(query3);
 			  
 			  
-			HashMap<String,HashMap<String,String>> hmCurFactData = UtilityFunctions.convertResultSetToHashMap(rsCurFactData1,"entity_id");
+			HashMap<TheKey,HashMap<String,String>> hmCurFactData = UtilityFunctions.convertResultSetToHashMap(rsCurFactData1,"entity_id","calyear");
 			  
 			if (hmCurFactData == null)  {
                 UtilityFunctions.stdoutwriter.writeln("No fact_data entries found for task " + nCurTask + "and batch " + nMaxBatch + ". Alert processing terminated.",Logs.WARN,"A4.0");
@@ -137,9 +131,10 @@ public class Alerts {
 					  
 					SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 					  
-					int nEntityId = Integer.parseInt(hmAlert.get("entities.id"));//rsAlert.getInt("entities.id");
-					int nAlertId = Integer.parseInt(hmAlert.get("alerts.id"));//rsAlert.getInt("alerts.id");
-					String strTicker = hmAlert.get("entities.ticker");//rsAlert.getString("ticker");
+					int nEntityId = Integer.parseInt(hmAlert.get("entities.id"));
+					int nAlertId = Integer.parseInt(hmAlert.get("alerts.id"));
+					String strCalYear = hmAlert.get("alerts.calyear");
+					String strTicker = hmAlert.get("entities.ticker");
 					  
 					boolean bAutoResetPeriod = customParseBoolean(hmAlert.get("alerts.auto_reset_period"));
 					boolean bAutoResetFired = customParseBoolean(hmAlert.get("alerts.auto_reset_fired"));
@@ -150,7 +145,8 @@ public class Alerts {
 					//boolean bEmailAlert = customParseBoolean(hmAlert.get("alerts.email_alert"));
 					//boolean bTwitterAlert = customParseBoolean(hmAlert.get("alerts.twitter_alert"));
 					  
-					if ((hmCurFactData.get(nEntityId+"") == null)) {
+					//if ((hmCurFactData.get(nEntityId+"") == null)) {
+					if (hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)) == null) {
 						UtilityFunctions.stdoutwriter.writeln("No recent fact data collected for ticker: " + strTicker  + ", batch: " + nMaxBatch + ",alert id: "+ nAlertId + ",entity id: " + nEntityId + ". Skipping alert processing",Logs.WARN,"A2.7358");
 						continue;
 					}
@@ -170,8 +166,10 @@ public class Alerts {
 						calInitialFactDataCollected.setTime(inputFormat.parse(hmAlert.get("fact_data.date_collected")));
 					}
 				  
-				  
-					calJustCollected.setTime(inputFormat.parse(hmCurFactData.get(nEntityId+"").get("fact_data.date_collected")));
+					
+					//calJustCollected.setTime(inputFormat.parse(hmCurFactData.get(nEntityId+"").get("fact_data.date_collected")));
+					HashMap<String,String> tmpHash = hmCurFactData.get(new TheKey(nEntityId+"",strCalYear));
+					calJustCollected.setTime(inputFormat.parse(hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.date_collected")));
 					calObservationPeriodBegin.setTime(inputFormat.parse(hmAlert.get("time_events.last_datetime")));
 					calObservationPeriodEnd.setTime(inputFormat.parse(hmAlert.get("time_events.next_datetime")));
 
@@ -191,7 +189,7 @@ public class Alerts {
 						 */
 							  
 						/*
-						 * The following query is really slow. One idea to speed it up is since for a give time_event.id, and a given task.id, all entities
+						 * The following query is really slow. One idea to speed it up is since for a given time_event.id, and a given task.id, all entities
 						 * should have the same batch #. So we should only have to run this query once for all alerts that share the same schedule.id (thus task.id) and time_events.id.
 						 * Or the other thing is we could just set the initial_fact_data_id to the recently collected id rather than
 						 * going out and trying to find the earliest one for the observation period, which might be ok for hour and day Obs. Periods but not
@@ -203,6 +201,7 @@ public class Alerts {
 						String strQuery = "select fact_data.id from fact_data,batches ";
 						strQuery += "where fact_data.batch_id = batches.id ";
 						strQuery += " and task_id=" + nCurTask + " AND entity_id=" + nEntityId + " AND fact_data.date_collected>='" + formatter.format(calObservationPeriodBegin.getTime()) +"'";
+						strQuery += " and calyear=" + strCalYear;
 						strQuery += " order by fact_data.date_collected asc";
 							  
 						ResultSet rsFactData = dg.dbf.db_run_query(strQuery);
@@ -217,7 +216,7 @@ public class Alerts {
 						String query4 = "update alerts set ";
 						 
 						query4 += "initial_fact_data_id=" +rsFactData.getInt("fact_data.id") + ",";
-						query4 += "current_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + ", ";
+						query4 += "current_fact_data_id=" + hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + ", ";
 						query4 += "notification_count=0,";
 						query4 += "fired=0 ";
 						query4 += " where id=" + nAlertId;
@@ -239,10 +238,10 @@ public class Alerts {
 			
 					int nNotificationCount = Integer.parseInt(hmAlert.get("alerts.notification_count"));//rsAlert.getInt("alert_count");
 				  	
-					String strUpdateQuery = "update alerts set current_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + " where alerts.id=" + nAlertId;
+					String strUpdateQuery = "update alerts set current_fact_data_id=" + hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + " where alerts.id=" + nAlertId;
 					dg.dbf.db_update_query(strUpdateQuery);
 
-					BigDecimal dJustCollectedValue = new BigDecimal(hmCurFactData.get(nEntityId+"").get("fact_data.value"));
+					BigDecimal dJustCollectedValue = new BigDecimal(hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.value"));
 					  
 					//Not sure of the scale
 					if (dJustCollectedValue.equals(new BigDecimal("0.000")) || dJustCollectedValue.equals(new BigDecimal("0.00")))  {
@@ -558,7 +557,7 @@ public class Alerts {
 								  						  
 						//+ rsCurFactData.getInt("id") + ","
 						+ hmAlert.get("fact_data.id") + ","
-						+ hmCurFactData.get(nEntityId+"").get("fact_data.id") + ","		
+						+ hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + ","		
 						//+ "'" + strFrequency + "',"
 						//+ rsAlert.getBigDecimal("limit_value") + ","
 						+ hmAlert.get("alerts.limit_value") + ","
@@ -577,7 +576,7 @@ public class Alerts {
 						dg.dbf.db_update_query(query8);
 						  
 						if (bAutoResetFired)	  {
-							query8 = "update alerts set notification_count=0,initial_fact_data_id=" + hmCurFactData.get(nEntityId+"").get("fact_data.id") + " where id=" + nAlertId;
+							query8 = "update alerts set notification_count=0,initial_fact_data_id=" + hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + " where id=" + nAlertId;
 						}
 						else  {
 							query8 = "update alerts set fired=1 where id=" + nAlertId;
@@ -611,6 +610,9 @@ public class Alerts {
 			throw new RuntimeException("Problem Parsing Boolean");
 		
 	}
+	
+	
+	
 	
 	  
 
