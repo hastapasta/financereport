@@ -7,6 +7,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.lang.reflect.Method;
 import java.net.*;
+import java.nio.charset.Charset;
 import java.io.*;
 import java.util.regex.*;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import org.apache.http.protocol.HTTP;
 import java.util.Arrays;
 import org.apache.log4j.NDC;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigInteger;
 
 public class DataGrab extends Thread {
 
@@ -36,6 +38,7 @@ public class DataGrab extends Thread {
 	int nCount;
 	String strScheduleId;
 	String strRepeatTypeId;
+	String strURL;
 	ArrayList<String> jobsArray;
 
 	/* Need to make this a constant */
@@ -53,6 +56,10 @@ public class DataGrab extends Thread {
 	Calendar calJobProcessingEnd = null;
 	Calendar calAlertProcessingStart = null;
 	Calendar calAlertProcessingEnd = null;
+	Calendar calJobProcessingStage1Start = null;
+	Calendar calJobProcessingStage1End = null;
+	Calendar calJobProcessingStage2Start = null;
+	Calendar calJobProcessingStage2End = null;
 
 	/* Variable to filter tickers for quicker debugging. */
 	String strStaticTickerLimit = "";
@@ -63,64 +70,64 @@ public class DataGrab extends Thread {
 
 	DBFunctions dbf;
 
-	public DataGrab(UtilityFunctions tmpUF, DBFunctions dbfparam, String strTask/*Primary key of task but as a string.*/, int nBatchId, String strScheduleIdParam, String strRepeatTypeIdParam)
-  {
-  	this.uf = tmpUF;
-  	this.dbf = dbfparam;
-  	this.pf = new ProcessingFunctions(tmpUF,this);
-  	
-  	this.nCurTask = Integer.parseInt(strTask);
-  	this.strScheduleId = strScheduleIdParam;
-  	this.strRepeatTypeId = strRepeatTypeIdParam;
-  	
-  
-	//this.nTaskBatch = nBatchParam;
-  	try
-  	{
-  		/*
-  		 * nBatchId should only be set for historical data loads.
-  		 */
-  		if (nBatchId == 0)
-  			this.nTaskBatch = dbf.insertBatchesEntry(this.nCurTask);
-  		else
-  			this.nTaskBatch = nBatchId;
-
-  	
-	  	String strQuery = "select jobs_tasks.job_id,tasks.name from jobs_tasks,tasks where tasks.id=jobs_tasks.task_id and jobs_tasks.task_id=" + strTask;
-	  	ResultSet rs = dbf.db_run_query(strQuery);
+	public DataGrab(UtilityFunctions tmpUF, DBFunctions dbfparam, String strTask/*Primary key of task but as a string.*/, int nBatchId, String strScheduleIdParam, String strRepeatTypeIdParam) {
+	
+	  	this.uf = tmpUF;
+	  	this.dbf = dbfparam;
+	  	this.pf = new ProcessingFunctions(tmpUF,this);
 	  	
+	  	this.nCurTask = Integer.parseInt(strTask);
+	  	this.strScheduleId = strScheduleIdParam;
+	  	this.strRepeatTypeId = strRepeatTypeIdParam;
 	  	
-	  	jobsArray = new ArrayList<String>();
-	  	
-	  	//this.strCurTask=rs.getString("tasks.name");
-	  	//String tmp = "job_primary_key";
-
-	  	while(rs.next())
+	  
+		//this.nTaskBatch = nBatchParam;
+	  	try
 	  	{
-	  		if (strCurTask.isEmpty())
-	  			this.strCurTask=rs.getString("tasks.name");
-	  		jobsArray.add(rs.getInt("jobs_tasks.job_id")+"");
-	   	}
-
-  	}
-  	catch (SQLException sqle)
-  	{
-  		UtilityFunctions.stdoutwriter.writeln("Problem retreiving list of jobs. Aborting task.",Logs.ERROR,"DG12.5");
-		UtilityFunctions.stdoutwriter.writeln(sqle);
-		return;
-  	}
+	  		/*
+	  		 * nBatchId should only be set for historical data loads.
+	  		 */
+	  		if (nBatchId == 0)
+	  			this.nTaskBatch = dbf.insertBatchesEntry(this.nCurTask);
+	  		else
+	  			this.nTaskBatch = nBatchId;
+	
 	  	
-  	
-  	
-  	
-  	//strCurDataSet = strDataSet;
-  	strCurrentTicker = "";
-  	
-
-  	
-  	
-  	
-	calJobProcessingStart = Calendar.getInstance();
+		  	String strQuery = "select jobs_tasks.job_id,tasks.name from jobs_tasks,tasks where tasks.id=jobs_tasks.task_id and jobs_tasks.task_id=" + strTask;
+		  	ResultSet rs = dbf.db_run_query(strQuery);
+		  	
+		  	
+		  	jobsArray = new ArrayList<String>();
+		  	
+		  	//this.strCurTask=rs.getString("tasks.name");
+		  	//String tmp = "job_primary_key";
+	
+		  	while(rs.next())
+		  	{
+		  		if (strCurTask.isEmpty())
+		  			this.strCurTask=rs.getString("tasks.name");
+		  		jobsArray.add(rs.getInt("jobs_tasks.job_id")+"");
+		   	}
+	
+	  	}
+	  	catch (SQLException sqle)
+	  	{
+	  		UtilityFunctions.stdoutwriter.writeln("Problem retreiving list of jobs. Aborting task.",Logs.ERROR,"DG12.5");
+			UtilityFunctions.stdoutwriter.writeln(sqle);
+			return;
+	  	}
+		  	
+	  	
+	  	
+	  	
+	  	//strCurDataSet = strDataSet;
+	  	strCurrentTicker = "";
+	  	
+	
+	  	
+	  	
+	  	
+		calJobProcessingStart = Calendar.getInstance();
 
 	
   }
@@ -149,6 +156,34 @@ public class DataGrab extends Thread {
 	public Calendar getAlertProcessingEndTime() throws CustomGenericException {
 		if (calAlertProcessingEnd != null)
 			return (calAlertProcessingEnd);
+		else
+			throw new CustomGenericException();
+	}
+	
+	public Calendar getStage1StartTime() throws CustomGenericException {
+		if (calJobProcessingStage1Start != null)
+			return (calJobProcessingStage1Start);
+		else
+			throw new CustomGenericException();
+	}
+
+	public Calendar getStage1EndTime() throws CustomGenericException {
+		if (calJobProcessingStage1End != null)
+			return (calJobProcessingStage1End);
+		else
+			throw new CustomGenericException();
+	}
+	
+	public Calendar getStage2StartTime() throws CustomGenericException {
+		if (calJobProcessingStage2Start != null)
+			return (calJobProcessingStage2Start);
+		else
+			throw new CustomGenericException();
+	}
+
+	public Calendar getStage2EndTime() throws CustomGenericException {
+		if (calJobProcessingStage2End != null)
+			return (calJobProcessingStage2End);
 		else
 			throw new CustomGenericException();
 	}
@@ -332,6 +367,30 @@ public class DataGrab extends Thread {
 			throw new CustomRegexException();
 		}
 		strDataValue = returned_content.substring(nBeginOffset, nEndOffset);
+		/*
+		 * OFP - I'm leaving this test code in here in case I have to deal with extended ASCII characters again.
+		 */
+		/*if (strDataValue.length() <= 1) {
+			try {
+				
+				Charset c = Charset.defaultCharset(); 
+				String tmp = String.format("%x", new BigInteger("x".getBytes(c)));
+				String tmp2 = returned_content.substring(nBeginOffset-1,nEndOffset+1);
+				String tmp3 = returned_content.substring(nBeginOffset,nEndOffset);
+				tmp = String.format("%x", new BigInteger(tmp2.getBytes(c)));
+				tmp = String.format("%x", new BigInteger(tmp3.getBytes(c)));
+				String output = tmp2.replaceAll("[^\\p{ASCII}]", "");
+				tmp = String.format("%x", new BigInteger("".getBytes(c)));
+				tmp = String.format("%x", new BigInteger(strDataValue.getBytes(c)));
+				UtilityFunctions.stdoutwriter.writeln("blap",
+						Logs.STATUS2, "DG10");
+				
+			}
+			catch (Exception e) {
+				UtilityFunctions.stdoutwriter.writeln(e);
+			}
+
+		}*/
 
 		UtilityFunctions.stdoutwriter.writeln(
 				"Raw Data Value: " + strDataValue, Logs.STATUS2, "DG11");
@@ -376,6 +435,10 @@ public class DataGrab extends Thread {
 		ResultSet rs = dbf.db_run_query(query);
 
 		rs.next();
+		
+		if (rs.getInt("parse_post_process")!=0) {
+			return(this.returned_content);
+		}
 
 		int tables, cells, rows, divs;
 		/*
@@ -570,7 +633,7 @@ public class DataGrab extends Thread {
 
 		ResultSet rs2 = dbf.db_run_query(query);
 		rs2.next();
-
+		calJobProcessingStage1Start = Calendar.getInstance();
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpResponse response;
 
@@ -633,7 +696,7 @@ public class DataGrab extends Thread {
 
 		} else {
 
-			String strURL = rs2.getString("url_static");
+			//String strURL = rs2.getString("url_static");
 
 			/*
 			 * if (strCustomURLFuncName != null) {
@@ -647,22 +710,23 @@ public class DataGrab extends Thread {
 			 * } else {
 			 */
 
-			strURL = strURL.replace("${dynamic}", this.strCurrentTicker);
+			this.strURL = this.strURL.replace("${dynamic}", this.strCurrentTicker);
 
-			UtilityFunctions.stdoutwriter.writeln("Retrieving URL: " + strURL,
+			UtilityFunctions.stdoutwriter.writeln("Retrieving URL: " + this.strURL,
 					Logs.STATUS2, "DG25");
 
-			if (!strURL.contains(":"))
+			if (!this.strURL.contains(":"))
 				UtilityFunctions.stdoutwriter.writeln(
 						"WARNING: url is not preceeded with a protocol"
-								+ strURL, Logs.STATUS1, "DG25.5");
+								+ this.strURL, Logs.STATUS1, "DG25.5");
 
 			// HttpGet chokes on the ^ character
 
-			strURL = strURL.replace("^", "%5E");
+			this.strURL = this.strURL.replace("^", "%5E");
+			this.strURL = this.strURL.replace("|", "%7C");
 			// }
 
-			HttpGet httpget = new HttpGet(strURL);
+			HttpGet httpget = new HttpGet(this.strURL);
 
 			/*
 			 * Emulate a browser.
@@ -712,7 +776,8 @@ public class DataGrab extends Thread {
 		}
 
 		HttpEntity entity = response.getEntity();
-
+		calJobProcessingStage1End = Calendar.getInstance();
+		calJobProcessingStage2Start = Calendar.getInstance();
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				entity.getContent()));
 
@@ -726,6 +791,7 @@ public class DataGrab extends Thread {
 		 * OFP 9/15/2011 - Added workaround for connection reset exception for
 		 * bloomberg index tasks.
 		 */
+		
 		boolean bDone = false;
 		while (!bDone) {
 			try {
@@ -762,6 +828,7 @@ public class DataGrab extends Thread {
 		}
 
 		in.close();
+		calJobProcessingStage2End = Calendar.getInstance();
 
 		httpclient.getConnectionManager().shutdown();
 
@@ -1032,6 +1099,8 @@ public class DataGrab extends Thread {
 			query = "select * from jobs where id='" + strJobPrimaryKey + "'";
 			rs = dbf.db_run_query(query);
 			rs.next();
+			
+			this.strURL = rs.getString("url_static");
 
 			strCurDataSet = rs.getString("data_set");
 
@@ -1198,7 +1267,7 @@ public class DataGrab extends Thread {
 
 						UtilityFunctions.stdoutwriter.writeln(
 								"Processing ticker: " + this.strCurrentTicker,
-								Logs.STATUS1, "DG39.1");
+								Logs.STATUS2, "DG39.1");
 
 						/* Active only to debug individual tickers */
 						if (strStaticTickerLimit.isEmpty() != true)
@@ -1469,7 +1538,14 @@ public class DataGrab extends Thread {
 			// calEnd.getTime().toString(),Logs.STATUS1,"DG54");
 			// }
 
-		} catch (Exception e) {
+		} 
+		catch (InvocationTargetException ite) {
+			UtilityFunctions.stdoutwriter.writeln("Exception in grab_data_set: " + ite.getTargetException().getMessage(),	Logs.ERROR, "DG56.83");
+			//UtilityFunctions.stdoutwriter.writeln(ite.getTargetException());
+			
+		}
+		
+		catch (Exception e) {
 			UtilityFunctions.stdoutwriter.writeln("Exception in grab_data_set",
 					Logs.ERROR, "DG55");
 			UtilityFunctions.stdoutwriter.writeln(e);
@@ -1483,6 +1559,11 @@ public class DataGrab extends Thread {
 		// Get a list of all the tickers
 
 		int nGroupSize = 100;
+		
+		calJobProcessingStage1Start = Calendar.getInstance();
+		calJobProcessingStage1End = Calendar.getInstance();
+		calJobProcessingStage2Start = Calendar.getInstance();
+		calJobProcessingStage2End = Calendar.getInstance();
 
 		String query2 = "select entity_groups.id,tasks.metric_id,tasks.use_group_for_reading from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id="
 				+ nCurTask;
@@ -1596,82 +1677,88 @@ public class DataGrab extends Thread {
 			DateFormat formatter = new SimpleDateFormat("M/d/yyyy");
 
 			boolean bResubmit = false;
+			
+			/*
+			 * Right now only perofrm this check on task 10.
+			 */
+			if (this.nCurTask == 10) {
 
-			while (bDone2 == false) {
-
-				nBegin = strTemp.indexOf("<LastTradeDate>", nEnd);
-
-				if (nBegin == -1)
-					break;
-
-				nBegin += "<LastTradeDate>".length();
-
-				nEnd = strTemp.indexOf("</LastTradeDate>", nBegin);
-
-				String strDate = strTemp.substring(nBegin, nEnd);
-
-				nBegin = strTemp.indexOf("<LastTradeTime>", nEnd);
-
-				if (nBegin == -1) {
+				while (bDone2 == false) {
+	
+					nBegin = strTemp.indexOf("<LastTradeDate>", nEnd);
+	
+					if (nBegin == -1)
+						break;
+	
+					nBegin += "<LastTradeDate>".length();
+	
+					nEnd = strTemp.indexOf("</LastTradeDate>", nBegin);
+	
+					String strDate = strTemp.substring(nBegin, nEnd);
+	
+					nBegin = strTemp.indexOf("<LastTradeTime>", nEnd);
+	
+					if (nBegin == -1) {
+						/*
+						 * Technically we should never get here since it means a
+						 * lasttradedate tag without a lasttradetime tag.
+						 */
+						UtilityFunctions.stdoutwriter
+								.writeln(
+										"Issue processing yahoo data. Lasttradedate tage without lasttradetime tag.",
+										Logs.ERROR, "DG60.1");
+						bResubmit = true;
+						break;
+					}
+	
+					nBegin += "<LastTradeTime>".length();
+					nEnd = strTemp.indexOf("</LastTradeTime>", nBegin);
+	
+					String strTime = strTemp.substring(nBegin, nEnd);
+	
+					String strHour = strTime.substring(0, strTime.indexOf(":"));
+					String strMinute = strTime.substring(strTime.indexOf(":") + 1,
+							strTime.indexOf(":") + 3);
+					String strPeriod = strTime.substring(strTime.length() - 2,
+							strTime.length());
+	
+					int nHour = Integer.parseInt(strHour);
+	
+					if (strPeriod.equals("pm") && (nHour != 12))
+						nHour += 12;
+					else if (strPeriod.equals("am") && (nHour == 12))
+						nHour = 0;
+	
+					String[] datearray = strDate.split("/");
+	
+					Calendar cal2 = Calendar.getInstance();
+					cal2.setTimeZone(TimeZone.getTimeZone("America/New_York"));
 					/*
-					 * Technically we should never get here since it means a
-					 * lasttradedate tag without a lasttradetime tag.
+					 * OFP 9/26/2011 I'm using the following method because with the
+					 * indivdual set() methods, i.e. cal2.set(Calendar.HOUR,x);, the
+					 * logic is not absolute, meaning that what the hour 12 means is
+					 * dependent on what AM_PM is currently set to. Also the day can
+					 * get flipped over, which is also behavior I don't want.
 					 */
-					UtilityFunctions.stdoutwriter
-							.writeln(
-									"Issue processing yahoo data. Lasttradedate tage without lasttradetime tag.",
-									Logs.ERROR, "DG60.1");
-					bResubmit = true;
-					break;
+					cal2.set(Integer.parseInt(datearray[2]),
+							Integer.parseInt(datearray[0]) - 1,
+							Integer.parseInt(datearray[1]), nHour,
+							Integer.parseInt(strMinute), 0);
+	
+					// Check if time difference is more than an hour
+					if (Math.abs(cal2.getTimeInMillis() - cal.getTimeInMillis()) > 3600000) {
+						UtilityFunctions.stdoutwriter.writeln(
+								"Bad Yahoo Data, Resubmitting URL", Logs.STATUS1,
+								"DG55.10");
+						UtilityFunctions.stdoutwriter.writeln("Date Collected:"
+								+ strDate + ",Time Collected:" + strTime,
+								Logs.STATUS1, "DG55.11");
+						bResubmit = true;
+						break;
+	
+					}
+	
 				}
-
-				nBegin += "<LastTradeTime>".length();
-				nEnd = strTemp.indexOf("</LastTradeTime>", nBegin);
-
-				String strTime = strTemp.substring(nBegin, nEnd);
-
-				String strHour = strTime.substring(0, strTime.indexOf(":"));
-				String strMinute = strTime.substring(strTime.indexOf(":") + 1,
-						strTime.indexOf(":") + 3);
-				String strPeriod = strTime.substring(strTime.length() - 2,
-						strTime.length());
-
-				int nHour = Integer.parseInt(strHour);
-
-				if (strPeriod.equals("pm") && (nHour != 12))
-					nHour += 12;
-				else if (strPeriod.equals("am") && (nHour == 12))
-					nHour = 0;
-
-				String[] datearray = strDate.split("/");
-
-				Calendar cal2 = Calendar.getInstance();
-				cal2.setTimeZone(TimeZone.getTimeZone("America/New_York"));
-				/*
-				 * OFP 9/26/2011 I'm using the following method because with the
-				 * indivdual set() methods, i.e. cal2.set(Calendar.HOUR,x);, the
-				 * logic is not absolute, meaning that what the hour 12 means is
-				 * dependent on what AM_PM is currently set to. Also the day can
-				 * get flipped over, which is also behavior I don't want.
-				 */
-				cal2.set(Integer.parseInt(datearray[2]),
-						Integer.parseInt(datearray[0]) - 1,
-						Integer.parseInt(datearray[1]), nHour,
-						Integer.parseInt(strMinute), 0);
-
-				// Check if time difference is more than an hour
-				if (Math.abs(cal2.getTimeInMillis() - cal.getTimeInMillis()) > 3600000) {
-					UtilityFunctions.stdoutwriter.writeln(
-							"Bad Yahoo Data, Resubmitting URL", Logs.STATUS1,
-							"DG55.10");
-					UtilityFunctions.stdoutwriter.writeln("Date Collected:"
-							+ strDate + ",Time Collected:" + strTime,
-							Logs.STATUS1, "DG55.11");
-					bResubmit = true;
-					break;
-
-				}
-
 			}
 
 			if (strTemp.length() < 300) {
@@ -1696,7 +1783,7 @@ public class DataGrab extends Thread {
 
 			returned_content += strTemp;
 
-			if ((nGroupCount * nGroupSize) > nTotalCount)
+			if ((nGroupCount * nGroupSize) >= nTotalCount)
 				bDone = true;
 
 			nGroupCount++;
