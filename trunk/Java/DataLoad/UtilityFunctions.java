@@ -222,6 +222,8 @@ public class UtilityFunctions
 						
 					case java.sql.Types.INTEGER:
 						strValue = rs.getInt(i) + "";
+						if (rs.wasNull())
+							strValue=null;
 						break;
 						
 					case java.sql.Types.VARCHAR:
@@ -396,6 +398,8 @@ public class UtilityFunctions
 						
 					case java.sql.Types.INTEGER:
 						strValue = rs.getInt(i) + "";
+						if (rs.wasNull())
+							strValue = null;
 						break;
 						
 					case java.sql.Types.VARCHAR:
