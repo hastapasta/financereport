@@ -66,7 +66,7 @@ public class Alerts {
 			query += " from alerts ";
 			query += " LEFT JOIN entities ON alerts.entity_id=entities.id ";
 			query += " LEFT JOIN users ON alerts.user_id=users.id ";
-			query += " LEFT JOIN fact_data ON (alerts.initial_fact_data_id=fact_data.id and alerts.calyear=fact_data.calyear) ";
+			query += " LEFT JOIN fact_data ON (alerts.initial_fact_data_id=fact_data.id and alerts.calyear<=>fact_data.calyear) ";
 			query += " LEFT JOIN time_events ON alerts.time_event_id=time_events.id ";
 			query += " LEFT JOIN tasks ON alerts.task_id=tasks.id ";
 			query += " LEFT JOIN countries_entities ON countries_entities.entity_id=entities.id ";
@@ -177,6 +177,8 @@ public class Alerts {
 					 * This is the check to see if the alert period has ended and time to update the initial value and reset the adjustment to zero.
 					 * If the last data value collected is before the beginning of the observation period, then we need a new initial_fact_data_id.
 					 */
+					
+					int nCount=0;
 
 				
 					if ((calObservationPeriodBegin.after(calInitialFactDataCollected) && bAutoResetPeriod) || (bPopulateInitialFactDataId == true))  {
@@ -201,7 +203,8 @@ public class Alerts {
 						String strQuery = "select fact_data.id from fact_data,batches ";
 						strQuery += "where fact_data.batch_id = batches.id ";
 						strQuery += " and task_id=" + nCurTask + " AND entity_id=" + nEntityId + " AND fact_data.date_collected>='" + formatter.format(calObservationPeriodBegin.getTime()) +"'";
-						strQuery += " and calyear=" + strCalYear;
+						if (strCalYear != null)
+							strQuery += " and calyear=" + strCalYear;
 						strQuery += " order by fact_data.date_collected asc";
 							  
 						ResultSet rsFactData = dg.dbf.db_run_query(strQuery);
@@ -223,6 +226,7 @@ public class Alerts {
 						  
 						dg.dbf.db_update_query(query4);
 						  
+						nCount++;
 						  
 						/*
 						 * We're past the end of the time period so don't do anything else and proceed to the next alert.
