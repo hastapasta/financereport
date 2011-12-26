@@ -38,7 +38,8 @@ public class DataGrab extends Thread {
 	int nCount;
 	String strScheduleId;
 	String strRepeatTypeId;
-	String strURL;
+	String strStage1URL;
+	String strStage2URL;
 	ArrayList<String> jobsArray;
 
 	/* Need to make this a constant */
@@ -540,48 +541,7 @@ public class DataGrab extends Thread {
 		UtilityFunctions.stdoutwriter.writeln("Data Value: " + strDataValue,
 				Logs.STATUS2, "DG24");
 
-		// remove commas
-
-		// return(strDataValue);
-
-		/*
-		 * query =
-		 * "INSERT INTO fact_data (data_set,value,date_collected) VALUES ('" +
-		 * local_data_set + "','" + strDataValue + "',NOW())";
-		 * 
-		 * UtilityFunctions.stdoutwriter.writeln(query);
-		 * 
-		 * stmt = con.createStatement(); boolean bRet = stmt.execute(query);
-		 */
-
-		// con.close();
-
-		// }
-		/*
-		 * catch (IllegalStateException ise) {
-		 * UtilityFunctions.stdoutwriter.writeln
-		 * ("No regex match",Logs.ERROR,"DG22");
-		 * UtilityFunctions.stdoutwriter.writeln(ise); }
-		 */
-		/*
-		 * catch (CustomEmptyStringException cese) {
-		 * UtilityFunctions.stdoutwriter
-		 * .writeln("CustomEmptyStringException thrown",Logs.ERROR);
-		 * UtilityFunctions.stdoutwriter.writeln(cese); }
-		 */
-		/*
-		 * catch (TagNotFoundException tnfe) {
-		 * UtilityFunctions.stdoutwriter.writeln
-		 * ("TagNotFoundException thrown",Logs.ERROR,"DG23");
-		 * UtilityFunctions.stdoutwriter.writeln(tnfe); }
-		 */
-		/*
-		 * catch( Exception e ) { UtilityFunctions.stdoutwriter.writeln(e); }
-		 */
-		// finally
-		// {
-		// return(strDataValue);
-		// }
+	
 		return (strDataValue);
 
 	}
@@ -696,37 +656,23 @@ public class DataGrab extends Thread {
 
 		} else {
 
-			//String strURL = rs2.getString("url_static");
+			this.strStage2URL = this.strStage1URL.replace("${ticker}", this.strCurrentTicker);
 
-			/*
-			 * if (strCustomURLFuncName != null) {
-			 * 
-			 * Class[] args1 = new Class[1]; args1[0] = String.class;
-			 * 
-			 * Method m = this.getClass().getMethod(strCustomURLFuncName,args1);
-			 * strURL = (String)m.invoke(this, strURL);
-			 * 
-			 * 
-			 * } else {
-			 */
-
-			this.strURL = this.strURL.replace("${dynamic}", this.strCurrentTicker);
-
-			UtilityFunctions.stdoutwriter.writeln("Retrieving URL: " + this.strURL,
+			UtilityFunctions.stdoutwriter.writeln("Retrieving URL: " + this.strStage2URL,
 					Logs.STATUS2, "DG25");
 
-			if (!this.strURL.contains(":"))
+			if (!this.strStage2URL.contains(":"))
 				UtilityFunctions.stdoutwriter.writeln(
 						"WARNING: url is not preceeded with a protocol"
-								+ this.strURL, Logs.STATUS1, "DG25.5");
+								+ this.strStage2URL, Logs.STATUS1, "DG25.5");
 
 			// HttpGet chokes on the ^ character
 
-			this.strURL = this.strURL.replace("^", "%5E");
-			this.strURL = this.strURL.replace("|", "%7C");
+			this.strStage2URL = this.strStage2URL.replace("^", "%5E");
+			this.strStage2URL = this.strStage2URL.replace("|", "%7C");
 			// }
 
-			HttpGet httpget = new HttpGet(this.strURL);
+			HttpGet httpget = new HttpGet(this.strStage2URL);
 
 			/*
 			 * Emulate a browser.
@@ -1049,36 +995,6 @@ public class DataGrab extends Thread {
 		return (tabledata);
 	}
 
-	/*
-	 * public ArrayList<String> get_list_dataset_run_once() {
-	 * //UtilityFunctions.stdoutwriter.writeln("TEST2.7",Logs.ERROR);
-	 * ArrayList<String> tmpAL = new ArrayList<String>();
-	 * 
-	 * int count=0; try {
-	 * 
-	 * String query = "select data_set from schedule where run_once=1";
-	 * ResultSet rs = dbf.db_run_query(query);
-	 * 
-	 * 
-	 * while(rs.next()) {
-	 * 
-	 * tmpAL.add(rs.getString("Data_Set")); count++;
-	 * 
-	 * 
-	 * }
-	 * 
-	 * } catch (SQLException sqle) { UtilityFunctions.stdoutwriter.writeln(
-	 * "problem with retrieving data sets from schedule table"
-	 * ,Logs.ERROR,"DG34"); UtilityFunctions.stdoutwriter.writeln(sqle); }
-	 * 
-	 * 
-	 * 
-	 * UtilityFunctions.stdoutwriter.writeln("Processing " + count +
-	 * " data sets.",Logs.STATUS1,"DG35");
-	 * UtilityFunctions.stdoutwriter.writeln("Loading batch: " +
-	 * this.nBatch,Logs.STATUS1,"DG36"); return(tmpAL); }
-	 */
-
 	public void grab_data_set(String strJobPrimaryKey) {
 
 		try {
@@ -1100,7 +1016,7 @@ public class DataGrab extends Thread {
 			rs = dbf.db_run_query(query);
 			rs.next();
 			
-			this.strURL = rs.getString("url_static");
+			this.strStage1URL = rs.getString("url_static");
 
 			strCurDataSet = rs.getString("data_set");
 
