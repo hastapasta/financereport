@@ -2295,12 +2295,14 @@ public void postProcessIMFGdpPPPEst() throws SQLException {
 	
 }*/
 
+
+
 public boolean preProcessImfGdp() {
 	Calendar cal = Calendar.getInstance();
 	int nMaxEndYear = 2015;
 	
-	dg.strURL = dg.strURL.replace("${dynamic1}", cal.get(Calendar.YEAR)+"");
-	dg.strURL = dg.strURL.replace("${dynamic2}", nMaxEndYear + "");
+	dg.strStage1URL = dg.strStage1URL.replace("${dynamic3}", cal.get(Calendar.YEAR)+"");
+	dg.strStage1URL = dg.strStage1URL.replace("${dynamic4}", nMaxEndYear + "");
 	return true;
 
 }
