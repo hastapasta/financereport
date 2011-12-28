@@ -23,7 +23,7 @@ require_once '../../common/functions.php';
 <?php IncFunc::googleAnalytics();?>
 <style type="text/css">
 table.sample {
-	border-width: 2px;
+	border-width: 1px;
 	border-spacing: 0px;
 	border-color: white;
 	border-style: solid;
