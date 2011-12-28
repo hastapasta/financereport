@@ -297,7 +297,7 @@ class IncFunc
 	static function dropdownMenu()
 	{
 		echo "
-			<div style='padding-left:350px;margin-bottom:20px;z-index:10;position:relative;'>
+			<div style='padding-left:400px;margin-bottom:20px;z-index:10;position:relative;'>
 			<ul class='dropdown'>
 				<li>
 					<a href='#'>Equities</a>
@@ -350,6 +350,7 @@ class IncFunc
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/other/comingsoon.php'>Federal Reserve Change WOW</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/gdp/motionchart.php'>GDP Growth Estimates</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/countries/linechart.php'>GDP/Equity Index Line Chart</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/alerts/twittertable.php'>Twitter Alerts Table</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/topchart.php'>All Assets - Tables</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?a=660&amp;type=1''>All Assets - Inidivdual Line Charts</a></li>
 					</ul>
