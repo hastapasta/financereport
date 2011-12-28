@@ -41,34 +41,35 @@ a:hover {
 body#jq-interior {
 	background-image: url(http://static.jquery.com/files/rocker/images/bg-interior-tile-drk.jpg);
 }
-#jq-siteContain {
-	width: 850px;
+/*#jq-siteContain {
+	width: 1300px;
 	margin: 0 auto;
 }
 #jq-header {
-	/*rockstar removed */
+	#*rockstar removed *#
 	height: 156px;
-	padding: 0 40px;
+	padding: 0 200px;
 	position: relative;
-}
+}*/
 body#jq-interior #jq-header { 
 	background: none;
 	height: 186px;
 }
-#jq-siteLogo {
+/*#jq-siteLogo {
 	display: block;
-	/*top: 59px; */
+	#*top: 59px; *#
 	top: 48px;
 	position: absolute;
 	border: 0 !important;
-}
+	margin: 0 50px;
+}*/
 #jq-siteLogo img {
 border: 0 !important;
 }
 
 
 /*Primary Navigation*/
-#jq-primaryNavigation {
+/*#jq-primaryNavigation {
 float: right;
 background: #192839 url(../images/bg_primaryNav_left.gif) left bottom no-repeat;
 }
@@ -109,7 +110,7 @@ border-right: 1px solid #0F1924;
 color: #fff;
 border-bottom: 2px solid #4082ae;
 margin-bottom: 0;
-}
+}*/
 /*Secondary Navigation*/
 #jq-secondaryNavigation, #jq-footerNavigation {
 float: right;
@@ -322,9 +323,10 @@ border-bottom: 1px solid #000;
 /* #jq-intro  */
 #jq-intro {
 padding-top: 1em;
-width: 515px;
+width: 475px;
 float: left;
 margin-bottom: 3.5em;
+
 }
 #jq-intro h2 {
 font-size: 1.9em;
@@ -345,12 +347,21 @@ position: relative;
 	left: -999999px;
 }
 #jq-intro p {
-clear: both;
+/*clear: both;*/
 font-size: 1.5em;
-margin: .8em 0;
+/*margin: .8em 0 1em 1em;*/
+margin: .8em 0 1em 1em;
+/*border:2px solid #00cccc;*/
+
 font-weight: normal;
 line-height: 1.6;
 }
+
+#pf-body {
+	margin: 0 200px;
+}
+
+
 #jq-intro ul {
 padding: 1.5em 0;
 }
@@ -1278,6 +1289,12 @@ html.js #jq-download input {
 margin-left: 100px;
 }
 
+#pf-form {
+  text-aligh: left;
+  font-size: 1.5em;
+
+}
+
 
 
 /* modify style of yui drop down menu */
@@ -1291,5 +1308,8 @@ margin-left: 100px;
 	color: #FFF;
 	font-size: 17px;
 	}
+	
+	
+
 
 
