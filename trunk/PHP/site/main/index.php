@@ -223,17 +223,24 @@ IncFunc::header1("home");
 <!-- <div id="jq-content"> -->
 <div id="custom-body" style="margin: 20px 50px;">
 <div id="rightcol" style="float:right;margin: 25px 0 0 0;">
-<div>
+<div style="font-size:1.5em;">
 Market Snapshots - Past 24 Hours
+
+<br/>
+<?php echo "<a href=\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=3&metricid=1&timeframe=day\">Forex:</a>";?>
 </div>
-http://localhost/PHP/charts/allassets/directtable.php?entitygroupid=3&title=Global%2520Forex
-<div><A HREF="<?php echo $PHP_ROOT_PATH; ?>/charts/allassets/directtable.php?entitygroupid=3&title=Globalhttp://localhost/PHP/charts/allassets/directtable.php?entitygroupid=3&title=Global%2520Forex&timeframe=day">Forex:</A></div>
 <div id="table1" style="color: #000;margin: 15px 0 0 0;"></div>
-<div>Global Equity Indexes:</div>
+<div style="font-size:1.5em;">
+<?php echo "<a href=\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=5&metricid=1&timeframe=day\">Global Equity Indexes:</a>";?>
+</div>
 <div id="table2" style="color: #000;margin: 15px 0 0 0;"></div>
-<div>Commodity Futures:</div>
+<div style="font-size:1.5em;">
+<?php echo "<a href=\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=4&metricid=11&timeframe=day\">Commodity Futures:</a>";?>
+</div>
 <div id="table3" style="color: #000;margin: 15px 0 0 0;"></div>
-<div>Global Equity Futures:</div>
+<div style="font-size:1.5em;">
+<?php echo "<a href=\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=1008&metricid=11&timeframe=day\">Global Equity Index Futures:</a>";?>
+</div>
 <div id="table4" style="color: #000;margin: 15px 0 0 0;"></div>
 </div> <!--  rightcol -->
 
@@ -281,13 +288,15 @@ new TWTR.Widget({
 
 
 <BR/><BR/>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;We provide financial data analysis and alerting services.</p>
+<p>We provide financial data analysis and alerting services.</p>
 <br/><br/>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;This website is a beta release. Please bear with us as we expand the
-<br/>&nbsp;&nbsp;&nbsp;&nbsp;functionality of the site over the coming days and weeks. Thank you for your 
-<br/>&nbsp;&nbsp;&nbsp;&nbsp;patience.</p>
+<p>We monitor different asset classes and financial metrics for significant changes in value. Alert notifications 
+are then sent out in a variety of formats such as email, twitter, SMS, facebook and google+. 
+Some of the specific items 
+that we track are currency exchange rates, equity indexes, commodity prices, CDS prices, bond prices and gdp estimates.  
+</p>
 <br/>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;For questions or requests please contact <a href="mailto:pikefin1@gmail.com">pikefin1@gmail.com</a></p>
+<p>For questions or requests please contact <a href="mailto:pikefin1@gmail.com">pikefin1@gmail.com</a></p>
 </div> <!-- jq-intro -->
 
 <div id="blogcontrol" style="float:left;clear:left;border: 2px solid #fff; background: #000; width: 250px;font-size: 15px;margin: 25px 0 20px 10px">
