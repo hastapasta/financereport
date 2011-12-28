@@ -45,7 +45,19 @@ db_utility::db_connect();
         //chart1.style.display='none';
         //chart1.style.display='block';
     }
-    
+
+    function genericClickHandler(localTableChart,localQueryWrapper) {
+
+		var row = localTableChart.getSelection();
+		
+		//var test5 = queryWrapper2;
+
+		var dt = localQueryWrapper.currentDataTable;
+		var val = dt.getValue(row[0].row,10);
+		<?php //echo "window.location.href = \"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\";";?>
+		<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?a=\" + val + \"&type=1\");";?>
+
+	}
 
 
 
@@ -90,7 +102,11 @@ db_utility::db_connect();
       query = new google.visualization.Query(dataSourceUrl + queryString1);
       query.setTimeout(120);
       var queryWrapper = new QueryWrapper(query, tableChart, {'size': 'large'}, container,[10],4);
+      google.visualization.events.addListener(tableChart, 'select', function(event){
+    	  genericClickHandler(tableChart,queryWrapper);
+      });
       queryWrapper.sendAndDraw();
+     
     }
 
   </script>
@@ -112,7 +128,7 @@ db_utility::db_connect();
 <div id="pf-body">
 <BR/><BR/>
 <div style="font-size:2.2em;font-weight:bold;margin-left:260px;">
-Complete List of Twitter Alerts
+Twitter Alerts - Complete List
 </div>
 <BR>
 
