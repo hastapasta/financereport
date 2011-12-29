@@ -1,9 +1,4 @@
-/*-------------------------------------------------------------------------------
- * jQuery Website Screen Presentation Layer
- * Author: Scott Jehl, scottjehl.com
- * Created: Jan 09
- * Notes: In addition to styling the jquery homepage and interior layouts, this file provides overrides of several other cms stylesheets. 
--------------------------------------------------------------------------------*/
+
 
 body {
 	background: #39414a url(http://static.jquery.com/files/rocker/images/bg-home-tile.jpg) repeat-x 50% 0;
@@ -323,11 +318,12 @@ border-bottom: 1px solid #000;
 /* #jq-intro  */
 #jq-intro {
 padding-top: 1em;
-width: 475px;
+width: 450px;
 float: left;
 margin-bottom: 3.5em;
 
 }
+
 #jq-intro h2 {
 font-size: 1.9em;
 font-weight: bold;
