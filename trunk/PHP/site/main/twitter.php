@@ -23,16 +23,20 @@ require_once '../../common/functions.php';
 <?php IncFunc::googleAnalytics();?>
 <style type="text/css">
 table.sample {
-	border-width: 1px;
+	border-width: 0px;
+	border-spacing: 0px;
+	border-color: white;
+	border-style: solid;
+	font-size: 1.5em;
+}
+table.sample td {
+	border-width: 0px;
 	border-spacing: 0px;
 	border-color: white;
 	border-style: solid;
 }
-table.sample td {
-	border-width: 1px;
-	border-spacing: 0px;
-	border-color: white;
-	border-style: solid;
+table.sample td.title {
+	font-weight: bold;
 }
 </style>
 </head>
@@ -66,12 +70,12 @@ To do:
 
 <div id="jq-intro">
 <h1>Info Regarding Our pikefindotcom Twitter Feed</h1>
-<p>1) Our overall primary goal is to provide timely and meaningful financial information through a variety of delivery formats, one of which is twitter. 
+<p>1) Our primary goal is to provide timely and meaningful financial information through a variety of delivery formats such as email, SMS, facebook, google+ and twitter. 
 <br/><br/>
 2) We monitor prices of several different asset classes and send out alerts when price movements of a certain magnitude occur over specific time frames. See below for the detailed breakdown.
 <br/><br/>
 3) Because of twitter restrictions, we place an overall limit on the rate of tweets at 2 tweets per every 15 minutes.
- You can see the full list of generated alerts by going to <a href="<?php echo IncFunc::$PHP_ROOT_PATH.'/charts/alerts/twittertable.php'?>">this page.</a>
+ The full list of generated alerts can be seen by going to <a href="<?php echo IncFunc::$PHP_ROOT_PATH.'/charts/alerts/twittertable.php'?>">this page.</a>
 <br/><br/>
 4) We try to add hash tags that are meaningful in describing the nature of the tweet content.
 <br/><br/>
@@ -81,25 +85,25 @@ To do:
 <br/><br/>
 
 <table class="sample">
-<tr><td>Global Equity Indexes</td></tr>
+<tr><td class="title">Global Equity Indexes</td></tr>
 <tr><td></td><td>Hour</td><td>+/- 2%</td></tr>
 <tr><td></td><td>Day</td><td>+/- 3%</td></tr>
 <tr><td></td><td>Month</td><td>+/- 10%</td></tr>
 <tr><td></td><td>Year</td><td>+/- 30%</td></tr>
 <tr><td></td><td>All Time</td><td>+/- 75%</td></tr>
-<tr><td>Foreign Exchange Rates</td></tr>
+<tr><td class="title">Foreign Exchange Rates</td></tr>
 <tr><td></td><td>Hour</td><td>+/- 2%</td></tr>
 <tr><td></td><td>Day</td><td>+/- 3%</td></tr>
 <tr><td></td><td>Month</td><td>+/- 5%</td></tr>
 <tr><td></td><td>Year</td><td>+/- 10%</td></tr>
 <tr><td></td><td>All Time</td><td>+/- 20%</td></tr>
-<tr><td>Commodity Futures</td></tr>
+<tr><td class="title">Commodity Futures</td></tr>
 <tr><td></td><td>Hour</td><td>+/- 2%</td></tr>
 <tr><td></td><td>Day</td><td>+/- 3%</td></tr>
 <tr><td></td><td>Month</td><td>+/- 5%</td></tr>
 <tr><td></td><td>Year</td><td>+/- 25%</td></tr>
 <tr><td></td><td>All Time</td><td>+/- 50%</td></tr>
-<tr><td>Soverign Credit Default Swaps</td></tr>
+<tr><td class="title">Soverign Credit Default Swaps</td></tr>
 <tr><td></td><td>Hour</td><td>+/- 3%</td></tr>
 <tr><td></td><td>Day</td><td>+/- 5%</td></tr>
 <tr><td></td><td>Month</td><td>+/- 10%</td></tr>
@@ -111,13 +115,13 @@ To do:
 <tr><td></td><td>Month</td></tr>
 <tr><td></td><td>Year</td></tr>
 <tr><td></td><td>All Time</td></tr> -->
-<tr><td>Global Equity Index Futures</td></tr>
+<tr><td class="title">Global Equity Index Futures</td></tr>
 <tr><td></td><td>Hour</td><td>+/- 2%</td></tr>
 <tr><td></td><td>Day</td><td>+/- 3%</td></tr>
 <tr><td></td><td>Month</td><td>+/- 10%</td></tr>
 <tr><td></td><td>Year</td><td>+/- 30%</td></tr>
 <tr><td></td><td>All Time</td><td>+/- 75%</td></tr>
-<tr><td>S&amp;500 500 Individual Stocks</td></tr>
+<tr><td class="title">S&amp;500 500 Individual Stocks</td></tr>
 <tr><td></td><td>Hour</td><td>+/- 3%</td></tr>
 <tr><td></td><td>Day</td><td>+/- 5%</td></tr>
 <tr><td></td><td>Month</td><td>+/- 10%</td></tr>
