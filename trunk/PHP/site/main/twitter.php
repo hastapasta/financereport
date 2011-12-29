@@ -28,6 +28,7 @@ table.sample {
 	border-color: white;
 	border-style: solid;
 	font-size: 1.5em;
+	margin: 40px;
 }
 table.sample td {
 	border-width: 0px;
@@ -69,6 +70,7 @@ To do:
 
 
 <div id="jq-intro">
+<div style="width:1000px">
 <h1>Info Regarding Our pikefindotcom Twitter Feed</h1>
 <p>1) Our primary goal is to provide timely and meaningful financial information through a variety of delivery formats such as email, SMS, facebook, google+ and twitter. 
 <br/><br/>
@@ -82,7 +84,7 @@ To do:
 5) If there is a particular financial entity you would like to see us monitor, or for any other questions, comments or requests, please do not hesitate to contact us at <a href="mailto:pikefin1@gmail.com">pikefin1@gmail.com</a>.
 </p>
 
-<br/><br/>
+<br/>
 
 <table class="sample">
 <tr><td class="title">Global Equity Indexes</td></tr>
@@ -128,7 +130,7 @@ To do:
 <tr><td></td><td>Year</td><td>+/- 50%</td></tr>
 <tr><td></td><td>All Time</td><td>+/- 90%</td></tr>
 </table>
-
+</div>
 </div> <!-- jq-intro -->
 
 
