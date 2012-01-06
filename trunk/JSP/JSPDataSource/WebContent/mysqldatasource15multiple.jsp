@@ -65,17 +65,18 @@ if (strEntityId == null && strTickers == null) {
 }
 
 
+String[] tmpArray2 = strBeginDate.split("-");
 
-if (!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19"))
-{
+
+
+if ((!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19")) || !(tmpArray2[1].length()==2)) {
 	out.println("begindate format needs to be yyyy-mm-dd");
 	return;
 }
 
-if (strEndDate!=null)
-{
-	if (!strEndDate.startsWith("20") && !strEndDate.startsWith("19"))
-	{
+if (strEndDate!=null) {
+	tmpArray2 = strEndDate.split("-");
+	if ((!strEndDate.startsWith("20") && !strEndDate.startsWith("19")) || !(tmpArray2[1].length()==2)) {
 		out.println("enddate format needs to be yyyy-mm-dd");
 		return;
 	}
@@ -272,7 +273,8 @@ query += ") AND date_format(fact_data.date_collected,'%Y-%m-%d')>'" + strBeginDa
 if (strEndDate!=null && !strEndDate.isEmpty())
 	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
 //query += " group by date_format(fact_data.date_collected,'%Y-%m-%d'),entities.ticker,fact_data.value ";
-query += " order by date_col ASC ,entities.ticker ASC, time_col ASC";
+//query += " order by date_col ASC ,entities.ticker ASC, time_col ASC";
+query += " order by date_collected ASC ,entities.ticker ASC, time_col ASC";
 
 
 
@@ -322,6 +324,7 @@ finally
 		return;
 }
 
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return;
 
 
 int[] tmpArray = {0,1};
