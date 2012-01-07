@@ -2,11 +2,14 @@ package pikefin;
 
 
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -156,7 +159,7 @@ public class PopulateSpreadsheet {
 		
 	}
 	
-	public static ArrayList<String[]> joinListsOuter(ArrayList<String[]> arrayList1,ArrayList<String[]> arrayList2,int nCol)
+	public static ArrayList<String[]> joinListsLeftOuter(ArrayList<String[]> arrayList1,ArrayList<String[]> arrayList2,int nCol)
 	{
 		/*
 		 * Assumptions:
@@ -297,6 +300,30 @@ public class PopulateSpreadsheet {
 			
 			
 			return(outputList);
+		
+		
+		
+	}
+	
+	public static ArrayList<String[]> unionLists(ArrayList<String[]> arrayList1, ArrayList<String[]> arrayList2) throws CustomInvalidInputException {
+		/*
+		 * Peforms a union on arrayLists 1 and 2, putting 1 before 2
+		 * Assumptions:
+		 * 1) The String arrays in both ArrayLists must be the same size.
+		 */
+		String[] tmp1 = arrayList1.get(0);
+		String[] tmp2 = arrayList2.get(0);
+		 
+		if (tmp1.length != tmp2.length) {
+			throw new CustomInvalidInputException("Invalid input. String arrays in both array lists must be the same size.");
+		}
+		
+		for (int i=0; i<arrayList1.size(); i++) {
+			tmp1 = arrayList1.get(i);
+			arrayList2.add(i,tmp1);
+		}
+		
+		return (arrayList2);
 		
 		
 		
@@ -458,8 +485,25 @@ public class PopulateSpreadsheet {
 		
 	}
 	
-	public static String createJSONFromArrayList(ArrayList<String[]> listCols,ArrayList<String[]> listRows) 
-	{
+	public static String createFile (String strContent, String strFileName) {
+		
+		String strFolder = "/var/www/html/PHP/json/";
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(strFolder
+					+ strFileName + ".html"));
+			out.write(strContent);
+			out.close();
+		}
+		catch (IOException ioe) {
+			return("Failed: " + ioe.getMessage());
+		}
+		return("Success");
+		
+		
+		
+	}
+	
+	public static String createJSONFromArrayList(ArrayList<String[]> listCols,ArrayList<String[]> listRows)	{
 		/*
 		 * The main use of this function is to easily create non-google structured output from google
 		 * structured inputs.
@@ -622,7 +666,7 @@ public class PopulateSpreadsheet {
 				if (arrayListCols.get(k)[2].equals("number"))
 				{
 					
-					writeMsg("value: " + foo2[2*k]);
+					//writeMsg("value: " + foo2[2*k]);
 					if (!foo2[2*k].isEmpty())
 					{
 						double dTmp = Double.valueOf(foo2[2*k]);
@@ -959,15 +1003,134 @@ public class PopulateSpreadsheet {
   		return(outputArrayList);
   		
   	
+  	} 
+  	
+  	public static ArrayList<String[]> fillDateSeries(ArrayList<String[]> inputArrayList,String strBeginRange,String strEndRange, int nDateCol) throws ParseException,CustomInvalidInputException {
+  		
+  		DateFormat formatter = new SimpleDateFormat("yyyy-MM");
+  		DateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd");
+  		
+  		Calendar calBeginRange = Calendar.getInstance();
+  		Calendar calEndRange = Calendar.getInstance();
+  		
+  		
+  		calBeginRange.setTime(formatter2.parse(strBeginRange));
+  		calEndRange.setTime(formatter2.parse(strEndRange));
+  		
+  		
+  		ArrayList<String[]> dateList = new ArrayList<String[]>();
+  		ArrayList<String[]> finalList = new ArrayList<String[]>();
+  		
+  		Calendar calCurrent = (Calendar)calBeginRange.clone();
+  		
+  	
+  		boolean bDone = false;
+  		
+  		String[] sample = inputArrayList.get(1);
+  		
+  		
+  		
+  		if (calCurrent.after(calEndRange))
+				bDone=true;
+  		
+  		while (!bDone==true) {
+  			
+  			String[] tmp = new String[sample.length];
+  			for (int i=0;i<sample.length;i++) {
+  				if (i!=nDateCol)
+  					tmp[i] = "";
+  				else
+  					tmp[i] = formatter.format(calCurrent.getTime());
+  			}
+  			
+  			dateList.add(tmp);
+  			
+  			calCurrent.add(Calendar.MONTH, 1);
+  			
+  			if (calCurrent.after(calEndRange))
+  				bDone=true;
+  			
+  			
+  		}
+  		
+  		finalList = joinListsLeftOuter(dateList,inputArrayList,nDateCol);
+  		
+  		/*
+  		 * 1/5/2012: Need to remove the extra columns from the join
+  		 */
+  
+  		for (int i=1;i<=dateList.get(0).length-1;i++) {
+  			
+  			finalList = PopulateSpreadsheet.removeColumn(finalList, 1);
+  		}
+	
+
+  		
+  		
+  		return finalList;
+  		
   	}
   	
-  	/*
-  	 * 
-  	 * It should be simple to also create a getLastGroupBy() function.
-  	 *
-  	 */
+	public static ArrayList<String[]> getFirstGroupBy(ArrayList<String[]> inputArrayList,int[] x) throws CustomInvalidInputException {
+		
+		/*
+  		 * Return the row with a particular maximum value in a group of values. This is to avoid
+  		 * having to do nested select queries.
+  		 * 
+  		 * Assumptions: 
+  		 * 		- index x1 is the first group column
+  		 *  	- index x2 is the second group column
+  		 *      - data has been ordered by x1 and then x2
+  		 * 
+  		 * 
+  		 */
+  		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
+  		
+  		if (inputArrayList.size() == 0)
+  			throw new CustomInvalidInputException("Input contains no data.");
+  		
+  		String[] firstRow = inputArrayList.get(0);
+  		String[] previousRow = firstRow;
+  		String[] row = null;
+  		
+  		for (int i=1;i<inputArrayList.size();i++)
+  		{
+  			row = inputArrayList.get(i);
+  		
+  			boolean bResult=false;
+  			for (int j=0;j<x.length;j++)
+  			{
+  				if (!row[x[j]].equals(previousRow[x[j]]))
+  					bResult=true;
+  				
+  			}
+  			//if (!((row[x1].equals(previousRow[x1])) && (row[x2].equals(previousRow[x2]))))
+  			if (bResult==true)
+  				// we're on to the next group
+  			{
+  				outputArrayList.add(firstRow);
+  				firstRow = row;
+  				
+  				
+  				
+  				 				
+  			}
+  			
+  			previousRow = row;
+  			
+  			//if (Integer.parseInt(row[y]) > Integer.parseInt(maxRow[y]))
+  				//maxRow = row;		
+  		}
+  		
+  		outputArrayList.add(row);
+  		
+  		
+  		return(outputArrayList);
+	
+  	}
   	
-	public static ArrayList<String[]> getLastGroupBy(ArrayList<String[]> inputArrayList,int[] x, int y)
+  	
+	public static ArrayList<String[]> getLastGroupBy(ArrayList<String[]> inputArrayList,int[] x) throws CustomInvalidInputException
   	{
 		
 		/*
@@ -977,12 +1140,14 @@ public class PopulateSpreadsheet {
   		 * Assumptions: 
   		 * 		- index x1 is the first group column
   		 *  	- index x2 is the second group column
-  		 *      - index y is the max column (currently this can only be an int)
   		 *      - data has been ordered by x1 and then x2
   		 * 
   		 * 
   		 */
   		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
+  		
+  		if (inputArrayList.size() == 0)
+  			throw new CustomInvalidInputException("Input contains no data.");
   		
   		String[] previousRow = inputArrayList.get(0);
   		String[] row = null;
@@ -1020,7 +1185,7 @@ public class PopulateSpreadsheet {
 	
   	}
 	
-	public static ArrayList<String[]> getMaxMinGroupBy(ArrayList<String[]> inputArrayList,int[] x,int y,String strType,String strComparison) throws ParseException
+	public static ArrayList<String[]> getMaxMinGroupBy(ArrayList<String[]> inputArrayList,int[] x,int y,String strType,String strComparison) throws ParseException,CustomInvalidInputException
   	{
   		/*
   		 * Return the row with a particular maximum value in a group of values. This is to avoid
@@ -1039,6 +1204,8 @@ public class PopulateSpreadsheet {
   		 */
   		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
   		
+  		if (inputArrayList.size() == 0)
+  			throw new CustomInvalidInputException("Input contains no data.");
   		String[] minmaxRow = inputArrayList.get(0);
   		String[] row;
   		
@@ -1137,7 +1304,7 @@ public class PopulateSpreadsheet {
 
   	
   	//public static ArrayList<String[]> getMaxGroupBy(ArrayList<String[]> inputArrayList,int x1, int x2,int y)
-	public static ArrayList<String[]> getMaxGroupBy(ArrayList<String[]> inputArrayList,int[] x,int y)
+	public static ArrayList<String[]> getMaxGroupBy(ArrayList<String[]> inputArrayList,int[] x,int y) throws CustomInvalidInputException
   	{
   		/*
   		 * Return the row with a particular maximum value in a group of values. This is to avoid
@@ -1153,6 +1320,11 @@ public class PopulateSpreadsheet {
   		 * then remove it after calling this function.
   		 */
   		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
+  		
+  		if (inputArrayList.size() == 0)
+  			throw new CustomInvalidInputException("Input contains no data.");
+  		
+  	
   		
   		String[] maxRow = inputArrayList.get(0);
   		String[] row;
@@ -1433,13 +1605,19 @@ public class PopulateSpreadsheet {
   		
   	}
   	
-  	public static String displayDebugTable(ArrayList<String[]> arrayListRows) {
+  	public static String displayDebugTable(ArrayList<String[]> arrayListRows,int nRowLimit) {
 		
-		String output = "<table>";
+		String output = "<table border=\"2\">";
 		
 		//out.println("<table>");
 		
-		for (int i=0;i<arrayListRows.size();i++)
+		
+		if (nRowLimit > arrayListRows.size())
+			nRowLimit = arrayListRows.size();
+		
+		nRowLimit = (nRowLimit == 0 ? arrayListRows.size() : nRowLimit);
+		
+		for (int i=0;i<nRowLimit;i++)
 		{
 			//out.println("<tr>");
 			output += "<tr>";
@@ -1479,25 +1657,57 @@ class JSONDate implements JSONString
 	 * 
 	 */
 	Calendar value;
+	boolean bDateOnly;
 	
 	JSONDate(String date)
 	{
 		String[] date2;
-		if (date.contains("/"))
-			date2 = date.split("/");
+		String[] time2;
+		String strDatePortion = "";
+		String strTimePortion = "";
+		
+		date = date.trim();
+		bDateOnly = true;
+		
+		//check if it contains a space then it is a date-time value
+		if (date.contains(" ")) {
+			bDateOnly = false;
+			strDatePortion = date.substring(0,date.indexOf(" "));
+			strTimePortion = date.substring(date.indexOf(" ") + 1,date.length());
+			
+		}
+		else {
+			strDatePortion = date;
+		}
+		
+		if (strDatePortion.contains("/"))
+			date2 = strDatePortion.split("/");
 		else
-			date2 = date.split("-");
+			date2 = strDatePortion.split("-");
 		this.value = Calendar.getInstance();
 		this.value.set(Calendar.YEAR, Integer.parseInt(date2[2]));
 		this.value.set(Calendar.DAY_OF_MONTH, Integer.parseInt(date2[1]));
 		this.value.set(Calendar.MONTH, Integer.parseInt(date2[0]) - 1);
 		
+		if (!strTimePortion.isEmpty()) {
+			time2 = strTimePortion.split(":");
+			this.value.set(Calendar.HOUR_OF_DAY, Integer.parseInt(time2[0]));
+			this.value.set(Calendar.MINUTE, Integer.parseInt(time2[1]));
+			this.value.set(Calendar.SECOND, Integer.parseInt(time2[2]));
+			
+			
+			
+		}
+		
 	}
 	
 	public String toJSONString()
 	{
-		
-		return("new Date(" + value.get(Calendar.YEAR) + "," + value.get(Calendar.MONTH) + "," + value.get(Calendar.DAY_OF_MONTH) + ")");
+		if (bDateOnly == true)
+			return("new Date(" + value.get(Calendar.YEAR) + "," + value.get(Calendar.MONTH) + "," + value.get(Calendar.DAY_OF_MONTH) + ")");
+		else
+			return("new Date(" + value.get(Calendar.YEAR) + "," + value.get(Calendar.MONTH) + "," + value.get(Calendar.DAY_OF_MONTH) + "," +
+					value.get(Calendar.HOUR_OF_DAY) + "," + value.get(Calendar.MINUTE) + "," + value.get(Calendar.SECOND) + ")");
 		
 	}
 	
