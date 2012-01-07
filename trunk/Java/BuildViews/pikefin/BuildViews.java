@@ -30,8 +30,8 @@ public class BuildViews {
 	
 	static UtilityFunctions uf;
 	
-	static String strJSPHost = "www.pikefin.com/testjsp/JSPDataSource/";
-	//static String strJSPHost = "localhost:8080/JSPDataSource/";
+	//static String strJSPHost = "www.pikefin.com/testjsp/JSPDataSource/";
+	static String strJSPHost = "localhost:8080/JSPDataSource/";
 
 	/**
 	 * @param args
@@ -76,7 +76,7 @@ public class BuildViews {
 	
 	public static void mysqldatasource7() {
 		
-		String strURL = "http://" + strJSPHost + "mysqldatasource7.jsp?metricid=2&filename=gdpmotion";
+		String strURL = "http://" + strJSPHost + "mysqldatasource7.jsp?metricids=3,2&filename=gdpmotion";
 		BuildViews.issueURL(strURL);
 		
 	}
