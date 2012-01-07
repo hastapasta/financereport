@@ -195,13 +195,28 @@ if (isset($_GET['metricid']))
 		var rangeDemoStart = document.getElementById('rangeDemoStart');
 	    var rangeDemoFinish = document.getElementById('rangeDemoFinish');
 	    query = window.location.search;
-		query += '&begindate='+ (Date.parse(rangeDemoStart.value)).getTime() + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime();
+	    newquery = '';
+
+		
+		
+		/*
+		* Strip out the original begindate and endate url parameters
+		*/
+		query = query.substr(1,query.length);
+		query_parts = query.split('&');
+		
+		for (i=0;i<query_parts.length;i++) {
+			if ((query_parts[i].substr(0,9) != 'begindate') && (query_parts[i].substr(0,7) != 'enddate'))
+				newquery += '&' + query_parts[i];
+		}
+		newquery += '&begindate='+ (Date.parse(rangeDemoStart.value)).getTime() + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime();
+		newquery += '&type=1';
 
 
 		var url = location.href;
 		var url_parts = url.split('?');
 		var main_url = url_parts[0]; 		
-		alert(main_url + query);
+		alert(main_url + '?' + newquery);
 	}
 </script>
 <?php IncFunc::icon();?>
@@ -240,7 +255,7 @@ if (isset($_GET['metricid']))
 		var dt = localQueryWrapper.currentDataTable;
 		var val = dt.getValue(row[0].row,8);
 		<?php //echo "window.location.href = \"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\";";?>
-		<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\");";?>
+		<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&type=1\");";?>
 
 	}
  
