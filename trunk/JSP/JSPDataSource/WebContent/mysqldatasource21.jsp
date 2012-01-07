@@ -53,13 +53,40 @@ if (strCountryId==null) {
 
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
-if (strTqx!=null)
-{
+if (strTqx!=null) {
 	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
 	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
 }
 else
 	strReqId="0";
+
+String query = "select name from countries where id=" + strCountryId;
+String strCountryName="";
+
+DBFunctions dbf = null;
+boolean bException = false;
+try
+{
+	dbf = new DBFunctions();
+	dbf.db_run_query(query);
+	dbf.rs.next();
+	strCountryName = dbf.rs.getString("name");
+	
+	
+}
+catch (SQLException sqle)
+{
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 11-2"));
+	bException = true;
+}
+finally
+{
+	if (dbf !=null) dbf.closeConnection();
+	if (bException == true)
+		return;
+}
+
+out.println("Country: " + strCountryName + "<br><br>");
 
 
 UtilityFunctions uf = new UtilityFunctions();
@@ -130,8 +157,8 @@ query3 += " order by calyear, fact_data.date_collected ";
 
 
 boolean bDone = false;
-DBFunctions dbf = null;
-boolean bException = false;
+dbf = null;
+bException = false;
 int code=1;
 
 bDone = false;
