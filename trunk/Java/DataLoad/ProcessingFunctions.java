@@ -2300,7 +2300,18 @@ public void postProcessIMFGdpPPPEst() throws SQLException {
 public boolean preProcessImfGdp() {
 	Calendar cal = Calendar.getInstance();
 	int nMaxEndYear = 2015;
+	int nMinBeginYear = 2004;
 	
+	int nTempCurrent = 2011;
+	
+	//dg.strStage1URL = dg.strStage1URL.replace("${dynamic8}", cal.get(Calendar.YEAR)+"");
+	dg.strStage1URL = dg.strStage1URL.replace("${dynamic8}", nTempCurrent +"");
+	dg.strStage1URL = dg.strStage1URL.replace("${dynamic6}", nMinBeginYear + "");
+	dg.strStage1URL = dg.strStage1URL.replace("${dynamic7}", cal.get(Calendar.YEAR)+"");
+	
+	
+	//dg.strStage1URL = dg.strStage1URL.replace("${dynamic5}", cal.get(Calendar.YEAR)+"");
+	dg.strStage1URL = dg.strStage1URL.replace("${dynamic5}", nTempCurrent +"");
 	dg.strStage1URL = dg.strStage1URL.replace("${dynamic3}", cal.get(Calendar.YEAR)+"");
 	dg.strStage1URL = dg.strStage1URL.replace("${dynamic4}", nMaxEndYear + "");
 	return true;
