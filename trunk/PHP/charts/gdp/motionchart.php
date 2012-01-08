@@ -7,14 +7,16 @@ require_once '../../common/functions.php';
 
 
 
+
 ?>
 <!DOCTYPE html>
 <html>
 <head>
+    <?php IncFunc::jQuery();?>   
 	<?php IncFunc::icon();?>
     <?php IncFunc::title();?>
-    <link rel="stylesheet" href="/PHP/site/includes/style.css" type="text/css" />
-  <?php IncFunc::yuiDropDownJavaScript(); ?>
+    <?php IncFunc::linkStyleCSS();?>
+ 	<?php //IncFunc::yuiDropDownJavaScript(); ?>
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript">
 		var count = 0;
@@ -24,15 +26,29 @@ require_once '../../common/functions.php';
         google.load('visualization', '1', {'packages': ['motionchart']});
         google.setOnLoadCallback(loadChart);
         motion_chart = null;
+        var advsettings = null;
+		<?php
+		/*
+		 * NOTE!! You have to be careful there are no extra newlines in the file pointed to by $advfilename.
+		 */
+        $advfilename="";
+        $advsettings='{"showTrails":false,"iconType":"VBAR","orderedByY":false,"dimensions":{"iconDimensions":["dim0"]},"yZoomedDataMin":-7,"xZoomedDataMin":0,"xZoomedIn":false,"yAxisOption":"2","xLambda":1,"duration":{"timeUnit":"Y","multiplier":1},"time":"2015","yLambda":1,"xZoomedDataMax":182,"iconKeySettings":[],"colorOption":"_UNIQUE_COLOR","orderedByX":true,"yZoomedIn":false,"playDuration":15000,"sizeOption":"_UNISIZE","xAxisOption":"2","uniColorForNonSelected":false,"nonSelectedAlpha":0.4,"yZoomedDataMax":120}';
+        if (isset($_GET['advfilename'])) {
+        	$advfilename = $_GET['advfilename'];
+          	$advsettings = file_get_contents('../../json/'.$advfilename.'.html', FILE_USE_INCLUDE_PATH);
+       
+        
+        }
+        ?>
 
         function showState() {
 		
 		var state = motion_chart.getState();
 		alert(state);
         }
-    
-        
-        function loadChart() {
+
+
+   	    function loadChart() {
 
         	  document.getElementById('chart-div').innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
 
@@ -48,7 +64,14 @@ require_once '../../common/functions.php';
            
             //var query = new google.visualization.Query('http://localhost:8080/JSPDataSource/mysqldatasource7.jsp?taskid=22');
             
-            <?php echo "var query = new google.visualization.Query('".IncFunc::$JSP_ROOT_PATH."/mysqldatasource7.jsp?taskid=22');"; ?>
+          	<?php 
+          	//echo "var datasourceurl='".IncFunc::$JSP_ROOT_PATH."/mysqldatasource7.jsp?metricid=2';";
+          	echo "var datasourceurl='".IncFunc::$PHP_ROOT_PATH."/json/gdpmotion.html';";
+          	?>
+
+          	if (window.console && window.console.firebug) {console.log(datasourceurl)}
+            
+            var query = new google.visualization.Query(datasourceurl);
   
             
             query.setQuery(str);
@@ -57,10 +80,25 @@ require_once '../../common/functions.php';
 
             options['height'] = 600;
             options['width'] = 800;
+            options.wmode='opaque';
 
             options.state = {};
 
-            options['state'] = '{"showTrails":false,"iconType":"VBAR","orderedByY":false,"dimensions":{"iconDimensions":["dim0"]},"yZoomedDataMin":-7,"xZoomedDataMin":0,"xZoomedIn":false,"yAxisOption":"2","xLambda":1,"duration":{"timeUnit":"Y","multiplier":1},"time":"2015","yLambda":1,"xZoomedDataMax":182,"iconKeySettings":[],"colorOption":"_UNIQUE_COLOR","orderedByX":true,"yZoomedIn":false,"playDuration":15000,"sizeOption":"_UNISIZE","xAxisOption":"2","uniColorForNonSelected":false,"nonSelectedAlpha":0.4,"yZoomedDataMax":120}';
+            <?php 
+            echo "options['state']='".$advsettings."';\n";
+            ?>
+            //alert(options['state']);
+         
+			/*if (!advsettings) {
+          		options['state'] = '{"showTrails":false,"iconType":"VBAR","orderedByY":false,"dimensions":{"iconDimensions":["dim0"]},"yZoomedDataMin":-7,"xZoomedDataMin":0,"xZoomedIn":false,"yAxisOption":"2","xLambda":1,"duration":{"timeUnit":"Y","multiplier":1},"time":"2015","yLambda":1,"xZoomedDataMax":182,"iconKeySettings":[],"colorOption":"_UNIQUE_COLOR","orderedByX":true,"yZoomedIn":false,"playDuration":15000,"sizeOption":"_UNISIZE","xAxisOption":"2","uniColorForNonSelected":false,"nonSelectedAlpha":0.4,"yZoomedDataMax":120}';
+			}
+          	else {
+              	options['state'] = advsettings;
+          	}*/
+              		
+          	
+
+            //options['state'] = '{"dimensions":{"iconDimensions":["dim0"]},"duration":{"multiplier":1,"timeUnit":"Y"},"yZoomedDataMax":140,"time":"2015","iconType":"LINE","xZoomedDataMin":1230768000000,"yZoomedDataMin":0,"uniColorForNonSelected":false,"yLambda":1,"xAxisOption":"_TIME","sizeOption":"_UNISIZE","yAxisOption":"2","orderedByY":false,"iconKeySettings":[{"key":{"dim0":"China"}},{"key":{"dim0":"Russia"}},{"key":{"dim0":"India"}},{"key":{"dim0":"United States"}},{"key":{"dim0":"Brazil"}}],"xZoomedIn":false,"xZoomedDataMax":1420070400000,"playDuration":15000,"yZoomedIn":false,"xLambda":1,"colorOption":"_UNIQUE_COLOR","orderedByX":false,"nonSelectedAlpha":0,"showTrails":false}';
             	            
 
             
@@ -96,15 +134,17 @@ require_once '../../common/functions.php';
 <div id="jq-siteContain">
 
 <?php 
-	IncFunc::header1("charts"); 
+	IncFunc::header2("charts"); 
 	IncFunc::yuiDropDownMenu();
 
 ?>
+<div id="pf-body">
 
-    <div id="chart-div" style="margin-top:20px"></div>
+    <div id="chart-div" style="margin-top:150px"></div>
     
-	<!--  <input type="button" value="Display Chart" onclick="showState();return false;"> -->
+	<!-- <input type="button" value="Display Chart" onclick="showState();return false;"> -->
  
+</div>
 </div> <!--  siteContain -->
 </body>
 </html>
