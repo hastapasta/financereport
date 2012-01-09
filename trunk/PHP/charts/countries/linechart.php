@@ -56,8 +56,8 @@ if (!empty($countryid)) {
 	$sql .= " join countries on countries_entities.country_id=countries.id ";
 	$sql .= " where  ";
 	$sql .= " countries.id=".$countryid;
-	$sql .= " and entities_entity_groups.entity_group_id=5 ";
-	$sql .= " limit 5 ";
+	$sql .= " and entities_entity_groups.entity_group_id=101037 ";
+	//$sql .= " limit 7 ";
 	
 	//echo $sql;
 	
@@ -453,6 +453,7 @@ if (isset($_GET['group']))
 			<?php 
 			//echo "alert(\"".$begindate."\");\n";
 			echo "var queryPath = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource15multiplecountry.jsp";
+			//echo "var queryPath = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource15multiplecountryv2.jsp";
 			echo "?begindate='+(Date.parse('".$begindate."')).getTime()+'";
 			if (!empty($enddate))
 				echo "&enddate='+(Date.parse('".$enddate."')).getTime()+'";
