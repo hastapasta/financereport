@@ -12,6 +12,8 @@
 <%@ page import="java.util.Calendar" %>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.text.DateFormat" %>
+<%@ page import="java.util.Comparator" %>
+<%@ page import="java.util.Collections" %>
 
  
 
@@ -31,8 +33,7 @@ DateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd");
 
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
-if (strTqx!=null)
-{
+if (strTqx!=null) {
 	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
 	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
 }
@@ -125,8 +126,7 @@ if (strTickers != null) {
 	
 
 	
-	try
-	{
+	try 	{
 		query = "select id from entities where ticker in (";
 		for (String strTick : tickerarray) { 
 			query += "'" + strTick + "',";
@@ -144,14 +144,12 @@ if (strTickers != null) {
 		}
 		strEntityId = strEntityId.substring(0,strEntityId.length()-1);
 	}
-	catch (SQLException sqle)
-	{
+	catch (SQLException sqle)	{
 		//out.println(sqle.toString());
 		out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 15multiple-2"));
 		bException = true;
 	}
-	finally
-	{
+	finally	{
 		if (dbf !=null) dbf.closeConnection();
 		if (bException == true)
 			return;
@@ -261,8 +259,7 @@ UtilityFunctions uf = new UtilityFunctions();
 ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 
 String strInClause="in (";
-for (int i=0;i<entityIds.length;i++)
-{
+for (int i=0;i<entityIds.length;i++) {
 	if (i!=0)
 		strInClause += ",";
 	strInClause += entityIds[i];
@@ -306,65 +303,47 @@ if (entityIds.length>2) {
 	if (strEndDate!=null && !strEndDate.isEmpty())
 		query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + formatter2.format(calEnd.getTime()) + "' ";
 	
-	query += " UNION ";
+	//query += " UNION ";
 }
-
-//out.println("here5"); if (1==1) return;
-
-query += " select concat(calyear+1,'-01') as date_col, '01-00:00:00' as time_col, fact_data.batch_id,fact_data.value as fdvalue,'GDP' as ticker ";
-query += " ,concat(calyear+1,'-01-01') date_col2 ";
-query += " from fact_data ";
-query += " JOIN entities on fact_data.entity_id=entities.id ";
-query += " JOIN batches on fact_data.batch_id=batches.id ";
-/*if (strMetricId.equals("0"))
-	query += "JOIN entities_metrics on fact_data.entity_id=entities_metrics.entity_id ";*/
-query += " JOIN tasks on batches.task_id=tasks.id ";
-query += " JOIN metrics on fact_data.metric_id = metrics.id ";
-query += " where (1=1) AND (";
-for (int i=entityIds.length-2;i<entityIds.length;i++) {
-	if (i!=entityIds.length-2)
-		query += " OR ";
-	query += "(entities.id= " + entityIds[i] + " AND fact_data.metric_id=" + metricIds[i];
-	if (!taskIds[i].equals("0"))
-		query += " AND tasks.id=" + taskIds[i];
-	                                                                                                                                                            
-    query += ") ";
-} 
-
-//out.println("here6"); if (1==1) return;
-
-query += ") AND concat(calyear+1,'-01-01')>='" + formatter2.format(calBegin.getTime()) + "' ";
-if (strEndDate!=null && !strEndDate.isEmpty())
-	query += " AND concat(calyear,'-01-01')<'" + formatter2.format(calEnd.getTime()) + "' ";
-
-/*
-This last union section seemed superfluous. Added +1 to the calyear in the where clause in the above union section.
-query += " UNION ";
-query += "select concat(calyear+1,'-01') as date_col, '01-00:00:00' as time_col, fact_data.batch_id,fact_data.value as fdbalue, 'GDP' as ticker ";
-query += " ,concat(calyear+1,'-01-01') date_col2 ";
-query += " from fact_data ";
-query += " JOIN entities on fact_data.entity_id=entities.id ";
-query += " JOIN batches on fact_data.batch_id=batches.id ";
-query += " JOIN tasks on batches.task_id=tasks.id ";
-query += " JOIN metrics on fact_data.metric_id = metrics.id ";
-query += " where (1=1) AND (";
-for (int i=entityIds.length-2;i<entityIds.length;i++) {
-	if (i!=entityIds.length-2)
-		query += " OR ";
-	query += "(entities.id= " + entityIds[i] + " AND fact_data.metric_id=" + metricIds[i];
-	if (!taskIds[i].equals("0"))
-		query += " AND tasks.id=" + taskIds[i];
-	                                                                                                                                                            
-    query += ") ";
-} 
-query += ") AND calyear+1=year('" + strBeginDate + "')";
-*/
 query += " order by date_col ASC ,ticker ASC, time_col ASC";
 
-
-
-
 //out.println(query); if (1==1) return;
+
+String query2="";
+query2 += " select concat(calyear+1,'-01') as date_col, '01-00:00:00' as time_col, fact_data.metric_id,fact_data.value as fdvalue,'GDP' as ticker, metrics.name as type";
+query2 += " ,concat(calyear+1,'-01-01') date_col2 ";
+query2 += " from fact_data ";
+query2 += " JOIN entities on fact_data.entity_id=entities.id ";
+query2 += " JOIN batches on fact_data.batch_id=batches.id ";
+/*if (strMetricId.equals("0"))
+	query += "JOIN entities_metrics on fact_data.entity_id=entities_metrics.entity_id ";*/
+query2 += " JOIN tasks on batches.task_id=tasks.id ";
+query2 += " JOIN metrics on fact_data.metric_id = metrics.id ";
+query2 += " where (1=1) AND (";
+for (int i=entityIds.length-2;i<entityIds.length;i++) {
+	if (i!=entityIds.length-2)
+		query2 += " OR ";
+	query2 += "(entities.id= " + entityIds[i] + " AND fact_data.metric_id=" + metricIds[i];
+	if (!taskIds[i].equals("0"))
+		query2 += " AND tasks.id=" + taskIds[i];
+	                                                                                                                                                            
+    query2 += ") ";
+} 
+
+
+query2 += ") AND concat(calyear+1,'-01-01')>='" + formatter2.format(calBegin.getTime()) + "' ";
+if (strEndDate!=null && !strEndDate.isEmpty())
+	query2 += " AND concat(calyear,'-01-01')<'" + formatter2.format(calEnd.getTime()) + "' ";
+//query2 += " order by date_col ASC ,ticker ASC, time_col ASC";
+query2 += " order by date_col,ticker, fact_data.metric_id ASC, date_collected ";
+
+
+
+
+
+
+
+//out.println(query2); if (1==1) return;
 
 
 
@@ -372,44 +351,71 @@ query += " order by date_col ASC ,ticker ASC, time_col ASC";
 
 dbf = null;
 bException = false;
-ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
+ArrayList<String[]> arrayListRows1 = new ArrayList<String[]>();
 
 DateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
 
-try
-{
+try {
 	dbf = new DBFunctions();
 	dbf.db_run_query(query);
 	while (dbf.rs.next()) {
 		String [] tmp = new String[4];
 		
-		/*if ((dbf.rs.getInt("fact_data.metric_id") == 2) || (dbf.rs.getInt("fact_data.metric_id") == 3)) {
-			tmp[0] = "12-31-" + dbf.rs.getString("fact_data.calyear");
-			tmp[1] = dbf.rs.getString("metrics.name");
-			tmp[2] = dbf.rs.getString("fdvalue");
-			tmp[3] = "00:00:01";
-		}
-		else {*/
-			tmp[0] = dbf.rs.getString("date_col");
-			tmp[1] = dbf.rs.getString("ticker");
-			tmp[2] = dbf.rs.getString("fdvalue");
-			tmp[3] = dbf.rs.getString("date_col2");
-		//}
+
+		tmp[0] = dbf.rs.getString("date_col");
+		tmp[1] = dbf.rs.getString("ticker");
+		tmp[2] = dbf.rs.getString("fdvalue");
+		tmp[3] = dbf.rs.getString("date_col2");
+
 
 
 		
-		arrayListRows.add(tmp);
+		arrayListRows1.add(tmp);
 	    
 	}
 }
-catch (SQLException sqle)
-{
+catch (SQLException sqle) {
 	//out.println(sqle.toString());
 	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 15multiple-2"));
 	bException = true;
 }
-finally
-{
+finally {
+	if (dbf !=null) dbf.closeConnection();
+	if (bException == true)
+		return;
+}
+
+dbf = null;
+bException = false;
+ArrayList<String[]> arrayListRows2 = new ArrayList<String[]>();
+
+try {
+	dbf = new DBFunctions();
+	dbf.db_run_query(query2);
+	while (dbf.rs.next()) {
+		String [] tmp = new String[5];
+		
+
+		tmp[0] = dbf.rs.getString("date_col");
+		tmp[1] = dbf.rs.getString("type");
+		tmp[2] = dbf.rs.getString("ticker");
+		tmp[3] = dbf.rs.getString("fdvalue");
+		tmp[4] = dbf.rs.getString("metric_id");
+
+
+
+
+		
+		arrayListRows2.add(tmp);
+	    
+	}
+}
+catch (SQLException sqle) {
+	//out.println(sqle.toString());
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 15multiple-5"));
+	bException = true;
+}
+finally {
 	if (dbf !=null) dbf.closeConnection();
 	if (bException == true)
 		return;
@@ -417,65 +423,82 @@ finally
 
 
 
+
 int[] tmpArray = {0,1};
 
-//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows1,1000));if (1==1) return; 
 
 
-arrayListRows = PopulateSpreadsheet.getFirstGroupBy(arrayListRows,tmpArray);
+arrayListRows1 = PopulateSpreadsheet.getFirstGroupBy(arrayListRows1,tmpArray);
 
-//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows1,1000));if (1==1) return; 
 
-arrayListRows = PopulateSpreadsheet.removeLastColumn(arrayListRows);
+arrayListRows1 = PopulateSpreadsheet.removeLastColumn(arrayListRows1);
+
+arrayListRows2 = PopulateSpreadsheet.getLastGroupBy(arrayListRows2,tmpArray);
+
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows2,1000));if (1==1) return; 
+
+arrayListRows2 = PopulateSpreadsheet.removeLastColumn(arrayListRows2);
+arrayListRows2 = PopulateSpreadsheet.removeColumn(arrayListRows2,1);
+
+
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows1,1000));if (1==1) return; 
+
+arrayListRows1 = PopulateSpreadsheet.unionLists(arrayListRows2,arrayListRows1);
+
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows1,1000));if (1==1) return; 
+
+Comparator<String[]> comp = new Comparator<String[]>() {
+	  public int compare(String[] first, String[] second) {
+		String strFirst = first[0];
+		String strSecond = second[0];
+
+		
+		return strFirst.compareTo(strSecond);
+		
+	    //return first[1].compareTo(second[1]);
+	  }
+};
+
+Collections.sort(arrayListRows1,comp);
 
 
 
-arrayListRows = PopulateSpreadsheet.pivotRowsToColumnsArrayList(arrayListRows);
+arrayListRows1 = PopulateSpreadsheet.pivotRowsToColumnsArrayList(arrayListRows1);
 
-//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows1,1000));if (1==1) return; 
 
-String[] tmp2 = arrayListRows.get(0).clone();
+String[] tmp2 = arrayListRows1.get(0).clone();
 
-arrayListRows =  PopulateSpreadsheet.fillDateSeries(arrayListRows,formatter2.format(calBegin.getTime()),formatter2.format(calEnd.getTime()),0);
+arrayListRows1 =  PopulateSpreadsheet.fillDateSeries(arrayListRows1,formatter2.format(calBegin.getTime()),formatter2.format(calEnd.getTime()),0);
 
-//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return;
-
-for (int k=0;k<entityIds.length-1;k++) {
-	arrayListRows = PopulateSpreadsheet.removeColumn(arrayListRows,1);
-	
-}
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows1,1000));if (1==1) return;
 
 
 /*
-* Because fillDateSeries does a left outer join, the first row (the column headers) of arrayListRows
+* Because fillDateSeries does a left outer join, the first row (the column headers) of arrayListRows1
 * gets dropped. The following line puts it back in.
 */
 
-arrayListRows.add(0,tmp2);
+//arrayListRows1.add(0,tmp2);
 
 
 
-//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
-
-
-
-
-
-
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows1,1000));if (1==1) return; 
 
 /*
 *
 * If doing a pivot, have to populate the columns after the rows
 */
 
-String[] pivotColumns = arrayListRows.remove(0);
+String[] pivotColumns = tmp2;
 
 String[] col1 = {"date_collected","date collected","string"};
 arrayListCols.add(col1);
 //out.println(PopulateSpreadsheet.displayDebugTable(pivotColumns,1000));if (1==1) return;
 
-for (int i=0;i<pivotColumns.length;i++)
-{
+for (int i=0;i<pivotColumns.length;i++) {
 	
 	
 		String[] col3 = new String[3];
@@ -487,13 +510,11 @@ for (int i=0;i<pivotColumns.length;i++)
 		
 }
 
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows1,1000));if (1==1) return; 
 
+ArrayList<String[]> saveListRows = arrayListRows1;
 
-
-
-ArrayList<String[]> saveListRows = arrayListRows;
-
-arrayListRows = new ArrayList<String[]>();
+arrayListRows1 = new ArrayList<String[]>();
 
 
 String[] initvals = new String[pivotColumns.length];
@@ -504,8 +525,7 @@ for(String item : initvals) {
 
 
 
-for (int i=0;i<saveListRows.size();i++)
-{
+for (int i=0;i<saveListRows.size();i++) {
 	String[] tmpSave = saveListRows.get(i);
 	
 	String[] tmp = new String[2 + ((pivotColumns.length) * 2)];
@@ -548,38 +568,16 @@ for (int i=0;i<saveListRows.size();i++)
 		
 	}
 	
-	arrayListRows.add(tmp);
+	arrayListRows1.add(tmp);
 	
 }
 
-
-
-
-
 if (bDebug == true) {
-	out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
+	out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows1,1000));if (1==1) return; 
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,false));
+out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows1,strReqId,false));
 
 
 
