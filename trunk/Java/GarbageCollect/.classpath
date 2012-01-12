@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/apache-log4j-1.2.16/log4j-1.2.16.jar" sourcepath="/home/ollie/dev/java/libraries/apache-log4j-1.2.16/src/main/java"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/commons-io-1.4/commons-io-1.4.jar" sourcepath="/DataGrab2/C:/dev/java/libraries/commons-io-1.4/commons-io-1.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/dev/java/libraries/commons-io-1.4/commons-io-1.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/javamail-1.4.3/lib/dsn.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/javamail-1.4.3/lib/imap.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/javamail-1.4.3/lib/mailapi.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/javamail-1.4.3/lib/pop3.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/javamail-1.4.3/lib/smtp.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/mysql-connector-java-5.1.12-bin.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/orgjson.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/gdata/java/lib/gdata-client-1.0.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/gdata/java/lib/gdata-client-meta-1.0.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/gdata/java/lib/gdata-spreadsheet-3.0.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/libraries/gdata/java/lib/gdata-spreadsheet-meta-3.0.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/tools/hyperion/products/Essbase/EssbaseClient/JavaAPI/lib/ess_es_server.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/tools/hyperion/products/Essbase/EssbaseClient/JavaAPI/lib/ess_japi.jar"/>
+	<classpathentry kind="lib" path="/home/ollie/dev/java/googleapi_samples/gdata/java/sample/util/lib/sample-util.jar"/>
+	<classpathentry kind="output" path=""/>
+</classpath>
