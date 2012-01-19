@@ -140,14 +140,14 @@ query3 += " order by date_collected DESC";
 
 
 
-String query = "(select metrics.name,(fact_data.calyear*10+fact_data.calquarter) as cyq,value,batch,t1.initval,";
+/*String query = "(select metrics.name,(fact_data.calyear*10+fact_data.calquarter) as cyq,value,batch_id,t1.initval,";
 query += "(if (initval=0,initval,round(((value - initval)/(if (initval<0,initval*-1,initval))) * 100,2)))as pctchange ";
 query += " from fact_data ";
 query += " join metrics on fact_data.metric_id=metrics.id ";
 query += " join (" + query2 + ") as t1 on t1.entity_id=fact_data.entity_id ";
 query += " where metric_id=4 and fact_data.entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id) ";
 query += " union ";
-query += " (select metrics.name,(fact_data.calyear*10+fact_data.calquarter) as cyq,value,batch,t1.initval, ";
+query += " (select metrics.name,(fact_data.calyear*10+fact_data.calquarter) as cyq,value,batch_id,t1.initval, ";
 query += "(if (initval=0,initval,round(((value - initval)/(if (initval<0,initval*-1,initval))) * 100,2))) as pctchange ";
 query += " from fact_data ";
 query += " join metrics on fact_data.metric_id=metrics.id ";
@@ -155,14 +155,31 @@ query += " join (" + query2 + ") as t1 on t1.entity_id=fact_data.entity_id ";
 query += " where metric_id=5 and fact_data.entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id) ";
 query += " union ";
 query += " (select metrics.name,(year(date_collected)*10+( " + strCase + ")) as cyq, ";
-query += " value,batch,t2.initval,";
+query += " value,batch_id,t2.initval,";
 query += "(if (initval=0,initval,round(((value - initval)/initval) * 100,2))) as pctchange ";
 query += " from fact_data ";
 query += " join metrics on fact_data.metric_id=metrics.id ";
 query += " join (" + query3 + ") as t2 on t2.entity_id=fact_data.entity_id ";
 query += " where metric_id=1 and fact_data.entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id ";
 query += " and t2.initcyq<= (year(date_collected)*10+( " + strCase + ")))";
-query += " order by cyq asc,name,batch ";
+query += " order by cyq asc,name,batch_id ";*/
+
+String query = "(select metrics.name,(fact_data.calyear*10+fact_data.calquarter) as cyq,value,batch_id,t1.initval,";
+query += "(if (initval=0,initval,round(((value - initval)/(if (initval<0,initval*-1,initval))),2)))as pctchange ";
+query += " from fact_data ";
+query += " join metrics on fact_data.metric_id=metrics.id ";
+query += " join (" + query2 + ") as t1 on t1.entity_id=fact_data.entity_id ";
+query += " where metric_id in (4,5) and fact_data.entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id) ";
+query += " union ";
+query += " (select metrics.name,(year(date_collected)*10+( " + strCase + ")) as cyq, ";
+query += " value,batch_id,t2.initval,";
+query += "(if (initval=0,initval,round(((value - initval)/initval),2))) as pctchange ";
+query += " from fact_data ";
+query += " join metrics on fact_data.metric_id=metrics.id ";
+query += " join (" + query3 + ") as t2 on t2.entity_id=fact_data.entity_id ";
+query += " where metric_id=1 and fact_data.entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id ";
+query += " and t2.initcyq<= (year(date_collected)*10+( " + strCase + ")))";
+query += " order by cyq asc,name,batch_id ";
 
 
 //out.println(query); if (1==1) return;
@@ -187,7 +204,7 @@ try
 		tmp[0] = dbf.rs.getString("cyq");
 		tmp[1] = dbf.rs.getString("name");
 		tmp[2] = dbf.rs.getString("pctchange");
-		tmp[3] = dbf.rs.getString("batch");
+		tmp[3] = dbf.rs.getString("batch_id");
 				
 		
 		arrayListRows.add(tmp);
@@ -281,7 +298,7 @@ for (int i=0;i<saveListRows.size();i++)
 	
 }
 
-out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return;
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return;
 
 
 
