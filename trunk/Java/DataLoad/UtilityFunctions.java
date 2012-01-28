@@ -3,7 +3,10 @@
 
 
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 //import java.util.Calendar;
 import java.util.HashMap;
 //import java.util.List;
@@ -971,6 +974,33 @@ public class UtilityFunctions
 		return(strErrorMsg);
 		
 		    
+	}
+	
+	/*
+	 * For troubleshooting purposes to dump out the contents of an array of strings. A date & time
+	 * stamp is attached to the file name.
+	 * We a primarily using this to dump the contents of returned_content when there is an issue
+	 * parsing data.
+	 */
+	public static void dumpStrings(String[] inputArray, String strFileName) {
+		Calendar cal = Calendar.getInstance();
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+		strFileName += "." + formatter.format(cal.getTime());
+		try {
+			BufferedWriter outputStream = new BufferedWriter(new FileWriter(strFileName));
+			for(int i=0;i<inputArray.length;i++) {
+				outputStream.write(inputArray[i]);
+				outputStream.newLine();
+				outputStream.newLine();
+			}
+			outputStream.close();
+		}
+		catch (IOException ioe) {
+			stdoutwriter.writeln("Problem writing to debug file " + strFileName,Logs.ERROR,"UF63.5");
+			return;
+		}
+		
+		
 	}
 	  	
 	public static String shortenURL(String strInputURL)
