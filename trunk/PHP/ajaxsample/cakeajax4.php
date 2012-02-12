@@ -60,6 +60,9 @@ function getChildren($groupid) {
 	$sql.= " where entities_entity_groups.entity_group_id=".$groupid;
 	if (!empty($metricid))
 		$sql.= " and entities_metrics.metric_id =".$metricid;
+	//OFP 2/12/2012 - Had to add the following for USDXCD which was an example of an entity associated
+	//with multiple countries and would result in invalid duplicate entires being returned in this query.
+	$sql.= " and (countries_entities.default_country=1 OR countries_entities.default_country is null)";
 	$sql.= " order by description ";
 	
 	//echo $sql;
