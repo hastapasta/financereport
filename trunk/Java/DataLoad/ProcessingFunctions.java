@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -14,6 +15,17 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import pikefin.log4jWrapper.Logs;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.xml.sax.HandlerBase;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.Attributes;
 
 /*
  * GENERAL COMMENTS ON PROCESSING FUNCTIONS
@@ -448,10 +460,115 @@ public void postProcessCNBCCDSJson() throws SQLException {
 	
 }
 
-public void postProcessYahooSharePriceYQL() throws SQLException
-{
+public void postProcessYahooSharePriceYQL() throws SQLException {
 	//System.out.println("here");
 	String strTmpValue = propTableData.get(0)[0];
+	/*
+	 * Replace all line separators; carriage returns, whatnot
+	 */
+	strTmpValue = strTmpValue.replaceAll("\\r|\\n", "");
+	
+	
+	SAXParserFactory factory = SAXParserFactory.newInstance();
+	//DefaultHandler handler = new DefaultHandler();
+    factory.setValidating(true);
+    
+    class Quote {
+    	String symbol;
+    	String lastTradeDate;
+    	String lastTradeTime;
+    	String price;
+    	
+    	Quote() {
+    		
+    	}
+    	
+    }
+    
+   
+   
+    
+    class CustomHandler extends DefaultHandler {
+    	
+    	
+    	 
+    	ArrayList<Quote> quoteList;
+    	Quote curQuote;
+    	String strVal;
+    	
+    	CustomHandler () {
+    		quoteList = new ArrayList<Quote>();
+    		strVal = null;
+    	}
+    	
+    	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+    		if(qName.equalsIgnoreCase("quote")) {
+				//create a new instance of employee
+				curQuote = new Quote();
+			} 
+  
+		}
+    	
+    	public void characters(char[] ch, int start, int length) throws SAXException {
+    		strVal = new String(ch,start,length);
+    	}
+    	
+    	
+    	
+    	public void endElement(String uri, String localName, String qName) throws SAXException  {
+    		if (qName.equalsIgnoreCase("quote")) {
+    			quoteList.add(curQuote);
+    		}
+    		else if (qName.equalsIgnoreCase("symbol")) {
+    			curQuote.symbol = strVal;
+    			strVal = null;
+    		}
+    		else if (qName.equalsIgnoreCase("lasttradedate")) {
+    			curQuote.lastTradeDate = strVal;
+    		}
+    		else if (qName.equalsIgnoreCase("lasttradetime")) {
+    			curQuote.lastTradeTime = strVal;
+    		}
+    		else if (qName.equalsIgnoreCase("lasttradepriceonly")) {
+    			curQuote.price = strVal;
+    		}
+    		
+    		strVal = null;
+    		
+    	}
+    }
+    
+    
+    CustomHandler handler = new CustomHandler();
+    
+    try {
+        SAXParser saxParser = factory.newSAXParser();
+        //File file = new File("test.xml");
+        
+        
+      
+        saxParser.parse(new InputSource( new StringReader( strTmpValue)), handler);
+        
+        
+       
+
+        //saxParser.parse(file, new ElementHandler());    // specify handler
+    }
+    /*
+     * Eventually throw these exceptions outside of the function.
+     */
+    catch(ParserConfigurationException pce) {
+    	UtilityFunctions.stdoutwriter.writeln(pce);
+    }
+    catch(SAXException saxe) {
+    	//e1.getMessage();
+    	UtilityFunctions.stdoutwriter.writeln(saxe);
+    }
+    catch(IOException ioe) {
+    	UtilityFunctions.stdoutwriter.writeln(ioe);
+    }
+    
+   
 	
 	//String[] values = strTmpValue[0].split(",");
 	
@@ -470,57 +587,42 @@ public void postProcessYahooSharePriceYQL() throws SQLException
 	int nCount = 0;
 	int nCount2 = 0;
 	
-	while (!bDone) {
+	for (int i=0;i<handler.quoteList.size();i++) {
+		
+		Quote curQuote = handler.quoteList.get(i);
 		
 		nCount2++;
 		
 		String[] rowdata = new String[tmpArray.length];
 		
 		
+		/*if (curQuote.lastTradeDate == null) {
+			UtilityFunctions.stdoutwriter.writeln("No LastTradeDate value for ticker " + curQuote.symbol + ",skipping",Logs.ERROR,"PF72");
+			continue;
+		}*/
+		
+		if (curQuote.price.equals("0.00")) {
+			//UtilityFunctions.stdoutwriter.writeln("Issue looking up ticker " + strSymbol + ",skipping",Logs.S,"PF50");
+			System.out.println(curQuote.symbol);
+			continue;
+		}
+		
+
 		
 		
-		
-		nBegin = strTmpValue.indexOf("<LastTradeDate>",nEnd);
-		if (nBegin == -1)
-			break;
-		nBegin += "<LastTradeDate>".length();
-		nEnd = strTmpValue.indexOf("</LastTradeDate>",nBegin);
-		
-		String strDate = strTmpValue.substring(nBegin,nEnd);
-		
-		nBegin = strTmpValue.indexOf("<LastTradePriceOnly>",nEnd) + "<LastTradePriceOnly>".length();
-		nEnd = strTmpValue.indexOf("</LastTradePriceOnly>",nBegin);
-		
-		String strValue = strTmpValue.substring(nBegin,nEnd);
-		
-		nBegin = strTmpValue.indexOf("<Symbol>",nEnd) + "<Symbol>".length();
-		nEnd = strTmpValue.indexOf("</Symbol>",nBegin);
-		
-		String strSymbol = strTmpValue.substring(nBegin,nEnd);
-		
-		nBegin = strTmpValue.indexOf("<LastTradeTime>",nEnd) + "<LastTradeTime>".length();
-		nEnd = strTmpValue.indexOf("</LastTradeTime>",nBegin);
-		
-		String strTime = strTmpValue.substring(nBegin,nEnd);
-		
-		
-		rowdata[0] = strValue;
-		String[] strDateArray = strDate.split("/");
+		rowdata[0] = curQuote.price;
+		String[] strDateArray = curQuote.lastTradeDate.split("/");
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.MONTH, Integer.parseInt(strDateArray[0])-1);
 		cal.set(Calendar.DAY_OF_MONTH,Integer.parseInt(strDateArray[1]));
 		cal.set(Calendar.YEAR,Integer.parseInt(strDateArray[2]));
 		
+		String strTime = curQuote.lastTradeTime;
 		
 		String strAMPM = strTime.substring(strTime.indexOf("m")-1,strTime.indexOf("m")+1);
 		String strNewTime = strTime.substring(0,strTime.indexOf("m")-1);
 		String[] strTimeArray = strNewTime.split(":");
 		
-		/*if (strAMPM.equals("pm"))
-			cal.set(Calendar.AM_PM,Calendar.PM);
-		else
-			cal.set(Calendar.AM_PM,Calendar.AM);
-		cal.set(Calendar.HOUR,Integer.parseInt(strTimeArray[0]));*/
 		
 		/*
 		 * There's an issue with setting the AMPM value and then the HOUR value. The conversion
@@ -555,7 +657,7 @@ public void postProcessYahooSharePriceYQL() throws SQLException
 		 */
 		if (dg.nCurTask == 10)
 			if (!formatter2.format(currentCal.getTime()).equals(formatter2.format(cal.getTime())))
-				UtilityFunctions.stdoutwriter.writeln("Bad Yahoo Data, in postProcessing function for Symbol " + strSymbol,Logs.ERROR,"PF50.5");
+				UtilityFunctions.stdoutwriter.writeln("Bad Yahoo Data, in postProcessing function for Symbol " + curQuote.symbol,Logs.ERROR,"PF50.5");
 		
 		
 		/*
@@ -581,19 +683,19 @@ public void postProcessYahooSharePriceYQL() throws SQLException
 		
 		
 		
-		if (strSymbol.equals("BRK-A"))
-			strSymbol = "BRK/A";
-		else if (strSymbol.equals("BF-B"))
-			strSymbol = "BF/B";
+		if (curQuote.symbol.equals("BRK-A"))
+			curQuote.symbol = "BRK/A";
+		else if (curQuote.symbol.equals("BF-B"))
+			curQuote.symbol = "BF/B";
 		
 		try {
-			String query = "select id from entities where ticker='" + strSymbol + "'";
+			String query = "select id from entities where ticker='" + curQuote.symbol + "'";
 			ResultSet rs = dbf.db_run_query(query);
 			rs.next();
 			rowdata[2] = rs.getInt("id") + "";
 		}
 		catch (SQLException sqle) {
-			UtilityFunctions.stdoutwriter.writeln("Issue looking up ticker " + strSymbol + ",skipping",Logs.ERROR,"PF50");
+			UtilityFunctions.stdoutwriter.writeln("Issue looking up ticker " + curQuote.symbol + ",skipping",Logs.ERROR,"PF50");
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 			continue;
 			
@@ -1231,6 +1333,13 @@ public void postProcessOneTimeYahooIndex()
 }
 
 public void postProcessBloombergGovtBonds() {
+	/* OFP 2/6/2012
+	 * This was originally set up to extract price but price tells you nothing when new
+	 * bonds are issued, so it was converted over to extract rate.
+	 * 
+	 * The hong kong rates are not displayed in the same format as for the other countries. Skipping
+	 * these for now.
+	 */
 	
 	String[] tmpArray = {"value","date_collected","entity_id"};
 	String[] rowheaders = propTableData.get(1);
@@ -1248,42 +1357,50 @@ public void postProcessBloombergGovtBonds() {
 		String strTicker = null;
 		
 		newrow[1] = "NOW()";
+		
+		newrow[0] = rowdata[0].substring(rowdata[0].indexOf("/"),rowdata[0].length()).trim();
 		if (dg.strCurDataSet.contains("_japan")) {
 			
 			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_japan";
 			strQuery = "select id from entities where ticker='" + strTicker + "'";
-			newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+			//newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+			newrow[0] = rowdata[0].substring(rowdata[0].indexOf("/")+1,rowdata[0].length()).trim();
 		}
 		else if (dg.strCurDataSet.contains("_australia")) {
 			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_australia";
 			strQuery = "select id from entities where ticker='" + strTicker + "'";
-			newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+			//newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+			newrow[0] = rowdata[0].substring(rowdata[0].indexOf("/")+1,rowdata[0].length()).trim();
 		}
 		else if (dg.strCurDataSet.contains("_us")) {
 			
 			/* 
 			 * Prices aren't displayed and haven't figured out the proper way to cacluate them yet.
 			 */
-			if (rowheaders[row-2].contains("Month"))
-				continue;
-			
-			if (rowdata[0].contains("&"))
+			/*if (rowheaders[row-2].contains("Month"))
+				continue;*/
+			if (rowheaders[row-2].equals("12-Month"))
+					rowheaders[row-2] = "1-Year";
+			newrow[0] = rowdata[0].substring(rowdata[0].indexOf("/")+1,rowdata[0].length()).trim();
+			/*if (rowdata[0].contains("&"))
 				newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("&")).trim();
 			else if (rowdata[0].contains("+"))
 				newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("+")).trim();
-			else if (rowdata[0].contains("/"))
-				newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+			else if (rowdata[0].contains("/")) {
+				//newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+				newrow[0] = rowdata[0].substring(rowdata[0].indexOf("/")+1,rowdata[0].length()).trim();
+			}
 			else {
 				UtilityFunctions.stdoutwriter.writeln("Unable to parse numeric value " + rowdata[0],Logs.ERROR,"PF46.51");
 				continue;
-			}
+			}*/
 				
-			String[] tmp = newrow[0].split("-");
+			//String[] tmp = newrow[0].split("-");
 					
 			
-			Double dTmp = (Double.parseDouble(tmp[0]) + (Double.parseDouble(tmp[1]) / 32));
-			dTmp = Math.round(1000*dTmp) / 1000d;
-			newrow[0] = dTmp + "";
+			//Double dTmp = (Double.parseDouble(tmp[0]) + (Double.parseDouble(tmp[1]) / 32));
+			//dTmp = Math.round(1000*dTmp) / 1000d;
+			//newrow[0] = dTmp + "";
 			//newrow[0] = newrow[0].replace("-", ".");
 			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_us";
 			strQuery = "select id from entities where ticker='" + strTicker + "'";
@@ -1291,18 +1408,21 @@ public void postProcessBloombergGovtBonds() {
 		else if (dg.strCurDataSet.contains("_uk")) {
 			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_uk";
 			strQuery = "select id from entities where ticker='" + strTicker + "'";
-			newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+			//newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+			newrow[0] = rowdata[0].substring(rowdata[0].indexOf("/")+1,rowdata[0].length()).trim();
 		}
 		else if (dg.strCurDataSet.contains("_germany")) {
 			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_germany";
 			strQuery = "select id from entities where ticker='" + strTicker + "'";
-			newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+			//newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+			newrow[0] = rowdata[0].substring(rowdata[0].indexOf("/")+1,rowdata[0].length()).trim();
 			
 		}
 		else if (dg.strCurDataSet.contains("_brazil")) {
 			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_brazil";
 			strQuery = "select id from entities where ticker='" + strTicker + "'";
-			newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+			//newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
+			newrow[0] = rowdata[0].substring(rowdata[0].indexOf("/")+1,rowdata[0].length()).trim();
 		}
 		else if (dg.strCurDataSet.contains("_hongkong")) {
 			if (rowheaders[row-2].contains("Bill") || rowheaders[row-2].contains("HKSAR"))
@@ -2208,8 +2328,7 @@ public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQL
 	
 }
 
-public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQLException
-{
+public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQLException {
 	String[] rowdata, newrow;
 	String[] colheaders = propTableData.get(0);
 	
@@ -2299,7 +2418,7 @@ public void postProcessIMFGdpPPPEst() throws SQLException {
 
 public boolean preProcessImfGdp() {
 	Calendar cal = Calendar.getInstance();
-	int nMaxEndYear = 2015;
+	int nMaxEndYear = 2016;
 	int nMinBeginYear = 2004;
 	
 	int nTempCurrent = 2011;
@@ -3069,11 +3188,56 @@ public void postProcessMWatchEPSEstTable() throws SQLException,SkipLoadException
 	
 }
 
+	public boolean preNDCBloombergQuote() {
+		/*
+		 * Intermittently a quote doesn't return a value.	
+		 */
+		String strRegex = "(?i)(There are no matches for your search)";
+		
+
+		  
+		Pattern pattern = Pattern.compile(strRegex);
+		
+		  
+		Matcher matcher = pattern.matcher(dg.returned_content);
+		
+		/* OFP 2/18/2012 - Bloomberg changed the format of their quote page and several
+		 * tickers were just showing blank quotes without any messages so we added this
+		 * search for the existence of the " price"> tag.
+		 */
+		String strRegex2 = "(?i)(\" price\">)";
+		Pattern pattern2 = Pattern.compile(strRegex2);
+		Matcher matcher2 = pattern2.matcher(dg.returned_content);
+		  
+		
+
+		
+		if (matcher.find()) {
+			UtilityFunctions.stdoutwriter.writeln("Bloomberg Quote found no match for ticker " + dg.strCurrentTicker + ", skipping",Logs.WARN,"PF23.8");
+
+			String[] tmp = new String[3];
+			tmp[0]="Task:"+this.dg.nCurTask;
+			tmp[1]="URL:"+this.dg.strStage2URL;
+			tmp[2]=this.dg.returned_content;
+			UtilityFunctions.dumpStrings(tmp, "/tmp/dump/dumpstring.txt");
+
+			return(true);
+		}
+		else if (!matcher2.find()) {
+			UtilityFunctions.stdoutwriter.writeln("Bloomberg Quote returned a blank quote for ticker " + dg.strCurrentTicker + ", skipping",Logs.WARN,"PF23.85");
+			return true;
+		}
+		
+			
+		return(false);
+		
+
+		
+	}
 
 
 
-	public boolean preNDCYahooEPSEst()
-	{
+	public boolean preNDCYahooEPSEst() {
 		String strRegex = "(?i)(There is no Analyst Estimates)";
 		  UtilityFunctions.stdoutwriter.writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF45");
 
@@ -3089,8 +3253,7 @@ public void postProcessMWatchEPSEstTable() throws SQLException,SkipLoadException
 		
 	}
 
-	public boolean preNDCNasdaqEPSEst()
-	{
+	public boolean preNDCNasdaqEPSEst()	{
 		
 	  String strRegex = "(?i)(No Data Available)";
 	  UtilityFunctions.stdoutwriter.writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46");
