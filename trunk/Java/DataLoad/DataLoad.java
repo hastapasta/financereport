@@ -19,6 +19,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*; 
+import pikefin.log4jWrapper.Logs;
 //import org.apache.log4j.Logger;
 //import org.apache.log4j.NDC;
 
@@ -50,8 +51,9 @@ class DataLoad extends Thread //implements Stopable
   
   static int nMaxThreads;
   static Properties props;
-  static boolean bDisableEmails;
+  //static boolean bDisableEmails;
   static boolean bLoadingHistoricalData=false;
+  static boolean bDebugMode;
 
   /*
    * listWaitingJobs now holds  tasks.id,schedules.id,repeat_types.id,priority,queued time
@@ -120,7 +122,7 @@ class DataLoad extends Thread //implements Stopable
 	  System.out.println("terminating");
   }
   
-  public void getTriggeredJobs() throws SQLException
+  public void getTriggeredJobs() throws SQLException,ParseException
   {
 	String query;
 	ResultSet rs=null;
@@ -162,7 +164,7 @@ class DataLoad extends Thread //implements Stopable
 				{
 					
 					//check if task is being excluded
-					if  (taskExcluded(rs2.getString("task_id")))
+					if  (isTaskExcluded(rs2.getString("task_id")))
 							continue;
 					
 					//check if job is already in queue, don't add it again if it is
@@ -268,8 +270,7 @@ class DataLoad extends Thread //implements Stopable
 	 
   }
   
-  public DataGrab initiateJob(int nPriority) throws SQLException
-  {
+  public DataGrab initiateJob(int nPriority) throws SQLException  {
 	  //String strDataSet;
 	  String strTask;
 	  DataGrab dg;
@@ -288,11 +289,7 @@ class DataLoad extends Thread //implements Stopable
 		  for (int i=0;i<listWaitingJobs.size();i++)
 		  {
 			  
-			  if (Integer.parseInt(listWaitingJobs.get(i)[3]) < nPriority) {
-				  UtilityFunctions.stdoutwriter.writeln("Not initiating schedule because priority is too low. Task: " + listWaitingJobs.get(i)[0] + ", Priority: " + listWaitingJobs.get(i)[0], Logs.STATUS1, "DL4.36");
-				  continue;
-			  }
-			  
+
 			  bAlreadyRunning = false;
 			  strTask = listWaitingJobs.get(i)[0];
 			  for (int j=0;j<arrayRunningJobs.length;j++)
@@ -311,6 +308,11 @@ class DataLoad extends Thread //implements Stopable
 			  if (bAlreadyRunning==false)
 			  {
 				  
+				  if (Integer.parseInt(listWaitingJobs.get(i)[3]) < nPriority) {
+					  UtilityFunctions.stdoutwriter.writeln("Not initiating schedule because one thread is reserved for minimum priority of " + nPriority + ". Task: " + listWaitingJobs.get(i)[0] + ", Priority: " + listWaitingJobs.get(i)[3], Logs.STATUS1, "DL4.36");
+					  return null;
+				  }
+				  
 				 /*
 				  * OFP 3/12/2011 - Bug here that was resulting in the same TaskId being executed concurrently. If there
 				  * was more than 1 job in the waiting queue but the first TaskId in the waiting queue was already running, it
@@ -326,7 +328,7 @@ class DataLoad extends Thread //implements Stopable
 				   * dbf.getBatchNumber(). Now the batch number is maintained in the parent thread to avoid duplication.
 				   * 
 				   */
-				  UtilityFunctions.stdoutwriter.writeln("Initiating thread with batch # " + this.nMaxBatch,Logs.STATUS1,"DL4.35");
+				  //UtilityFunctions.stdoutwriter.writeln("Initiating thread with batch # " + this.nMaxBatch,Logs.STATUS1,"DL4.35");
 				  dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,0,listWaitingJobs.get(i)[1],listWaitingJobs.get(i)[2]);
 				  
 				 // this.nMaxBatch++;
@@ -399,7 +401,7 @@ class DataLoad extends Thread //implements Stopable
 		  
 		  if (arrayRunningJobs[j] == null) {
 			  if (j==1){
-				  arrayRunningJobs[j] = initiateJob(this.nMinimumPriority);
+				  arrayRunningJobs[j] = initiateJob(DataLoad.nMinimumPriority);
 			  }
 			  else
 				  arrayRunningJobs[j] = initiateJob(0);	  
@@ -432,7 +434,7 @@ class DataLoad extends Thread //implements Stopable
 		  
 
 		  
-		  String query = "insert into log_tasks (task_id,batch,repeat_type_id,schedule_id,job_process_start,job_process_end,alert_process_start,alert_process_end) values ("
+		  String query = "insert into log_tasks (task_id,batch,repeat_type_id,schedule_id,job_process_start,job_process_end,alert_process_start,alert_process_end,stage1_start,stage1_end,stage2_start,stage2_end) values ("
 	      + dg.nCurTask + ","
 	      + dg.nTaskBatch + ","
 	      + dg.strRepeatTypeId + ","
@@ -440,7 +442,11 @@ class DataLoad extends Thread //implements Stopable
 		  + formatter.format(dg.getJobProcessingStartTime().getTime()) + "','" 
 		  + formatter.format(dg.getJobProcessingEndTime().getTime()) + "','"
 		  + formatter.format(dg.getAlertProcessingStartTime().getTime()) + "','"
-		  + formatter.format(dg.getAlertProcessingEndTime().getTime()) +"')";
+		  + formatter.format(dg.getAlertProcessingEndTime().getTime()) + "','"
+		  + formatter.format(dg.getStage1StartTime().getTime()) + "','"
+		  + formatter.format(dg.getStage1EndTime().getTime()) + "','"
+		  + formatter.format(dg.getStage2StartTime().getTime()) + "','"
+		  + formatter.format(dg.getStage2EndTime().getTime()) + "')";
 		  /*String query = "update schedules set last_run='" + formatter.format(endCal.getTime())+ "' where task_id=" + strTask;
 		  dbf.db_update_query(query);*/
 		  
@@ -680,11 +686,20 @@ class DataLoad extends Thread //implements Stopable
 	//UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR DAY: " + (String)props.get("gcday"),Logs.STATUS1,"DL17");
 	//UtilityFunctions.stdoutwriter.writeln("GARBAGE COLLECTOR TIME: " + (String)props.get("gctime"),Logs.STATUS1,"DL18");
 	
-	DataLoad.bDisableEmails= Boolean.parseBoolean((String)props.getProperty("emaildisable"));
+	DataLoad.bDebugMode= Boolean.parseBoolean((String)props.getProperty("debugmode"));
+	if (DataLoad.bDebugMode)
+		UtilityFunctions.stdoutwriter.writeln("RUNNING IN DEBUG MODE",Logs.STATUS1,"DL18.5");
+	else
+		UtilityFunctions.stdoutwriter.writeln("RUNNING IN LIVE (NON DEBUG) MODE",Logs.STATUS1,"DL19.5");
+	
+	/*
+	 * disableemails was replaced with debugmode property.
+	 */
+	/*DataLoad.bDisableEmails= Boolean.parseBoolean((String)props.getProperty("emaildisable"));
 	if (DataLoad.bDisableEmails)
 		UtilityFunctions.stdoutwriter.writeln("EMAIL AND TWITTER NOTIFICATIONS ARE DISABLED",Logs.STATUS1,"DL18");
 	else
-		UtilityFunctions.stdoutwriter.writeln("EMAIL AND TWITTER NOTIFICATIONS ARE ENABLED",Logs.STATUS1,"DL19");
+		UtilityFunctions.stdoutwriter.writeln("EMAIL AND TWITTER NOTIFICATIONS ARE ENABLED",Logs.STATUS1,"DL19");*/
 	
 	DataLoad.bLoadingHistoricalData= Boolean.parseBoolean((String)props.getProperty("historicaldata"));
 	if (DataLoad.bLoadingHistoricalData==true)
@@ -1056,42 +1071,85 @@ class DataLoad extends Thread //implements Stopable
 		
 	}
 	
-	public boolean taskExcluded(String strTaskId) throws SQLException {
+	public boolean isTaskExcluded(String strTaskId) throws SQLException, ParseException {
 		
 		  String query11 = "select * from excludes where task_id=" + strTaskId;
 		  ResultSet rs11 = dbf.db_run_query(query11);
+		  DateFormat localFormatter = new SimpleDateFormat("yyyy-MM-dd");
 		  //variable to indicate if there are any entires in the excludes table for this task id
 		 
 		  Calendar cal4 = Calendar.getInstance();
 		  
 		  while(rs11.next()) {
-		  
-  
-			  int nBeginDay = rs11.getInt("begin_day");
-			  int nEndDay = rs11.getInt("end_day");
+			  
 			  String strBeginTime = rs11.getString("begin_time");
 			  String strEndTime = rs11.getString("end_time");
-			 
 			  String[] arrayBeginTime = strBeginTime.split(":");
 			  String[] arrayEndTime = strEndTime.split(":");
-			  
-			  //double test = ((3601 * Integer.parseInt(arrayBeginTime[0])) / (3600 * 24));
-			  //double test2 = ((double)(3600 * Integer.parseInt(arrayBeginTime[0])) / (double)(3600 * 24));
-			  
-			  double fBegin = (double)nBeginDay + (double)(((3600 * Integer.parseInt(arrayBeginTime[0])) + (60 * Integer.parseInt(arrayBeginTime[1])) + (Integer.parseInt(arrayBeginTime[2]))) / (double)(3600 * 24));
-			  double fEnd = (double)nEndDay + (double)(((3600 * Integer.parseInt(arrayEndTime[0])) + (60 * Integer.parseInt(arrayEndTime[1])) + (Integer.parseInt(arrayEndTime[2]))) / (double)(3600 * 24));
-			  double fCurrent = (double)cal4.get(Calendar.DAY_OF_WEEK) + (double)(((3600 * cal4.get(Calendar.HOUR_OF_DAY)) + (60 * cal4.get(Calendar.MINUTE)) + (cal4.get(Calendar.SECOND))) / (double)(3600 * 24));
-			  
-	  
-			  if ((fCurrent >= fBegin) && (fCurrent <= fEnd)) {
-				  //listTimeEventExcludes.add(rs11.getInt("time_event_id") + "");
-				  UtilityFunctions.stdoutwriter.writeln("Excluding task " +strTaskId + " according to excludes id " + rs11.getInt("id"),Logs.WARN,"A5.6");
-				  return(true);
+		  
+			  if (rs11.getInt("type") == 1) {
+  
+				  int nBeginDay = rs11.getInt("begin_day");
+				  int nEndDay = rs11.getInt("end_day");
+				  
+				 
+				  
+				  
+				  //double test = ((3601 * Integer.parseInt(arrayBeginTime[0])) / (3600 * 24));
+				  //double test2 = ((double)(3600 * Integer.parseInt(arrayBeginTime[0])) / (double)(3600 * 24));
+				  
+				  double fBegin = (double)nBeginDay + (double)(((3600 * Integer.parseInt(arrayBeginTime[0])) + (60 * Integer.parseInt(arrayBeginTime[1])) + (Integer.parseInt(arrayBeginTime[2]))) / (double)(3600 * 24));
+				  double fEnd = (double)nEndDay + (double)(((3600 * Integer.parseInt(arrayEndTime[0])) + (60 * Integer.parseInt(arrayEndTime[1])) + (Integer.parseInt(arrayEndTime[2]))) / (double)(3600 * 24));
+				  double fCurrent = (double)cal4.get(Calendar.DAY_OF_WEEK) + (double)(((3600 * cal4.get(Calendar.HOUR_OF_DAY)) + (60 * cal4.get(Calendar.MINUTE)) + (cal4.get(Calendar.SECOND))) / (double)(3600 * 24));
+				  
+		  
+				  if ((fCurrent >= fBegin) && (fCurrent <= fEnd)) {
+					  //listTimeEventExcludes.add(rs11.getInt("time_event_id") + "");
+					  UtilityFunctions.stdoutwriter.writeln("Excluding task " +strTaskId + " according to excludes id " + rs11.getInt("id"),Logs.WARN,"DL5.6");
+					  return(true);
+				  }
+				 
 			  }
+			  else if (rs11.getInt("type") == 2){
+				  
+				  if (rs11.getString("onetime_date")== null) {
+					  UtilityFunctions.stdoutwriter.writeln("Error with " +strTaskId + " excludes id " + rs11.getInt("id") + ", onetime_date null",Logs.ERROR,"DL5.7");
+					  return(false);
+				  }
+				  
+				  String strDateBefore = rs11.getString("onetime_date") + " " + strBeginTime;
+				  String strDateAfter = rs11.getString("onetime_date") + " " + strEndTime;
+				  DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				  Calendar calBefore = Calendar.getInstance();
+				  Calendar calAfter = Calendar.getInstance();
+				  Calendar calCurrent = Calendar.getInstance();
+
+				  calBefore.setTime(formatter.parse(strDateBefore));
+				  calAfter.setTime(formatter.parse(strDateAfter));
+				  
+				
+				  if ((calBefore.before(calCurrent)) && (calCurrent.before(calAfter))){
+					  UtilityFunctions.stdoutwriter.writeln("Excluding task " +strTaskId + " according to excludes id " + rs11.getInt("id"),Logs.WARN,"DL5.6");
+					  return(true);
+				  }
+						  
+			  }
+			  
+			  
+
 			 
 		  }
+		
+		  
+		  
 		  
 		  return(false);
+		  
+		  
+		  
+		  
+		  
+		  
 	
 	}
 	
