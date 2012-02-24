@@ -461,12 +461,67 @@ public void postProcessCNBCCDSJson() throws SQLException {
 }
 
 public void postProcessYahooSharePriceYQL() throws SQLException {
-	//System.out.println("here");
+	/*
+	 * OFP 2/24/2012 - The Yahoo processsing is really convoluted now. We splice together up to 5
+	 * xml streams and then we have to strip out the xml header and tail before putting it through
+	 * the SAX parser. 
+	 * 
+	 * There are 2 reasons for all this complexity:
+	 * 1) Issue with invalid data retrieval from yahoo where we have to check the timestamp and if wrong resend
+	 * the url request.
+	 * 2) YQL has a limit where we can only submit 100 tickers at a time (or this might be a limit on the URL size, can't remember which).
+	 * 
+	 * One other way to handle this situation is to break up the entity_group into 5 different groups and then have
+	 * 5 different jobs, 1 for each group, under the parent task. But in order to do this, groups need to be associated with jobs, not tasks, which I think is how it should be anyways.
+	 */
 	String strTmpValue = propTableData.get(0)[0];
+	
 	/*
 	 * Replace all line separators; carriage returns, whatnot
 	 */
 	strTmpValue = strTmpValue.replaceAll("\\r|\\n", "");
+	
+	int nBeginMerge = strTmpValue.indexOf("<results>") + 9;
+	
+	int nCountMerge = 0;
+	while (true) {
+		if ((nBeginMerge = strTmpValue.indexOf("<results>",nBeginMerge+1)) != -1)
+			nCountMerge++;
+		else
+			break;
+	}
+	
+	nBeginMerge = strTmpValue.indexOf("<results>") + 9;
+	int nEndMerge=0;
+	
+	while (nCountMerge > 0) {
+		if ((nBeginMerge = strTmpValue.indexOf("</results>",nBeginMerge)) == -1) {
+			//shouldn't get here
+			UtilityFunctions.stdoutwriter.writeln("Issue merging XML data",Logs.ERROR,"PF998.5");
+			break;
+		}
+			
+		if ((nEndMerge = strTmpValue.indexOf("<results>",nBeginMerge)) == -1) {
+			//shouldn't get here
+			UtilityFunctions.stdoutwriter.writeln("Issue merging XML data",Logs.ERROR,"PF998.6");
+			break;
+		}
+		nEndMerge += "<results>".length();
+		String strReplace = strTmpValue.substring(nBeginMerge,nEndMerge);
+		/* replaceFirst uses regex so we have to replace backslash and dollar with escaped characters */
+		/*strReplace = strReplace.replace("\\","\\\\");
+		strReplace = strReplace.replace("$", "\\$");
+		strReplace = strReplace.replace("?", "\\?");*/
+		/* 
+		 * The \Q and \E tell the regex processor to treat everything
+		 * in between as literals.
+		*/
+		strReplace = "\\Q" + strReplace + "\\E";
+		//strReplace = ".yql.sp2.yahoo.com --><\\?xml ";//version=\\\"1.0\\\"";//encoding=\"UTF-8\"?><query xmlns:yahoo=\"http://www.yahooapis.com/v1/base.rng\" yahoo:count=\"100\" yahoo:create";
+		/*</results></query><!-- total: 2363 --><!-- engine2.yql.sp2.yahoo.com --><?xml version="1.0" encoding="UTF-8"?><query xmlns:yahoo="http://www.yahooapis.com/v1/base.rng" yahoo:count="100" yahoo:created="2012-02-24T18:36:26Z" yahoo:lang="en-US"><results>*/
+		strTmpValue = strTmpValue.replaceFirst(strReplace,"");	
+		nCountMerge--;
+	}
 	
 	
 	SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -558,13 +613,23 @@ public void postProcessYahooSharePriceYQL() throws SQLException {
      * Eventually throw these exceptions outside of the function.
      */
     catch(ParserConfigurationException pce) {
+    	UtilityFunctions.stdoutwriter.writeln("PostProcessing Exception",Logs.ERROR,"PF1001.1");
     	UtilityFunctions.stdoutwriter.writeln(pce);
     }
     catch(SAXException saxe) {
     	//e1.getMessage();
+    	
+    	String[] tmp = new String[3];
+		tmp[0]="Task:"+this.dg.nCurTask;
+		tmp[1]="URL:"+this.dg.strStage2URL;
+		tmp[2]=this.dg.returned_content;
+		UtilityFunctions.dumpStrings(tmp, "/tmp/dump/dumpstring.txt");
+		
+    	UtilityFunctions.stdoutwriter.writeln("PostProcessing Exception",Logs.ERROR,"PF1001.2");
     	UtilityFunctions.stdoutwriter.writeln(saxe);
     }
     catch(IOException ioe) {
+    	UtilityFunctions.stdoutwriter.writeln("PostProcessing Exception",Logs.ERROR,"PF1001.3");
     	UtilityFunctions.stdoutwriter.writeln(ioe);
     }
     
@@ -2442,28 +2507,28 @@ public void postProcessImfGdp() throws SQLException {
 	String[] tmpArray = {"value","date_collected","entity_id","calyear","scale"};
 	
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	String[] rowdata, newrow;
+	//String[] rowdata, newrow;
+	String[] newrow;
 	//String[] colheaders = propTableData.get(0);
 	
 	String[] colheaders = propTableData.remove(0);
 	String[] rowheaders = propTableData.remove(0);
 	
 	//newTableData.add(tmpArray);
-	
-	for (int row=0;row<propTableData.size();row++)
-	{
-		rowdata = propTableData.get(row);
+	int nCounter=0;
+	//for (int row=0;row<propTableData.size();row++)
+	for (String[] rowdata : propTableData)	{
+		//rowdata = propTableData.get(row);
 		
-		for (int col=0;col<colheaders.length;col++)
-		{
 		
-		String strCountry = rowheaders[row];
+		for (int col=0;col<colheaders.length;col++)		{
+		
+		String strCountry = rowheaders[nCounter];
 		newrow = new String[tmpArray.length];
 		
 		newrow[0] = rowdata[col].replace(",", "");
 		
-		if (newrow[0].contains("n/a"))
-		{
+		if (newrow[0].contains("n/a"))		{
 			UtilityFunctions.stdoutwriter.writeln("Retrieved n/a value, skipping processing for entity " + strCountry,Logs.WARN,"PF44");
 			continue;
 		}
@@ -2561,6 +2626,7 @@ public void postProcessImfGdp() throws SQLException {
 		
 			
 		}
+		nCounter++;
 		
 		
 	}
@@ -3057,6 +3123,125 @@ public void postProcessGoogleEPSTable() throws SQLException {
 	
 }
 
+public void postProcessWikipediaGasoline() throws SQLException {
+
+		
+		String[] tmpArray = {"value","date_collected","entity_id"};
+		
+		ArrayList<String[]> newTableData = new ArrayList<String[]>();
+		//String[] rowdata, newrow;
+		String[] newrow;
+		//String[] colheaders = propTableData.get(0);
+		
+		String[] colheaders = propTableData.remove(0);
+		String[] rowheaders = propTableData.remove(0);
+		
+		//newTableData.add(tmpArray);
+		int nCounter=0;
+		//for (int row=0;row<propTableData.size();row++)
+		for (String[] rowdata : propTableData)	{
+			//rowdata = propTableData.get(row);
+			
+			
+		//for (int col=0;col<colheaders.length;col++)		{
+			
+			String strCountry = rowheaders[nCounter++];
+			
+			if (strCountry.equalsIgnoreCase("Anguilla") || strCountry.equalsIgnoreCase("Aruba")
+				||	strCountry.equalsIgnoreCase("Bonaire")
+				||	strCountry.equalsIgnoreCase("british virgin islands")
+				||	strCountry.equalsIgnoreCase("curacao")
+				||	strCountry.equalsIgnoreCase("european union")
+				||	strCountry.equalsIgnoreCase("guadeloupe")
+				||	strCountry.contains("Livigno")
+				||	strCountry.equalsIgnoreCase("martinique")
+				||	strCountry.equalsIgnoreCase("montserrat")
+				||	strCountry.equalsIgnoreCase("portugal - azores")
+				||	strCountry.equalsIgnoreCase("portugal - madeira")
+				||	strCountry.equalsIgnoreCase("puerto rico")
+				||	strCountry.equalsIgnoreCase("spain - canary islands")
+				||	strCountry.equalsIgnoreCase("Switzerland - Samnaun")
+				||	strCountry.equalsIgnoreCase("Turks and Caicos")
+			)
+				continue;
+			
+			newrow = new String[tmpArray.length];
+			
+			newrow[0] = rowdata[0];
+		
+			
+				
+
+
+			//newrow[0] = bdTmp.toString();
+			//newrow[0] = rowdata[0].replace(",", "");
+			//newrow[4] = "VARCHAR";
+			newrow[1] = "'"+rowdata[1] + " 12:00:00'";
+			//newrow[6] = "INTEGER";
+		
+			
+			/*
+			 * If there are 2 sets of parens for the row header, we want to cutoff at the 2nd left paren.
+			 */
+			
+			
+		
+			strCountry = strCountry.trim();
+			
+			strCountry = strCountry.replace("'", "\\'");
+			
+			//String query = "select * from entities where ticker='"+strCountry+"'";
+			String query = "select entities.id from entities ";
+			query += " join countries_entities on countries_entities.entity_id=entities.id ";
+			query += " join countries on countries.id=countries_entities.country_id ";
+			query += " where ticker='macro' ";
+			query += " and countries.name='"+strCountry+"'";
+			query += " union ";
+			query += " select entities.id from entities ";
+			query += " join countries_entities on countries_entities.entity_id=entities.id ";
+			query += " join country_aliases on country_aliases.country_id=countries_entities.country_id ";
+			query += " where ticker='macro' ";
+			query += " and country_aliases.alias='"+strCountry+"'";
+						
+			
+			try		{
+				ResultSet rs = dbf.db_run_query(query);
+				rs.next();
+				newrow[2] = rs.getInt("id") + "";
+				
+			}
+			catch (SQLException sqle)	{
+				UtilityFunctions.stdoutwriter.writeln("Problem looking up country: " + strCountry + ",row skipped",Logs.ERROR,"PF99.25");
+				continue;	
+				/*
+				 * This is not a fatal error so we won't display the full exception.
+				 */
+				//UtilityFunctions.stdoutwriter.writeln(sqle);
+			}
+			
+			//newrow[3] = colheaders[col];
+			//newrow[4] = "9";
+			
+			
+			
+			newTableData.add(newrow);
+			
+			
+			
+			}
+			
+			
+			
+	//	}
+		
+		newTableData.add(0, tmpArray);
+		propTableData = newTableData;
+		
+		
+		
+		
+	}
+
 public void postProcessMWatchEPSEstTable() throws SQLException,SkipLoadException {
 	
 		/* OFP 11/12/2011 - One issue with this data source is because the column headers are
@@ -3260,14 +3445,21 @@ public void postProcessMWatchEPSEstTable() throws SQLException,SkipLoadException
 
 	  
 	  Pattern pattern = Pattern.compile(strRegex);
-	  //UtilityFunctions.stdoutwriter.writeln("after strbeforeuniquecoderegex compile", Logs.STATUS2);
+	  
 	  
 	  Matcher matcher = pattern.matcher(dg.returned_content);
 	  
-	  //UtilityFunctions.stdoutwriter.writeln("Current offset before final data extraction: " + nCurOffset,Logs.STATUS2);
+	  /*
+	   * OFP 12/19/2012 - Nasdaq misspelled available.
+	   */
+	  String strRegex2 = "(?i)(No data avaiable)";
+	  Pattern pattern2 = Pattern.compile(strRegex2);
+	  Matcher matcher2 = pattern2.matcher(dg.returned_content);
 	  
-	  if (matcher.find())
+	  if (matcher.find() || matcher2.find()) {
+		  UtilityFunctions.stdoutwriter.writeln("Nasdaq no data avialable for ticker " + dg.strCurrentTicker, Logs.WARN,"PF21.38");
 		  return(true);
+	  }
 	  
 	  strRegex = "(?i)(feature currently is unavailable)";
 	  UtilityFunctions.stdoutwriter.writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46.5");
@@ -3278,7 +3470,13 @@ public void postProcessMWatchEPSEstTable() throws SQLException,SkipLoadException
 	  
 	  matcher = pattern.matcher(dg.returned_content);
 	  
-	  return(matcher.find());
+	  if (matcher.find()) {
+		  UtilityFunctions.stdoutwriter.writeln("Nasdaq message feature currently unavailable for ticker " + dg.strCurrentTicker, Logs.WARN,"PF21.40");
+		  return true;
+	  }
+	  
+	  return false;
+	 
 	  
 	  
 	  
