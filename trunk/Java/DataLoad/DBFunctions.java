@@ -6,6 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Random;
+import pikefin.log4jWrapper.Logs;
 
 /* OFP: Something to be aware of:
  * 
@@ -179,6 +182,74 @@ public class DBFunctions {
 		
 	}
 	
+	public void insertBatchesEntry(int nTask, int nBatch) {
+		
+		String strBatchQuery = "insert into batches (id,batch_date_collected,task_id) values (" + nBatch + ",NOW()," + nTask + ")";
+		
+		try
+		{
+			db_update_query(strBatchQuery);
+		}
+		catch (SQLException sqle)
+		{
+			UtilityFunctions.stdoutwriter.writeln("Issue inserting into batches table",Logs.ERROR,"DBF10.2");
+			UtilityFunctions.stdoutwriter.writeln(sqle);
+		}
+		
+		
+		
+		
+		
+	}
+	
+	/* 
+	 * This thread is synchronzied because we are using the database to generate the unique
+	 * batch number. We insert and then we read back the just-inserted row. We don't want this 
+	 * to be mingled with the batch generation of any other process. 
+	 */
+	public int insertBatchesEntry(int nCurTask) throws SQLException {
+		
+		/*
+		 * Although in theory, two processes with the same task id should not be running simultaneously, I'm
+		 * taking the extra effort to use the random_unique column to ensure that each thread is using the proper batch id.
+		 */
+
+	
+		Random rand = new Random(Calendar.getInstance().getTimeInMillis() + Thread.currentThread().getId());
+  		int nRandom = rand.nextInt();
+  		String strUpdate = "insert into batches (batch_date_collected,task_id,random_unique) values (NOW()," + nCurTask + "," + nRandom + ") ";
+  		
+ 
+  		this.db_update_query(strUpdate);
+	  	
+  		
+  		String strQuery2 = "select id from batches where random_unique=" + nRandom;
+  		ResultSet rs = this.db_run_query(strQuery2);
+  		rs.next();
+  		return(rs.getInt("id"));
+		
+  		
+	}
+	
+	synchronized int insertBatchesEntrySynchronized(int nCurTask,boolean bVerify) throws SQLException {
+		//Random rand = new Random(Calendar.getInstance().getTimeInMillis() + Thread.currentThread().getId());
+  		//int nRandom = rand.nextInt();
+		String strBatchesTable = "batches";
+		if (bVerify==true)
+			strBatchesTable = "batches_verify";
+			
+  		String strUpdate = "insert into " + strBatchesTable + " (batch_date_collected,task_id) values (NOW()," + nCurTask + ") ";
+  		
+ 
+  		this.db_update_query(strUpdate);
+	  	
+  		
+  		String strQuery2 = "select id from " + strBatchesTable + " where task_id=" + nCurTask + " order by batch_date_collected DESC";
+  		ResultSet rs = this.db_run_query(strQuery2);
+  		rs.next();
+  		return(rs.getInt("id"));
+	}
+	
 	public void importTableIntoDB(ArrayList<String[]> tabledata, String tablename, Integer nBatch,int nTask,int nMetricId)
 	{
 		/* This function expects an arraylist with 2X of the number of values to be inserted with each value
@@ -186,7 +257,7 @@ public class DBFunctions {
 		/*OFP 9/28/2010 - I believe passing in the datatypes with the table data is redundant since the types
 		 * are retrieved from the database meta data.
 		 */
-		String[] rowdata;
+		//String[] rowdata;
 		String query ="";
 		//String columns= "";
 		String values = "";
@@ -204,10 +275,10 @@ public class DBFunctions {
 		{
 				columnnames = UtilityFunctions.extendArray(columnnames);
 				columnnames[columnnames.length-1] = "metric_id";
+				/*columnnames = UtilityFunctions.extendArray(columnnames);
+				columnnames[columnnames.length - 1] = "task_id";*/
 				columnnames = UtilityFunctions.extendArray(columnnames);
-				columnnames[columnnames.length - 1] = "task_id";
-				columnnames = UtilityFunctions.extendArray(columnnames);
-				columnnames[columnnames.length - 1] = "batch";
+				columnnames[columnnames.length - 1] = "batch_id";
 				
 		}
 		
@@ -267,14 +338,16 @@ public class DBFunctions {
 		
 	
 		
+	
 		
-		for (int x=0;x<tabledata.size();x++)
-		{
+		
+		//for (int x=0;x<tabledata.size();x++)
+		for (String[] rowdata : tabledata)	{
 			//for debugging purposes
 			//if (x!= 5052)
 				//continue;
 				
-			rowdata = tabledata.get(x);
+			//rowdata = tabledata.get(x);
 		
 			//query = "INSERT INTO fact_data_stage (data_set,value,quarter,ticker,date_collected) VALUES ('" + strCurDataSe
 			values ="";
@@ -283,10 +356,10 @@ public class DBFunctions {
 			if (tablename.equals("fact_data_stage") || tablename.equals("fact_data"))
 			{
 					rowdata = UtilityFunctions.extendArray(rowdata);
-					rowdata[columnnames.length - 3] = Integer.toString(nMetricId);
+					rowdata[columnnames.length - 2] = Integer.toString(nMetricId);
 				
-					rowdata = UtilityFunctions.extendArray(rowdata);
-					rowdata[columnnames.length - 2] = Integer.toString(nTask);
+					/*rowdata = UtilityFunctions.extendArray(rowdata);
+					rowdata[columnnames.length - 2] = Integer.toString(nTask);*/
 					
 					rowdata = UtilityFunctions.extendArray(rowdata);
 					//using columnnames here since that is guaranteed to be the correct length
@@ -304,7 +377,7 @@ public class DBFunctions {
 				   */
 				if (columnnames[y].equalsIgnoreCase("data_set"))
 					continue;
-				
+								
 				if (!values.isEmpty())
 				{
 					values = values + ",";
@@ -329,8 +402,14 @@ public class DBFunctions {
 
 				
 			}
+			
+			
+			
+			/*
+			 * Inserting into fact_data table
+			 */
 			query = "insert into " + tablename + " (" + strColumns + ") values (" + values + ")";
-			//System.out.println("insert row: " + query);
+			
 			try
 			{
 				db_update_query(query);
@@ -338,7 +417,7 @@ public class DBFunctions {
 			}
 			catch (SQLException sqle)
 			{
-				UtilityFunctions.stdoutwriter.writeln("SQLException failed at row " + (x+1) + " " + query,Logs.ERROR,"DBF9");
+				UtilityFunctions.stdoutwriter.writeln("Importing into DB Failed ",Logs.ERROR,"DBF9");
 				UtilityFunctions.stdoutwriter.writeln(sqle);
 			}
 		
@@ -435,19 +514,16 @@ public class DBFunctions {
 	
 	public Integer getBatchNumber() throws SQLException
 	{
-		/*
-		 * Get the current highest batch number from both fact_data & fact_data_stage and increase that by 1
-		 */
 		
 
 		
-		String query = "select max(batch) from ";
-		query = query + "(select batch from fact_data union all ";
+		String query = "select max(id) from batches ";
+		//query = query + "(select batch_id from fact_data union all ";
 		//query = query + "select batch from fact_data_stage union all ";
-		query = query + "select batch from fact_data_stage_est) t1";
+		//query = query + "select batch_id from fact_data_stage_est) t1";
 		ResultSet rs = db_run_query(query);
 		rs.next();
-		return (rs.getInt("max(batch)") + 1);
+		return (rs.getInt("max(id)") + 1);
 			
 	
 		
