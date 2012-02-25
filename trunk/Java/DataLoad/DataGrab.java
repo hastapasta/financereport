@@ -7,13 +7,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.lang.reflect.Method;
 import java.net.*;
-import java.nio.charset.Charset;
+//import java.nio.charset.Charset;
 import java.io.*;
 import java.util.regex.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import pikefin.log4jWrapper.Logs;
 
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -25,11 +26,11 @@ import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
 import org.apache.http.protocol.HTTP;
 import java.util.Arrays;
-import org.apache.log4j.NDC;
+//import org.apache.log4j.NDC;
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigInteger;
+//import java.math.BigInteger;
 
-public class DataGrab extends Thread {
+class DataGrab extends Thread {
 
 	String returned_content;
 	String strCurDataSet;
@@ -41,9 +42,8 @@ public class DataGrab extends Thread {
 	String strStage1URL;
 	String strStage2URL;
 	ArrayList<String> jobsArray;
-
-	/* Need to make this a constant */
-	// public static int nMaxJobs=10;
+	String strFactTable;
+	boolean bVerify; //boolean for verify mode. Loads data and skips alert processing.
 
 	int nTaskBatch;
 
@@ -61,6 +61,7 @@ public class DataGrab extends Thread {
 	Calendar calJobProcessingStage1End = null;
 	Calendar calJobProcessingStage2Start = null;
 	Calendar calJobProcessingStage2End = null;
+	final DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	/* Variable to filter tickers for quicker debugging. */
 	String strStaticTickerLimit = "";
@@ -71,25 +72,30 @@ public class DataGrab extends Thread {
 
 	DBFunctions dbf;
 
-	public DataGrab(UtilityFunctions tmpUF, DBFunctions dbfparam, String strTask/*Primary key of task but as a string.*/, int nBatchId, String strScheduleIdParam, String strRepeatTypeIdParam) {
+	DataGrab(UtilityFunctions tmpUF, DBFunctions dbfparam, String strTask/*Primary key of task but as a string.*/, int nBatchId, String strScheduleIdParam, String strRepeatTypeIdParam, boolean bVerifyMode) {
 	
 	  	this.uf = tmpUF;
 	  	this.dbf = dbfparam;
 	  	this.pf = new ProcessingFunctions(tmpUF,this);
 	  	
+	  	
 	  	this.nCurTask = Integer.parseInt(strTask);
 	  	this.strScheduleId = strScheduleIdParam;
 	  	this.strRepeatTypeId = strRepeatTypeIdParam;
+	  	this.bVerify = bVerifyMode;
 	  	
-	  
-		//this.nTaskBatch = nBatchParam;
-	  	try
-	  	{
+	  	if (bVerifyMode == true)
+	  		this.strFactTable = "fact_data_verify";
+	  	else
+	  		this.strFactTable = "fact_data";
+	  	
+
+	  	try	{
 	  		/*
 	  		 * nBatchId should only be set for historical data loads.
 	  		 */
 	  		if (nBatchId == 0)
-	  			this.nTaskBatch = dbf.insertBatchesEntry(this.nCurTask);
+	  			this.nTaskBatch = dbf.insertBatchesEntrySynchronized(this.nCurTask,this.bVerify);
 	  		else
 	  			this.nTaskBatch = nBatchId;
 	
@@ -132,7 +138,80 @@ public class DataGrab extends Thread {
 
 	
   }
+	
+	public String getTaskMetric(TaskMetrics tm) throws CustomGenericException {
+		String strRet="";
+		switch (tm) {
+		case JOB_START:
+			if (calJobProcessingStart != null)
+				strRet = this.formatter.format(calJobProcessingStart.getTime());
+			else
+				strRet = null;
+			break;
+		case JOB_END:
+			if (calJobProcessingEnd != null)
+				strRet = this.formatter.format(calJobProcessingEnd.getTime());
+			else
+				strRet = null;
+			break;
+		case ALERT_START:
+			/*
+			 * We aren't processing alerts if in verify mode.
+			 */
+			if (this.bVerify == false) {
+				if (calAlertProcessingStart != null)
+					strRet = this.formatter.format(calAlertProcessingStart.getTime());	
+				else 
+					strRet = null;
+			}
+			break;
+		case ALERT_END:
+			if (this.bVerify == false) {
+				if (calAlertProcessingEnd != null)
+					strRet = this.formatter.format(calAlertProcessingEnd.getTime());
+				else
+					strRet = null;
+			}
+			break;
+		case STAGE1_START:
+			if (calJobProcessingStage1Start != null)
+				strRet = this.formatter.format(calJobProcessingStage1Start.getTime());
+			else
+				strRet = null;
+			break;
 
+		case STAGE1_END:
+			if (calJobProcessingStage1End != null)
+				strRet = this.formatter.format(calJobProcessingStage1End.getTime());
+			else
+				strRet = null;
+			break;
+			
+		case STAGE2_START:
+			if (calJobProcessingStage2Start != null)
+				strRet = this.formatter.format(calJobProcessingStage2Start.getTime());
+			else
+				strRet = null;
+			break;
+		case STAGE2_END:
+			if (calJobProcessingStage2End != null)
+				strRet = this.formatter.format(calJobProcessingStage2End.getTime());
+			else
+				strRet = null;
+			break;
+
+		}
+		
+		if (strRet == null)
+			throw new CustomGenericException();
+		else if (strRet.isEmpty())
+			return "null";
+		else
+			return "'" + strRet + "'";
+		
+	}
+
+	@Deprecated
 	public Calendar getJobProcessingStartTime() throws CustomGenericException {
 		if (calJobProcessingStart != null)
 			return (calJobProcessingStart);
@@ -140,20 +219,24 @@ public class DataGrab extends Thread {
 			throw new CustomGenericException();
 	}
 
+	@Deprecated
 	public Calendar getJobProcessingEndTime() throws CustomGenericException {
 		if (calJobProcessingEnd != null)
 			return (calJobProcessingEnd);
 		else
 			throw new CustomGenericException();
 	}
-
+	
+	
+	@Deprecated
 	public Calendar getAlertProcessingStartTime() throws CustomGenericException {
 		if (calAlertProcessingStart != null)
 			return (calAlertProcessingStart);
 		else
 			throw new CustomGenericException();
 	}
-
+	
+	@Deprecated
 	public Calendar getAlertProcessingEndTime() throws CustomGenericException {
 		if (calAlertProcessingEnd != null)
 			return (calAlertProcessingEnd);
@@ -161,13 +244,35 @@ public class DataGrab extends Thread {
 			throw new CustomGenericException();
 	}
 	
+	@Deprecated
+	public String getAlertProcessingStartTimeString() throws CustomGenericException {
+		if (this.bVerify == true)
+			return "";
+		else if (calAlertProcessingStart != null)
+			return(this.formatter.format(calAlertProcessingStart.getTime()));
+		else
+			throw new CustomGenericException();
+	}
+	
+	@Deprecated
+	public String getAlertProcessingEndTimeString() throws CustomGenericException {
+		if (this.bVerify == true)
+			return "";
+		else if (calAlertProcessingEnd != null)
+			return(this.formatter.format(calAlertProcessingEnd.getTime()));
+		else
+			throw new CustomGenericException();
+	}
+
+	@Deprecated
 	public Calendar getStage1StartTime() throws CustomGenericException {
 		if (calJobProcessingStage1Start != null)
 			return (calJobProcessingStage1Start);
 		else
 			throw new CustomGenericException();
 	}
-
+	
+	@Deprecated
 	public Calendar getStage1EndTime() throws CustomGenericException {
 		if (calJobProcessingStage1End != null)
 			return (calJobProcessingStage1End);
@@ -175,6 +280,7 @@ public class DataGrab extends Thread {
 			throw new CustomGenericException();
 	}
 	
+	@Deprecated
 	public Calendar getStage2StartTime() throws CustomGenericException {
 		if (calJobProcessingStage2Start != null)
 			return (calJobProcessingStage2Start);
@@ -182,12 +288,19 @@ public class DataGrab extends Thread {
 			throw new CustomGenericException();
 	}
 
+	@Deprecated
 	public Calendar getStage2EndTime() throws CustomGenericException {
 		if (calJobProcessingStage2End != null)
 			return (calJobProcessingStage2End);
 		else
 			throw new CustomGenericException();
 	}
+	
+	/*
+	 * OFP 2/12/2012 - These thread related helper methods were intended to provide the ability
+	 * to terminate a thread with some kind of cleanup but that cleanup/terminate feature 
+	 * is not being used (and no plans to implement it further).
+	 */
 
 	public void startThread() {
 		bContinue = true;
@@ -201,10 +314,16 @@ public class DataGrab extends Thread {
 	public boolean getWillTerminate() {
 		return (!bContinue);
 	}
+	
+	/*
+	 * end thread related helper methods.
+	 */
+	
+	
 
 	public void run() {
 
-		NDC.push("[Task:" + this.nCurTask + "]");
+		UtilityFunctions.stdoutwriter.wrapperNDCPush("[Task:" + this.nCurTask + "]");
 
 		UtilityFunctions.stdoutwriter.writeln(
 				"=========================================================",
@@ -214,9 +333,14 @@ public class DataGrab extends Thread {
 				Logs.STATUS1, "DG37");
 
 		if (bContinue == false) {
-			NDC.pop();
+			UtilityFunctions.stdoutwriter.wrapperNDCPop();
 			dbf.closeConnection();
 			return;
+		}
+		
+		if (this.bVerify == true) {
+			UtilityFunctions.stdoutwriter.writeln("SCHEDULE RUNNING IN VERIFICATION MODE!", Logs.STATUS1,
+					"DG38.95");
 		}
 
 		UtilityFunctions.stdoutwriter.writeln("JOB PROCESSING START TIME: "
@@ -227,7 +351,7 @@ public class DataGrab extends Thread {
 				Logs.STATUS1, "DG1");
 
 		if (DataLoad.bLoadingHistoricalData == true)
-			NDC.push(HistoricalDataLoad.calCurrent.getTime().toString());
+			UtilityFunctions.stdoutwriter.wrapperNDCPush(HistoricalDataLoad.calCurrent.getTime().toString());
 
 		
 
@@ -241,12 +365,15 @@ public class DataGrab extends Thread {
 				"DG38.15");
 
 		if (DataLoad.bLoadingHistoricalData == true)
-			NDC.pop();
+			UtilityFunctions.stdoutwriter.wrapperNDCPop();
+		
+
 
 		/*
-		 * Don't process alerts if loading historical data.
+		 * Don't process alerts if loading historical data or in verfiy mode where we just 
+		 * verify the data collection process.
 		 */
-		if (DataLoad.bLoadingHistoricalData == false) {
+		if (DataLoad.bLoadingHistoricalData == false && this.bVerify == false) {
 
 			calAlertProcessingStart = Calendar.getInstance();
 			UtilityFunctions.stdoutwriter.writeln(
@@ -271,12 +398,12 @@ public class DataGrab extends Thread {
 					+ calAlertProcessingEnd.getTime().toString(), Logs.STATUS1,
 					"DG54");
 		}
-		NDC.pop();
+		UtilityFunctions.stdoutwriter.wrapperNDCPop();
 		dbf.closeConnection();
 
 	}
 
-	int regexSeekLoop(String regex, int nCount, int nCurOffset)
+	private int regexSeekLoop(String regex, int nCount, int nCurOffset)
 			throws TagNotFoundException {
 		// nCurOffset =
 		// regexSeekLoop("(?i)(<TABLE[^>]*>)",returned_content,tables);
@@ -306,7 +433,7 @@ public class DataGrab extends Thread {
 		return (nCurOffset);
 	}
 
-	String regexSnipValue(String strBeforeUniqueCode,
+	private String regexSnipValue(String strBeforeUniqueCode,
 			String strAfterUniqueCode, int nCurOffset)
 			throws CustomRegexException {
 
@@ -403,20 +530,6 @@ public class DataGrab extends Thread {
 
 	}
 
-	/*
-	 * This should be now obsolete.
-	 */
-	/*
-	 * public void clear_run_once() { try { String query =
-	 * "update schedules set run_once=0"; dbf.db_update_query(query); } catch
-	 * (SQLException sqle) { //OFP 9/26/2010 - Need to put in a pause mechanism
-	 * for when running under the jsp pages. //DataLoad.setPause();
-	 * UtilityFunctions
-	 * .stdoutwriter.writeln("Problem clearing run_once flag",Logs
-	 * .ERROR,"DG13"); UtilityFunctions.stdoutwriter.writeln(sqle);
-	 * 
-	 * } }
-	 */
 
 	public String get_value(String local_data_set)
 			throws IllegalStateException, TagNotFoundException, SQLException,
@@ -546,7 +659,7 @@ public class DataGrab extends Thread {
 
 	}
 
-	public ArrayList<String[]> get_table_with_headers(String strTableSet)
+	private ArrayList<String[]> get_table_with_headers(String strTableSet)
 			throws SQLException, TagNotFoundException,
 			PrematureEndOfDataException {
 		String query = "select extract_key_colhead,extract_key_rowhead,multiple_tables from jobs where data_set='"
@@ -583,7 +696,7 @@ public class DataGrab extends Thread {
 
 	}
 
-	public void defaultURLProcessing(String strDataSet) throws SQLException,
+	private void defaultURLProcessing(String strDataSet) throws SQLException,
 			MalformedURLException, IOException, IllegalAccessException,
 			InvocationTargetException, NoSuchMethodException {
 
@@ -731,7 +844,7 @@ public class DataGrab extends Thread {
 
 		returned_content = "";
 		this.nCount = 0;
-		Calendar cal = Calendar.getInstance();
+		//Calendar cal = Calendar.getInstance();
 
 		/*
 		 * OFP 9/15/2011 - Added workaround for connection reset exception for
@@ -745,10 +858,10 @@ public class DataGrab extends Thread {
 				while ((nTmp = in.read()) != -1) {
 					this.nCount++;
 					returned_content += (char) nTmp;
-					if (nCount == 10000 && nCurTask == 6) {
-						Calendar cal2 = Calendar.getInstance();
-						System.out.println("b");
-					}
+					//if (nCount == 10000 && nCurTask == 6) {
+						//Calendar cal2 = Calendar.getInstance();
+						//System.out.println("b");
+					//}
 				}
 				bDone = true;
 
@@ -783,7 +896,7 @@ public class DataGrab extends Thread {
 
 	}
 
-	public void get_url(String strDataSet) throws SQLException,
+	private void get_url(String strDataSet) throws SQLException,
 			MalformedURLException, IOException, IllegalAccessException,
 			InvocationTargetException, NoSuchMethodException {
 		String query;
@@ -806,7 +919,7 @@ public class DataGrab extends Thread {
 
 	}
 
-	public ArrayList<String[]> get_table(String strTableSet, String strSection)
+	private ArrayList<String[]> get_table(String strTableSet, String strSection)
 			throws SQLException, TagNotFoundException,
 			PrematureEndOfDataException {
 		// retrieve the table data_set
@@ -995,7 +1108,7 @@ public class DataGrab extends Thread {
 		return (tabledata);
 	}
 
-	public void grab_data_set(String strJobPrimaryKey) {
+	private void grab_data_set(String strJobPrimaryKey) {
 
 		try {
 
@@ -1006,6 +1119,7 @@ public class DataGrab extends Thread {
 			int nMetricId = rs.getInt("tasks.metric_id");
 			int nGroupId = rs.getInt("entity_groups.id");
 			int nDelay = rs.getInt("tasks.delay");
+			
 
 			boolean bUseGroupForReading = rs
 					.getBoolean("tasks.use_group_for_reading");
@@ -1057,7 +1171,7 @@ public class DataGrab extends Thread {
 						 * Insert directly into fact_data now.
 						 */
 						if (rs2.getInt("custom_insert") != 1)
-							dbf.importTableIntoDB(tabledata2, "fact_data",
+							dbf.importTableIntoDB(tabledata2, this.strFactTable,
 									this.nTaskBatch, this.nCurTask, nMetricId);
 
 					} catch (MalformedURLException mue) {
@@ -1135,16 +1249,9 @@ public class DataGrab extends Thread {
 						/*
 						 * Import directly into fact_data now.
 						 */
-						dbf.importTableIntoDB(tabledata2, "fact_data",
+						dbf.importTableIntoDB(tabledata2, this.strFactTable,
 								this.nTaskBatch, this.nCurTask, nMetricId);
-						/*
-						 * if (this.strCurDataSet.equals("exchrate_yen_dollar"))
-						 * dbf
-						 * .importTableIntoDB(tabledata2,"fact_data",this.nBatch
-						 * ); else
-						 * dbf.importTableIntoDB(tabledata2,"fact_data_stage"
-						 * ,this.nBatch);
-						 */
+					
 
 					}
 
@@ -1250,24 +1357,10 @@ public class DataGrab extends Thread {
 								rs2.next();
 								if (rs2.getInt("custom_insert") != 1)
 									dbf.importTableIntoDB(tabledata2,
-											"fact_data", this.nTaskBatch,
+											this.strFactTable, this.nTaskBatch,
 											this.nCurTask, nMetricId);
 
-								// UtilityFunctions.createCSV(tabledata,"fact_data_stage.csv",(count==0?false:true));
-
-								// UtilityFunctions.loadCSV("fact_data_stage.csv");
-
-								/*
-								 * String[] rowdata; for (int
-								 * x=0;x<tabledata.size();x++) { rowdata =
-								 * tabledata.get(x); for (int
-								 * y=0;y<rowdata.length;y++) {
-								 * UtilityFunctions.stdoutwriter
-								 * .writeln(rowdata[y]+"     ",Logs.STATUS2);
-								 * //System.out.print(rowdata[y]+"     "); }
-								 * 
-								 * }
-								 */
+					
 							} catch (SkipLoadException sle) {
 								// This is not an error but is thrown by the
 								// processing function to indicate that the load
@@ -1364,7 +1457,7 @@ public class DataGrab extends Thread {
 								rs2.next();
 								if (rs2.getInt("custom_insert") != 1)
 									dbf.importTableIntoDB(tabledata2,
-											"fact_data", this.nTaskBatch,
+											this.strFactTable, this.nTaskBatch,
 											this.nCurTask, nMetricId);
 
 							} catch (MalformedURLException mue) {
@@ -1399,6 +1492,7 @@ public class DataGrab extends Thread {
 												+ " failed, skipping",
 										Logs.ERROR, "DG51");
 								UtilityFunctions.stdoutwriter.writeln(e);
+								
 							}
 
 							// Some of this can be sped up by not running these
@@ -1469,6 +1563,11 @@ public class DataGrab extends Thread {
 
 	}
 
+	/* 
+	 * function is called dynamically 
+	 * It has to be public or the dynamic invocation doesn't work.
+	 *
+	 */
 	public void customYahooBulkURL(String strDataSet) throws SQLException,
 			IOException {
 
@@ -1543,7 +1642,7 @@ public class DataGrab extends Thread {
 
 			strList = strList.substring(0, strList.length() - 1);
 
-			String strURL = strURLStatic.replace("${dynamic}", strList);
+			String strURL = strURLStatic.replace("${ticker}", strList);
 
 			HttpGet httpget = null;
 			try {
@@ -1666,6 +1765,9 @@ public class DataGrab extends Thread {
 						UtilityFunctions.stdoutwriter.writeln(
 								"Bad Yahoo Data, Resubmitting URL", Logs.STATUS1,
 								"DG55.10");
+						nBegin = (nBegin - 100 < 0 ? 0 : nBegin -100);
+						nEnd = (nEnd + 100 > this.returned_content.length() ? this.returned_content.length() : nEnd + 100);
+						UtilityFunctions.stdoutwriter.writeln(this.returned_content.substring(nBegin,nEnd),Logs.STATUS1,"DG55.12");
 						UtilityFunctions.stdoutwriter.writeln("Date Collected:"
 								+ strDate + ",Time Collected:" + strTime,
 								Logs.STATUS1, "DG55.11");
@@ -1764,4 +1866,35 @@ class PrematureEndOfDataException extends Exception {
 	 */
 	private static final long serialVersionUID = 7980404235453739422L;
 
+}
+
+enum TaskMetrics {
+	JOB_START(0,"JobStart"),
+	JOB_END(1,"JobEnd"),
+	ALERT_START(2,"AlertStart"),
+	ALERT_END(3,"AlertEnd"),
+	STAGE1_START(4,"Stage1Start"),
+	STAGE1_END(5,"Stage1End"),
+	STAGE2_START(6,"Stage2Start"),
+	STAGE2_END(7,"Stage2End");
+	
+	
+	private int code;
+	private String metric;
+	
+	private TaskMetrics(int c, String m) {
+		code = c;
+		metric = m;
+	}
+	
+	public int getCode() {
+		return code;
+	}
+	
+	public String getMetric() {
+		return metric;
+	}
+	
+	
+	
 }
