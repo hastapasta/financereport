@@ -16,19 +16,6 @@ import java.io.*;
 //import java.util.StringTokenizer;
 import java.util.regex.*;
 
-/*import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.conn.params.ConnManagerParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.HttpVersion;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;*/
-
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -38,7 +25,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 
-import twitter4j.Status;
+import twitter4j.Status; 
 import twitter4j.Twitter;
 import twitter4j.TwitterBase;
 import twitter4j.TwitterException;
@@ -53,6 +40,9 @@ import static com.rosaloves.bitlyj.Bitly.*;
 
 import org.apache.commons.mail.*;
 
+import pikefin.log4jWrapper.MainWrapper;
+import pikefin.log4jWrapper.Logs;
+
 
 
 
@@ -63,7 +53,8 @@ public class UtilityFunctions
 	//public static Connection con;
 	static public boolean bCalledByJsp;
 	String strCapturedOutput;
-	static CustomBufferedWriter stdoutwriter;
+	//static CustomBufferedWriter stdoutwriter;
+	static MainWrapper stdoutwriter;
 	
 
 	
@@ -82,7 +73,7 @@ public class UtilityFunctions
 
 		
 	
-	public UtilityFunctions()
+	public UtilityFunctions() 
 	{
 	
 		//try
@@ -94,7 +85,7 @@ public class UtilityFunctions
 			String url = "jdbc:mysql://" + strDBHost + ":" + strDBPort + "/" + strDatabase;
 			UtilityFunctions.con = DriverManager.getConnection(url,strUser, strPass);*/
 			//this.bCalledByJsp = bCalled;
-			UtilityFunctions.stdoutwriter = new CustomBufferedWriter();
+			UtilityFunctions.stdoutwriter = new MainWrapper();
 	
 
 		}
@@ -361,12 +352,14 @@ public class UtilityFunctions
 	}
 	
 	//public static ArrayList<HashMap<String,String>> convertResultSetToArrayList(ResultSet rs) throws SQLException
-	public static ArrayList<HashMap<String,String>> convertResultSetToArrayList(ResultSet rs) throws SQLException
+	public static ArrayList<HashMap<String,String>> convertResultSetToArrayList(ResultSet rs,String strUnique) throws SQLException
 	{
 		
 		//ArrayList<HashMap<String,String>> tmpArrayList = null;
 		ArrayList<HashMap<String,String>> tmpArrayList = null;
 		ResultSetMetaData rsMetaData = rs.getMetaData();
+		
+		HashMap<String,String> hashUnique = new HashMap<String,String>();
 		int numberOfColumns = rsMetaData.getColumnCount();
 		int nRow=0;
 		//int ntmp = 200;
@@ -430,7 +423,19 @@ public class UtilityFunctions
 						
 						
 				}
-				tmpHash.put(rsMetaData.getTableName(i)+"."+rsMetaData.getColumnName(i), strValue);
+				String strTableColumn = rsMetaData.getTableName(i)+"."+rsMetaData.getColumnName(i);
+				if (strUnique != null) {
+					if (strTableColumn.equalsIgnoreCase(strUnique)) {
+						if (hashUnique.get(strValue) != null) {
+							stdoutwriter.writeln("Duplicate value " + strValue + " for column " + strUnique + " which was designated as unique, check your query",Logs.ERROR,"UF100");
+							continue;
+						}
+						else
+							hashUnique.put(strValue, "1");
+					}
+				}
+
+				tmpHash.put(strTableColumn, strValue);
 				
 			}
 			tmpArrayList.add(tmpHash);
