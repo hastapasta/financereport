@@ -58,7 +58,8 @@ class DataLoad extends Thread //implements Stopable
   /*
    * listWaitingJobs now holds  tasks.id,schedules.id,repeat_types.id,priority,queued time
    */
-  ArrayList<String[]> listWaitingJobs;
+  //ArrayList<String[]> listWaitingJobs;
+  ArrayList<Job> listWaitingJobs;
   
   DataGrab[] arrayRunningJobs;
   public static DBFunctions dbf;
@@ -172,7 +173,8 @@ class DataLoad extends Thread //implements Stopable
 					for (int i=0;i<listWaitingJobs.size();i++)
 					{
 						//if (listWaitingJobs.get(i).equals(rs2.getString("data_set")))
-						if (listWaitingJobs.get(i)[0].equals(rs2.getString("task_id")))
+						//if (listWaitingJobs.get(i)[0].equals(rs2.getString("task_id")))
+						if (listWaitingJobs.get(i).task_id.equals(rs2.getString("task_id")))
 							bInQ=true;
 										
 					}
@@ -181,13 +183,15 @@ class DataLoad extends Thread //implements Stopable
 					{
 					
 						
-						String[] tmp = new String[5];
+						/*String[] tmp = new String[5];
 						tmp[0] = rs2.getString("task_id");
 						tmp[1] = rs2.getString("id");
 						tmp[2] = rs2.getString("repeat_type_id");
 						tmp[3] = rs2.getString("priority");
-						tmp[4] = formatter.format(Calendar.getInstance().getTime());
-						listWaitingJobs.add(tmp);
+						tmp[4] = formatter.format(Calendar.getInstance().getTime());*/
+						Job j = new Job(rs2.getString("task_id"),rs2.getString("id"),rs2.getString("repeat_type_id"),
+								rs2.getString("priority"),formatter.format(Calendar.getInstance().getTime()),rs2.getBoolean("verify_mode"));
+						listWaitingJobs.add(j);
 					}
 				
 					//turn off run once after job is in queue, 4 is the primary key for run type 'NONE'
@@ -254,8 +258,8 @@ class DataLoad extends Thread //implements Stopable
 		  }
 		  for (int k=0;k<listWaitingJobs.size();k++)
 		  {
-			  query = "insert into job_queue (task_id,status,queued_time,priority) values (" + listWaitingJobs.get(k)[0] + 
-			  ",'QUEUED','" + listWaitingJobs.get(k)[4] + "'," + listWaitingJobs.get(k)[3] + ")";
+			  query = "insert into job_queue (task_id,status,queued_time,priority) values (" + listWaitingJobs.get(k).task_id + 
+			  ",'QUEUED','" + listWaitingJobs.get(k).queued_time + "'," + listWaitingJobs.get(k).priority + ")";
 			  dbf.db_update_query(query);
 		  }
 		  
@@ -291,12 +295,12 @@ class DataLoad extends Thread //implements Stopable
 			  
 
 			  bAlreadyRunning = false;
-			  strTask = listWaitingJobs.get(i)[0];
+			  strTask = listWaitingJobs.get(i).task_id;
 			  for (int j=0;j<arrayRunningJobs.length;j++)
 			  {
 				  if (arrayRunningJobs[j] != null)
 				  {
-					  if (arrayRunningJobs[j].nCurTask == Integer.parseInt(listWaitingJobs.get(i)[0]))
+					  if (arrayRunningJobs[j].nCurTask == Integer.parseInt(listWaitingJobs.get(i).task_id))
 					  {
 						  UtilityFunctions.stdoutwriter.writeln("Task in waiting queue already running so won't get moved to run queue (task id: " + arrayRunningJobs[j].nCurTask, Logs.STATUS1, "DL3.99");
 						  bAlreadyRunning=true;
@@ -308,8 +312,8 @@ class DataLoad extends Thread //implements Stopable
 			  if (bAlreadyRunning==false)
 			  {
 				  
-				  if (Integer.parseInt(listWaitingJobs.get(i)[3]) < nPriority) {
-					  UtilityFunctions.stdoutwriter.writeln("Not initiating schedule because one thread is reserved for minimum priority of " + nPriority + ". Task: " + listWaitingJobs.get(i)[0] + ", Priority: " + listWaitingJobs.get(i)[3], Logs.STATUS1, "DL4.36");
+				  if (Integer.parseInt(listWaitingJobs.get(i).priority) < nPriority) {
+					  UtilityFunctions.stdoutwriter.writeln("Not initiating schedule because one thread is reserved for minimum priority of " + nPriority + ". Task: " + listWaitingJobs.get(i).task_id + ", Priority: " + listWaitingJobs.get(i).priority, Logs.STATUS1, "DL4.36");
 					  return null;
 				  }
 				  
@@ -319,8 +323,8 @@ class DataLoad extends Thread //implements Stopable
 				  * would still be initiated because we were always taking the first job at the head of the waiting queue, instead
 				  * of the one just checked (index i).
 				  */
-				  //strTask = listWaitingJobs.get(0);
-				  strTask = listWaitingJobs.get(i)[0];
+
+				  strTask = listWaitingJobs.get(i).task_id;
 				  DBFunctions tmpdbf = new DBFunctions((String)props.get("dbhost"),(String)props.get("dbport"),(String)props.get("database"),(String)props.get("dbuser"),(String)props.get("dbpass"));
 				  
 				  /*
@@ -328,19 +332,14 @@ class DataLoad extends Thread //implements Stopable
 				   * dbf.getBatchNumber(). Now the batch number is maintained in the parent thread to avoid duplication.
 				   * 
 				   */
-				  //UtilityFunctions.stdoutwriter.writeln("Initiating thread with batch # " + this.nMaxBatch,Logs.STATUS1,"DL4.35");
-				  dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,0,listWaitingJobs.get(i)[1],listWaitingJobs.get(i)[2]);
-				  
-				 // this.nMaxBatch++;
-				  
+				
+				  dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,0,listWaitingJobs.get(i).id,listWaitingJobs.get(i).repeat_type_id,listWaitingJobs.get(i).verify_mode);
+
 				  /*
 				   * OFP 3/12/2011 - move the writeKeepAlive function call here because we were running into instances were the DataLoad thread was running
 				   * fine but the DataGrab threads were locked up and no new DataGrab threads were being initiated.
 				   */
-				  /*
-				   * OFP 3/27/2011 - writeKeepAlive is now obsolete because MultiTest reads from log_tasks in the database.
-				   */
-				  //writeKeepAlive();
+
 				  dg.startThread();
 				  UtilityFunctions.stdoutwriter.writeln("Initiated DataGrab thread " + dg.getName(),Logs.THREAD,"DL4");
 				  
@@ -421,48 +420,63 @@ class DataLoad extends Thread //implements Stopable
 	  /* Have DataGrab store an area of all of the data_sets it processed, along with start time and end time.
 	   * Write to job stats table task time and individual data_set times.
 	   */
-
-	  try
-	  {
-		  //String strDataSet = dg.strCurDataSet;
-		  /*String strTask = dg.nCurTask + "";
-		  Calendar endCal = dg.getAlertProcessingEndTime();
-		  Calendar startCal = dg.getJobProcessingStartTime();*/
-		 
-		  
-		  DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		  
-
-		  
-		  String query = "insert into log_tasks (task_id,batch,repeat_type_id,schedule_id,job_process_start,job_process_end,alert_process_start,alert_process_end,stage1_start,stage1_end,stage2_start,stage2_end) values ("
-	      + dg.nCurTask + ","
-	      + dg.nTaskBatch + ","
-	      + dg.strRepeatTypeId + ","
-	      + dg.strScheduleId + ",'"
-		  + formatter.format(dg.getJobProcessingStartTime().getTime()) + "','" 
-		  + formatter.format(dg.getJobProcessingEndTime().getTime()) + "','"
-		  + formatter.format(dg.getAlertProcessingStartTime().getTime()) + "','"
-		  + formatter.format(dg.getAlertProcessingEndTime().getTime()) + "','"
-		  + formatter.format(dg.getStage1StartTime().getTime()) + "','"
-		  + formatter.format(dg.getStage1EndTime().getTime()) + "','"
-		  + formatter.format(dg.getStage2StartTime().getTime()) + "','"
-		  + formatter.format(dg.getStage2EndTime().getTime()) + "')";
-		  /*String query = "update schedules set last_run='" + formatter.format(endCal.getTime())+ "' where task_id=" + strTask;
-		  dbf.db_update_query(query);*/
-		  
-		  dbf.db_update_query(query);
-	  }
 	  
+	  /*
+	   * OFP 2/25/2012 - Only update log_tasks if not loading historical data.
+	   */
+	  if (DataLoad.bLoadingHistoricalData != true) { 
 
-	  catch (CustomGenericException cge)
-	  {
-		  UtilityFunctions.stdoutwriter.writeln("Problem retrieving start or end time",Logs.ERROR,"DL2.57");
-		  UtilityFunctions.stdoutwriter.writeln(cge);
-	  }
-	  catch (SQLException sqle)
-	  {
-		  UtilityFunctions.stdoutwriter.writeln("Problem with sql statement while updating log_tasks table",Logs.ERROR,"DL2.7");
-		  UtilityFunctions.stdoutwriter.writeln(sqle);
+		  try
+		  {
+			  //String strDataSet = dg.strCurDataSet;
+			  /*String strTask = dg.nCurTask + "";
+			  Calendar endCal = dg.getAlertProcessingEndTime();
+			  Calendar startCal = dg.getJobProcessingStartTime();*/
+			 
+			  
+			  DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			  
+	
+			  
+			  String query = "insert into log_tasks (task_id,batch,repeat_type_id,schedule_id,verify_mode,job_process_start,job_process_end,alert_process_start,alert_process_end,stage1_start,stage1_end,stage2_start,stage2_end) values ("
+		      + dg.nCurTask + ","
+		      + dg.nTaskBatch + ","
+		      + dg.strRepeatTypeId + ","
+		      + dg.strScheduleId + ","
+		      + dg.bVerify + ","
+		      + dg.getTaskMetric(TaskMetrics.JOB_START) + ","
+		      + dg.getTaskMetric(TaskMetrics.JOB_END) + ","
+		      + dg.getTaskMetric(TaskMetrics.ALERT_START) + ","
+		      + dg.getTaskMetric(TaskMetrics.ALERT_END) + ","
+		      + dg.getTaskMetric(TaskMetrics.STAGE1_START) + ","
+		      + dg.getTaskMetric(TaskMetrics.STAGE1_END) + ","
+		      + dg.getTaskMetric(TaskMetrics.STAGE2_START) + ","
+		      + dg.getTaskMetric(TaskMetrics.STAGE2_END) + ")";
+			 /* + formatter.format(dg.getJobProcessingStartTime().getTime()) + "','" 
+			  + formatter.format(dg.getJobProcessingEndTime().getTime()) + "','"
+			  + dg.getAlertProcessingStartTimeString() + "','"
+			  + dg.getAlertProcessingEndTimeString() + "','"
+			  + formatter.format(dg.getStage1StartTime().getTime()) + "','"
+			  + formatter.format(dg.getStage1EndTime().getTime()) + "','"
+			  + formatter.format(dg.getStage2StartTime().getTime()) + "','"
+			  + formatter.format(dg.getStage2EndTime().getTime()) + "')";*/
+			  /*String query = "update schedules set last_run='" + formatter.format(endCal.getTime())+ "' where task_id=" + strTask;
+			  dbf.db_update_query(query);*/
+			  
+			  dbf.db_update_query(query);
+		  }
+		  
+	
+		  catch (CustomGenericException cge)
+		  {
+			  UtilityFunctions.stdoutwriter.writeln("Problem retrieving start or end time",Logs.ERROR,"DL2.57");
+			  UtilityFunctions.stdoutwriter.writeln(cge);
+		  }
+		  catch (SQLException sqle)
+		  {
+			  UtilityFunctions.stdoutwriter.writeln("Problem with sql statement while updating log_tasks table",Logs.ERROR,"DL2.7");
+			  UtilityFunctions.stdoutwriter.writeln(sqle);
+		  }
 	  }
 
 	  
@@ -759,7 +773,7 @@ class DataLoad extends Thread //implements Stopable
 	
 
   	arrayRunningJobs = new DataGrab[nMaxThreads];
-  	listWaitingJobs = new ArrayList<String[]>();
+  	listWaitingJobs = new ArrayList<Job>();
   	for (int i=0;i<nMaxThreads;i++)
   		arrayRunningJobs[i] = null;
 
@@ -1075,7 +1089,7 @@ class DataLoad extends Thread //implements Stopable
 		
 		  String query11 = "select * from excludes where task_id=" + strTaskId;
 		  ResultSet rs11 = dbf.db_run_query(query11);
-		  DateFormat localFormatter = new SimpleDateFormat("yyyy-MM-dd");
+		  //DateFormat localFormatter = new SimpleDateFormat("yyyy-MM-dd");
 		  //variable to indicate if there are any entires in the excludes table for this task id
 		 
 		  Calendar cal4 = Calendar.getInstance();
@@ -1172,10 +1186,10 @@ class DataLoad extends Thread //implements Stopable
 	   * Sort in descending order. Higher priority tasks get executed first.
 	   */
 	  
-	  Comparator<String[]> comp2 = new Comparator<String[]>() {
-		  public int compare(String[] first, String[] second) {
-			int nFirst = Integer.parseInt(first[3]);
-			int nSecond = Integer.parseInt(second[3]);
+	  Comparator<Job> comp2 = new Comparator<Job>() {
+		  public int compare(Job first, Job second) {
+			int nFirst = Integer.parseInt(first.priority);
+			int nSecond = Integer.parseInt(second.priority);
 			
 			
 			if(nFirst > nSecond)
@@ -1186,8 +1200,8 @@ class DataLoad extends Thread //implements Stopable
 				Calendar calFirst= Calendar.getInstance();
 				Calendar calSecond= Calendar.getInstance();
 				try {
-					Date d1 = formatter.parse(first[4]);
-					Date d2 = formatter.parse(second[4]);
+					Date d1 = formatter.parse(first.queued_time);
+					Date d2 = formatter.parse(second.queued_time);
 					calFirst.setTime(d1);
 					calSecond.setTime(d2);
 					if (calFirst.before(calSecond))
@@ -1237,6 +1251,35 @@ class DataLoad extends Thread //implements Stopable
 		  
 	  }
 	  
+	  
+	  
+  }
+  
+  
+  	class Job {
+	  
+	 /* tmp[0] = rs2.getString("task_id");
+		tmp[1] = rs2.getString("id");
+		tmp[2] = rs2.getString("repeat_type_id");
+		tmp[3] = rs2.getString("priority");
+		tmp[4] = formatter.format(Calendar.getInstance().getTime());*/
+	  
+	  String task_id;
+	  String id;
+	  String repeat_type_id;
+	  String priority;
+	  String queued_time;
+	  boolean verify_mode;
+	  
+	  public Job(String inputtaskid, String inputid, String inputrepeattypeid, String inputpriority, String inputqueuedtime, boolean inputverifymode) {
+		  this.task_id = inputtaskid;
+		  this.id = inputid;
+		  this.repeat_type_id = inputrepeattypeid;
+		  this.priority = inputpriority;
+		  this.queued_time = inputqueuedtime;
+		  this.verify_mode = inputverifymode;
+		  
+	  }
 	  
 	  
   }
