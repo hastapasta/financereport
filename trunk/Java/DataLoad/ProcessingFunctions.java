@@ -3136,14 +3136,16 @@ public void postProcessWikipediaGasoline() throws SQLException {
 		String[] colheaders = propTableData.remove(0);
 		String[] rowheaders = propTableData.remove(0);
 		
-		//newTableData.add(tmpArray);
 		int nCounter=0;
-		//for (int row=0;row<propTableData.size();row++)
+		
+		/*
+		 * This is kludgy but don't know of a better way to do this atm. With the way
+		 * we are currently reading in countries, we get two Vietnams and we only want the
+		 * first one.
+		 */
+		int nVietnamCount = 0;
+
 		for (String[] rowdata : propTableData)	{
-			//rowdata = propTableData.get(row);
-			
-			
-		//for (int col=0;col<colheaders.length;col++)		{
 			
 			String strCountry = rowheaders[nCounter++];
 			
@@ -3168,29 +3170,32 @@ public void postProcessWikipediaGasoline() throws SQLException {
 			newrow = new String[tmpArray.length];
 			
 			newrow[0] = rowdata[0];
-		
 			
-				
+			/*
+			 * 2/25/2012 - Right now one of the dates (Oman) has octane info in the cell as well.
+			 */
+			String strDateTmp = rowdata[1];
+			if (strDateTmp.contains("("))
+				strDateTmp = strDateTmp.substring(0,strDateTmp.indexOf("("));
+			strDateTmp = strDateTmp.trim();
+			newrow[1] = "'"+strDateTmp + " 12:00:00'";
 
-
-			//newrow[0] = bdTmp.toString();
-			//newrow[0] = rowdata[0].replace(",", "");
-			//newrow[4] = "VARCHAR";
-			newrow[1] = "'"+rowdata[1] + " 12:00:00'";
-			//newrow[6] = "INTEGER";
-		
-			
 			/*
 			 * If there are 2 sets of parens for the row header, we want to cutoff at the 2nd left paren.
 			 */
-			
-			
-		
+
 			strCountry = strCountry.trim();
 			
-			strCountry = strCountry.replace("'", "\\'");
+			if (strCountry.equalsIgnoreCase("vietnam")) {
+				if (nVietnamCount == 1)
+					continue;
+				else
+					nVietnamCount++;
+			}
 			
-			//String query = "select * from entities where ticker='"+strCountry+"'";
+			
+			strCountry = strCountry.replace("'", "\\'");
+
 			String query = "select entities.id from entities ";
 			query += " join countries_entities on countries_entities.entity_id=entities.id ";
 			query += " join countries on countries.id=countries_entities.country_id ";
