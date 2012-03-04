@@ -9,13 +9,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
+import pikefin.log4jWrapper.Logs;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.log4j.NDC;
+//import org.apache.log4j.NDC;
 
 
 public class HistoricalDataLoad {
@@ -29,11 +30,11 @@ public class HistoricalDataLoad {
 		//yahooFinanceDataLoad(dbf,nMaxBatch);
 		//xrateorgDataLoad(dbf,194660);
 		//commodityDataLoad(dbf,194661);
-		//bloombergIndexDataLoadFromFile(dbf,0);
+		bloombergIndexDataLoadFromFile(dbf,0);
 		//updateBatchDate(dbf);
 		
 		//testFunc();
-		testFunc2();
+		//testFunc2();
 		
 	}
 	
@@ -119,7 +120,7 @@ public class HistoricalDataLoad {
 		try
 		{
 			DBFunctions tmpdbf = new DBFunctions((String)DataLoad.props.get("dbhost"),(String)DataLoad.props.get("dbport"),(String)DataLoad.props.get("database"),(String)DataLoad.props.get("dbuser"),(String)DataLoad.props.get("dbpass"));
-			DataGrab dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,nMaxBatch, "", "");
+			DataGrab dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,nMaxBatch, "", "",true);
 		}
 		catch (SQLException sqle)
 		{
@@ -229,8 +230,13 @@ public class HistoricalDataLoad {
 	
 public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch) {
 		
+		/*
+		 * Format of csv is Ticker,01/01/2012,value 
+		 */
+	
+		final String strFactDataTable = "fact_data";
 		
-		int nBaseBatch = 194663;
+		int nBaseBatch = 31000;
 		
 		
 		DBFunctions tmpdbf = null;
@@ -243,7 +249,10 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 			
 		}
 		
-		ArrayList<String []> data = UtilityFunctions.readInCSV("/tmp/bloomberg_index_sheet3.csv", ",", "\"");
+		//ArrayList<String []> data = UtilityFunctions.readInCSV("/tmp/bloomberg_index2_sheet1.csv", ",", "\"");
+		//ArrayList<String []> data = UtilityFunctions.readInCSV("/tmp/bloomberg_index2_sheet2.csv", ",", "\"");
+		//ArrayList<String []> data = UtilityFunctions.readInCSV("/tmp/mongolian.csv", ",", "\"");
+		ArrayList<String []> data = UtilityFunctions.readInCSV("/tmp/Irish_Stock.csv", ",", "\"");
 		
 		data.remove(0);
 		//String[] arrayEntityIds = (String[])data.remove(0);
@@ -256,28 +265,67 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 			
 			String[] values = data.get(i);
 			
-			if (values.length < 2)
+			/*
+			 * Skip empty lines
+			 */
+			if (values.length < 3)
 				continue;
 			
 			
 			
 			String[] dateValues = values[1].split("/");
 			
-			if (dateValues[0].equals("7") && dateValues[1].equals("25"))
-				continue;
 			
-			//insertData = new ArrayList<String[]>();
-			//String[] tmpArray = {"value","date_collected","entity_id"};
-			//insertData.add(tmpArray);
 			
 			
 			
 			cal.set(Calendar.MONTH, Integer.parseInt(dateValues[0])-1);
 			cal.set(Calendar.DAY_OF_MONTH,Integer.parseInt(dateValues[1]));
-			cal.set(Calendar.YEAR,2011);
+			cal.set(Calendar.YEAR,Integer.parseInt(dateValues[2]));
 			cal.set(Calendar.HOUR_OF_DAY,15);
 			cal.set(Calendar.MINUTE,0);
 			cal.set(Calendar.SECOND,0);
+			
+			/*
+			 * First do a batch lookup.
+			 */
+			
+			String batchlookup = "select * from batches "; //where id>30999 and id<31101 ";
+			batchlookup += " where batch_date_collected='" + formatter.format(cal.getTime()) +"'";
+			batchlookup += " and task_id=6 ";
+			int nBatch = 0;
+			
+			try {
+				ResultSet rs4 = tmpdbf.db_run_query(batchlookup);
+				if (rs4.next()) {
+					nBatch = rs4.getInt("id");
+				}
+				else {
+					String batchlookup2 = "select max(id) as mx from batches where id > 30999 and id<31101 ";
+					ResultSet rs5 = tmpdbf.db_run_query(batchlookup2);
+					rs5.next();
+					if (rs5.getInt("mx")==0)
+						nBatch=nBaseBatch;
+					else
+						nBatch = rs5.getInt("mx") + 1;
+			
+					
+					
+					String insertbatch = "insert into batches (id,batch_date_collected,task_id) values (" + nBatch + ",'" + formatter.format(cal.getTime()) + "',6) ";
+					tmpdbf.db_update_query(insertbatch);
+					UtilityFunctions.stdoutwriter.writeln("Created new batch id " + nBatch,Logs.STATUS1,"HDL10.32");
+					
+					
+					
+					
+				}
+			}
+			catch (SQLException sqle) {
+				UtilityFunctions.stdoutwriter.writeln("Unable to retrieve/generate batch #, skipping load",Logs.ERROR,"HDL5.9");
+				UtilityFunctions.stdoutwriter.writeln(sqle);
+				continue;
+			}
+			
 			
 			String lookupquery = "select id from entities where ticker='" + values[0] + "'";
 			String strEntityId = "";
@@ -294,16 +342,16 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 				continue;
 			}
 			
-			int nBatch;
+
 			
-			if (dateValues[0].equals("7"))
+			/*if (dateValues[0].equals("7"))
 				nBatch = nBaseBatch + (10 * (Integer.parseInt(dateValues[1]) - 26));
 			else if (dateValues[0].equals("8"))
 				nBatch = nBaseBatch + 50 + (10 * Integer.parseInt(dateValues[1]));
 			else {
 				UtilityFunctions.stdoutwriter.writeln("Invalid month value, skipping load",Logs.ERROR,"HDL5.3");
 				continue;
-			}
+			}*/
 			
 			/*run this code on the first data set */
 			
@@ -336,7 +384,7 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 			
 			String strValue = values[2].replace(",", "");
 			
-			String query = "insert into fact_data5 (value,date_collected,entity_id,metric_id,batch_id) values ( ";
+			String query = "insert into " + strFactDataTable + " (value,date_collected,entity_id,metric_id,batch_id) values ( ";
 			query += strValue + ","; //value
 			query += "'" + HistoricalDataLoad.formatter.format(cal.getTime()) + "',"; //date collected
 			query += strEntityId + ","; //entity id
@@ -399,7 +447,7 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.DAY_OF_MONTH,26);
 		cal.set(Calendar.MONTH,6);
-		cal.set(Calendar.HOUR_OF_DAY,23);
+		cal.set(Calendar.HOUR_OF_DAY,23); 
 		cal.set(Calendar.MINUTE,59);
 		cal.set(Calendar.SECOND,59);
 	
@@ -429,7 +477,7 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 		}
 		
 		
-		DataGrab dg = new DataGrab(DataLoad.uf,tmpdbf,"1",nMaxBatch,"","");
+		DataGrab dg = new DataGrab(DataLoad.uf,tmpdbf,"1",nMaxBatch,"","",true);
 		
 		String strURL;
 		
@@ -590,16 +638,16 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 		calCurrent = Calendar.getInstance();
 		Calendar calEnd = Calendar.getInstance();
 		
-		calCurrent.set(Calendar.DAY_OF_MONTH, 26);
-		calCurrent.set(Calendar.MONTH,6);
-		calCurrent.set(Calendar.YEAR,2011);
+		calCurrent.set(Calendar.DAY_OF_MONTH, 21);
+		calCurrent.set(Calendar.MONTH,1);
+		calCurrent.set(Calendar.YEAR,2012);
 		calCurrent.set(Calendar.HOUR_OF_DAY,16);
-		calCurrent.set(Calendar.MINUTE,15);
+		calCurrent.set(Calendar.MINUTE,40);
 		calCurrent.set(Calendar.SECOND,0);
 		
-		calEnd.set(Calendar.DAY_OF_MONTH, 29);
-		calEnd.set(Calendar.MONTH,7);
-		calEnd.set(Calendar.YEAR,2011);
+		calEnd.set(Calendar.DAY_OF_MONTH, 24);
+		calEnd.set(Calendar.MONTH,1);
+		calEnd.set(Calendar.YEAR,2012);
 		
 		/* Set day to last day of month */
 		//calCurrent.add(Calendar.MONTH, 1);
@@ -624,7 +672,7 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 				}
 				
 				
-				NDC.push(calCurrent.getTime().toString());
+				UtilityFunctions.stdoutwriter.wrapperNDCPush(calCurrent.getTime().toString());
 				
 				//UtilityFunctions.stdoutwriter.writeln("This is a test",Logs.STATUS1,"HDL4");
 				
@@ -647,14 +695,14 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 				
 
 								
-				currentURL += "&s=${dynamic}";
+				currentURL += "&s=${ticker}";
 				
 				String update = "update jobs set url_static='" + currentURL + "' where id=11246";
 				
 				dbf.db_update_query(update);		
 				
 				DBFunctions tmpdbf = new DBFunctions((String)DataLoad.props.get("dbhost"),(String)DataLoad.props.get("dbport"),(String)DataLoad.props.get("database"),(String)DataLoad.props.get("dbuser"),(String)DataLoad.props.get("dbpass"));
-				DataGrab dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,nMaxBatch,"","");
+				DataGrab dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,nMaxBatch,"","",true);
 				
 				dg.startThread();
 				UtilityFunctions.stdoutwriter.writeln("Initiated DataGrab thread " + dg.getName(),Logs.STATUS1,"HDL4");
@@ -696,7 +744,7 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 				nMaxBatch += 10;
 				calCurrent.add(Calendar.DAY_OF_MONTH,1);
 				
-				NDC.pop();
+				UtilityFunctions.stdoutwriter.wrapperNDCPop();
 				  
 				
 				
