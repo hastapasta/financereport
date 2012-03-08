@@ -43,7 +43,7 @@ $file = '/home/ollie/workspace/DataLoad/'.$logname;
 
 ?>
 <table>
-<form action='<?php echo $url?>' name='filterform' method='GET'>
+<form action='<?php echo 'displaylog.php?'.$_SERVER['QUERY_STRING']?>' name='filterform' method='GET'>
 <tr><td>Display if Contains: </td><td>
 <input type='text' name='display' id='displayid' size='20' maxlength='50' value='<?php echo $display?>'>
 </td></tr><tr><td> Don't Display if Contains: </td><td>
