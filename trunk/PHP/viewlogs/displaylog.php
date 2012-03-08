@@ -103,7 +103,7 @@ for ($i=0;$i<sizeof($extensions);$i++) {
 	else {
 		//Can't have a foreach nested inside of another loop.
 		//foreach (array_reverse($var) as $line=>$data) {
-		for ($k=0;$k<sizeof($var);$k++) {
+		for ($k=sizeof($var)-1;$k>=0;$k--) {
 			$data = $var[$k];
 		
 			if (!empty($display))
