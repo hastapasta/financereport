@@ -339,8 +339,8 @@ class IncFunc
 					<li>
 					<a href='#'>Bonds</a>
 					<ul class='sub_menu'>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101023&order=DESC&metricid=1'>Global Sovereign Bonds Table</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101024&order=DESC&metricid=1'>Global CDS Table</a></li>		
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101023&order=DESC&metricid=1001'>Global Sovereign Bonds Table</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101024&order=DESC&metricid=1'>Global CDS Table</a></li>	
 					</ul>
 				</li>
 				<li>
@@ -386,6 +386,88 @@ class IncFunc
 		echo "</script>\n";
 			
 		
+		
+	}
+	
+	static function dateSelect() {
+		?>
+	 	<select id="timeframe" style="background-color: #FFFFFF">
+	 		<option value=""></option>
+		    <option value="YTD">Year To Date</option>
+		    <option value="MTD">Month To Date</option>
+		    <option value="WTD">Week To Date</option>
+			<option value="year">1 Year Back</option>
+			<option value="month">1 Month Back</option>
+			<option value="day">1 Day Back</option>
+			<option value="hour">1 Hour Back</option>	
+			<!-- <option value="Custom">Custom</option> -->
+		</select>
+		<?php 
+		
+		
+		
+	}
+	
+	static function jqueryTimeFrame() {
+		?>
+			 $("#timeframe").change( function(e) {
+			 /* Called when the 'preset' drop down box is changed. */
+		    	enddate = new Date();
+		    	begindate = new Date();
+		    	var tmp = $("#timeframe").val();
+		    	if (tmp == '')
+		    		//do nothing
+		    		return;
+		    	else if (tmp == 'year')
+		        	begindate.setMonth(enddate.getMonth() - 12);
+		    	/*else if (tmp == 'custom1')
+			    	begindate = Date.parseExact("1/20/2011", "M/d/yyyy"); */
+		    	else if (tmp == 'month')
+		        	begindate.setMonth(enddate.getMonth() - 1);
+		    	else if (tmp == 'week')
+		        	begindate.setDate(enddate.getDate() - 7);
+		    	else if (tmp == 'day')
+		        	begindate.setDate(enddate.getDate() - 1);
+		    	else if (tmp == 'YTD') {
+		    		begindate = Date.parse('January 1st');          // July 4th of this year.
+			    	//year = begindate.getYear();
+			    	//begindate = Date.parseExact("1/1/" + year,"M/d/yyyy");
+		    	}
+		    	else if (tmp == 'MTD') {	
+		    		begindate = Date.parse('1'); // 1st of the current month and year
+					//year = begindate.getYear();
+					//month = begindate.getMonth();
+					//begindate = Date.parseExact("1/" + month + "/" + year,"M/d/yyyy");
+		    	}
+		    	else if (tmp == 'WTD') {
+					begindate = Date.today().last().sunday();
+		    	}
+		    	else //tmp should == hour
+		        	begindate = new Date(enddate - (3600 * 1000));
+	        
+		    	$("#rangeDemoStart").
+			  	AnyTime_noPicker().
+			  	//removeAttr("disabled").
+			  	val(rangeDemoConv.format(begindate)).
+			    AnyTime_picker(
+			              { //earliest: dayEarlier,
+			                format: rangeDemoFormat
+			                //latest: ninetyDaysLater
+			              } );
+		    	$("#rangeDemoFinish").
+			  	AnyTime_noPicker().
+			  	//removeAttr("disabled").
+			  	val(rangeDemoConv.format(enddate)).
+			    AnyTime_picker(
+			              { //earliest: dayEarlier,
+			                format: rangeDemoFormat
+			                //latest: ninetyDaysLater
+			              } );
+		        	
+		        	    
+		        	    
+		    });	
+		    <?php 
 		
 	}
 
