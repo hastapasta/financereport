@@ -10,7 +10,7 @@ $enddate = $_GET['enddate'];
 
 
 
-$timeframe="hour";
+$timeframe="month";
 if (isset($_GET['timeframe']))
 	$timeframe = strtolower($_GET['timeframe']);
 	
@@ -67,46 +67,7 @@ if (isset($_GET['metricid']))
 	
 	$(function(){
 
-		 $("#timeframe").change( function(e) {
-			 /* Called when the 'preset' drop down box is changed. */
-		    	enddate = new Date();
-		    	begindate = new Date();
-		    	var tmp = $("#timeframe").val();
-		    	if (tmp == 'year')
-		        	begindate.setMonth(enddate.getMonth() - 12);
-		    	else if (tmp == 'custom1')
-			    	begindate = Date.parseExact("1/20/2011", "M/d/yyyy"); 
-		    	else if (tmp == 'month')
-		        	begindate.setMonth(enddate.getMonth() - 1);
-		    	else if (tmp == 'week')
-		        	begindate.setDate(enddate.getDate() - 7);
-		    	else if (tmp == 'day')
-		        	begindate.setDate(enddate.getDate() - 1);
-		    	else //tmp should == hour
-		        	begindate = new Date(enddate - (3600 * 1000));
-	        
-		    	$("#rangeDemoStart").
-			  	AnyTime_noPicker().
-			  	//removeAttr("disabled").
-			  	val(rangeDemoConv.format(begindate)).
-			    AnyTime_picker(
-			              { //earliest: dayEarlier,
-			                format: rangeDemoFormat
-			                //latest: ninetyDaysLater
-			              } );
-		    	$("#rangeDemoFinish").
-			  	AnyTime_noPicker().
-			  	//removeAttr("disabled").
-			  	val(rangeDemoConv.format(enddate)).
-			    AnyTime_picker(
-			              { //earliest: dayEarlier,
-			                format: rangeDemoFormat
-			                //latest: ninetyDaysLater
-			              } );
-		        	
-		        	    
-		        	    
-		    });
+		<?php IncFunc::jqueryTimeFrame();?>
 		
 		
 		/*$('#dialog').dialog({autoOpen:false, title : "HELP"});
@@ -211,6 +172,8 @@ if (isset($_GET['metricid']))
 		}
 		newquery += '&begindate='+ (Date.parse(rangeDemoStart.value)).getTime() + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime();
 		newquery += '&type=1';
+		newquery = newquery.substr(1,newquery.length);
+		
 
 
 		var url = location.href;
@@ -387,17 +350,7 @@ Start: <input type="text" id="rangeDemoStart" size="22" />
 
 
 (Preset Time Frames: 
-<select id="timeframe" style="background-color: #FFFFFF">
-	<option value="year">Last Year</option>
-	<option value="month">Last Month</option>
-	<option value="week">Last Week</option>
-	<option value="day">Last Day</option>
-	<option value="hour">Last Hour</option>	
-	<option value="custom1">Begin Data Collection (1/20/2011)</option>
-	
-	
-	<!-- <option value="Custom">Custom</option> -->
-</select> )<BR>
+<?php IncFunc::dateSelect();?> )<BR>
 <BR>
 
 
