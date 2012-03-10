@@ -271,8 +271,7 @@ public class DBFunctions {
 		String[] columnnames = tabledata.get(0);
 		tabledata.remove(0);
 		
-		if (tablename.equals("fact_data_stage") || tablename.equals("fact_data"))
-		{
+		if (tablename.startsWith("fact_data")) {
 				columnnames = UtilityFunctions.extendArray(columnnames);
 				columnnames[columnnames.length-1] = "metric_id";
 				/*columnnames = UtilityFunctions.extendArray(columnnames);
@@ -335,6 +334,7 @@ public class DBFunctions {
 		String strColumns;
 	
 		int nInsertCount=0;
+		int nCurrentRow=0;
 		
 	
 		
@@ -353,8 +353,7 @@ public class DBFunctions {
 			values ="";
 			strColumns="";
 			
-			if (tablename.equals("fact_data_stage") || tablename.equals("fact_data"))
-			{
+			if (tablename.startsWith("fact_data")) {
 					rowdata = UtilityFunctions.extendArray(rowdata);
 					rowdata[columnnames.length - 2] = Integer.toString(nMetricId);
 				
@@ -410,16 +409,18 @@ public class DBFunctions {
 			 */
 			query = "insert into " + tablename + " (" + strColumns + ") values (" + values + ")";
 			
+			
 			try
-			{
+			{			
 				db_update_query(query);
 				nInsertCount++;
 			}
 			catch (SQLException sqle)
 			{
-				UtilityFunctions.stdoutwriter.writeln("Importing into DB Failed ",Logs.ERROR,"DBF9");
+				UtilityFunctions.stdoutwriter.writeln("Importing into DB Failed On Import Table Row " + nCurrentRow,Logs.ERROR,"DBF9");
 				UtilityFunctions.stdoutwriter.writeln(sqle);
 			}
+			nCurrentRow++;
 		
 		}
 		UtilityFunctions.stdoutwriter.writeln(nInsertCount + " records inserted in db.",Logs.STATUS2,"DBF10");
