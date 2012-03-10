@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -277,7 +278,10 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Stri
 			}
 			else{ 
 				UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF16.3");
-				UtilityFunctions.stdoutwriter.writeln(ite);
+				if (ite.getCause() != null) {
+					UtilityFunctions.stdoutwriter.writeln((Exception)ite.getCause());
+				}
+
 			}
 		
 		}
@@ -404,7 +408,9 @@ public ArrayList<String[]> postProcessingTable(ArrayList<String[]> tabledata,Str
 
 
 
-
+/*
+ * This function is still hear for historical data loads.
+ */
 
 
 
@@ -435,7 +441,7 @@ public void postProcessYahooSharePrice() throws SQLException
 	{
 		// Use market close in arizona time zone
 		rowdata[0] = values[4];
-		rowdata[1] = "'" + values[0] + " 13:00:00'";
+		rowdata[1] = "'" + values[0] + " 14:00:00'";
 	}
 	rowdata[2] = dg.nCurrentEntityId + "";
 	//rowdata[4] = "share_price";
@@ -1576,7 +1582,7 @@ public void postProcessBloombergQuote() throws CustomEmptyStringException {
 	}
 	
 	
-	
+	UtilityFunctions.stdoutwriter.writeln("Processing ticker: " + dg.strCurrentTicker,Logs.STATUS1,"PF100.1");
 	newTableData.add(tmpArray);
 	newTableData.add(newrow);
 
@@ -3123,9 +3129,160 @@ public void postProcessGoogleEPSTable() throws SQLException {
 	
 }
 
+public void postProcessGasolineEurope() {
+
+	String[] rowdata, newrow;
+	final String strDefaultTime = " 14:00:00";
+	
+	final BigDecimal bdGallonsPerLiter = new BigDecimal(".264");
+	
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	
+	newTableData.add(tmpArray);
+	String strRegex = "(?i)(AND Andorra)";
+	Pattern pattern = Pattern.compile(strRegex);
+	String strContent = propTableData.get(0)[0];
+	
+
+	Matcher matcher = pattern.matcher(strContent);
+	
+	matcher.find();
+	matcher.start();
+	
+	Scanner scanner = new Scanner(strContent);
+	/*
+	 * findWithinHorizon is case sensitive
+	 */
+	scanner.findWithinHorizon("Information Web services /", 0);
+	String strDate=scanner.nextLine();
+	strDate = strDate.replace("</p>", "").trim();
+	String[] date = strDate.split("\\.");
+	
+	scanner = new Scanner(strContent);
+	scanner.findWithinHorizon("Average Price Currency",0);
+	scanner.nextLine();
+
+	while (scanner.hasNextLine()) {
+	  
+	  String strLine = scanner.nextLine();
+	  
+	  if (strLine.contains("Europa: Fuel Prices"))
+		  break;
+	  
+	  if (strLine.contains("</p>") ||
+		  strLine.contains("Portugal /") ||
+		  strLine.contains("Canary Islands"))
+		  continue;
+	  
+	  strLine = strLine.replace("Bosnia and Herzegovina", "Bosnia_and_Herzegovina");
+	  strLine = strLine.replace("Czech Republic","Czech_Republic");
+	  strLine = strLine.replace("Great Britain", "Great_Britain");
+	  strLine = strLine.replace("Ireland (Eire)", "Ireland");
+	 // strLine = strLine.replace("Spain / Canary Islands", "Canary_Islands");
+  
+	  newrow = new String[tmpArray.length];
+	  //we're using an arbitrary time
+	  newrow[1] = "'" + date[2] + "-" + date[1] + "-" + date[0] + strDefaultTime + "'";
+	  
+	  /*
+	   * For some countries we have to add a dummy token to get the split() to work correctly.
+	   */
+	  if (strLine.contains("Portugal") || strLine.contains("Spain"))
+		  strLine = "<token> " + strLine;
+	  
+	  String[] tokens = strLine.split(" ");
+	  
+	  // Country: tokens[1]
+	  // Currency: tokens[2]
+	  // Price: tokens[3] (for Finland and Germany, reduce by 10% since they don't have 95 octane)
+	  
+	  String strCountry = tokens[1].replace("_", " ").replace("<p>", "").trim();
+	  
+	  String strQuery = "select entities.id from entities ";
+	  strQuery += " join countries_entities on countries_entities.entity_id = entities.id ";
+	  strQuery += " left join country_aliases on country_aliases.country_id=countries_entities.country_id ";
+	  strQuery += " left join countries on countries.id=countries_entities.country_id ";
+	  strQuery += " where ticker='macro'";
+	  strQuery += " and (alias='" + strCountry + "' OR countries.name='" + strCountry + "') ";
+		
+		
+	  try	{
+		  ResultSet rs = dbf.db_run_query(strQuery);
+		  rs.next();
+		  newrow[2] = rs.getInt("id") + "";
+		
+	  }
+	  catch (SQLException sqle)	{
+		  UtilityFunctions.stdoutwriter.writeln("Problem looking up country name or alias: " + strCountry + ",row skipped",Logs.ERROR,"PF200.25");
+		  continue;	
+	  }
+	  
+	  /*
+	   * for some reason the following query takes a really long time if the ticker doesn't exist, so we'll do
+	   * a lookup in entities first.
+	   */
+	  
+	  strQuery = "select value from fact_data ";
+	  strQuery += " join entities on entities.id=fact_data.entity_id ";
+	  strQuery += " where ticker='USD" + tokens[2] + "'";
+	  strQuery += " and date_collected<" + newrow[1];
+	  strQuery += " order by date_collected desc";
+	  strQuery += " limit 1";
+	  
+	  try	{
+		  ResultSet rs = dbf.db_run_query(strQuery);
+		  rs.next();
+		  BigDecimal bdRate = rs.getBigDecimal("value");
+		  BigDecimal bdPrice = new BigDecimal(tokens[3]);
+		  bdRate.setScale(3);
+		  bdPrice.setScale(3);
+		  //need to adjust for Germany and Finland since they don't sell 95 octane. 
+		  //We're using an adjustment of -3% from 98 octane.
+		  if (strCountry.equalsIgnoreCase("Germany") || strCountry.equalsIgnoreCase("Finland"))
+			  bdPrice = bdPrice.multiply(new BigDecimal(".970").setScale(3));
+		  bdPrice = bdPrice.divide(bdRate,BigDecimal.ROUND_UP);
+		  bdPrice = bdPrice.divide(bdGallonsPerLiter,BigDecimal.ROUND_UP);
+		  newrow[0] = bdPrice.toString();
+	  }
+	  catch (SQLException sqle)	{
+		  UtilityFunctions.stdoutwriter.writeln("Problem looking up exchange rate for currency cross: USD" + tokens[2] + ",row skipped",Logs.WARN,"PF200.25");
+		  continue;	
+	  }
+	  
+	  
+	  
+	  newTableData.add(newrow);
+	  
+	  
+	  
+	}
+	
+	this.propTableData = newTableData;
+
+
+	
+	//(?i)(<TABLE[^>]*>)
+	
+	
+	/*</p>
+	<p>A Austria EUR 1.431      1.565      1.422      1.00000 1.431      1.565      1.422      1.73        1.89        1.71        
+	B Belgium EUR 1.713      1.733      1.550      1.00000 1.713      1.733      1.550      2.07        2.09        1.87        
+	</p>*/
+	
+	/*
+	 * 1. Regex to AND Andorra
+	 * 2. readline() until Europa: Fuel Prices, skipping </p> lines
+	 * 3. Regex to Information Web Services 
+	 * 4. Grab the data
+	 */
+	
+}
+
 public void postProcessWikipediaGasoline() throws SQLException {
 
-		
+		final String strDefaultTime = " 14:00:00";
 		String[] tmpArray = {"value","date_collected","entity_id"};
 		
 		ArrayList<String[]> newTableData = new ArrayList<String[]>();
@@ -3140,8 +3297,12 @@ public void postProcessWikipediaGasoline() throws SQLException {
 		
 		/*
 		 * This is kludgy but don't know of a better way to do this atm. With the way
-		 * we are currently reading in countries, we get two Vietnams and we only want the
+		 * we are currently reading in countries, we get two identical Vietnams and we only want the
 		 * first one.
+		 * 
+		 * Actually the specialized vietname code isn't even being used right now because the 2nd
+		 * vietnam generates a pikefinvoid because of the missing date. But if they ever put the date
+		 * back in, then we'll need the specialized code so I left it in.
 		 */
 		int nVietnamCount = 0;
 
@@ -3164,12 +3325,19 @@ public void postProcessWikipediaGasoline() throws SQLException {
 				||	strCountry.equalsIgnoreCase("spain - canary islands")
 				||	strCountry.equalsIgnoreCase("Switzerland - Samnaun")
 				||	strCountry.equalsIgnoreCase("Turks and Caicos")
+				||  rowdata[0].contains("pikefinvoid")
+				
 			)
 				continue;
 			
 			newrow = new String[tmpArray.length];
 			
-			newrow[0] = rowdata[0];
+			if (rowdata[0].contains("<"))
+				newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("<"));
+			else
+				newrow[0] = rowdata[0];
+			
+			
 			
 			/*
 			 * 2/25/2012 - Right now one of the dates (Oman) has octane info in the cell as well.
@@ -3178,7 +3346,7 @@ public void postProcessWikipediaGasoline() throws SQLException {
 			if (strDateTmp.contains("("))
 				strDateTmp = strDateTmp.substring(0,strDateTmp.indexOf("("));
 			strDateTmp = strDateTmp.trim();
-			newrow[1] = "'"+strDateTmp + " 12:00:00'";
+			newrow[1] = "'"+strDateTmp + strDefaultTime + "'";
 
 			/*
 			 * If there are 2 sets of parens for the row header, we want to cutoff at the 2nd left paren.
@@ -3186,6 +3354,7 @@ public void postProcessWikipediaGasoline() throws SQLException {
 
 			strCountry = strCountry.trim();
 			
+
 			if (strCountry.equalsIgnoreCase("vietnam")) {
 				if (nVietnamCount == 1)
 					continue;
