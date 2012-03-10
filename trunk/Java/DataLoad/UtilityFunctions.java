@@ -165,6 +165,133 @@ public class UtilityFunctions
 		
 	}*/
 	
+	public int regexSeekLoop(String regex, int nCount, int nCurOffset, String strHayStack)
+	throws TagNotFoundException {
+		// nCurOffset =
+		// regexSeekLoop("(?i)(<TABLE[^>]*>)",returned_content,tables);
+		// String strOpenTableRegex = "(?i)(<TABLE[^>]*>)";
+		// String strOpenTableRegex = "START NEW";
+		
+		Pattern pattern = Pattern.compile(regex);
+		
+		Matcher matcher = pattern.matcher(strHayStack);
+		
+		for (int i = 0; i < nCount; i++) {
+		
+			if (matcher.find(nCurOffset) == false)
+			// Did not find regex
+			{
+				/* Let whoever catches this decide what to write to the logs. */
+				// UtilityFunctions.stdoutwriter.writeln("Regex search exceeded.",Logs.ERROR,"DG2");
+				throw new TagNotFoundException();
+			}
+		
+			nCurOffset = matcher.start() + 1;
+		
+			UtilityFunctions.stdoutwriter.writeln("regex iteration " + i
+					+ ", offset: " + nCurOffset, Logs.STATUS2, "DG3");
+		
+		}
+		return (nCurOffset);
+	}
+	
+	public String regexSnipValue(String strBeforeUniqueCode,
+			String strAfterUniqueCode, int nCurOffset,String strHayStack)
+			throws CustomRegexException {
+
+		Pattern pattern;
+		String strDataValue = "";
+		int nBeginOffset;
+		Matcher matcher;
+
+		if ((strBeforeUniqueCode != null)
+				&& (strBeforeUniqueCode.isEmpty() != true)) {
+
+			// String strBeforeUniqueCodeRegex = "(?i)(" + strBeforeUniqueCode +
+			// ")";
+			String strBeforeUniqueCodeRegex = "(" + strBeforeUniqueCode + ")";
+			UtilityFunctions.stdoutwriter.writeln(strBeforeUniqueCodeRegex,
+					Logs.STATUS2, "DG4");
+
+			pattern = Pattern.compile(strBeforeUniqueCodeRegex);
+			UtilityFunctions.stdoutwriter.writeln(
+					"after strbeforeuniquecoderegex compile", Logs.STATUS2,
+					"DG5");
+
+			matcher = pattern.matcher(strHayStack);
+
+			UtilityFunctions.stdoutwriter.writeln(
+					"Current offset before final data extraction: "
+							+ nCurOffset, Logs.STATUS2, "DG6");
+
+			matcher.find(nCurOffset);
+
+			nBeginOffset = matcher.end();
+		} else
+			nBeginOffset = nCurOffset;
+
+		UtilityFunctions.stdoutwriter.writeln("begin offset: " + nBeginOffset,
+				Logs.STATUS2, "DG7");
+
+		// String strAfterUniqueCodeRegex = "(?i)(" + strAfterUniqueCode + ")";
+		String strAfterUniqueCodeRegex = "(" + strAfterUniqueCode + ")";
+		pattern = Pattern.compile(strAfterUniqueCodeRegex);
+		UtilityFunctions.stdoutwriter.writeln(
+				"after strAfterUniqueCodeRegex compile", Logs.STATUS2, "DG8");
+
+		matcher = pattern.matcher(strHayStack);
+
+		matcher.find(nBeginOffset);
+
+		int nEndOffset = matcher.start();
+		UtilityFunctions.stdoutwriter.writeln("end offset: " + nEndOffset,
+				Logs.STATUS2, "DG9");
+
+		if (nEndOffset <= nBeginOffset) {
+			/*
+			 * If we get here, skip processing this table cell but continue
+			 * processing the rest of the table.
+			 */
+			UtilityFunctions.stdoutwriter.writeln("EndOffset is < BeginOffset",
+					Logs.STATUS2, "DG10");
+			throw new CustomRegexException();
+		}
+		strDataValue = strHayStack.substring(nBeginOffset, nEndOffset);
+		/*
+		 * OFP - I'm leaving this test code in here in case I have to deal with extended ASCII characters again.
+		 */
+		/*if (strDataValue.length() <= 1) {
+			try {
+				
+				Charset c = Charset.defaultCharset(); 
+				String tmp = String.format("%x", new BigInteger("x".getBytes(c)));
+				String tmp2 = returned_content.substring(nBeginOffset-1,nEndOffset+1);
+				String tmp3 = returned_content.substring(nBeginOffset,nEndOffset);
+				tmp = String.format("%x", new BigInteger(tmp2.getBytes(c)));
+				tmp = String.format("%x", new BigInteger(tmp3.getBytes(c)));
+				String output = tmp2.replaceAll("[^\\p{ASCII}]", "");
+				tmp = String.format("%x", new BigInteger("".getBytes(c)));
+				tmp = String.format("%x", new BigInteger(strDataValue.getBytes(c)));
+				UtilityFunctions.stdoutwriter.writeln("blap",
+						Logs.STATUS2, "DG10");
+				
+			}
+			catch (Exception e) {
+				UtilityFunctions.stdoutwriter.writeln(e);
+			}
+
+		}*/
+
+		UtilityFunctions.stdoutwriter.writeln(
+				"Raw Data Value: " + strDataValue, Logs.STATUS2, "DG11");
+		/*
+		 * } catch (IOException ioe) { Sy }
+		 */
+
+		return (strDataValue);
+
+	}
+	
 
 	
 	
