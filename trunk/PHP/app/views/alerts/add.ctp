@@ -13,6 +13,7 @@
 
 <script type="text/javascript">
 	metricid="";
+	countryname="";
 	function get_type(thing){     
 		if(thing===null)return "[object Null]"; 
 	// special case   
@@ -38,13 +39,22 @@
 
 	$(document).ready(function() {
         $("#filtersubmit").click(function() {
-        	selectobj = document.getElementById("filtermetric");
+            //metric is filtered within the form itself
+        	//selectobj = document.getElementById("filtermetric");
         	checkboxobj = document.getElementById("filtersenabled");
+        	countryobj = document.getElementById("filtercountry");
+        	selectobj = document.getElementById("AlertMetricId");
         	
-        	if (checkboxobj.checked == true)
-        		metricid = selectobj.value;
-        	else
+        	if (checkboxobj.checked == true) {
+        		//metricid = selectobj.value;      
+            	metricid = selectobj.value;
+        		countryname = countryobj.value;
+        		alert(countryname);
+        	}
+        	else {
         		metricid = "";
+        		countryname = "";
+        	}
        
             buildTree3();
             //var src = $(this).val();
@@ -60,6 +70,42 @@
 
 
         });   
+        $( "#filtercountry" ).autocomplete({
+			source: function( request, response ) {
+				$.ajax({
+					url: php_root_path + "/site/includes/getCountry.php",
+					dataType: "json",
+					data: {
+						maxRows: 12,
+						term: request.term
+				
+					},
+					success: function( data ) {
+						//console.log(data);
+						response( $.map( data, function( item ) {
+							//alert(item.id);
+							return {
+								
+								value: item.name,
+								label: item.name,
+								id: item.id
+		
+							}
+
+						}));
+					}
+				});
+			},
+			minLength: 1,
+			select: function( event, ui ) {
+				if(ui.item)	{    
+    				countryid = ui.item.id;
+    				//alert(ui.item.id);
+    				//sendAndDraw(ui.item.id,ui.item.label,ui.item.full_name);
+
+				}
+			}
+		});
     });
 
 	
@@ -190,7 +236,7 @@
         
         	//xmlhttp.open("POST","http://localhost/PHP/ajaxsample/cakeajax.php?q="+str+"&timestamp="+currentTime,true);
        
-        	xmlhttp.open("POST",php_root_path + "/ajaxsample/cakeajax4.php?q=1002" + "&m=" + metricid ,true);
+        	xmlhttp.open("POST",php_root_path + "/ajaxsample/cakeajax4.php?q=1002" + "&m=" + metricid + "&c=" + encodeURIComponent(countryname),true);
 
         	xmlhttp.send();
 
@@ -304,7 +350,9 @@
 <tr><td>
 <?php
 $checkboxdefault=false;
+$country="";
 ?>
+<!--  
 <tr><td>
 <?php echo $this->Form->label('Metric:'); ?>
 </td></tr>
@@ -316,6 +364,15 @@ foreach ($this->getVar('metric_names') as $key=>$metric)
 }
 echo "</select>";
 ?>
+</td></tr>
+-->
+<tr><td>
+<?php echo $this->Form->label('Country:'); ?>
+</td></tr>
+<tr><td>
+<?php 
+	echo $this->Form->input('filtercountry', array("value"=>$country,"label"=>false));
+?>	
 </td></tr>
 <tr>
 <td><?php echo $this->Form->label('Filters Enabled:');?></td>
@@ -348,28 +405,37 @@ echo "</select>";
 
 		
 		
+		echo "<b>Note</b>: There is currently an issue with selecting the metric where it rebuilds the entity group ";
+		echo "tree and will unselect any items in the tree.<br><br>";
 		
-		echo "<BR>Entity Group:<BR>";
+		echo "When a metric is selected, the entities tree will automatically be filtered for the appropriate entities for the specified metric.";
+		echo $this->Form->input('Alert.metric_id',array('label'=>'Metric','empty'=>true,'options' => $this->getVar('metric_names')));
+		echo "<BR>Entities:<BR>";
 		echo "<div id=\"treeDiv1\" class=\"ygtv-checkbox treeDiv\"></div>";
 		
 		echo "<div style=\"position:relative; left:0px; top:0px; width:400px; height:0px; background-color:#ffffff; overflow:auto;\"";
 		echo "id=\"treeDiv2\" class=\"ygtv-checkbox\"></div>";
-		echo $this->Form->input('Alert.metric_id',array('label'=>'Metric','options' => $this->getVar('metric_names')));
-		echo $this->Form->input('Alert.user_id',array('label'=>'User Name','options' => $this->getVar('usernames')));
+		echo $this->Form->input('Alert.user_id',array('label'=>'User Name','options' => $this->getVar('usernames'),'value'=>$this->getVar('currentuser')));
 		echo $this->Form->input('Alert.time_event_id',array('label'=>'Observation Period','options' => $this->getVar('timeeventnames')));
 		
 		echo $this->Form->input('limit_value');
+		echo $this->Form->input('calyear',array('label'=>'Calendar Year'));
 		//echo $this->Form->input('limit_adjustment');
 		echo $this->Form->input('limit_adjustment',array('value'=>0,'type'=>'hidden'));
-		echo $this->Form->input('type',array('value'=>'LIMIT','type'=>'hidden'));
+		echo $this->Form->input('type',array('label'=>'Type','options' => $this->getVar('types')));
 		//echo $this->Form->input('fact_data_key');
 		
 		//echo $this->Form->input('alert_count');
 		echo $this->Form->input('disabled');
 		echo $this->Form->input('auto_reset_fired',array('label'=>'Auto Reset After Fired'));
 		echo $this->Form->input('auto_reset_period',array('label'=>'Auto Reset After Observation Period End'));
-		echo $this->Form->input('email_alert',array('label'=>'Email Notification'));
-		echo $this->Form->input('twitter_alert',array('label'=>'Twitter Notification'));
+		
+		/*
+		 * email and twitter alert properties are now obsolete. Need to build a mechanism
+		 * for selecting alert targets.
+		 */
+		//echo $this->Form->input('email_alert',array('label'=>'Email Notification'));
+		//echo $this->Form->input('twitter_alert',array('label'=>'Twitter Notification'));
 		
 		
 	
