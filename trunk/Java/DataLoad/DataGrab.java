@@ -25,6 +25,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
 import org.apache.http.protocol.HTTP;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.util.PDFText2HTML;
+import org.apache.pdfbox.util.PDFTextStripper;
+
 import java.util.Arrays;
 //import org.apache.log4j.NDC;
 import java.lang.reflect.InvocationTargetException;
@@ -173,31 +177,35 @@ class DataGrab extends Thread {
 					strRet = null;
 			}
 			break;
+			
+		/*
+		 * The Stage performance markers are only used for default url processing.
+		 */
 		case STAGE1_START:
 			if (calJobProcessingStage1Start != null)
 				strRet = this.formatter.format(calJobProcessingStage1Start.getTime());
 			else
-				strRet = null;
+				strRet = "";
 			break;
 
 		case STAGE1_END:
 			if (calJobProcessingStage1End != null)
 				strRet = this.formatter.format(calJobProcessingStage1End.getTime());
 			else
-				strRet = null;
+				strRet = "";
 			break;
 			
 		case STAGE2_START:
 			if (calJobProcessingStage2Start != null)
 				strRet = this.formatter.format(calJobProcessingStage2Start.getTime());
 			else
-				strRet = null;
+				strRet = "";
 			break;
 		case STAGE2_END:
 			if (calJobProcessingStage2End != null)
 				strRet = this.formatter.format(calJobProcessingStage2End.getTime());
 			else
-				strRet = null;
+				strRet = "";
 			break;
 
 		}
@@ -339,8 +347,9 @@ class DataGrab extends Thread {
 		}
 		
 		if (this.bVerify == true) {
-			UtilityFunctions.stdoutwriter.writeln("SCHEDULE RUNNING IN VERIFICATION MODE!", Logs.STATUS1,
+			UtilityFunctions.stdoutwriter.writeln("SCHEDULE RUNNING IN VERIFY MODE!", Logs.STATUS1,
 					"DG38.95");
+			UtilityFunctions.stdoutwriter.wrapperNDCPush("[Verify Mode]");
 		}
 
 		UtilityFunctions.stdoutwriter.writeln("JOB PROCESSING START TIME: "
@@ -365,6 +374,9 @@ class DataGrab extends Thread {
 				"DG38.15");
 
 		if (DataLoad.bLoadingHistoricalData == true)
+			UtilityFunctions.stdoutwriter.wrapperNDCPop();
+		
+		if (this.bVerify == true)
 			UtilityFunctions.stdoutwriter.wrapperNDCPop();
 		
 
@@ -403,132 +415,9 @@ class DataGrab extends Thread {
 
 	}
 
-	private int regexSeekLoop(String regex, int nCount, int nCurOffset)
-			throws TagNotFoundException {
-		// nCurOffset =
-		// regexSeekLoop("(?i)(<TABLE[^>]*>)",returned_content,tables);
-		// String strOpenTableRegex = "(?i)(<TABLE[^>]*>)";
-		// String strOpenTableRegex = "START NEW";
+	
 
-		Pattern pattern = Pattern.compile(regex);
-
-		Matcher matcher = pattern.matcher(returned_content);
-
-		for (int i = 0; i < nCount; i++) {
-
-			if (matcher.find(nCurOffset) == false)
-			// Did not find regex
-			{
-				/* Let whoever catches this decide what to write to the logs. */
-				// UtilityFunctions.stdoutwriter.writeln("Regex search exceeded.",Logs.ERROR,"DG2");
-				throw new TagNotFoundException();
-			}
-
-			nCurOffset = matcher.start() + 1;
-
-			UtilityFunctions.stdoutwriter.writeln("regex iteration " + i
-					+ ", offset: " + nCurOffset, Logs.STATUS2, "DG3");
-
-		}
-		return (nCurOffset);
-	}
-
-	private String regexSnipValue(String strBeforeUniqueCode,
-			String strAfterUniqueCode, int nCurOffset)
-			throws CustomRegexException {
-
-		Pattern pattern;
-		String strDataValue = "";
-		int nBeginOffset;
-		Matcher matcher;
-
-		if ((strBeforeUniqueCode != null)
-				&& (strBeforeUniqueCode.isEmpty() != true)) {
-
-			// String strBeforeUniqueCodeRegex = "(?i)(" + strBeforeUniqueCode +
-			// ")";
-			String strBeforeUniqueCodeRegex = "(" + strBeforeUniqueCode + ")";
-			UtilityFunctions.stdoutwriter.writeln(strBeforeUniqueCodeRegex,
-					Logs.STATUS2, "DG4");
-
-			pattern = Pattern.compile(strBeforeUniqueCodeRegex);
-			UtilityFunctions.stdoutwriter.writeln(
-					"after strbeforeuniquecoderegex compile", Logs.STATUS2,
-					"DG5");
-
-			matcher = pattern.matcher(returned_content);
-
-			UtilityFunctions.stdoutwriter.writeln(
-					"Current offset before final data extraction: "
-							+ nCurOffset, Logs.STATUS2, "DG6");
-
-			matcher.find(nCurOffset);
-
-			nBeginOffset = matcher.end();
-		} else
-			nBeginOffset = nCurOffset;
-
-		UtilityFunctions.stdoutwriter.writeln("begin offset: " + nBeginOffset,
-				Logs.STATUS2, "DG7");
-
-		// String strAfterUniqueCodeRegex = "(?i)(" + strAfterUniqueCode + ")";
-		String strAfterUniqueCodeRegex = "(" + strAfterUniqueCode + ")";
-		pattern = Pattern.compile(strAfterUniqueCodeRegex);
-		UtilityFunctions.stdoutwriter.writeln(
-				"after strAfterUniqueCodeRegex compile", Logs.STATUS2, "DG8");
-
-		matcher = pattern.matcher(returned_content);
-
-		matcher.find(nBeginOffset);
-
-		int nEndOffset = matcher.start();
-		UtilityFunctions.stdoutwriter.writeln("end offset: " + nEndOffset,
-				Logs.STATUS2, "DG9");
-
-		if (nEndOffset <= nBeginOffset) {
-			/*
-			 * If we get here, skip processing this table cell but continue
-			 * processing the rest of the table.
-			 */
-			UtilityFunctions.stdoutwriter.writeln("EndOffset is < BeginOffset",
-					Logs.STATUS2, "DG10");
-			throw new CustomRegexException();
-		}
-		strDataValue = returned_content.substring(nBeginOffset, nEndOffset);
-		/*
-		 * OFP - I'm leaving this test code in here in case I have to deal with extended ASCII characters again.
-		 */
-		/*if (strDataValue.length() <= 1) {
-			try {
-				
-				Charset c = Charset.defaultCharset(); 
-				String tmp = String.format("%x", new BigInteger("x".getBytes(c)));
-				String tmp2 = returned_content.substring(nBeginOffset-1,nEndOffset+1);
-				String tmp3 = returned_content.substring(nBeginOffset,nEndOffset);
-				tmp = String.format("%x", new BigInteger(tmp2.getBytes(c)));
-				tmp = String.format("%x", new BigInteger(tmp3.getBytes(c)));
-				String output = tmp2.replaceAll("[^\\p{ASCII}]", "");
-				tmp = String.format("%x", new BigInteger("".getBytes(c)));
-				tmp = String.format("%x", new BigInteger(strDataValue.getBytes(c)));
-				UtilityFunctions.stdoutwriter.writeln("blap",
-						Logs.STATUS2, "DG10");
-				
-			}
-			catch (Exception e) {
-				UtilityFunctions.stdoutwriter.writeln(e);
-			}
-
-		}*/
-
-		UtilityFunctions.stdoutwriter.writeln(
-				"Raw Data Value: " + strDataValue, Logs.STATUS2, "DG11");
-		/*
-		 * } catch (IOException ioe) { Sy }
-		 */
-
-		return (strDataValue);
-
-	}
+	
 
 
 	public String get_value(String local_data_set)
@@ -603,19 +492,19 @@ class DataGrab extends Thread {
 
 		UtilityFunctions.stdoutwriter.writeln("Before table searches.",
 				Logs.STATUS2, "DG16");
-		nCurOffset = regexSeekLoop("(?i)(<TABLE[^>]*>)", tables, nCurOffset);
+		nCurOffset = this.uf.regexSeekLoop("(?i)(<TABLE[^>]*>)", tables, nCurOffset,returned_content);
 
 		UtilityFunctions.stdoutwriter.writeln("Before table row searches.",
 				Logs.STATUS2, "DG17");
-		nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)", rows, nCurOffset);
+		nCurOffset = this.uf.regexSeekLoop("(?i)(<tr[^>]*>)", rows, nCurOffset,returned_content);
 
 		UtilityFunctions.stdoutwriter.writeln("Before table cell searches.",
 				Logs.STATUS2, "DG18");
-		nCurOffset = regexSeekLoop("(?i)(<td[^>]*>)", cells, nCurOffset);
+		nCurOffset = this.uf.regexSeekLoop("(?i)(<td[^>]*>)", cells, nCurOffset,returned_content);
 
 		UtilityFunctions.stdoutwriter.writeln("Before div searches",
 				Logs.STATUS2, "DG19");
-		nCurOffset = regexSeekLoop("(?i)(<div[^>]*>)", divs, nCurOffset);
+		nCurOffset = this.uf.regexSeekLoop("(?i)(<div[^>]*>)", divs, nCurOffset,returned_content);
 
 		String strBeforeUniqueCode = rs.getString("Before_Unique_Code");
 		String strAfterUniqueCode = rs.getString("After_Unique_Code");
@@ -626,8 +515,8 @@ class DataGrab extends Thread {
 		 * String strAfterUniqueCodeRegex = "(?i)(" + strAfterUniqueCode + ")";
 		 */
 
-		strDataValue = regexSnipValue(strBeforeUniqueCode, strAfterUniqueCode,
-				nCurOffset);
+		strDataValue = this.uf.regexSnipValue(strBeforeUniqueCode, strAfterUniqueCode,
+				nCurOffset,this.returned_content);
 
 		/*
 		 * OFP 3/28/2011 - Don't remove commas if this is csv format. Let the
@@ -667,11 +556,13 @@ class DataGrab extends Thread {
 		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
 
-		ArrayList<String[]> tabledatabody = get_table(strTableSet, "body");
+		//ArrayList<String[]> tabledatabody = get_table(strTableSet, "body");
+		ArrayList<String[]> tabledatabody = new EnhancedTable(this,strTableSet,"body").enhancedGetTable();
 
 		if (!((rs.getString("extract_key_colhead") == null) || rs.getString(
 				"extract_key_colhead").isEmpty())) {
-			ArrayList<String[]> tabledatacol = get_table(strTableSet, "colhead");
+			//ArrayList<String[]> tabledatacol = get_table(strTableSet, "colhead");
+			ArrayList<String[]> tabledatacol = new EnhancedTable(this,strTableSet,"colhead").enhancedGetTable();
 
 			tabledatabody.add(0, tabledatacol.get(0));
 		} else
@@ -681,7 +572,8 @@ class DataGrab extends Thread {
 
 		if (!((rs.getString("extract_key_rowhead") == null) || rs.getString(
 				"extract_key_rowhead").isEmpty())) {
-			ArrayList<String[]> tabledatarow = get_table(strTableSet, "rowhead");
+			//ArrayList<String[]> tabledatarow = get_table(strTableSet, "rowhead");
+			ArrayList<String[]> tabledatarow = new EnhancedTable(this,strTableSet,"rowhead").enhancedGetTable();
 
 			String[] temp = new String[tabledatarow.size()];
 			for (int i = 0; i < tabledatarow.size(); i++) {
@@ -906,7 +798,7 @@ class DataGrab extends Thread {
 		ResultSet rs2 = dbf.db_run_query(query);
 		rs2.next();
 		String strCustomURLFuncName = rs2.getString("custom_url_func_name");
-		if (strCustomURLFuncName == null) {
+		if (strCustomURLFuncName == null || strCustomURLFuncName.isEmpty()) {
 			defaultURLProcessing(strDataSet);
 		} else {
 
@@ -919,7 +811,7 @@ class DataGrab extends Thread {
 
 	}
 
-	private ArrayList<String[]> get_table(String strTableSet, String strSection)
+	private ArrayList<String[]> obsolete_get_table(String strTableSet, String strSection)
 			throws SQLException, TagNotFoundException,
 			PrematureEndOfDataException {
 		// retrieve the table data_set
@@ -982,16 +874,15 @@ class DataGrab extends Thread {
 			UtilityFunctions.stdoutwriter.writeln("Searching table count: "
 					+ nCurTable, Logs.STATUS2, "DG27");
 
-			nCurOffset = regexSeekLoop("(?i)(<TABLE[^>]*>)", nCurTable,
-					nCurOffset);
+			nCurOffset = this.uf.regexSeekLoop("(?i)(<TABLE[^>]*>)", nCurTable,
+					nCurOffset,returned_content);
 
-			nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",
-					rs.getInt("top_corner_row"), nCurOffset);
+			nCurOffset = this.uf.regexSeekLoop("(?i)(<tr[^>]*>)",
+					rs.getInt("top_corner_row"), nCurOffset,returned_content);
 
-			int nEndTableOffset = regexSeekLoop("(?i)(</TABLE>)", 1, nCurOffset);
+			int nEndTableOffset = this.uf.regexSeekLoop("(?i)(</TABLE>)", 1, nCurOffset,returned_content);
 
-			// iterate over rows, iterate over columns, writing values out to a
-			// csv file
+			// iterate over rows, iterate over columns
 			boolean done = false;
 			int nNumOfColumns = rs.getInt("number_of_columns");
 
@@ -1011,11 +902,11 @@ class DataGrab extends Thread {
 							Logs.STATUS2, "DG29");
 
 					if (bColTHtags == false)
-						nCurOffset = regexSeekLoop("(?i)(<td[^>]*>)",
-								rs.getInt("Column" + (i + 1)), nCurOffset);
+						nCurOffset = this.uf.regexSeekLoop("(?i)(<td[^>]*>)",
+								rs.getInt("Column" + (i + 1)), nCurOffset,returned_content);
 					else
-						nCurOffset = regexSeekLoop("(?i)(<th[^>]*>)",
-								rs.getInt("Column" + (i + 1)), nCurOffset);
+						nCurOffset = this.uf.regexSeekLoop("(?i)(<th[^>]*>)",
+								rs.getInt("Column" + (i + 1)), nCurOffset,returned_content);
 
 					// String strBeforeUniqueCode = rs.getString("bef_code_col"
 					// + (i+1));
@@ -1026,8 +917,8 @@ class DataGrab extends Thread {
 					strAfterUniqueCodeRegex = "(?i)("
 							+ rs.getString("aft_code_col" + (i + 1)) + ")";
 					try {
-						strDataValue = regexSnipValue(strBeforeUniqueCodeRegex,
-								strAfterUniqueCodeRegex, nCurOffset);
+						strDataValue = this.uf.regexSnipValue(strBeforeUniqueCodeRegex,
+								strAfterUniqueCodeRegex, nCurOffset,this.returned_content);
 
 						/*
 						 * Going to strip out &nbsp; for all data streams, let's
@@ -1073,8 +964,8 @@ class DataGrab extends Thread {
 						break;
 
 					try {
-						nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",
-								nRowInterval, nCurOffset);
+						nCurOffset = this.uf.regexSeekLoop("(?i)(<tr[^>]*>)",
+								nRowInterval, nCurOffset,returned_content);
 					} catch (TagNotFoundException tnfe) {
 						throw new PrematureEndOfDataException();
 					}
@@ -1088,8 +979,8 @@ class DataGrab extends Thread {
 				 */
 				else {
 					try {
-						nCurOffset = regexSeekLoop("(?i)(<tr[^>]*>)",
-								nRowInterval, nCurOffset);
+						nCurOffset = this.uf.regexSeekLoop("(?i)(<tr[^>]*>)",
+								nRowInterval, nCurOffset,returned_content);
 					} catch (TagNotFoundException tnfe) {
 						// No more TR tags in the file - we'll assume it's the
 						// end of the table
@@ -1107,7 +998,10 @@ class DataGrab extends Thread {
 
 		return (tabledata);
 	}
-
+	
+	
+	
+	
 	private void grab_data_set(String strJobPrimaryKey) {
 
 		try {
@@ -1562,6 +1456,31 @@ class DataGrab extends Thread {
 		}
 
 	}
+	
+	public void customPDFURL(String strDataSet) throws SQLException,IOException {
+		//HttpResponse response;
+		//HttpGet httpget;
+		//HttpClient httpclient = new DefaultHttpClient();
+		
+		
+		String query = "select * from jobs where data_set='" + strDataSet + "'";
+
+		ResultSet rs2 = dbf.db_run_query(query);
+		rs2.next();
+		
+		String strURL = rs2.getString("url_static");
+		
+		URL url = new URL(strURL);
+		PDDocument pd2 = PDDocument.load(url, true);
+		
+		PDFTextStripper stripper = new PDFText2HTML("utf-8");
+		
+		stripper.setStartPage(1);
+		stripper.setEndPage(1);
+		
+		returned_content = stripper.getText(pd2);
+		
+	}
 
 	/* 
 	 * function is called dynamically 
@@ -1575,10 +1494,10 @@ class DataGrab extends Thread {
 
 		int nGroupSize = 100;
 		
-		calJobProcessingStage1Start = Calendar.getInstance();
+		/*calJobProcessingStage1Start = Calendar.getInstance();
 		calJobProcessingStage1End = Calendar.getInstance();
 		calJobProcessingStage2Start = Calendar.getInstance();
-		calJobProcessingStage2End = Calendar.getInstance();
+		calJobProcessingStage2End = Calendar.getInstance();*/
 
 		String query2 = "select entity_groups.id,tasks.metric_id,tasks.use_group_for_reading from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id="
 				+ nCurTask;
@@ -1689,7 +1608,7 @@ class DataGrab extends Thread {
 			int nEnd = 0;
 
 			Calendar cal = Calendar.getInstance();
-			DateFormat formatter = new SimpleDateFormat("M/d/yyyy");
+			//DateFormat formatter = new SimpleDateFormat("M/d/yyyy");
 
 			boolean bResubmit = false;
 			
@@ -1866,6 +1785,265 @@ class PrematureEndOfDataException extends Exception {
 	 */
 	private static final long serialVersionUID = 7980404235453739422L;
 
+}
+
+class EnhancedTable {
+	
+	int nRowCount;
+	int nNumOfColumns;
+	String strTableSet;
+	String strSection;
+	DataGrab dg;
+	boolean bColTHTags;
+	String strEndDataMarker;
+	
+	boolean bDoneProcessing;
+	
+	ResultSet rs;
+	
+	
+	public EnhancedTable(DataGrab dg,String inputTableSet, String inputSection) {
+		this.dg = dg;
+		this.strTableSet = inputTableSet;
+		this.strSection = inputSection;
+		this.bDoneProcessing = false;
+		
+	}
+	
+	//public ArrayList<String[]> enhancedGetTable(String strTableSet, String strSection)
+	public ArrayList<String[]> enhancedGetTable()
+	throws SQLException, TagNotFoundException,	PrematureEndOfDataException {
+		// retrieve the table data_set
+		ArrayList<String[]> tabledata = new ArrayList<String[]>();
+		// try
+		// {
+		String query;
+		if (strSection.equals("body")) {
+			query = "select extract_tables.* from extract_tables,jobs where extract_tables.id=jobs.extract_key and jobs.data_set='"
+					+ strTableSet + "'";
+		} else if (strSection.equals("colhead")) {
+			query = "select extract_tables.* from extract_tables,jobs where extract_tables.id=jobs.extract_key_colhead and jobs.data_set='"
+					+ strTableSet + "'";
+		} else if (strSection.equals("rowhead")) {
+			query = "select extract_tables.* from extract_tables,jobs where extract_tables.id=jobs.extract_key_rowhead and jobs.data_set='"
+					+ strTableSet + "'";
+		} else {
+			UtilityFunctions.stdoutwriter.writeln(
+					"Table type not found. Exiting.", Logs.ERROR, "DG26.5");
+			/*
+			 * Lazy here, should create a new exception type but just reusing
+			 * one that this function already throws.
+			 */
+			throw new TagNotFoundException();
+		}
+		
+		rs = dg.dbf.db_run_query(query);
+		rs.next();
+		/*
+		 * if nFixedDataRows is null or zero, then we are grabbing an
+		 * indeterminate number of rows.
+		 */
+		int nFixedDataRows = rs.getInt("rowsofdata");
+		int nRowInterval = rs.getInt("rowinterval");
+		strEndDataMarker = rs.getString("end_data_marker");
+		this.bColTHTags = true;
+		if (rs.getInt("column_th_tags") != 1)
+			this.bColTHTags = false;
+		
+		// seek to the top corner of the table
+		
+		String strTableCount = rs.getString("table_count");
+		int nBeginTable, nEndTable;
+		
+		if (strTableCount.contains(",")) {
+			nBeginTable = Integer.parseInt(strTableCount.substring(0,
+					strTableCount.indexOf(",")));
+			nEndTable = Integer.parseInt(strTableCount.substring(
+					strTableCount.indexOf(",") + 1, strTableCount.length()));
+		} else {
+			nBeginTable = nEndTable = Integer.parseInt(strTableCount);
+		}
+		
+		for (int nCurTable = nBeginTable; nCurTable <= nEndTable; nCurTable++)
+		
+		{
+		
+			int nCurOffset = 0;
+		
+			UtilityFunctions.stdoutwriter.writeln("Searching table count: "
+					+ nCurTable, Logs.STATUS2, "DG27");
+		
+			nCurOffset = dg.uf.regexSeekLoop("(?i)(<TABLE[^>]*>)", nCurTable,
+					nCurOffset,dg.returned_content);
+		
+			nCurOffset = dg.uf.regexSeekLoop("(?i)(<tr[^>]*>)",
+					rs.getInt("top_corner_row"), nCurOffset, dg.returned_content);
+			
+			int nEndRowOffset = dg.uf.regexSeekLoop("(?i)(</tr>)",
+					1, nCurOffset,dg.returned_content);
+		
+			int nEndTableOffset = dg.uf.regexSeekLoop("(?i)(</TABLE>)", 1, nCurOffset,dg.returned_content);
+		
+			// iterate over rows, iterate over columns
+			boolean done = false;
+			this.nNumOfColumns = rs.getInt("number_of_columns");
+		
+			String[] rowdata;
+			this.nRowCount = 0;
+		
+			
+		
+			while (!done) {
+				
+				
+				rowdata = enhancedProcessRow(dg.returned_content.substring(nCurOffset,nEndRowOffset));
+				
+				/*
+				 * This check is for when end_data_marker indicates the end of the table.
+				 */
+				if (this.bDoneProcessing == true)
+					break;
+						
+
+				tabledata.add(rowdata);
+
+				
+				nRowCount++;
+		
+				/*
+				 * First part of if clause is for data sets with predefined
+				 * fixed number of rows.
+				 */
+				if (nFixedDataRows > 0) {
+					if (nFixedDataRows == nRowCount)
+						break;
+		
+					try {
+						nCurOffset = dg.uf.regexSeekLoop("(?i)(<tr[^>]*>)",
+								nRowInterval, nCurOffset,dg.returned_content);
+						nEndRowOffset = dg.uf.regexSeekLoop("(?i)(</tr>)",
+								1, nCurOffset,dg.returned_content);
+					} catch (TagNotFoundException tnfe) {
+						throw new PrematureEndOfDataException();
+					}
+		
+					if (nEndTableOffset < nCurOffset)
+						throw new PrematureEndOfDataException();
+		
+				}
+				/*
+				 * else part is for data sets of an indeterminate size.
+				 */
+				else {
+					try {
+						nCurOffset = dg.uf.regexSeekLoop("(?i)(<tr[^>]*>)",
+								nRowInterval, nCurOffset,dg.returned_content);
+						nEndRowOffset = dg.uf.regexSeekLoop("(?i)(</tr>)",
+								1, nCurOffset,dg.returned_content);
+					} catch (TagNotFoundException tnfe) {
+						// No more TR tags in the file - we'll assume it's the
+						// end of the table
+						break;
+					}
+		
+					// we're past the end table tag - done collecting table.
+					if (nEndTableOffset < nCurOffset)
+						break;
+				}
+		
+			}
+		
+		}
+		
+		return (tabledata);
+	}
+	
+	private String[] enhancedProcessRow(String strRow) throws SQLException {
+		
+		String[] rowdata;
+		UtilityFunctions.stdoutwriter.writeln("row: " + nRowCount,
+				Logs.STATUS2, "DG28");
+		rowdata = new String[nNumOfColumns];
+		int nRowOffset=0;
+		
+		String strBeforeUniqueCodeRegex, strAfterUniqueCodeRegex, strDataValue;
+		
+		try {
+
+			for (int i = 0; i < nNumOfColumns; i++) {
+	
+				UtilityFunctions.stdoutwriter.writeln("Column: " + i,
+						Logs.STATUS2, "DG29");
+	
+				if (bColTHTags == false)
+					nRowOffset = dg.uf.regexSeekLoop("(?i)(<td[^>]*>)",
+							rs.getInt("Column" + (i + 1)), nRowOffset,strRow);
+				else
+					nRowOffset = dg.uf.regexSeekLoop("(?i)(<th[^>]*>)",
+							rs.getInt("Column" + (i + 1)), nRowOffset,strRow);
+	
+				// String strBeforeUniqueCode = rs.getString("bef_code_col"
+				// + (i+1));
+				strBeforeUniqueCodeRegex = "(?i)("
+						+ rs.getString("bef_code_col" + (i + 1)) + ")";
+				// String strAfterUniqueCode = rs.getString("aft_code_col" +
+				// (i+1));
+				strAfterUniqueCodeRegex = "(?i)("
+						+ rs.getString("aft_code_col" + (i + 1)) + ")";
+				try {
+					strDataValue = dg.uf.regexSnipValue(strBeforeUniqueCodeRegex,
+							strAfterUniqueCodeRegex, nRowOffset,strRow);
+	
+					
+					/* See below for exit conditions. */
+					if (strEndDataMarker != null
+							&& (strEndDataMarker.length() > 0))
+						if (strDataValue.equals(strEndDataMarker)) {
+							this.bDoneProcessing = true;
+							return null;
+						}
+	
+					strDataValue = strDataValue.replace("\r", "");
+					strDataValue = strDataValue.replace("\n", "");
+					strDataValue = strDataValue.trim();
+					/*
+					 * Going to strip out &nbsp; for all data streams, let's
+					 * see if this is a problem.
+					 */
+					rowdata[i] = strDataValue.replace("&nbsp;", "");
+				} catch (CustomRegexException cre) {
+					UtilityFunctions.stdoutwriter
+							.writeln(
+									"Empty cell in table in url stream. Voiding cell.",
+									Logs.STATUS2, "DG30");
+					rowdata[i] = "pikefinvoid";
+				} catch (IllegalStateException ise) {
+					UtilityFunctions.stdoutwriter.writeln("Invalid or Irregularly formed table row, inserting pikefinvoid.",Logs.WARN, "DG30.999");
+					rowdata[0] = "pikefinvoid";
+					/*
+					 * We have to return a value so that the rowheaders synch up with the body
+					 */
+					return(rowdata);
+				}
+	
+			}
+			
+			return(rowdata);
+		}
+		catch (TagNotFoundException tnfe) {
+			UtilityFunctions.stdoutwriter.writeln("Invalid or Irregularly formed table row, inserting pikefinvoid.",Logs.WARN, "DG30.27");
+			rowdata[0] = "pikefinvoid";
+			return(rowdata);
+		}
+	}
+
+	
+	
+	
+	
+	
+	
+	
 }
 
 enum TaskMetrics {
