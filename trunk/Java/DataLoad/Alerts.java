@@ -49,13 +49,10 @@ class Alerts {
 	 */
 	void checkAlerts(DataGrab dg) throws SQLException {
 		  
-	
-		//String strDataSet = dg.strCurDataSet;
 		int nCurTask = dg.nCurTask;
 		String strTaskName,strTaskDescription;
 		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		  
-		//String query = "select schedules.*,tasks.name,tasks.description from schedules,tasks where schedules.task_id=" + nCurTask + " and schedules.task_id=tasks.id";
 		String query = "select tasks.* from tasks where id=" + nCurTask;
 		  
 		ResultSet rsTask = dg.dbf.db_run_query(query);
@@ -149,13 +146,10 @@ class Alerts {
 	  
 			int nAlertIndex = 0;
 			 
-			//while (nAlertIndex<arrayListAlerts.size()) {
-			//for (HashMap<String,String> hmAlert : arrayListAlerts) {
 			for(Iterator<HashMap<String,String>> alertIterator = arrayListAlerts.iterator(); alertIterator.hasNext();){
 				
 				this.hmAlert = alertIterator.next(); 
-				  //HashMap<String,String> hmAlert = arrayListAlerts.get(nAlertIndex);
-				//this.hmAlert = arrayListAlerts.get(nAlertIndex);
+			
 				nAlertIndex++;
 				nRow++;
 				try  {
@@ -176,13 +170,7 @@ class Alerts {
 					boolean bAutoResetPeriod = customParseBoolean(hmAlert.get("alerts.auto_reset_period"));
 					boolean bAutoResetFired = customParseBoolean(hmAlert.get("alerts.auto_reset_fired"));
 					this.bAlreadyFired = customParseBoolean(hmAlert.get("alerts.fired"));
-					/*
-					 * These settings are obsolete. Replace with alert_targets.type field.
-					 */
-					//boolean bEmailAlert = customParseBoolean(hmAlert.get("alerts.email_alert"));
-					//boolean bTwitterAlert = customParseBoolean(hmAlert.get("alerts.twitter_alert"));
-					  
-					//if ((hmCurFactData.get(nEntityId+"") == null)) {
+				
 					if (hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)) == null) {
 						UtilityFunctions.stdoutwriter.writeln("No recent fact data collected for ticker: " + strTicker  + ", batch: " + nMaxBatch + ",alert id: "+ nAlertId + ",entity id: " + nEntityId + ". Skipping alert processing",Logs.WARN,"A2.7358");
 						continue;
@@ -204,7 +192,6 @@ class Alerts {
 					}
 				  
 					
-					//calJustCollected.setTime(inputFormat.parse(hmCurFactData.get(nEntityId+"").get("fact_data.date_collected")));
 					HashMap<String,String> tmpHash = hmCurFactData.get(new TheKey(nEntityId+"",strCalYear));
 					calJustCollected.setTime(inputFormat.parse(hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.date_collected")));
 					calObservationPeriodBegin.setTime(inputFormat.parse(hmAlert.get("time_events.last_datetime")));
@@ -286,8 +273,13 @@ class Alerts {
 							/*
 							 * Absolute target with no time frame.
 							 * We're just going to initialize the initial fact data value
+							 * 
+							 * OFP 3/8/2012 - Don't initialize and print a warning of current fact data value (which is going to be set as the initial) is
+							 * the same as the target (alert.limit_value). 
 							 */
-							String strQuery = "select fact_data.id from fact_data,batches ";
+							
+							
+							String strQuery = "select fact_data.id,fact_data.value from fact_data,batches ";
 							strQuery += "where fact_data.batch_id = batches.id ";
 							strQuery += " and task_id=" + nCurTask + " AND entity_id=" + nEntityId + " AND fact_data.date_collected>='" + formatter.format(calObservationPeriodBegin.getTime()) +"'";
 							if (strCalYear != null)
@@ -297,16 +289,26 @@ class Alerts {
 							ResultSet rsFactData = dg.dbf.db_run_query(strQuery);
 							  
 							if (!rsFactData.next()) {
-								//we should never get here, but you never know.
+								/*
+								 * This particular entity id wasn't populated in this task run.
+								 */
 								UtilityFunctions.stdoutwriter.writeln("No fact_data entry found to populate initial_fact_data_id for Alert id: " + nAlertId + ". Skipping Alert.",Logs.ERROR,"A10.3");
 								continue;
 									  
 							}
 							
+							BigDecimal bdCurrent = new BigDecimal(rsFactData.getString("value"));
+							BigDecimal bdTarget = new BigDecimal(hmAlert.get("alerts.limit_value"));
+							
+							if (bdCurrent.equals(bdTarget)) {
+								UtilityFunctions.stdoutwriter.writeln("Attempting to populate initial_fact_data_id with same value as target (alert type 2, alert id: " + nAlertId + "). Skipping Alert.",Logs.WARN,"A10.324");
+								continue;
+							}
+							
+							
 							String query4 = "update alerts set ";
 							 
 							query4 += "initial_fact_data_id=" +rsFactData.getInt("fact_data.id") + ",";
-							//query4 += "current_fact_data_id=" + hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + ", ";
 							query4 += "notification_count=0,";
 							query4 += "fired=0 ";
 							query4 += " where id=" + nAlertId;
@@ -356,7 +358,6 @@ class Alerts {
 							String query4 = "update alerts set ";
 							 
 							query4 += "initial_fact_data_id=" +rsFactData.getInt("fact_data.id") + ",";
-							//query4 += "current_fact_data_id=" + hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + ", ";
 							query4 += "notification_count=0,";
 							query4 += "fired=0 ";
 							query4 += " where id=" + nAlertId;
@@ -375,48 +376,15 @@ class Alerts {
 					dg.dbf.db_update_query(strUpdateQuery);
 
 					
-					/*
-					 * Start type 1 processing
-					 */
-					/*BigDecimal dJustCollectedValue = new BigDecimal(hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.value"));
-					  
-					//Not sure of the scale
-					if (dJustCollectedValue.equals(new BigDecimal("0.000")) || dJustCollectedValue.equals(new BigDecimal("0.00")))  {
-						UtilityFunctions.stdoutwriter.writeln("Zero was the last value collected. Probably a bad print. Skipping ticker " + strTicker,Logs.WARN,"A2.7385");
-						continue;
-					}
-					
-					BigDecimal dInitialFactDataValue = new BigDecimal(hmAlert.get("fact_data.value"));
-					  			  
-					BigDecimal dChange;
-							  
-					try  {
-						dChange = dJustCollectedValue.subtract(dInitialFactDataValue).divide(dInitialFactDataValue,BigDecimal.ROUND_HALF_UP);
-					}
-					catch (ArithmeticException ae) {
-						UtilityFunctions.stdoutwriter.writeln("Error doing BigDecimal arithmetic",Logs.ERROR,"A2.7385");
-						UtilityFunctions.stdoutwriter.writeln("Error occured processing alert id: " + nAlertId,Logs.ERROR,"A2.7386");
-						UtilityFunctions.stdoutwriter.writeln(ae);
-						continue;
-					}
-					  
 				
-					  
-					boolean bEmailSent = false;
-					  
-			
-			
-				
-					if ((dChange.abs().compareTo(bdLimitValue) > 0) && (bAlreadyFired == false))  {*/
+	
 					
 					int nMaxNotifications = 1;
 						
 					if (this.getTriggered()) {
+						/* Process the triggered alert */
 					 
-					/*
-					 * End type 1 processing
-					 */
-					//if (dChange.abs().compareTo(bdLimitValue) < 100) {
+
 						boolean bEmailSent = false;
 							
 						String strQuery20 = "select alert_targets.*,security_accounts.* from alerts_alert_targets ";
@@ -494,12 +462,9 @@ class Alerts {
 											  
 											String strSubject = (String)DataLoad.props.get("subjecttext") + " : " + strTicker + " : " + hmAlert.get("time_events.name") + " Observation Period";
 											  
-											/*
-											 * Removed the following line. debugmode is handled insdie mail().
-											 */
-											//if (DataLoad.bDebugMode == false)  {
+								
 											UtilityFunctions.mail(rs20.getString("address"),strMsg,strSubject,(String)DataLoad.props.get("fromaddy"));
-											//}
+					
 											  
 											String query9 = "update alerts set notification_count=" + (nNotificationCount+1) + " where id=" + nAlertId;
 											  
@@ -515,7 +480,6 @@ class Alerts {
 									 * Twitter update.
 									 */
 										  
-									//if (bTwitterAlert == true)  {
 									String strTweet="";
 									if (nAlertType == 1) {
 										/*
@@ -623,17 +587,11 @@ class Alerts {
 									if (nTweetLimit >= 0) {
 										String strTweetLimitQuery="select count(log_tweets.id) as cnt from log_tweets ";
 										strTweetLimitQuery += " join alerts on log_tweets.alert_id=alerts.id ";
-										//strTweetLimitQuery += " where datetime > date_format(NOW(),'%Y-%m-%d %H')||':00:00' "; 
-										//strTweetLimitQuery += " and datetime < date_format(NOW(),'%Y-%m-%d ')||(date_format(NOW(),'%H')+1)||':00:00' ";
 										strTweetLimitQuery += " where date_format(datetime,'%Y-%m-%d %H')=date_format(NOW(),'%Y-%m-%d %H') ";
 										strTweetLimitQuery += " and (minute(datetime) div 15)=(minute(NOW()) div 15) ";
 										strTweetLimitQuery += " and alerts.user_id=" + nUserId;
 										
-										/*select count(log_tweets.id) as cnt
-										from log_tweets
-										join alerts on log_tweets.alert_id=alerts.id
-										where date_format(datetime,'%Y-%m-%d %H')=date_format('2011-12-14 10:15:00','%Y-%m-%d %H')
-										and (minute(datetime) div 15)=(minute('2011-12-14 10:15:00') div 15)*/
+									
 										  
 										ResultSet rs11 = dg.dbf.db_run_query(strTweetLimitQuery);
 										  
@@ -713,8 +671,9 @@ class Alerts {
 						}
 			 
 						  
-						String query8 = "insert into log_alerts (alert_id,date_time_fired,bef_fact_data_id,aft_fact_data_id,limit_value,entity_id,user_id,email_sent,diff) values (" 
-						+ nAlertId + ",'"
+						String query8 = "insert into log_alerts (alert_id,type,date_time_fired,bef_fact_data_id,aft_fact_data_id,limit_value,entity_id,user_id,email_sent,diff) values (" 
+						+ nAlertId + ","
+						+ hmAlert.get("alerts.type") + ",'"
 						  
 						/*
 						 *  We already have a record of the after fact data time (linked to by aft_fact_data_id) so it's pointless to save it again as the
@@ -725,17 +684,14 @@ class Alerts {
 						+ formatter.format(Calendar.getInstance().getTime()) + "',"
 								  
 								  						  
-						//+ rsCurFactData.getInt("id") + ","
+						
 						+ hmAlert.get("fact_data.id") + ","
 						+ hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + ","		
-						//+ "'" + strFrequency + "',"
-						//+ rsAlert.getBigDecimal("limit_value") + ","
+					
 						+ hmAlert.get("alerts.limit_value") + ","
-						//+ rsAlert.getBigDecimal("limit_adjustment") + ","
-						//+ hmAlert.get("alerts.limit_adjustment") + ","
-						//+ rsAlert.getInt("entity_id") + ","
+						
 						+ hmAlert.get("entities.id") + ","
-						//+ rsAlert.getInt("user_id") + ")";
+						
 						+ hmAlert.get("users.id") + ",";
 						if (bEmailSent)
 							query8 += "1,";
@@ -772,11 +728,16 @@ class Alerts {
 	}
 	
 	private boolean getTriggered() {
+		
+		if (bAlreadyFired == true)
+			return false;
 	 
 		dInitialFactDataValue = new BigDecimal(hmAlert.get("fact_data.value"));
 		this.dJustCollectedValue = new BigDecimal(hmCurFactData.get(new TheKey(nEntityId+"",this.strCalYear)).get("fact_data.value"));
 		
 		this.bdLimitValue = new BigDecimal(hmAlert.get("alerts.limit_value"));
+		
+		
 	
 		switch (nAlertType) {
 			case 1:
@@ -792,7 +753,7 @@ class Alerts {
 				
 				
 				
-				//this.dJustCollectedValue = new BigDecimal(hmCurFactData.get(new TheKey(nEntityId+"",this.strCalYear)).get("fact_data.value"));
+			
 				  
 				//Not sure of the scale
 				if (dJustCollectedValue.equals(new BigDecimal("0.000")) || dJustCollectedValue.equals(new BigDecimal("0.00")))  {
@@ -800,10 +761,7 @@ class Alerts {
 					return false;
 				}
 				
-				//dInitialFactDataValue = new BigDecimal(hmAlert.get("fact_data.value"));
-				  			  
-				
-						  
+				  
 				try  {
 					dChange = dJustCollectedValue.subtract(dInitialFactDataValue).divide(dInitialFactDataValue,BigDecimal.ROUND_HALF_UP);
 				}
@@ -814,9 +772,7 @@ class Alerts {
 					return false;
 				}
 				  
-				//this.bdLimitValue = new BigDecimal(hmAlert.get("alerts.limit_value"));
-
-				if ((dChange.abs().compareTo(bdLimitValue) > 0) && (bAlreadyFired == false))
+				if ((dChange.abs().compareTo(bdLimitValue) > 0))
 					return true;
 			
 				return false;
@@ -824,7 +780,11 @@ class Alerts {
 				/*
 				 * Absolute Target with no time frame
 				 */
-			
+				/*
+				 * Set dChange to dInitialFactDataValue in case the alert has been triggered, dChange is what gets stored
+				 * as diff in log_alerts.
+				 */
+				dChange = dInitialFactDataValue;
 				
 				
 				if (bdLimitValue.compareTo(dInitialFactDataValue)>0)
