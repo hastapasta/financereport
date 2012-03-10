@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import pikefin.log4jWrapper.Logs;
 
 public class Notification extends Thread {
 
@@ -23,6 +24,15 @@ public class Notification extends Thread {
 	}
 
 	public void run() {
+		
+		/*
+		 * 
+		 * loop through all alert email targets, generating a list of alerts for each target
+		 * send email to each target
+		 * 
+		 * 
+		 * at end update all log_alerts as having been processed.
+		 */
 
 		int nInterval = 15000;
 		boolean bDone = false;
@@ -38,16 +48,21 @@ public class Notification extends Thread {
 				dbf.cycleConnection();
 				calBegin = Calendar.getInstance();
 
-				String query1 = "select log_alerts.id,alerts.id,time_events.name,log_alerts.date_time_fired,alerts.email_alert,log_alerts.user_id,entities.ticker,log_alerts.diff,bfd.value,afd.value,bfd.date_collected,afd.date_collected, users.email ";
+				//String query1 = "select log_alerts.id,alerts.id,time_events.name,log_alerts.date_time_fired,alerts.email_alert,log_alerts.user_id,entities.ticker,log_alerts.diff,bfd.value,afd.value,bfd.date_collected,afd.date_collected, users.email ";
+				String query1 = "select log_alerts.id,alerts.id,time_events.name,log_alerts.date_time_fired,log_alerts.user_id,entities.ticker, ";
+				query1 += " log_alerts.diff,bfd.value,afd.value,bfd.date_collected,afd.date_collected, alert_targets.address, alert_targets.id ";
 				query1 += " from log_alerts ";
 				query1 += " JOIN entities on log_alerts.entity_id=entities.id ";
 				query1 += " JOIN alerts on log_alerts.alert_id=alerts.id ";
 				query1 += " JOIN fact_data as bfd on log_alerts.bef_fact_data_id=bfd.id ";
 				query1 += " JOIN fact_data as afd on log_alerts.aft_fact_data_id=afd.id ";
-				query1 += " JOIN users on log_alerts.user_id=users.id ";
+				query1 += " JOIN alerts_alert_targets on alerts_alert_targets.alert_id=log_alerts.alert_id ";
+				query1 += " JOIN alert_targets on alert_targets.id=alerts_alert_targets.alert_target_id ";		
+				//query1 += " JOIN users on log_alerts.user_id=users.id ";
 				query1 += " JOIN time_events on alerts.time_event_id=time_events.id ";
 				query1 += " where log_alerts.email_sent=0 ";
-				query1 += " and alerts.email_alert=1 ";
+				//query1 += " and alerts.email_alert=1 ";
+				query1 += " and alert_targets.type=1 ";
 				query1 += " order by log_alerts.user_id ";
 
 				ResultSet rs1 = dbf.db_run_query(query1);
@@ -55,7 +70,7 @@ public class Notification extends Thread {
 				strLogAlertIds = "";
 				listAlerts = new ArrayList<String[]>();
 
-				int nCurUserId = 0;
+				int nTargetId = 0;
 				String strCurEmail = "";
 
 				// listResultSet =
@@ -63,15 +78,15 @@ public class Notification extends Thread {
 
 				// for (HashMap<String,String> hm : listResultSet){
 				while (rs1.next()) {
-					if (nCurUserId != 0) {
-						if (nCurUserId != rs1.getInt("user_id")) {
+					if (nTargetId!= 0) {
+						if (nTargetId != rs1.getInt("alert_targets.id")) {
 							nCount++;
-							generateBulkEmail(nCurUserId, strCurEmail);
+							generateBulkEmail(/*nTargetId,*/ strCurEmail);
 							strLogAlertIds = strLogAlertIds.substring(0,
 									strLogAlertIds.length() - 1);
 							updateSentEmail(strLogAlertIds);
-							nCurUserId = rs1.getInt("user_id");
-							strCurEmail = rs1.getString("email");
+							nTargetId = rs1.getInt("alert_targets.id");
+							strCurEmail = rs1.getString("alert_targets.address");
 							listAlerts = new ArrayList<String[]>();
 							strLogAlertIds = "";
 						}
@@ -79,8 +94,8 @@ public class Notification extends Thread {
 					}
 
 					else {
-						nCurUserId = rs1.getInt("user_id");
-						strCurEmail = rs1.getString("email");
+						nTargetId = rs1.getInt("alert_targets.id");
+						strCurEmail = rs1.getString("alert_targets.address");
 						nCount++;
 					}
 
@@ -118,7 +133,7 @@ public class Notification extends Thread {
 				}
 
 				if (listAlerts.size() != 0) {
-					generateBulkEmail(nCurUserId, strCurEmail);
+					generateBulkEmail(/*nTargetId, */strCurEmail);
 					strLogAlertIds = strLogAlertIds.substring(0,
 							strLogAlertIds.length() - 1);
 					updateSentEmail(strLogAlertIds);
@@ -158,7 +173,7 @@ public class Notification extends Thread {
 		}
 	}
 
-	public void generateBulkEmail(int nUserId, String strEmail) {
+	public void generateBulkEmail(/*int nUserId, */String strEmail) {
 
 		String strMessage = "<html><body><table>";
 
@@ -198,7 +213,7 @@ public class Notification extends Thread {
 		String strSubject = DataLoad.props.get("subjecttext")
 				+ " Bulk Email Notification";
 
-		if (DataLoad.bDisableEmails == false) {
+		if (DataLoad.bDebugMode == false) {
 			// UtilityFunctions.mail(strEmail,strMessage,strSubject,(String)DataLoad.props.get("fromaddy"));
 			UtilityFunctions.htmlMail(strEmail, strMessage, strSubject);
 
