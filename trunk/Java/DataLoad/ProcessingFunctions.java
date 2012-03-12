@@ -52,6 +52,8 @@ class ProcessingFunctions
 	String propStrTableDataSet;
 	
 	
+	
+	
 	/* Need to figure out why two log files are being written to... UtilityFunctions.stdoutwriter and stdoutwriter */
 	UtilityFunctions uf;
 	DataGrab dg;
@@ -3134,7 +3136,7 @@ public void postProcessGasolineEurope() {
 	String[] rowdata, newrow;
 	final String strDefaultTime = " 14:00:00";
 	
-	final BigDecimal bdGallonsPerLiter = new BigDecimal(".264");
+	
 	
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
 	
@@ -3219,12 +3221,21 @@ public void postProcessGasolineEurope() {
 		  continue;	
 	  }
 	  
-	  /*
-	   * for some reason the following query takes a really long time if the ticker doesn't exist, so we'll do
-	   * a lookup in entities first.
-	   */
 	  
-	  strQuery = "select value from fact_data ";
+	  try {
+		  BigDecimal bdPrice = UtilityFunctions.convertToGallonsAndDollars(tokens[3], "USD" + tokens[2], newrow[1], dbf);
+		  
+		  if (strCountry.equalsIgnoreCase("Germany") || strCountry.equalsIgnoreCase("Finland"))
+			  bdPrice = bdPrice.multiply(new BigDecimal(".970").setScale(3));
+		  
+		  newrow[0] = bdPrice.toString();
+	  }
+	  catch (SQLException sqle) {
+		  UtilityFunctions.stdoutwriter.writeln("Problem converting to gallons and dollars for currency cross: USD" + tokens[2] + ",row skipped",Logs.WARN,"PF200.25");
+		  continue;	
+	  }
+	  
+	  /*strQuery = "select value from fact_data ";
 	  strQuery += " join entities on entities.id=fact_data.entity_id ";
 	  strQuery += " where ticker='USD" + tokens[2] + "'";
 	  strQuery += " and date_collected<" + newrow[1];
@@ -3243,13 +3254,13 @@ public void postProcessGasolineEurope() {
 		  if (strCountry.equalsIgnoreCase("Germany") || strCountry.equalsIgnoreCase("Finland"))
 			  bdPrice = bdPrice.multiply(new BigDecimal(".970").setScale(3));
 		  bdPrice = bdPrice.divide(bdRate,BigDecimal.ROUND_UP);
-		  bdPrice = bdPrice.divide(bdGallonsPerLiter,BigDecimal.ROUND_UP);
+		  bdPrice = bdPrice.divide(UtilityFunctions.bdGallonsPerLiter,BigDecimal.ROUND_UP);
 		  newrow[0] = bdPrice.toString();
 	  }
 	  catch (SQLException sqle)	{
 		  UtilityFunctions.stdoutwriter.writeln("Problem looking up exchange rate for currency cross: USD" + tokens[2] + ",row skipped",Logs.WARN,"PF200.25");
 		  continue;	
-	  }
+	  }*/
 	  
 	  
 	  
@@ -3277,6 +3288,79 @@ public void postProcessGasolineEurope() {
 	 * 3. Regex to Information Web Services 
 	 * 4. Grab the data
 	 */
+	
+}
+
+public void postProcessGasolineUSCanada() throws SQLException {
+	
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	Calendar calToday = Calendar.getInstance();
+	DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	
+	String[] data = propTableData.get(1);
+	
+	
+	for (int i=0;i<data.length;i++) {
+		
+		String[] newrow = new String[tmpArray.length];
+		
+		newrow[1] = "'" + formatter.format(calToday.getTime()) + "'";
+		
+		String strCountry = null;
+		if (i==0) {
+			newrow[0] = data[i];
+			strCountry = "United States";
+		}
+		else if (i==1){
+			
+			strCountry = "Canada";
+			
+			/*Have to convert liters to gallons and Canadian $s to US $s*/
+			
+			try {
+				BigDecimal bdPrice = UtilityFunctions.convertToGallonsAndDollars(data[i], "USDCAD", newrow[1], dbf);
+				bdPrice = bdPrice.divide(new BigDecimal("100"),BigDecimal.ROUND_HALF_UP);
+				newrow[0] = bdPrice.toString();
+				
+			}
+			catch (SQLException sqle) {
+				UtilityFunctions.stdoutwriter.writeln("Problem converting to Gallons and Dollars, Country " + strCountry + " skipped",Logs.WARN,"PF200.25");
+				continue;	
+			}
+				
+			
+		}
+		
+		String query = "select entities.id from entities ";
+		query += " join countries_entities on countries_entities.entity_id=entities.id ";
+		query += " join countries on countries.id=countries_entities.country_id ";
+		query += " where ticker='macro' ";
+		query += " and countries.name='"+strCountry+"'";
+		
+		try		{
+			ResultSet rs = dbf.db_run_query(query);
+			rs.next();
+			newrow[2] = rs.getInt("id") + "";
+			
+		}
+		catch (SQLException sqle)	{
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up country: " + strCountry + ",row skipped",Logs.ERROR,"PF300.25");
+			continue;	
+			/*
+			 * This is not a fatal error so we won't display the full exception.
+			 */
+			//UtilityFunctions.stdoutwriter.writeln(sqle);
+		}
+		
+			
+		newTableData.add(newrow);
+		
+	}
+	
+	newTableData.add(0, tmpArray);
+	propTableData = newTableData;
+	
 	
 }
 
@@ -3332,10 +3416,19 @@ public void postProcessWikipediaGasoline() throws SQLException {
 			
 			newrow = new String[tmpArray.length];
 			
-			if (rowdata[0].contains("<"))
-				newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("<"));
-			else
-				newrow[0] = rowdata[0];
+			/*if (strCountry.equalsIgnoreCase("United States")) {
+				String strBeforeToken = ">$";
+				newrow[0] = rowdata[0].substring(rowdata[0].indexOf(strBeforeToken) + strBeforeToken.length(),rowdata[0].indexOf("/US gallon"));
+			}
+			else {*/
+				String strBeforeToken = "right\">";
+				newrow[0] = rowdata[0].substring(rowdata[0].indexOf(strBeforeToken) + strBeforeToken.length(),rowdata[0].length());
+			//}
+			
+			if (newrow[0].contains("<"))
+				newrow[0] = newrow[0].substring(0,newrow[0].indexOf("<"));
+			//else
+				//newrow[0] = rowdata[0];
 			
 			
 			
