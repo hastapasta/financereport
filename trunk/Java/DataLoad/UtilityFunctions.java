@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Properties;
 //import java.util.Calendar;
 import java.io.*;
+import java.math.BigDecimal;
 //import java.util.StringTokenizer;
 import java.util.regex.*;
 
@@ -55,6 +56,9 @@ public class UtilityFunctions
 	String strCapturedOutput;
 	//static CustomBufferedWriter stdoutwriter;
 	static MainWrapper stdoutwriter;
+	
+	
+	static final BigDecimal bdGallonsPerLiter = new BigDecimal(".264");
 	
 
 	
@@ -932,7 +936,46 @@ public class UtilityFunctions
 		
 	}
 	
-	//public static void tweet(String strEmail, String strMessage, String strSubject, String strFromAddy)
+	public static BigDecimal convertToGallonsAndDollars(String strValue, String strCurrencyCross, String strDay, DBFunctions dbf) throws SQLException {
+		
+		
+		
+		String strQuery = "select value from fact_data ";
+		strQuery += " join entities on entities.id=fact_data.entity_id ";
+		strQuery += " where ticker='" + strCurrencyCross + "'";
+		strQuery += " and date_collected<" + strDay;
+		strQuery += " order by date_collected desc";
+		strQuery += " limit 1";
+		
+		// try	{
+			  ResultSet rs = dbf.db_run_query(strQuery);
+			  rs.next();
+			  BigDecimal bdRate = rs.getBigDecimal("value");
+			  BigDecimal bdPrice = new BigDecimal(strValue);
+			  
+			  /*
+			   * Little carry over from numerical analysis days. Set higher precision for 
+			   * calculations and then set precision to 3 before outputting final #.
+			   */
+			  
+			  bdRate.setScale(5);
+			  bdPrice.setScale(5);
+			 
+			  bdPrice = bdPrice.divide(bdRate,BigDecimal.ROUND_HALF_UP);
+			  bdPrice = bdPrice.divide(UtilityFunctions.bdGallonsPerLiter,BigDecimal.ROUND_HALF_UP);
+			  bdPrice.setScale(3,BigDecimal.ROUND_HALF_UP);
+
+			  return(bdPrice);
+		 // }
+		/*  catch (SQLException sqle)	{
+			  UtilityFunctions.stdoutwriter.writeln("Problem looking up exchange rate for currency cross: USDCAD,row skipped",Logs.WARN,"PF200.25");
+			  continue;	
+		  }
+		
+		return(new BigDecimal(""));*/
+	}
+	
+	
 	public static String tweet(String strTweet,String strUser, String strPass, String strAuth1, String strAuth2, String strAuth3, String strAuth4) {	
 	  	//String host = "smtp.gmail.com";
 	  	//int port = 587;
