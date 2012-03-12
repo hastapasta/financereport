@@ -14,9 +14,9 @@
 
 /*
 * This data_source pulls from the fact_data based off of entities and a date range
-*/
+*/ 
 
-String strTqx = request.getParameter("tqx");
+String strTqx = request.getParameter("tqx");  
 String strReqId=null;
 if (strTqx!=null)
 {
@@ -104,9 +104,11 @@ String[] blap8 = {"description","description","string"};
 String[] blap9 = {"observation period","observation period","string"};
 String[] blap10 = {"% change","% change","number"};
 String[] blap11 = {"alertid","alertid","number"};
+String[] blap12 = {"type","type","number"};
 
 
 arrayListCols.add(blap1);
+arrayListCols.add(blap12);
 arrayListCols.add(blap7);
 arrayListCols.add(blap8);
 arrayListCols.add(blap9);
@@ -122,7 +124,8 @@ arrayListCols.add(blap11);
 
 
 String query2 = "select ticker,full_name,date_format(date_time_fired,'%m/%d/%y %T') as dtf,fd1.value,fd2.value, ";
-query2 += " fd1.date_collected, fd2.date_collected, log_alerts.limit_value, time_events.name,log_alerts.alert_id ";
+query2 += " fd1.date_collected, fd2.date_collected, log_alerts.limit_value, time_events.name,log_alerts.alert_id, ";
+query2 += " alerts.type ";
 query2 += " from log_alerts ";
 query2 += " join alerts on alerts.id=log_alerts.alert_id ";
 query2 += " join entities on entities.id=alerts.entity_id ";
@@ -140,7 +143,7 @@ if (nOPeriodIndex != 0)
 	query2 += " AND time_events.id=" + nOPeriodIndex;
 if (!strEntityGroupId.toUpperCase().equals("ALL"))
 	query2 += " AND entities_entity_groups.entity_group_id=" + strEntityGroupId;
-query2 += " order by dtf DESC limit 30 ";
+query2 += " order by date_time_fired DESC limit 30 ";
 
 //out.println(query2); if (1==1) return;
 
@@ -157,13 +160,14 @@ try
 	dbf = new DBFunctions();
 	dbf.db_run_query(query2);
 	while (dbf.rs.next()) {
-		String [] tmp = new String[22];
+		String [] tmp = new String[24];
 	
 		
 		tmp[0] = tmp[1] = dbf.rs.getString("dtf");
-		tmp[2] = tmp[3] = dbf.rs.getString("ticker");
-		tmp[4] = tmp[5] = dbf.rs.getString("full_name");
-		tmp[6] = tmp[7] = dbf.rs.getString("time_events.name");
+		tmp[2] = tmp[3] = dbf.rs.getString("type");
+		tmp[4] = tmp[5] = dbf.rs.getString("ticker");
+		tmp[6] = tmp[7] = dbf.rs.getString("full_name");
+		tmp[8] = tmp[9] = dbf.rs.getString("time_events.name");
 		
 		BigDecimal bdBef = new BigDecimal(dbf.rs.getString("fd1.value"));
 		BigDecimal bdAft = new BigDecimal(dbf.rs.getString("fd2.value"));
@@ -176,19 +180,19 @@ try
 			bdAft = bdAft.divide(bdBef,BigDecimal.ROUND_HALF_UP);
 		bdAft = bdAft.multiply(new BigDecimal(100));
 		
-		tmp[8] = tmp[9] = bdAft.toString();
+		tmp[10] = tmp[11] = bdAft.toString();
 		
 		BigDecimal bdLimit = new BigDecimal(dbf.rs.getString("log_alerts.limit_value"));
 		bdLimit = bdLimit.multiply(new BigDecimal(100));
 		
-		tmp[10] = tmp[11] = bdLimit.toString();
+		tmp[12] = tmp[13] = bdLimit.toString();
 		
-		tmp[12] = tmp[13] = dbf.rs.getString("fd1.value");
-		tmp[14] = tmp[15] = dbf.rs.getString("fd2.value");
-		tmp[16] = tmp[17] = dbf.rs.getString("fd1.date_collected");
-		tmp[18] = tmp[19] = dbf.rs.getString("fd2.date_collected");
+		tmp[14] = tmp[15] = dbf.rs.getString("fd1.value");
+		tmp[16] = tmp[17] = dbf.rs.getString("fd2.value");
+		tmp[18] = tmp[19] = dbf.rs.getString("fd1.date_collected");
+		tmp[20] = tmp[21] = dbf.rs.getString("fd2.date_collected");
 		
-		tmp[20] = tmp[21] = dbf.rs.getString("log_alerts.alert_id");
+		tmp[22] = tmp[23] = dbf.rs.getString("log_alerts.alert_id");
 		
 		
 		arrayListRows.add(tmp);
