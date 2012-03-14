@@ -86,8 +86,8 @@ $enddate = $_GET['enddate'];
 				
 	});
 	$(function(){
-
-		 $("#timeframe").change( function(e) {
+		<?php IncFunc::jqueryTimeFrame();?>
+		 /*$("#timeframe").change( function(e) {
 		    	enddate = new Date();
 		    	begindate = new Date();
 		    	var tmp = $("#timeframe").val();
@@ -125,7 +125,7 @@ $enddate = $_GET['enddate'];
 		        	
 		        	    
 		        	    
-		    });
+		    });*/
 		
 		
 		/*$('#dialog').dialog({autoOpen:false, title : "HELP"});
@@ -138,9 +138,8 @@ $enddate = $_GET['enddate'];
 	function generateURL() {
 		var rangeDemoStart = document.getElementById('rangeDemoStart');
 	    var rangeDemoFinish = document.getElementById('rangeDemoFinish');
-		query = '?begindate='+ (Date.parse(rangeDemoStart.value)).getTime() + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime();
-
-
+	    query = window.location.search;
+		query += '?begindate='+ (Date.parse(rangeDemoStart.value)).getTime() + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime();
 		var url = location.href;
 		var url_parts = url.split('?');
 		var main_url = url_parts[0]; 		
@@ -151,9 +150,10 @@ $enddate = $_GET['enddate'];
 
 <?php IncFunc::icon();?>
 <?php IncFunc::title();?>
-<link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
+<?php IncFunc::linkStyleCSS();?>
 <?php //IncFunc::yuiDropDownJavaScript(); ?>
-<?php IncFunc::googleGadget()?>
+<?php IncFunc::googleGadget();?>
+<?php IncFunc::googleAnalytics();?>
 <script type="text/javascript">
     google.load('visualization', '1', {'packages' : ['table']});
     //google.setOnLoadCallback(function() { sendAndDraw('') });
@@ -183,8 +183,9 @@ $enddate = $_GET['enddate'];
 
 		var dt = localQueryWrapper.currentDataTable;
 		var val = dt.getValue(row[0].row,8);
+		var metric = dt.getValue(row[0].row,9);
 		<?php //echo "window.location.href = \"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\";";?>
-		<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\");";?>
+		<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?m=\" + metric +\"&e=\" + val + \"&title=All Assets Indivdual Line Charts\");";?>
 
 	}
     
@@ -283,7 +284,7 @@ $enddate = $_GET['enddate'];
       query1 && query1.abort();
       query1 = new google.visualization.Query(dataSourceUrl + queryString1);
       query1.setTimeout(120);
-      queryWrapper1 = new QueryWrapper(query1, tableChart1, options, container1,[8]);
+      queryWrapper1 = new QueryWrapper(query1, tableChart1, options, container1,[8,9],3);
 
       //var y = null;
 
@@ -296,7 +297,7 @@ $enddate = $_GET['enddate'];
       query2 && query2.abort();
       query2 = new google.visualization.Query(dataSourceUrl + queryString2);
       query2.setTimeout(120);
-      var queryWrapper2 = new QueryWrapper(query2, tableChart2, options, container2,[8]);
+      var queryWrapper2 = new QueryWrapper(query2, tableChart2, options, container2,[8,9,],3);
 
       google.visualization.events.addListener(tableChart2, 'select', function(event){
           genericClickHandler(tableChart2,queryWrapper2);
@@ -306,7 +307,7 @@ $enddate = $_GET['enddate'];
       query3 && query3.abort();
       query3 = new google.visualization.Query(dataSourceUrl + queryString3);
       query3.setTimeout(120);
-      var queryWrapper3 = new QueryWrapper(query3, tableChart3, options, container3,[8]);
+      var queryWrapper3 = new QueryWrapper(query3, tableChart3, options, container3,[8,9],3);
       google.visualization.events.addListener(tableChart3, 'select', function(event){
           genericClickHandler(tableChart3,queryWrapper3);
  	   });
@@ -315,7 +316,7 @@ $enddate = $_GET['enddate'];
       query4 && query4.abort();
       query4 = new google.visualization.Query(dataSourceUrl + queryString4);
       query4.setTimeout(120);
-      var queryWrapper4 = new QueryWrapper(query4, tableChart4, options, container4,[8]);
+      var queryWrapper4 = new QueryWrapper(query4, tableChart4, options, container4,[8,9],3);
       google.visualization.events.addListener(tableChart4, 'select', function(event){
           genericClickHandler(tableChart4,queryWrapper4);
  	   });
@@ -323,10 +324,13 @@ $enddate = $_GET['enddate'];
     }
 
   </script>
+<?php IncFunc::googleAnalytics();?>
 </head>
 
-<body style="text-align:left;">
+<!-- <body style="text-align:left;"> -->
+<body>
 <div id="jq-siteContain" >
+
 <?php 
 	IncFunc::header2("charts"); 
 	//echo "<div id=\"yuipadding\" style=\"paddin>";
@@ -334,36 +338,29 @@ $enddate = $_GET['enddate'];
 	//echo "</div>";
 
 ?>
+<div id="pf-body">
 
+
+<div id="chartTitle" style="border-bottom-style: solid; border-width: 2px;margin: 50px 0 0 0;font-size: medium;font-weight:bold;"><?php echo strtoupper('GLOBAL MARKETS DASHBOARD: FOREX, EQUITY INDEXES, COMMODITIES, EQUITY FUTURES'); ?></div>
 
 
 
 <br/>
-<div id="pf-form" style="text-align:left;font-size:1.5em;">
+<div id="pf-form">
 
 
 <br>
 Time Frame:&nbsp;&nbsp;
-Start: <input type="text" id="rangeDemoStart" size="22" />
-&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="22" />
+Start: <input type="text" id="rangeDemoStart" size="18" />
+&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="18" />
 <!-- <input type="button" id="rangeDemoToday" value="today" /> -->
-<input type="button" id="rangeDemoClear" value="clear" />
+&nbsp;<input type="button" id="rangeDemoClear" value="clear" />&nbsp;
 
-<div id="displaycustom"></div>
+<!-- <div id="displaycustom"></div> -->
 
 
 (Preset Time Frames: 
-<select id="timeframe" style="background-color: #FFFFFF">
-	<option value="year">Last Year</option>
-	<option value="month">Last Month</option>
-	<option value="week">Last Week</option>
-	<option value="day">Last Day</option>
-	<option value="hour">Last Hour</option>	
-	<option value="custom1">Begin Data Collection (1/20/2011)</option>
-	
-	
-	<!-- <option value="Custom">Custom</option> -->
-</select> )<BR>
+<?php IncFunc::dateSelect();?>)<BR>
 <BR>
 
 <input type="button" style="color: #000000;background-color: #FFFFFF" value="Update Tables"
@@ -373,35 +370,26 @@ Start: <input type="text" id="rangeDemoStart" size="22" />
 </div><!-- pf-form -->
 
 
-
-<div id="tmp1" style="float: left;margin-bottom: 20px">
-
-<!-- Included for Dialog -->
-
-
-
+<!-- <div style="margin: 0 200px;"> -->
+<div id="pf-chartbody">
+<div id="tmp1" style="float: left;padding-bottom: 20px">
 <div id="tmp1A" style="font-size: small">Forex Gainers/Losers:
-	<!-- <span class='help' style='cursor:pointer'>
-		?
-	</span>
-	 <div id="dialog" title="Basic dialog">
-		<p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
-	</div> -->
 </div>
 <div id="table1" style="color: #000;"> </div>
 </div>
 
-<div id="tmp2" style="float: left;clear: left;margin-bottom: 20px">
+
+<div id="tmp2" style="float: left;clear: left;padding-bottom: 20px">
 <div id="tmp2A" style="font-size: small">Global Equity Indexes Gainers/Losers:</div>
 <div id="table2" style="color: #000;"> </div>
 </div>
 
-<div id="tmp3" style="float: left;clear: left;margin-bottom: 20px">
+<div id="tmp3" style="float: left;clear: left;padding-bottom: 20px">
 <div id="tmp3A" style="font-size: small">Commodity Futures Gainers/Losers:</div>
 <div id="table3" style="color: #000;"> </div>
 </div>
 
-<div id="tmp4" style="float: left;clear: left;margin-bottom: 20px">
+<div id="tmp4" style="float: left;clear: left;padding-bottom: 20px">
 <div id="tmp4A" style="font-size: small">Equity Futures Gainers/Losers:</div>
 <div id="table4" style="color: #000;"> </div>
 </div>
@@ -409,8 +397,17 @@ Start: <input type="text" id="rangeDemoStart" size="22" />
 <input type="button" style="float: left;clear: both;color: #000000;background-color: #FFFFFF" value="Generate URL"
 	onclick="generateURL();return false;"> <br />
 
+</div>
 
 
+	<!-- <span class='help' style='cursor:pointer'>
+		?
+	</span>
+	 <div id="dialog" title="Basic dialog">
+		<p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+	</div> -->
+
+</div> <!--  pf-body -->
 
 </div> <!--  font-black -->
 
