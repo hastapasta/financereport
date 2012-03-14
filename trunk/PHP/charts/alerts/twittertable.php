@@ -19,10 +19,11 @@ db_utility::db_connect();
 <html>
 <head>
 <?php IncFunc::jQuery();?>
-	<?php IncFunc::icon();?>
-	<?php IncFunc::title();?>
+<?php IncFunc::icon();?>
+<?php IncFunc::title();?>
 <?php IncFunc::linkStyleCSS();?>
 <?php IncFunc::googleGadget()?>
+<?php IncFunc::googleAnalytics();?>
 <script type="text/javascript">
     google.load('visualization', '1', {'packages' : ['table']});
     google.setOnLoadCallback(function() { sendAndDraw('') });
@@ -126,10 +127,8 @@ db_utility::db_connect();
 
 
 <div id="pf-body">
-<BR/><BR/>
-<div style="font-size:2.2em;font-weight:bold;margin-left:260px;">
-Twitter Alerts - Complete List
-</div>
+<BR/>
+<div id="chartTitle" style="border-bottom-style: solid; border-width: 2px;margin: 50px 0 0 0;font-size: medium;font-weight:bold;"><?php echo strtoupper('TWITTER ALERTS - COMPLETE LIST'); ?></div>
 <BR>
 
 
