@@ -352,7 +352,8 @@ class IncFunc
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/countries/linechart.php'>GDP/Equity Index Line Chart</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/alerts/twittertable.php'>Twitter Alerts Table</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/topchart.php'>All Assets - Tables</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?a=660&amp;type=1''>All Assets - Inidivdual Line Charts</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?a=660&amp;type=1'>All Assets - Inidivdual Line Charts</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/other/gasolinemotionchart.php'>Global Gasoline Prices</a></li>
 					</ul>
 				</li>
 			</ul>
