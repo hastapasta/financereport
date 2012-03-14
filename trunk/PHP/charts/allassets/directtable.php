@@ -35,6 +35,10 @@ else if ($entitygroupid==101023)
 	$title = "Global Sovereign Bonds";
 else if ($entitygroupid==101024)
 	$title = "Global CDS";
+else if ($entitygroupid==1)
+	$title = "S&P 500 Performance";
+else if ($entitygroupid==101027)
+	$title = "Benchmark Global Equity Indexes";
 	
 $showRowNumber='false';
 if (isset($_GET['showrow']))
