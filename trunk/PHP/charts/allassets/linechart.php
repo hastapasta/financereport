@@ -65,7 +65,7 @@ if (isset($_GET['enddate']) && !empty($_GET['enddate']))
 	
 	
 
-$type="";
+$type="1";
 if (isset($_GET['type']))
 	$type=urldecode($_GET['type']);
 	
@@ -360,7 +360,7 @@ if (isset($_GET['group']))
 	}
 	else {
 ?>
-<div id="chartTitle" style="margin: 20px 0 0 0;font-size: medium;font-weight:bold;"><?php echo $title; ?></div>
+<div id="chartTitle" style="border-bottom-style: solid; border-width: 2px;margin: 20px 0 0 0;font-size: medium;font-weight:bold;"><?php echo strtoupper($title); ?></div>
 
 
 
