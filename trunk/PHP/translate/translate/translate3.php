@@ -32,6 +32,7 @@ if(isset($_POST['submit_msg'])) {
 </head>
 
 <body style="font-family:arial;font-size:10pt">
+<div id="bodystyle" style="margin: 100px">
 
 <table width="100%"><tr><td style="padding-left:10px;padding-right:10px;">
 
@@ -85,6 +86,10 @@ function googleSectionalElementInit() {
   }, 'google_sectional_element');
 }
 
+function cleararea() {
+	$("#textarea1").val('');
+}
+
 function publish() {
 	val1 = document.getElementById("val1");
 
@@ -131,9 +136,10 @@ function strip(html) {
 <BR><BR>
 <input type="submit" value="   Submit   " name="submit_msg" >
 </form>
-
+<input type="button" style="float: left;clear: both;margin-top: 30px;" value="  Clear  "
+	onclick="cleararea();return false;">
 <BR><BR>
-<input type="button" style="float: left;clear: both;" value="  Publish  "
+<input type="button" style="float: left;clear: both;margin-top:30px;" value="  Publish  "
 	onclick="publish();return false;">
 	
 <form name="publishform" action="translate3.php" method=POST>
@@ -141,6 +147,7 @@ function strip(html) {
 <input type="hidden" name="val2" id="val2" value="">
 <input type="hidden" name="sourceval" id="sourceval" value="">
 <BR><BR>
+<div id="selectid" style="float: left; clear: both;margin-top:30px;">
 Source: 
 <select id="sources" style="background-color: #FFFFFF">
 
@@ -153,8 +160,9 @@ Source:
 	}	
 ?>
 </select>
+</div>
 </form>
 
 
-
+</div>
 </body></html>
