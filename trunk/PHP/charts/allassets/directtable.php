@@ -332,24 +332,21 @@ if (isset($_GET['metricid']))
 ?>
 <div id="pf-body">
 
+<div id="chartTitle" style="border-bottom-style: solid; border-width: 2px;margin: 70px 0 0 0;font-size: medium;font-weight:bold;"><?php echo strtoupper($title); ?></div>
 
-
-
-<br/>
-<div id="chartTitle" style="font-size: medium;font-weight:bold;"><u><?php echo $title ?></u></div>
 <div id="pf-form">
 
 <BR>
 Time Frame:&nbsp;&nbsp;
-Start: <input type="text" id="rangeDemoStart" size="22" />
-&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="22" />
+Start: <input type="text" id="rangeDemoStart" size="18" />
+&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="18" />
 <!-- <input type="button" id="rangeDemoToday" value="today" /> -->
 <input type="button" id="rangeDemoClear" value="clear" />
 
-<div id="displaycustom"></div>
+<!-- <div id="displaycustom"></div> -->
 
 
-(Preset Time Frames: 
+&nbsp;(Preset Time Frames: 
 <?php IncFunc::dateSelect();?> )<BR>
 <BR>
 
