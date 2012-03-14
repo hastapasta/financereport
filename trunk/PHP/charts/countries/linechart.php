@@ -554,6 +554,7 @@ if (isset($_GET['group']))
 ?>
 <div id="chartTitle" style="margin: 20px 0 0 0;font-size: medium;font-weight:bold;"><u><?php echo $title; ?></u></div>
 <div id="pf-body">
+<div id="chartTitle" style="border-bottom-style: solid; border-width: 2px;margin: 50px 0 20px 0;font-size: medium;font-weight:bold;"><?php echo strtoupper('LINE CHART: GDP VS. EQUITY INDEXES BY COUNTRY'); ?></div>
 
     <div id="pf-form">
     Enter country name:
