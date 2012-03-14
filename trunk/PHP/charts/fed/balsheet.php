@@ -22,7 +22,7 @@ require_once '../../common/functions.php';
 
 
 <?php IncFunc::linkStyleCSS(); ?>
-<?php IncFunc::yuiDropDownJavaScript(); ?>
+<?php //IncFunc::yuiDropDownJavaScript(); ?>
 
 
 
@@ -34,12 +34,13 @@ require_once '../../common/functions.php';
 
 <div id="jq-siteContain">
 
-<?php IncFunc::header1("charts"); 
+<?php IncFunc::header2("charts"); 
 IncFunc::yuiDropDownMenu();
 
 ?>
 
-<!-- <div id="jq-whosUsing"> -->
+<div id="pf-body">
+<div id="chartTitle" style="border-bottom-style: solid; border-width: 2px;margin: 50px 0 0 0;font-size: medium;font-weight:bold;"><?php echo strtoupper('US FEDERAL RESERVE BALANCE SHEET'); ?></div>
 
 
 
@@ -90,6 +91,7 @@ IncFunc::yuiDropDownMenu();
 </table>
 
 <!-- </div> --><!-- who's using -->
+</div> <!--  pf-body -->
 </div> <!--  siteContain -->
 </body>
 </html>
