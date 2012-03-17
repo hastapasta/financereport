@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ page import="pikefin.*" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.Calendar" %>
+<%@ page import="java.util.Calendar" %> 
 <%@ page import="java.util.Date" %>
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.text.SimpleDateFormat" %>
@@ -46,6 +46,10 @@ String strMetricId = request.getParameter("metricid");
 String strEntityGroupId = request.getParameter("entitygroupid");
 String strTopMovers = request.getParameter("topmovers");
 
+String strFileName = null;
+if (request.getParameter("filename") != null)
+	strFileName = request.getParameter("filename");
+
 
 
 
@@ -87,15 +91,14 @@ Calendar calBegin = Calendar.getInstance();
 if (strTimeFrame != null) {
 
 	
-	if (Debug.RELEASE == true)   
-	{
+	if (Debug.RELEASE == true)   {
 		calEnd.set(Calendar.YEAR,2011);
 		calEnd.set(Calendar.DAY_OF_MONTH,21);
-		calEnd.set(Calendar.MONTH,6);
+		calEnd.set(Calendar.MONTH,8);
 		
 		calBegin.set(Calendar.YEAR,2011);
 		calBegin.set(Calendar.DAY_OF_MONTH,21);
-		calBegin.set(Calendar.MONTH,6);
+		calBegin.set(Calendar.MONTH,8);
 
 		
 	}
@@ -152,22 +155,25 @@ else {
 
 
 /*
+	Update 3/17/2012: I changed the 2 day adjustement to 4 days since 3 day weekends were causing problems.
 *   Here's where this gets a little funky... we will add two days to calBegin and then get the minimum.
-*   And we will subtract 2 days from calEnd and take the maximum. 2 days just being an arbitrary number to try
+*   And we will subtract 4 days from calEnd and take the maximum. 4 days just being an arbitrary number to try
 *    to ensure that we grab at least one data point without grabbing too much data.
 
-	Time line looks like this (for Time frames > 2 days)
+	Time line looks like this (for Time frames > 4 days)
     <Earlier-------------------------------------------------Later>		
 
 
 		<----calBegin-----calBeginAdjust-------calEndAdjust-------calEnd->
 
-   And like this (for time frames < 2 days): 
+   And like this (for time frames < 4 days): 
 	   
 	   <-----calEndAdjust------calBegin----calEnd-------calBeginAdjust---->
    
-   OFP 5/17/2011 - Just noticed an issue with the "< 2 days" query in that potentially
-   the calEnd time could come before calBegin;
+   OFP 5/17/2011 - Just noticed an issue with the "< 4 days" query in that potentially
+   the calEnd time could come before calBegin
+   Update on this issue: I added a check on the data returned, if calEnd < calBegin then an error message
+   is display "date range too narrow, please pick a wider date range.
 */
 
 Calendar calBeginAdjust = Calendar.getInstance();
@@ -186,14 +192,14 @@ Calendar calEndThreshold1 = Calendar.getInstance();
 calEndThreshold1.setTime(formatter.parse("2011-02-01 00:00:00"));
 
 if (calBeginAdjust.after(calBeginThreshold1))
-	calBeginAdjust.add(Calendar.DAY_OF_MONTH,2);
+	calBeginAdjust.add(Calendar.DAY_OF_MONTH,4);
 else if (calBeginAdjust.after(calBeginThreshold2))
 	calBeginAdjust.setTime(formatter.parse("2011-01-22 23:59:59"));
 else
 	calBeginAdjust.add(Calendar.MONTH,1);
 
 if (calEndAdjust.after(calEndThreshold1))
-	calEndAdjust.add(Calendar.DAY_OF_MONTH,-2);
+	calEndAdjust.add(Calendar.DAY_OF_MONTH,-4);
 else
 	calEndAdjust.add(Calendar.MONTH,-1);
 
@@ -201,8 +207,7 @@ else
 
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
-if (strTqx!=null)
-{
+if (strTqx!=null) {
 	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
 	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
 }
@@ -263,7 +268,9 @@ String query2 = "select 'mysqldatasource2eh2',fact_data.entity_id,'placeholder',
 query2 += " ,countries.name,entities.full_name,fact_data.metric_id ";
 query2 += " from fact_data ";
 query2 += " JOIN entities on entities.id=fact_data.entity_id ";
-query2 += " LEFT JOIN countries on entities.country_id=countries.id ";
+query2 += " LEFT JOIN countries_entities on countries_entities.entity_id=fact_data.entity_id ";
+query2 += " LEFT JOIN countries on countries_entities.country_id=countries.id ";
+//query2 += " LEFT JOIN countries on entities.country_id=countries.id ";
 query2 += " JOIN entities_entity_groups on fact_data.entity_id=entities_entity_groups.entity_id ";
 query2 += " where date_collected>'" + formatter.format(calBegin.getTime()) + "' ";
 query2 += " AND date_collected< '" + formatter.format(calBeginAdjust.getTime()) + "' ";
@@ -280,7 +287,9 @@ String query3 = "select 'mysqldatasource2eh2',fact_data.entity_id,'placeholder',
 query3 += " ,countries.name,entities.full_name,fact_data.metric_id ";
 query3 += " from fact_data ";
 query3 += " JOIN entities on entities.id=fact_data.entity_id ";
-query3 += " LEFT JOIN countries on entities.country_id=countries.id ";
+query3 += " LEFT JOIN countries_entities on countries_entities.entity_id=fact_data.entity_id ";
+query3 += " LEFT JOIN countries on countries_entities.country_id=countries.id ";
+//query3 += " LEFT JOIN countries on entities.country_id=countries.id ";
 query3 += " JOIN entities_entity_groups on fact_data.entity_id=entities_entity_groups.entity_id ";
 query3 += " where date_collected>'" + formatter.format(calEndAdjust.getTime()) + "'  ";
 query3 += " AND date_collected<'" + formatter.format(calEnd.getTime()) + "' ";
@@ -413,12 +422,12 @@ while (!bDone) {
 int[] tmpArray = {0};
 
 if (arrayListRows1.size() == 0) {
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_no_data","Query returned no data.","PF ERROR CODE 2eh2-3"));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_no_data","No data returned. Please select a different date range.","PF ERROR CODE 2eh2-3"));
 	return;	
 }
 
 if (arrayListRows2.size() == 0) {
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_no_data","Query returned no data.","PF ERROR CODE 2eh2-4"));
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_no_data","No data returned. Please select a different date range.","PF ERROR CODE 2eh2-4"));
 	return;	
 }
 
@@ -430,22 +439,7 @@ arrayListRows1 = PopulateSpreadsheet.getMaxMinGroupBy(arrayListRows1,tmpArray,1,
 
 arrayListRows2 = PopulateSpreadsheet.getMaxMinGroupBy(arrayListRows2,tmpArray,1,"DATE","MAX");
 
-/*out.println("<table>");
-for (int i=0;i<arrayListRows2.size();i++)
-{
-	out.println("<tr>");
-	String[] temp = arrayListRows2.get(i);
-	for (int j=0;j<temp.length;j++)
-	{
-		out.println("<td>" + temp[j] +"</td>");
-	}
-	out.println("</tr>");
-}
-out.println("</table>");
 
-if (1==1) return;*/
-
-//arrayListRows2 = PopulateSpreadsheet.removeColumn(arrayListRows2,1);
 
 ArrayList<String[]> arrayListRows = PopulateSpreadsheet.joinListsInner(arrayListRows1,arrayListRows2,0);
 
@@ -592,11 +586,12 @@ else
 
 
 
+String strOutput = PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,false);
 
-
-
-
-
-
-out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,false));
+if (strFileName == null)
+	out.println(strOutput);
+else {
+	//File I/O
+	out.println(PopulateSpreadsheet.createFile(strOutput,strFileName)); 
+}
  %> 
