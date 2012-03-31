@@ -2,18 +2,107 @@
 class SchedulesController extends AppController {
 
 	var $name = 'Schedules';
-	var $uses = array('Schedule','Task','RepeatType','EntityGroup','Job');
+	var $uses = array('Schedule','Task','RepeatType','EntityGroup','Job','Metric','TimeEvent','RepeatType');
+	//var $uses = array('Schedule','Task', 'User','EntityGroup','Entity','TimeEvent','Metric','InitialFactDatum');
 
 	function beforeFilter() {
 		parent::beforeFilter();
 		//$this->Auth->allowedActions = array('view');
 	}
 
-
 	function index() {
 		$this->Schedule->recursive = 2;
-		$this->set('schedules', $this->paginate());
+
+		//$repeatTypeId = $this->RepeatType->find('list',array('fields'=>array('id','type')));
+		//$this->set(compact('repeatTypeId'));
+		//
+		//$time_event_names = $this->TimeEvent->find('list', array('fields'=>array('id', 'name')));
+		//$this->set(compact('time_event_names'));
+
+		$userprops = $this->Auth->user();
+		$conditions = null;
+		if($userprops['User']['group_id'] != 1)
+		{
+			$tmpuserid = $this->User->find('first', array('fields'=> 'id','conditions'=>array('User.username'=>$userprops['User']['username'])));
+			$conditions = array('Alert.user_id'  => $tmpuserid['User']['id']);
+		}
+		$filtervalues = $this->data;
+		$conditions = $this->Session->read('schedulefilterconditions');
+		//debug($filtervalues);
+		if ($filtervalues != null)
+		{
+				
+			//Filter values were refreshed; need to reset conditions.
+				
+			$conditions = "";
+				
+			//debug($filtervalues);exit;
+			if (!empty($filtervalues))
+			{
+				if ($filtervalues['Schedule']['filtersenabled']=='1')
+				{
+					//if($filtervalues['Schedule']['verify_mode'] == 1){
+					//	$conditions['Schedule.verify_mode'] = $filtervalues['Schedule']['verify_mode'];
+					//}
+					
+					if(isset($filtervalues['Schedule']['custom_verify_mode']) && $filtervalues['Schedule']['custom_verify_mode'] != ''){
+						$conditions['Schedule.verify_mode'] = $filtervalues['Schedule']['custom_verify_mode'];
+						//$conditions['Schedule.verify_mode']=$filtervalues['Schedule']['verify_mode'];
+					}
+					if(!empty($filtervalues['Schedule']['obsolete_data_set'])){
+						$conditions['Schedule.obsolete_data_set'] = $filtervalues['Schedule']['obsolete_data_set'];
+					}
+		
+					if(!empty($filtervalues['Schedule']['repeat_type_id'])){
+						$conditions['Schedule.repeat_type_id'] = $filtervalues['Schedule']['repeat_type_id'];
+					}
+				}
+			}
+			$this->Session->write('schedulefilterconditions',$conditions);
+			$this->Session->write('schedulefiltervalues',$filtervalues);
+		}
+		$this->paginate = array_merge( $this->paginate,  array('conditions' => $conditions));
+		//debug($this->paginate);exit;
+		$task_names2 = $this->Task->find('list', array('fields'=>array('id', 'name')));
+		//Add an all option to the front
+		//$tmp = array("All"=>"All");
+		//foreach(array_keys($task_names2) as $key)
+		//{
+		//		
+		//	$tmp[$key] = $task_names2[$key];
+		//}
+		//
+		//$task_names2 = $tmp;
+		//
+		//$this->set('task_names2', $task_names2);
+		
+		$varifyMode=array('0'=>'0','1'=>'1');
+		$this->set(compact('varifyMode'));
+
+		$repeatTypeId = $this->RepeatType->find('list',array('fields'=>array('id','description')));
+		$this->set(compact('repeatTypeId'));
+		
+		//	// set TimeEvent dropdown
+		//
+		//$time_event_names = $this->TimeEvent->find('list', array('fields'=>array('id', 'name')));
+		//$this->set(compact('time_event_names'));
+		//
+		//
+		////set observation period (time event) dropdown
+		//
+		//$time_event_names = $this->TimeEvent->find('list', array('fields'=>array('id', 'name')));
+		//$this->set(compact('time_event_names'));
+		//
+		//
+
+		// set users dropdown
+
+		$users = $this->User->find('list', array('fields'=>array('id', 'username')));
+		$this->set(compact('users'));
+
+		$this->set('schedules',$this->paginate());
 	}
+
 	
 	function turnoff(){
 		$this->Schedule->query('update schedules set repeat_type_id = 10');
@@ -45,7 +134,7 @@ class SchedulesController extends AppController {
 				$this->Session->setFlash(__('The schedule has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The schedule could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The schedule cound not be saved. Please see below for additional information.', true));
 			}
 		}
 		$tasks = $this->Schedule->Task->find('list');
@@ -62,7 +151,7 @@ class SchedulesController extends AppController {
 				$this->Session->delete('Record');
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The schedule could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The schedule cound not be saved. Please see below for additional information.', true));
 			}
 		}
 		if (!empty($record)) {
@@ -94,3 +183,4 @@ class SchedulesController extends AppController {
 	}
 }
 ?>
+
