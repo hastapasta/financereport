@@ -43,7 +43,7 @@
     		//var test5 = queryWrapper2;
 
     		var dt = localQueryWrapper.currentDataTable;
-    		var val = dt.getValue(row[0].row,10);
+    		var val = dt.getValue(row[0].row,11);
 
     		 localTableChart.setSelection("");
 
@@ -103,7 +103,7 @@
               query2 && query2.abort();
               //alert(dataSourceUrl + queryString);
               query2 = new google.visualization.Query(dataSourceUrl2 + queryString);
-              var queryWrapper2 = new QueryWrapper(query2, chart2, options2, container2,[10]);
+              var queryWrapper2 = new QueryWrapper(query2, chart2, options2, container2,[10],5);
               google.visualization.events.addListener(chart2, 'select', function(event){
                   genericClickHandler(chart2,queryWrapper2);
          	 	  });
