@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+      <!-- Application Configuration -->
+      <!--  The <comment> tag gives the parser problems -->
+	  <entry key="cutoffyear">2012</entry>
+	  <!-- Month January 1 -->
+	  <entry key="cutoffmonth">3</entry>
+	  <entry key="cutoffday">20</entry>
+	  
+	  <entry key="dbhost">localhost</entry>
+	  <entry key="dbport">3309</entry>
+	  <entry key="database">findata_myisam</entry>
+	  <entry key="dbuser">root</entry>
+	  <entry key="dbpass">madmax1.</entry>
+	  
+	  <entry key="index">index1</entry>
+	  <entry key="index">index2</entry>
+	  <entry key="index">index3</entry>
+</properties>

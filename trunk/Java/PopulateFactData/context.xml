@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:aop="http://www.springframework.org/schema/aop"
+ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+<!-- <bean id="anotherBean" class="AnotherBean" />
+<bean id="show" class="FirstBean">
+<constructor-arg ref="anotherBean" />
+</bean> -->
+
+<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="locations">
+        <value>classpath:config.properties</value>
+    </property>
+</bean>
+
+<bean id="dbFunctions" class="DBFunctions">
+        <property name="dataSource" ref="dataSource"/>
+</bean>
+
+<!-- <bean id="customBufferedWriter" class="CustomBufferedWriter">
+</bean> -->
+
+<bean id="utilityFunctions" class="UtilityFunctions">
+		<!-- <property name="CustomBufferedWriter" ref="customBufferedWriter" /> -->
+</bean>
+
+<bean id="dataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+        <!-- <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/> -->
+        <!-- <property name="driverClassName" value="com.mysql.jdbc.Driver"/> -->
+         <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="jdbc:mysql://${jdbc.host}:${jdbc.port}/${jdbc.database}?tcpKeepAlive=true"/>
+        <property name="username" value="${jdbc.user}"/>
+        <property name="password" value="${jdbc.pass}"/>
+</bean>
+
+<bean id="populateFD" class="PopulateFactData">
+<!-- <constructor-arg value="localhost" />
+<constructor-arg value="3309" /> -->
+
+<property name="dbFunctions" ref="dbFunctions" />
+
+<property name="utilityFunctions" ref="utilityFunctions" />
+
+<!-- <property name="database" value="findata_myisam" />
+<property name="dbHost" value="localhost" />
+<property name="dbPort" value="3306" />
+<property name="dbUser" value="root" />
+<property name="dbPass" value="madmax1." /> -->
+
+<property name="loadAllData" value="true" />
+
+<!--  January = 1 -->
+<property name="cutoffMonth" value="3" />
+<property name="cutoffDay" value="20" />
+<property name="cutoffYear" value="2012" />
+
+
+<property name="memoryTable" value="fact_data" />
+<property name="diskTable" value="disk_fact_data" />
+
+<property name="listTasks">
+	 <list>
+            <value>1</value>
+            <value>6</value>
+            <value>10</value>
+            <value>24</value>
+     </list>
+</property>
+
+<property name="indexColumns">
+	 <list>
+            <value>date_collected</value>
+            <value>calyear</value>
+            <value>batch_id</value>
+     </list>
+</property>
+
+<!-- Either btree or hash -->
+<!-- btree is faster in more situations but hash uses up less space (less than 50% of btree) -->
+<property name="indexType" value="hash" />
+
+
+
+</bean>
+</beans>

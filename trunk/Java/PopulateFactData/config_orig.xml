@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>Application Configuration</comment>
+	  <entry key="cutoffyear">2012</entry>
+	  <comment>Month January=1</comment>
+	  <entry key="cutoffmonth">3</entry>
+	  <entry key="cutoffyear">20</entry>
+  <comment>Database Configuration</comment>
+	  <entry key="dbhost">localhost</entry>
+	  <entry key="dbport">3309</entry>
+	  <entry key="database">findata_myisam</entry>
+	  <entry key="dbuser">root</entry>
+	  <entry key="dbpass">madmax1.</entry>
+	  
+	  <entry key="index">index1</entry>
+	  <entry key="index">index2</entry>
+	  <entry key="index">index3</entry>
+</properties>
