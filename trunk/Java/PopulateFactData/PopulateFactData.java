@@ -495,10 +495,10 @@ public class PopulateFactData {
 		String strStatus = "show table status like '" + strMemoryTable + "'";
 		SqlRowSet rs2 = dbf.dbSpringRunQuery(strStatus);
 		rs2.next();
-		BigDecimal bdFull = new BigDecimal(rs2.getInt("data_length"));
+		BigDecimal bdFull = new BigDecimal(rs2.getLong("data_length"));
 		
 		bdFull.setScale(3);
-		bdFull = bdFull.divide(new BigDecimal(rs2.getInt("max_data_length")),3,BigDecimal.ROUND_HALF_UP);
+		bdFull = bdFull.divide(new BigDecimal(rs2.getLong("max_data_length")),3,BigDecimal.ROUND_HALF_UP);
 		bdFull = bdFull.multiply(new BigDecimal(100));
 		//bdFull.divide(new BigDecimal(1),BigDecimal.ROUND_HALF_UP);
 		
