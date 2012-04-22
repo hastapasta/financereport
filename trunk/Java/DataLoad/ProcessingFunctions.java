@@ -1977,7 +1977,11 @@ public void postProcessTreasuryDirect() throws SQLException
 	long lIntraGov = Long.parseLong(data[1]);
 	lIntraGov = lIntraGov/10000000;
 	
-	String strQuery = "insert into batches ";
+	String strQuery="";
+	if (this.dg.bVerify == false)
+		strQuery = "insert into batches ";
+	else
+		strQuery = "insert into verify_batches ";
 	strQuery += " (id,date_collected,task_id) values (";
 	strQuery += dg.nTaskBatch + ",NOW()," + dg.nCurTask;
 	strQuery += ")";
@@ -1995,8 +1999,8 @@ public void postProcessTreasuryDirect() throws SQLException
 	
 
 	
-	strQuery = "insert into fact_data ";
-	strQuery += "(\"value\",\"scale\",\"date_collected\",\"entity_id\",\"metric_id\",\"batch_id\") ";
+	strQuery = "insert into " + this.dg.strFactTable;
+	strQuery += " (\"value\",\"scale\",\"date_collected\",\"entity_id\",\"metric_id\",\"batch_id\") ";
 	strQuery += " values (";
 	strQuery += lPublicDebt;
 	strQuery += ",7,NOW(),1360,9," + dg.nTaskBatch + ")";
@@ -2011,8 +2015,8 @@ public void postProcessTreasuryDirect() throws SQLException
 		UtilityFunctions.stdoutwriter.writeln(sqle);
 	}
 	
-	strQuery = "insert into fact_data ";
-	strQuery += "(\"value\",\"scale\",\"date_collected\",\"entity_id\",\"metric_id\",\"batch\") ";
+	strQuery = "insert into " + this.dg.strFactTable;
+	strQuery += " (\"value\",\"scale\",\"date_collected\",\"entity_id\",\"metric_id\",\"batch\") ";
 	strQuery += " values (";
 	strQuery += lIntraGov;
 	strQuery += ",7,NOW(),1360,10," + dg.nTaskBatch + ")";

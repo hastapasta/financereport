@@ -89,9 +89,9 @@ class DataGrab extends Thread {
 	  	this.bVerify = bVerifyMode;
 	  	
 	  	if (bVerifyMode == true)
-	  		this.strFactTable = "fact_data_verify";
+	  		this.strFactTable = "disk_verify_fact_data";
 	  	else
-	  		this.strFactTable = "fact_data";
+	  		this.strFactTable = "disk_fact_data";
 	  	
 
 	  	try	{
@@ -1684,9 +1684,9 @@ class DataGrab extends Thread {
 						UtilityFunctions.stdoutwriter.writeln(
 								"Bad Yahoo Data, Resubmitting URL", Logs.STATUS1,
 								"DG55.10");
-						nBegin = (nBegin - 100 < 0 ? 0 : nBegin -100);
-						nEnd = (nEnd + 100 > this.returned_content.length() ? this.returned_content.length() : nEnd + 100);
-						UtilityFunctions.stdoutwriter.writeln(this.returned_content.substring(nBegin,nEnd),Logs.STATUS1,"DG55.12");
+						nBegin = (nBegin - 150 < 0 ? 0 : nBegin -150);
+						nEnd = (nEnd + 150 > strTemp.length() ? strTemp.length() : nEnd + 150);
+						UtilityFunctions.stdoutwriter.writeln(strTemp.substring(nBegin,nEnd),Logs.STATUS1,"DG55.12");
 						UtilityFunctions.stdoutwriter.writeln("Date Collected:"
 								+ strDate + ",Time Collected:" + strTime,
 								Logs.STATUS1, "DG55.11");
