@@ -1294,9 +1294,8 @@ public void postProcessBloombergCommodities()
 
 }
 
-public void postProcessBloombergFutures()
-{
-	String[] lookup = 
+public void postProcessBloombergFutures() {
+	/*String[] lookup = 
 	{"DJIA INDEX","913",
 	"S&P 500","919",
 	"NASDAQ 100","929",
@@ -1315,7 +1314,7 @@ public void postProcessBloombergFutures()
 	"NIKKEI 225","848",
 	"HANG SENG"," 855",
 	"SPI 200"," 888"
-	};
+	};*/
 	
 	
 	String[] tmpArray = {"value","date_collected","entity_id"};
@@ -1327,8 +1326,7 @@ public void postProcessBloombergFutures()
 	
 
 	
-	for (int row=2;row<propTableData.size();row++)
-	{
+	for (int row=2;row<propTableData.size();row++)	{
 		rowdata = propTableData.get(row);
 		
 		if (rowdata[0].contains("N.A."))
@@ -1349,7 +1347,20 @@ public void postProcessBloombergFutures()
 		
 		String strEntityIndex = "";
 		
-		for (int i=0;i<lookup.length;i+=2)
+		String query = "select * from entity_aliases where ticker_alias='" + tmp + "'";
+		
+		try {
+			ResultSet rs = dbf.db_run_query(query);
+			rs.next();
+			strEntityIndex = rs.getInt("entity_id") + "";
+			newTableData.add(newrow);
+			
+		}
+		catch (SQLException sqle) {
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker alias: " + tmp + ",row skipped",Logs.WARN,"PF99.63");
+		}
+		
+		/*for (int i=0;i<lookup.length;i+=2)
 		{
 			if (lookup[i].compareTo(tmp) == 0)
 			{
@@ -1362,7 +1373,7 @@ public void postProcessBloombergFutures()
 		{
 			UtilityFunctions.stdoutwriter.writeln("Problem with lookup for ticker" + tmp + ",Skipping...",Logs.ERROR,"PF90.2");
 			continue;
-		}
+		}*/
 		
 		
 		newrow[2] = strEntityIndex;
@@ -1593,8 +1604,7 @@ public void postProcessBloombergQuote() throws CustomEmptyStringException {
 
 
 
-public void postProcessBloombergIndexes()
-{
+public void postProcessBloombergIndexes() {
 	String[] tmpArray = {"value","date_collected","entity_id"};
 	
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
@@ -1604,8 +1614,7 @@ public void postProcessBloombergIndexes()
 	
 	//newTableData.add(tmpArray);
 	
-	for (int row=2;row<propTableData.size();row++)
-	{
+	for (int row=2;row<propTableData.size();row++)	{
 		rowdata = propTableData.get(row);
 		
 		
@@ -1616,41 +1625,51 @@ public void postProcessBloombergIndexes()
 		
 		//newrow[0] = propStrTableDataSet;
 		//newrow[2] = "FUNCTION";
+		
+		
+		
 		newrow[0] = rowdata[0].replace(",", "");
 		//newrow[4] = "VARCHAR";
 		newrow[1] = "NOW()";
 		//newrow[6] = "INTEGER";
-		String tmp = rowheaders[row-2];
+		//String tmp = rowheaders[row-2];
 		
-		String ticker = tmp.substring(tmp.indexOf(">")+1,tmp.indexOf("</"));
+		/*String ticker = tmp.substring(tmp.indexOf(">")+1,tmp.indexOf("</"));
 		ticker = ticker.replace("&amp;", "&");
 		ticker = ticker.replace("&#x80;", "€");
 		ticker = ticker.replace("&#x20AC;", "€");
-		ticker = ticker.replace("&#x83;", "ƒ");
+		ticker = ticker.replace("&#x83;", "ƒ");*/
+		String ticker = rowheaders[row-2];
 		//Next line condenses multiple spaces down to one.
 		ticker = ticker.replaceAll("\\s+", " "); 
 		
-		if (rowdata[0].contains("N.A."))
-		{	
+		if (rowdata[0].equals("pikefinvoid")) {
+			UtilityFunctions.stdoutwriter.writeln("Invalid data format for " + ticker + ". Skipping.",Logs.WARN,"PF2.75");
+			continue;
+		}
+		else if (rowdata[0].contains("N.A."))  {	
 			UtilityFunctions.stdoutwriter.writeln("N.A. value for ticker " + ticker,Logs.WARN,"PF2.75");
 			continue;
 		}
 		
 		
 		
-		String query = "select * from entities where ticker='"+ticker+"'";
+		//String query = "select * from entities where ticker='"+ticker+"'";
+		/*
+		 * OFP 4/27/2012 - Switched lookup to use entity_aliases.
+		 */
 		
-		try
-		{
+		String query = "select * from entity_aliases where ticker_alias='" + ticker + "'";
+		
+		try {
 			ResultSet rs = dbf.db_run_query(query);
 			rs.next();
-			newrow[2] = rs.getInt("id") + "";
+			newrow[2] = rs.getInt("entity_id") + "";
 			newTableData.add(newrow);
 			
 		}
-		catch (SQLException sqle)
-		{
-			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + ticker + ",row skipped",Logs.WARN,"PF42.51");
+		catch (SQLException sqle) {
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker alias: " + ticker + ",row skipped",Logs.WARN,"PF42.51");
 			
 			/*
 			 * This is not a fatal error so we won't display the full exception.
@@ -3425,15 +3444,25 @@ public void postProcessWikipediaGasoline() throws SQLException {
 				newrow[0] = rowdata[0].substring(rowdata[0].indexOf(strBeforeToken) + strBeforeToken.length(),rowdata[0].indexOf("/US gallon"));
 			}
 			else {*/
-				String strBeforeToken = "right\">";
-				newrow[0] = rowdata[0].substring(rowdata[0].indexOf(strBeforeToken) + strBeforeToken.length(),rowdata[0].length());
-			//}
 			
-			if (newrow[0].contains("<"))
-				newrow[0] = newrow[0].substring(0,newrow[0].indexOf("<"));
-			//else
-				//newrow[0] = rowdata[0];
+			String strBeforeToken = "right\">";
+			String strAfterToken = "<";
 			
+			if (strCountry.contains("Venezuela")) {
+				strBeforeToken = ">";
+				strAfterToken = "(95)";
+				
+			}
+
+			
+					
+			newrow[0] = rowdata[0].substring(rowdata[0].indexOf(strBeforeToken) + strBeforeToken.length(),rowdata[0].length());
+			
+			if (newrow[0].contains(strAfterToken))
+				newrow[0] = newrow[0].substring(0,newrow[0].indexOf(strAfterToken));
+			
+			newrow[0] = newrow[0].trim();
+
 			
 			
 			/*
@@ -3451,7 +3480,6 @@ public void postProcessWikipediaGasoline() throws SQLException {
 
 			strCountry = strCountry.trim();
 			
-
 			if (strCountry.equalsIgnoreCase("vietnam")) {
 				if (nVietnamCount == 1)
 					continue;
