@@ -63,8 +63,8 @@ if (!empty($ticker)) {
 if (empty($begindate)) {
 	$begindate="2011-01-01";
 	if ($gran=='minute') {		
-		//$date = date('Y-m-d');
-		$date = "2012-03-01";
+		$date = date('Y-m-d');
+		//$date = "2012-03-01";
 		$newdate = strtotime ( '-1 month' , strtotime ( $date ) ) ;
 		$begindate = date ( 'Y-m-d' , $newdate );
 		
