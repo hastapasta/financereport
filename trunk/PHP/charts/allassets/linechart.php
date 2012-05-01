@@ -14,8 +14,10 @@ elseif (isset ($_GET['e']))
 	$entityid = $_GET['e'];
 elseif (isset ($_GET['t']))
 	$ticker = $_GET['t'];
+elseif (isset($_GET['eg']))
+	$eg = $_GET['eg'];
 else
-	$error =  "No alert id,entity id  or ticker parameter in url. Unable to render chart.";
+	$error =  "No alert id,entity id,ticker or entity group parameter in url. Unable to render chart.";
 	//die("No alert id,entity id  or ticker parameter in url. Unable to render chart.");
 	
 $gran="day";
@@ -25,6 +27,15 @@ if (isset($_GET['gran']))
 $metricid="0";
 if (isset($_GET['m']))
 	$metricid = $_GET['m'];
+	
+/*
+ * OFP 4/30/2012 - This is a little confusing. "eg" is the entitygroup for 
+ * the entities to use in the chart. "group" is the entitygroup to use to populate
+ * the ajax auto complete control.
+ * 
+ */
+	
+
 	
 $percent=false;
 if (isset($_GET['percent']))
@@ -38,6 +49,29 @@ if (!empty($alertid)) {
 	
 	
 	$entityid = $row1['entity_id'];
+}
+
+
+if (!empty($eg)) {
+	
+	$sql2 = "select entities.id from entities ";
+	$sql2.=" join entities_entity_groups on entities.id=entities_entity_groups.entity_id ";
+	$sql2.=" where entities_entity_groups.entity_group_id=".$eg;
+	
+	
+	$result2 = mysql_query($sql2);
+	$count = 0;
+	while ($row1 = mysql_fetch_array($result2)) {
+		$entityid.=$row1['id'].",";	
+		$count++;
+	}
+	
+	if ($count==0)
+		$error = "Entity group ".$eg." has no members.";
+	$entityid=substr($entityid,0,strlen($entityid)-1);
+	
+	
+	
 }
 
 if (!empty($ticker)) {
@@ -91,14 +125,26 @@ $type="1";
 if (isset($_GET['type']))
 	$type=urldecode($_GET['type']);
 	
-if ($type==1)
+if ($type==1) {
 	$title = "Line Chart - All Assets";
-else if ($type==2)
+	$inputprompt = "entity name (stock ticker, equity index, currency cross, etc)";
+}
+else if ($type==2) {
 	$title = "Line Chart - Foreign Exchange";
-else if ($type==3)
+	$inputprompt = "currency cross";
+}
+else if ($type==3) {
 	$title = "Line Chart - Commodities";
-else if ($type==4)
+	$inputprompt = "commodity";
+}
+else if ($type==4) {
 	$title = "Line Chart - Equities";
+	$inputprompt = "stock ticker";
+}
+else if ($type==5) {
+	$title = "Line Chart - Bond Yields";
+	$inputprompt = "bond";
+}
 	
 
 $entityid = str_replace(' ',',',$entityid);
@@ -424,7 +470,7 @@ else
 
     <div id="pf-form">   
     <BR><BR>
-    Enter entity name (stock ticker, equity index, currency cross, etc):
+    Enter <?php echo $inputprompt;?>:
     <BR>
   	<input type='text' id='a_c' style='z-index:3;clear:both;float:left;' />
   	<div style='z-index:3;margin-bottom: 10px;float:left;clear:both;margin-top: 10px;' >
