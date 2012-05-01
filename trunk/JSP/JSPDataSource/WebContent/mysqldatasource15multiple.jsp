@@ -28,6 +28,8 @@ NOTE: This datasource, which also provides annotated alerts, can only handle a s
 Logger fulllogger = Logger.getLogger("FullLogging");
 UtilityFunctions uf = new UtilityFunctions();
 
+final int nMaxRows = 10000;
+
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
 if (strTqx!=null) {
@@ -340,6 +342,11 @@ if (strGranularity.equals("minute")) {
 	
 	
 	
+}
+
+if (arrayListRows.size() > nMaxRows) {
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"max_rows","Maximum number of rows exceeded (" + nMaxRows + ").","PF ERROR CODE 15multiple-8"));
+	return;
 }
 
 //out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return;
