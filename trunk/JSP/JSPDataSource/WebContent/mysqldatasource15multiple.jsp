@@ -24,6 +24,7 @@ also pulls from log_alerts based off of either entity_id & user_id combo, or ale
 NOTE: This datasource, which also provides annotated alerts, can only handle a single entity id.
 */
 
+
 Logger fulllogger = Logger.getLogger("FullLogging");
 UtilityFunctions uf = new UtilityFunctions();
 
@@ -186,7 +187,7 @@ for (int i=0;i<metricIds.length;i++){
 		}
 		catch (SQLException sqle) {
 			
-			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 15multiple-6"));
+			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception","entity_id not in entities_metrics","PF ERROR CODE 15multiple-6"));
 			bException = true;
 			
 		}
@@ -309,6 +310,12 @@ finally {
 
 //arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray);
 
+if (arrayListRows.size()==0) {
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"no_data","No data returned from query.","PF ERROR CODE 15multiple-8"));
+	return;
+}
+	
+
 
 
 if (strGranularity.equals("day")) {
@@ -353,7 +360,7 @@ String[] col1 = {"date_collected","date collected","date"};
 arrayListCols.add(col1);
 //out.println(PopulateSpreadsheet.displayDebugTable(pivotColumns,1000));if (1==1) return;
 
-for (int i=0;i<entityIds.length;i++) {
+for (int i=0;i<pivotColumns.length;i++) {
 	
 	
 		String[] col3 = new String[3];
@@ -392,7 +399,7 @@ for (int i=0;i<saveListRows.size();i++) {
 	tmp[0] = tmp[1] = tmpSave[0];
 	
 
-	for (int j=0;j<entityIds.length;j++) {
+	for (int j=0;j<tmpSave.length-1;j++) {
 		
 		if (bPercent==true) {
 	
