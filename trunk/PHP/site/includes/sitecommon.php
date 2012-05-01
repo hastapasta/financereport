@@ -5,18 +5,19 @@
 class IncFunc
 {
 	
-	static public $PHP_ROOT_PATH="/PHP";
+	//static public $PHP_ROOT_PATH="/PHP";
 	//static public $PHP_ROOT_PATH="/phpdev";
-	//static public $PHP_ROOT_PATH="/phptest";
+	static public $PHP_ROOT_PATH="/phptest";
 	
 	//static public $CAKE_ROOT_PATH="/cakepfdev";
 	static public $CAKE_ROOT_PATH="/cakepftest";
 	
 	
-	static public $JSP_ROOT_PATH="http://devdataload:8080/JSPDataSource/";
+	//static public $JSP_ROOT_PATH="http://devdataload:8080/JSPDataSource/";
+	//static public $JSP_ROOT_PATHxx="http://devdataload:8080/JSPDataSourcexx/";
 	//static public $JSP_ROOT_PATH="http://testdataload:8080/JSPDataSource/";	
 	//static public $JSP_ROOT_PATH="http://www.testpikefin.com/devjsp/JSPDataSource/";
-	//static public $JSP_ROOT_PATH="http://www.pikefin.com/testjsp/JSPDataSource/";
+	static public $JSP_ROOT_PATH="http://www.pikefin.com/testjsp/JSPDataSource/";
 	//static public $JSP_ROOT_PATH="http://192.168.122.133:8080/JSPDataSource/";
 	
 	
@@ -158,6 +159,25 @@ class IncFunc
 		//self::pageCounter();
 		self::header1($context);
 		
+	}
+	
+	static function checkFlash() {
+		?>
+		function checkFlash() {
+			//alert('here');
+			swfobject.registerObject("m", "9.0.0", "/var/www/html/PHP/filler/swfobject/expressInstall.swf");
+	
+			var playerVersion = swfobject.getFlashPlayerVersion();
+			var exists;
+	
+			if (playerVersion.major == 0 && playerVersion.minor==0 && playerVersion.release==0)
+				return 'false';
+			else
+				return 'true';
+	
+			//alert(exists);	
+		}
+		<?php 
 	}
 	
 	
@@ -339,8 +359,15 @@ class IncFunc
 					<li>
 					<a href='#'>Bonds</a>
 					<ul class='sub_menu'>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101024&order=DESC&metricid=1'>Global CDS Table</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101023&order=DESC&metricid=1001'>Global Sovereign Bonds Table</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101024&order=DESC&metricid=1'>Global CDS Table</a></li>	
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101029&group=101023&type=5'>UK Yield Curve</a></li>			
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101030&group=101023&type=5'>Australian Yield Curve</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101031&group=101023&type=5'>Japanese Yield Curve</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101032&group=101023&type=5'>Brazilian Yield Curve</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101033&group=101023&type=5'>German Yield Curve</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101034&group=101023&type=5'>Hong Kong Yield Curve</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101035&group=101023&type=5'>U.S. Yield Curve</a></li>
 					</ul>
 				</li>
 				<li>
