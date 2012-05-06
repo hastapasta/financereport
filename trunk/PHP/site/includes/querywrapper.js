@@ -16,13 +16,88 @@
  * should support the draw(dataTable, options) method.
  * @constructor
  */
-var QueryWrapper = function(query, visualization, visOptions, errorContainer) {
+
+
+
+/*
+ * Following function is for the non-flash dyngraph charting library.
+ */
+
+
+var DyGraphWrapper = function (query, chartdiv) {
+	this.query = query;
+	this.chartdiv = chartdiv;
+		
+
+};
+
+
+
+DyGraphWrapper.prototype.sendAndDraw = function() {
+	
+	var query = this.query;
+
+	var self = this;
+	
+	query.send(function(response) {self.handleQueryDygraph(response);});
+	
+	
+};
+
+DyGraphWrapper.prototype.handleQueryDygraph = function(response) {
+	if (response.isError()) {
+		//alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+		$(this.chartdiv).html('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+		$(this.chartdiv).css("background-color", "white");
+		return;
+	}
+	
+  // var g = new Dygraph.GVizChart(document.getElementById("chart-div"));
+   //g.draw(data, {displayAnnotations: true, labelsKMB: true});
+   //g.draw(response.getDataTable);
+	new Dygraph.GVizChart(this.chartdiv).draw(response.getDataTable(), {
+		//elementid).draw(response.getDataTable(), {
+	});
+	
+	$(this.chartdiv).css("background-color", "white");
+	
+};
+	
+	/*
+	 * Make sure to include the swfobject.js in the file to use this. 
+	 */
+	
+
+	
+	function isFlashEnabled() {
+		var playerVersion = swfobject.getFlashPlayerVersion();
+
+		//alert(playerVersion.major);
+		
+		if (playerVersion.major == 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+
+
+	
+/*
+ * End dyngraph section.
+ */
+
+var QueryWrapper = function(query, visualization, visOptions, errorContainer, columns, arrows) {
 
   this.query = query;
   this.visualization = visualization;
   this.options = visOptions || {};
   this.errorContainer = errorContainer;
   this.currentDataTable = null;
+  this.currentDataView = null;
+  this.hideColumns = columns;
+  this.arrows = arrows;
 
   if (!visualization || !('draw' in visualization) ||
       (typeof(visualization['draw']) != 'function')) {
@@ -37,7 +112,8 @@ QueryWrapper.prototype.draw = function() {
   if (!this.currentDataTable) {
     return;
   }
-  this.visualization.draw(this.currentDataTable, this.options);
+  //this.visualization.draw(this.currentDataTable, this.options);
+  this.visualization.draw(this.currentDataView, this.options);
 };
 
 
@@ -53,7 +129,7 @@ QueryWrapper.prototype.sendAndDraw = function() {
   var self = this;
 
   query.setTimeout(120);
-  query.send(function(response) {self.handleResponse(response)});
+  query.send(function(response) {self.handleResponse(response);});
 
 };
 
@@ -74,7 +150,15 @@ QueryWrapper.prototype.handleResponse = function(response) {
     this.handleErrorResponse(response);
   } else {
     this.currentDataTable = response.getDataTable();
-    this.draw();
+    if (this.arrows != null) {
+    	var formatter = new google.visualization.ArrowFormat();
+    	formatter.format(this.currentDataTable,this.arrows);
+    }
+    this.currentDataView = new google.visualization.DataView(this.currentDataTable);
+    if (this.hideColumns != null)
+    	this.currentDataView.hideColumns(this.hideColumns);
+    this.draw(this.currentDataView,this.options);
+    //this.draw();
   }
 };
 
