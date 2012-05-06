@@ -1,6 +1,6 @@
 <?php
 require_once '../../common/functions.php';
-include ("../../site/includes/sitecommon.php");
+require_once("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
@@ -23,22 +23,30 @@ if (isset($_GET['title']))
 	$title=urldecode($_GET['title']);*/
 	
 $title="";
-if ($entitygroupid==3)
+if ($entitygroupid==3) {
 	$title = "Global Forex";
-else if ($entitygroupid==4)
+}
+else if ($entitygroupid==4) {
 	$title = "Commodity Futures";
-else if ($entitygroupid==5)
+}
+else if ($entitygroupid==5) {
 	$title = "Global Equity Indexes";
-else if ($entitygroupid==1008)
+}
+else if ($entitygroupid==1008) {
 	$title = "Global Equity Index Futures";
-else if ($entitygroupid==101023)
+}
+else if ($entitygroupid==101023) {
 	$title = "Global Sovereign Bonds";
-else if ($entitygroupid==101024)
-	$title = "Global CDS";
-else if ($entitygroupid==1)
+}
+else if ($entitygroupid==101024) {
+	$title = "Global Credit Default Swaps";
+}
+else if ($entitygroupid==1) {
 	$title = "S&P 500 Performance";
-else if ($entitygroupid==101027)
+}
+else if ($entitygroupid==101027) {
 	$title = "Benchmark Global Equity Indexes";
+}
 	
 $showRowNumber='false';
 if (isset($_GET['showrow']))
@@ -72,7 +80,11 @@ if (isset($_GET['metricid']))
 	$(function(){
 
 		<?php IncFunc::jqueryTimeFrame();?>
-		
+		//$( "input:button", "#pf-form" ).button();
+		//$( "input:button", "#pf-form" ).css("padding",0);
+		$( "input:button").button();
+		$( "input:button").css("padding",0);
+				
 		
 		/*$('#dialog').dialog({autoOpen:false, title : "HELP"});
 		$('.help').click(function(){
@@ -234,6 +246,7 @@ if (isset($_GET['metricid']))
 
     function sendAndDraw() {
 
+      console.log('here 1');
       var chart = document.getElementById('table1');
       chart.innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
 
@@ -295,9 +308,9 @@ if (isset($_GET['metricid']))
       var tableChart1 = new google.visualization.Table(container1);
       //var tableChart2 = new google.visualization.Table(container2);
       
-  
+
       
-      if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString1)}
+      if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString1);}
      
       
       query1 && query1.abort();
@@ -355,7 +368,8 @@ Start: <input type="text" id="rangeDemoStart" size="18" />
 <BR>
 
 
-<input type="button" style="color: #000000;background-color: #FFFFFF" value="Display Table"	onclick="sendAndDraw();return false;"> <br />
+<input type="button" value="Display Table"	onclick="sendAndDraw();return false;"> <br />
+<!-- <input type="button" style="color: #000000;background-color: #FFFFFF" value="Display Table"	onclick="sendAndDraw();return false;"> <br /> -->
 <br />
 </div><!-- pf-form -->
 
@@ -367,8 +381,9 @@ Start: <input type="text" id="rangeDemoStart" size="18" />
 
 	<div id="table1" style="color: #000;"> </div>
 <br>
-<input type="button" style="float: left;clear: both;color: #000000;background-color: #FFFFFF" value="Generate URL"
-	onclick="generateURL();return false;"> <br />
+<div style="font-size: 1.5em;">
+<input type="button"  value="Generate URL"	onclick="generateURL();return false;"> <br />
+</div>
 </div> <!--  pf-body -->
 
 </div> <!--  font-black -->
