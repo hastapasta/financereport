@@ -1279,6 +1279,12 @@ html.js #jq-download input {
 	color: #000;
 }
 
+#google-visualization-errors-all-1 div span {
+	background-color: rgb(192, 0, 0); 
+	color: white; 
+	
+}
+
 
 
 #jq-chartcontain {
