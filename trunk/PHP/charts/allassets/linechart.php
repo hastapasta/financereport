@@ -181,6 +181,7 @@ if (isset($_GET['group']))
 <head>
 
 	<?php IncFunc::dyGraphs();?>
+	<?php IncFunc::checkFlash();?>
 	<?php IncFunc::icon();?>
     <?php IncFunc::title();?>
     <?php IncFunc::linkStyleCSS();?> 
