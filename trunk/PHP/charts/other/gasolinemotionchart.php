@@ -1,7 +1,7 @@
 <?php
 //require_once 'init2.php';
 
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 require_once '../../common/functions.php';
 
 
@@ -16,6 +16,7 @@ require_once '../../common/functions.php';
 	<?php IncFunc::icon();?>
     <?php IncFunc::title();?>
     <?php IncFunc::linkStyleCSS();?>
+    <?php IncFunc::checkFlash();?>
  	<?php //IncFunc::yuiDropDownJavaScript(); ?>
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript">
@@ -41,16 +42,38 @@ require_once '../../common/functions.php';
         }
         ?>
 
+        $(function(){
+
+    		$( "input:button").button();
+    		$( "input:button").css("padding",0);
+  
+    		
+    	});
+
         function showState() {
 		
 		var state = motion_chart.getState();
 		alert(state);
         }
 
+        function viewDataTable() {
+    		
+        	<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/other/gasolinedatatable.php\");";?>
+    	}
+
 
    	    function loadChart() {
 
-        	  document.getElementById('chart-div').innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
+   	    	if (isFlashEnabled() == true)
+        		$('#chart-div').html("<img src=\"../../site/images/spinner3-black.gif\" />");
+   	    	else {
+   	   	    	$('#chart-div').html("This chart requires Flash.");
+   	   	    	$('#chart-div').css("font-size","2.0em");
+   	   	    	$('#chart-div').css("background-color", "rgb(192, 0, 0)");
+   	   	    	$('#chart-div').css("width","250px");
+   	   	    	return;
+   	    	}
+        	
 
         	
          	//alert('here 1');
@@ -69,8 +92,12 @@ require_once '../../common/functions.php';
           	//echo "var datasourceurl='".IncFunc::$PHP_ROOT_PATH."/json/gdpmotion.html';";
           	?>
 
-          	if (window.console && window.console.firebug) {console.log(datasourceurl)}
-            
+          	if (window.console && window.console.firebug) {
+              	console.log(datasourceurl);
+            }
+			//alert(datasourceurl);
+
+          	
             var query = new google.visualization.Query(datasourceurl);
   
             
@@ -144,7 +171,9 @@ require_once '../../common/functions.php';
     <div id="chart-div" style="margin-top:50px"></div>
     
 	<!-- <input type="button" value="Display Chart" onclick="showState();return false;"> -->
- 
+<div style="font-size: 1.5em;float: left;margin-bottom: 20px;margin-top:50px;">
+<input type="button"  value="View Data Table"	onclick="viewDataTable();return false;"> <br />
+</div>
 </div>
 </div> <!--  siteContain -->
 </body>

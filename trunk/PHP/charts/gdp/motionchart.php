@@ -1,7 +1,7 @@
 <?php
 //require_once 'init2.php';
 
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 require_once '../../common/functions.php';
 
 
@@ -16,6 +16,7 @@ require_once '../../common/functions.php';
 	<?php IncFunc::icon();?>
     <?php IncFunc::title();?>
     <?php IncFunc::linkStyleCSS();?>
+    <?php IncFunc::checkFlash();?>
  	<?php //IncFunc::yuiDropDownJavaScript(); ?>
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript">
@@ -47,10 +48,33 @@ require_once '../../common/functions.php';
 		alert(state);
         }
 
+        $(function(){
+
+    		$( "input:button").button();
+    		$( "input:button").css("padding",0);
+  
+    		
+    	});
+
+		function viewDataTable() {
+    		
+        	<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/gdp/gdpdatatable.php\");";?>
+    	}
+
 
    	    function loadChart() {
 
-        	  document.getElementById('chart-div').innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
+   	    	if (isFlashEnabled() == true)
+        		$('#chart-div').html("<img src=\"../../site/images/spinner3-black.gif\" />");
+   	    	else {
+   	   	    	$('#chart-div').html("This chart requires Flash.");
+   	   	    	$('#chart-div').css("font-size","2.0em");
+   	   	    	$('#chart-div').css("background-color", "rgb(192, 0, 0)");
+   	   	    	$('#chart-div').css("width","250px");
+   	   	    	return;
+   	    	}
+
+        	//document.getElementById('chart-div').innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
 
         	
          	//alert('here 1');
@@ -139,10 +163,15 @@ require_once '../../common/functions.php';
 
 ?>
 <div id="pf-body">
+<div id="chartTitle" style="border-bottom-style: solid; border-width: 2px;margin: 50px 0 0 0;font-size: medium;font-weight:bold;"><?php echo strtoupper('GDP GROWTH (CUMULATIVE)'); ?></div>
 
-    <div id="chart-div" style="margin-top:150px"></div>
+    <div id="chart-div" style="margin-top:70px"></div>
     
 	<!-- <input type="button" value="Display Chart" onclick="showState();return false;"> -->
+	
+<div style="font-size: 1.5em;float: left;margin-bottom: 20px;margin-top:50px;">
+<input type="button"  value="View Data Table"	onclick="viewDataTable();return false;"> <br />
+</div>
  
 </div>
 </div> <!--  siteContain -->
