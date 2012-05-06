@@ -12,7 +12,9 @@
 
 <%
 /*
-This data source pulls macro data from fact_data (e.g. gdp)
+This data source is for global gasoline prices.
+Note that currently 2 data points are populated into the fact_data table per batch
+e.g. Norway and Italy. This query sorts by date and takes the most recent one.
 */
 
 String strTqx = request.getParameter("tqx");
@@ -36,6 +38,20 @@ String strCountryId = null;
 if (request.getParameter("countryid")!=null) {
 	strCountryId = request.getParameter("countryid");
 }
+
+/*
+* bDateCollected indicates if the date_collected value should be included 
+* in the output.
+*/
+
+boolean bDateCollected = false;
+String blap = request.getParameter("datecollected");
+if (request.getParameter("datecollected")!=null) {
+	if (request.getParameter("datecollected").equalsIgnoreCase("true"))
+			bDateCollected = true;
+}
+
+out.println(blap);
 
 
 /*String[] strMetricIds = null;
@@ -66,12 +82,15 @@ String[] blap1 = {"country","country","string"};
 String[] blap2 = {"year","year","number"};
 String[] blap3 = {"Gasoline Price (USD/Gallon)","Gasoline Price (USD/Gallon)","number"};
 String[] blap4 = {"Region", "Region","string"};
+String[] blap5 = {"Updated", "Updated", "datetime" };
 
 
 arrayListCols.add(blap1);
 arrayListCols.add(blap2);
 arrayListCols.add(blap3);
 arrayListCols.add(blap4);
+if (bDateCollected)
+	arrayListCols.add(blap5);
 
 
 
@@ -171,13 +190,18 @@ try {
 	dbf = new DBFunctions();
 	dbf.db_run_query(query2);
 	while (dbf.rs.next()) {
-		String [] tmp = new String[8];
+		
+		//String [] tmp = new String[8];
+		String[] tmp = new String[arrayListCols.size() * 2];
 		tmp[0] = tmp[1] = dbf.rs.getString("countries.name");
 		//tmp[2] = tmp[3] = dbf.rs.getString("fact_data.date_collected");
 		tmp[2] = tmp[3] = strBatchDateCollected;
 	
 		tmp[4] = tmp[5] = dbf.rs.getString("price");
 		tmp[6] = tmp[7] = dbf.rs.getString("regions.name");
+		if (bDateCollected == true)
+			tmp[8] = tmp[9] = dbf.rs.getString("date_collected");
+		
 
 
 		
