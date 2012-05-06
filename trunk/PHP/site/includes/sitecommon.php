@@ -2,8 +2,7 @@
 
 
 //various include functions for javascript libraries,etc.
-class IncFunc
-{
+class IncFunc {
 	
 	//static public $PHP_ROOT_PATH="/PHP";
 	//static public $PHP_ROOT_PATH="/phpdev";
@@ -22,36 +21,32 @@ class IncFunc
 	
 	
 	
-	static function icon()
-	{
+	static function icon()	{
 		echo "<link href=\"".self::$PHP_ROOT_PATH."/site/images/favicon.ico\" type=\"image/x-icon\" rel=\"icon\" /><link href=\"".self::$PHP_ROOT_PATH."/site/images/favicon.ico\" type=\"image/x-icon\" rel=\"shortcut icon\" />";
 		
 	}
 	
-	static function linkStyleCSS()
-	{
+	static function linkStyleCSS() {
 		
 		echo "<link rel=\"stylesheet\" href=\"".self::$PHP_ROOT_PATH."/site/includes/style.css\" type=\"text/css\" />"; 
 		echo "<link rel=\"stylesheet\" href=\"".self::$PHP_ROOT_PATH."/site/includes/shared.css\" type=\"text/css\" />"; 
 	}
 
-	static function logo()
-	{
+	static function logo() {
 		echo "<a id=\"jq-siteLogo\" href=\"http://www.pikefin.com\" title=\"PikeFin Home\"><img src=\"".self::$PHP_ROOT_PATH."/site/images/33pctsizecrop.jpg\"/></a>";
 	}
 	
-	static function title()
-	{
+	static function title() {
 		echo "<title>PikeFinancial Data Service</title>";
 	}
 	
-	static function jQuery()
-	{
+	static function jQuery() {
 		echo "<link rel=\"stylesheet\" href=\"../../site/includes/jquery-ui-1.8.11.custom.css\" type=\"text/css\" />";
    		//echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-1.5.1.js\"></script>";
    		echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-1.7.2.min.js\"></script>";
     	echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-ui-1.8.11.custom.min.js\"></script>";		
 	}
+	
 	
 	static function jQueryDatePicker() {
 		echo "<link rel=\"stylesheet\" href=\"../../site/includes/anytimec.css\" type=\"text/css\" />";
@@ -60,12 +55,33 @@ class IncFunc
 	
 	static function generalDateFunctions() {
 		//Documentation here: http://www.datejs.com/
-		echo "<script type=\"text/javascript\" src=\"../../site/includes/date.js\"></script>";	
+		echo "<script type=\"text/javascript\" src=\"../../site/includes/date.js\"></script>\n";	
 	}
 	
 	static function dyGraphs() {
-		echo "<script type='text/javascript' src='http://dygraphs.com/dygraph-combined.js'></script>";
-		echo "<script type='text/javascript' src='../../site/includes/swfobject.js'></script>";
+		echo "<script type='text/javascript' src='http://dygraphs.com/dygraph-combined.js'></script>\n";
+	}
+	
+	static function checkFlash() {
+		echo "<script type='text/javascript' src='../../site/includes/swfobject.js'></script>\n";
+		
+	?>
+	
+
+		<script type='text/javascript'>
+		function isFlashEnabled() {
+			var playerVersion = swfobject.getFlashPlayerVersion();
+	
+			//alert(playerVersion.major);
+			
+			if (playerVersion.major == 0) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+		</script>
+		<?php 
 	}
 	
 	
