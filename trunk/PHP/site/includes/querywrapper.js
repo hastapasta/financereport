@@ -63,23 +63,7 @@ DyGraphWrapper.prototype.handleQueryDygraph = function(response) {
 	
 };
 	
-	/*
-	 * Make sure to include the swfobject.js in the file to use this. 
-	 */
-	
 
-	
-	function isFlashEnabled() {
-		var playerVersion = swfobject.getFlashPlayerVersion();
-
-		//alert(playerVersion.major);
-		
-		if (playerVersion.major == 0) {
-			return false;
-		} else {
-			return true;
-		}
-	}
 	
 
 
