@@ -48,7 +48,8 @@ class IncFunc
 	static function jQuery()
 	{
 		echo "<link rel=\"stylesheet\" href=\"../../site/includes/jquery-ui-1.8.11.custom.css\" type=\"text/css\" />";
-   		echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-1.5.1.js\"></script>";
+   		//echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-1.5.1.js\"></script>";
+   		echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-1.7.2.min.js\"></script>";
     	echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-ui-1.8.11.custom.min.js\"></script>";		
 	}
 	
@@ -62,9 +63,13 @@ class IncFunc
 		echo "<script type=\"text/javascript\" src=\"../../site/includes/date.js\"></script>";	
 	}
 	
+	static function dyGraphs() {
+		echo "<script type='text/javascript' src='http://dygraphs.com/dygraph-combined.js'></script>";
+		echo "<script type='text/javascript' src='../../site/includes/swfobject.js'></script>";
+	}
 	
-	static function googleGadget()
-	{
+	
+	static function googleGadget() {
 		
 		//echo "<script type=\"text/javascript\" src=\"../../site/includes/querywrapper.js\"></script>";
 		echo "<script type=\"text/javascript\" src=\"".self::$PHP_ROOT_PATH."/site/includes/querywrapper.js\"></script>";
@@ -100,12 +105,8 @@ class IncFunc
 	}
 
 	
-	
-	
-	
-	
-	static function primaryNav($Page)
-	{
+
+	static function primaryNav($Page) {
 
 	    
 		echo "<div id=\"jq-primaryNavigation\">\n";
@@ -138,8 +139,7 @@ class IncFunc
 	//header1 is for cake files, header2 non-cake
 	
 	
-	static function header1($context)
-	{
+	static function header1($context) {
 		//require_once '../../common/functions.php';
 		echo "<div id=\"jq-header\" >";
 		
@@ -154,35 +154,15 @@ class IncFunc
 		echo "</div> <!-- header -->";
 	}
 	
-	static function header2($context)
-	{
+	static function header2($context) {
 		//self::pageCounter();
 		self::header1($context);
 		
 	}
 	
-	static function checkFlash() {
-		?>
-		function checkFlash() {
-			//alert('here');
-			swfobject.registerObject("m", "9.0.0", "/var/www/html/PHP/filler/swfobject/expressInstall.swf");
-	
-			var playerVersion = swfobject.getFlashPlayerVersion();
-			var exists;
-	
-			if (playerVersion.major == 0 && playerVersion.minor==0 && playerVersion.release==0)
-				return 'false';
-			else
-				return 'true';
-	
-			//alert(exists);	
-		}
-		<?php 
-	}
 	
 	
-	static function pageCounter()
-	{
+	static function pageCounter() {
 		
 		
 		$uri = $_SERVER['REQUEST_URI'];
@@ -234,8 +214,7 @@ class IncFunc
 		echo "</script>\n";
 	}
 	
-	static function chartSecondaryNav()
-	{
+	static function chartSecondaryNav()	{
 		
 		echo "<div id=\"jq-secondaryNavigation\">\n";
 		echo "<ul>\n";
@@ -249,8 +228,7 @@ class IncFunc
 		
 	}
 	
-	static function yuiDropDownJavaScript()
-	{
+	static function yuiDropDownJavaScript()	{
 		
 		/*echo "	<!-- Combo-handled YUI CSS files: -->";
 		//echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://yui.yahooapis.com/combo?2.8.2r1/build/reset-fonts-grids/reset-fonts-grids.css\">";
@@ -273,8 +251,7 @@ class IncFunc
 		
 	}
 	
-	static function yuiDropDownMenu()
-	{
+	static function yuiDropDownMenu() {
 
 		/*echo "<div class=\"yui-skin-sam\" id=\"yahoo-com\" style=\"padding: 0 160px;\">";
 		echo "	<div id=\"doc\" class=\"yui-t1\" width=\"30em\">";
@@ -307,15 +284,13 @@ class IncFunc
 	
 	}
 	
-	static function dropdownInclude()
-	{
+	static function dropdownInclude() {
 		//echo "<script type=\"text/javascript\" src=\"".self::$PHP_ROOT_PATH."/site/includes/jquery-1.5.1.js\"></script>";
 		echo "<script type=\"text/javascript\" src=\"".self::$PHP_ROOT_PATH."/site/includes/dropdown.js\"></script>";
 		echo "<link type=\"text/css\" rel=\"stylesheet\"   href=\"".self::$PHP_ROOT_PATH."/site/includes/dropdown.css\"></link>";
 	}
 	
-	static function dropdownMenu()
-	{
+	static function dropdownMenu()	{
 		echo "
 			<div style='padding-left:400px;margin-bottom:20px;z-index:10;position:relative;'>
 			<ul class='dropdown'>
@@ -389,8 +364,7 @@ class IncFunc
 		";
 	}
 	
-	static function blogFeedJavaScript()
-	{
+	static function blogFeedJavaScript() {
 		echo "<script src=\"https://www.google.com/jsapi?key=ABQIAAAAxIClsZ3ToqpAEYJ0xpbYDBQvMn8QNL-nLRnNjyJkuSEqYss18BSxvSrpXIIMYm_A6P2cdVBEmC64UA\" type=\"text/javascript\"></script>\n";
 		echo "<script language=\"Javascript\" type=\"text/javascript\">    \n";
 		echo "/*\n";
