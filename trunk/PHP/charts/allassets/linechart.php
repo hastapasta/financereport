@@ -27,6 +27,14 @@ if (isset($_GET['gran']))
 $metricid="0";
 if (isset($_GET['m']))
 	$metricid = $_GET['m'];
+
+/*
+ * force the code to no use flash components.
+ */
+$noflash = false;
+if (isset($_GET['noflash']))
+	if (strcasecmp('true', $_GET['noflash'])==0)
+		$noflash=true;
 	
 /*
  * OFP 4/30/2012 - This is a little confusing. "eg" is the entitygroup for 
@@ -98,7 +106,10 @@ if (empty($begindate)) {
 	$begindate="2011-01-01";
 	if ($gran=='minute') {		
 		$date = date('Y-m-d');
-		//$date = "2012-03-01";
+		
+		//Next line for dev environment which might not have most recent data.
+		$date = "2012-03-01";
+		
 		$newdate = strtotime ( '-1 month' , strtotime ( $date ) ) ;
 		$begindate = date ( 'Y-m-d' , $newdate );
 		
@@ -169,11 +180,11 @@ if (isset($_GET['group']))
 <html>
 <head>
 
+	<?php IncFunc::dyGraphs();?>
 	<?php IncFunc::icon();?>
     <?php IncFunc::title();?>
     <?php IncFunc::linkStyleCSS();?> 
     <?php IncFunc::jQuery();?>   
-    <?php //IncFunc::yuiDropDownJavaScript(); ?>
     <?php IncFunc::googleGadget(); ?>
     <style type="text/css">
 <!--
@@ -199,6 +210,13 @@ if (isset($_GET['group']))
 	background-color: #0F1923;
 	color: #fff;
 }
+
+.dygraph-legend{
+	background-color: black !important;
+	left:500px !important;
+	width:294Px !important;
+}
+
 
 -->
 </style>
@@ -413,17 +431,37 @@ if (isset($_GET['group']))
 
             
             query1 && query1.abort();
+
+
+
+            
             query1 = new google.visualization.Query(queryPath);
             query1.setTimeout(120);
-            var queryWrapper1 = new QueryWrapper(query1, lineChart1, options, container1);
-            queryWrapper1.sendAndDraw();
 
-            /*query2 && query2.abort();
-            query2 = new google.visualization.Query(dataSourceUrl + queryString2);
-            query2.setTimeout(120);
-            var queryWrapper2 = new QueryWrapper(query2, tableChart2, options, container2);
-            queryWrapper2.sendAndDraw();*/
+            var bFlash = isFlashEnabled();
+
+            <?php if ($noflash == true) echo "bFlash = false;\n";?>
+    		
+
+            if (bFlash == true) {
+
+            	var queryWrapper1 = new QueryWrapper(query1, lineChart1, options, container1);
+                queryWrapper1.sendAndDraw();
+    			
+    		} else {
+
+    			var charta = document.getElementById('chart-div');
+    			var dygraphWrapper = new DyGraphWrapper(query1, charta);
+				dygraphWrapper.sendAndDraw();
+    			
+        		//query1.send(handleQueryDygraph);
+        		$("#chart-div").css("width", "800px");
+        		$("#chart-div").css("height", "500px");
+    			
+    		}
+
           }
+
         
        
     </script>
@@ -503,6 +541,7 @@ else
 	</ul>
 	</div>
     <div id="chart-div" style="margin: 30px 0 20px 0;width:800px;height:600px;float:left;clear: both;"></div>
+    <!-- <div id="chart-div2" style="margin: 30px 0 20px 0;width:800px;height:600px;float:left;clear: both;"></div> -->
 
  
 </div> <!--  pf-body -->
