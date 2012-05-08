@@ -89,9 +89,9 @@ class DataGrab extends Thread {
 	  	this.bVerify = bVerifyMode;
 	  	
 	  	if (bVerifyMode == true)
-	  		this.strFactTable = "disk_verify_fact_data";
+	  		this.strFactTable = "verify_fact_data";
 	  	else
-	  		this.strFactTable = "disk_fact_data";
+	  		this.strFactTable = "fact_data";
 	  	
 
 	  	try	{
