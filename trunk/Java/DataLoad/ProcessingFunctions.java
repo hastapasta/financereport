@@ -1352,9 +1352,7 @@ public void postProcessBloombergFutures() {
 		try {
 			ResultSet rs = dbf.db_run_query(query);
 			rs.next();
-			strEntityIndex = rs.getInt("entity_id") + "";
-			newTableData.add(newrow);
-			
+			strEntityIndex = rs.getInt("entity_id") + "";		
 		}
 		catch (SQLException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker alias: " + tmp + ",row skipped",Logs.WARN,"PF99.63");
