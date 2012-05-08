@@ -202,11 +202,13 @@ public class DBFunctions {
 		
 	}
 	
-	/* 
-	 * This thread is synchronzied because we are using the database to generate the unique
-	 * batch number. We insert and then we read back the just-inserted row. We don't want this 
-	 * to be mingled with the batch generation of any other process. 
+	/*
+	 * OFP 4/4/2012 - I may have to switch back to this method because it allows for synchronization for any
+	 * outside processes (such as calc estimates) that might also be inserting into the batches table.
+	 * 
 	 */
+	
+
 	public int insertBatchesEntry(int nCurTask) throws SQLException {
 		
 		/*
@@ -231,12 +233,17 @@ public class DBFunctions {
   		
 	}
 	
+	/* 
+	 * This thread is synchronzied because we are using the database to generate the unique
+	 * batch number. We insert and then we read back the just-inserted row. We don't want this 
+	 * to be mingled with the batch generation of any other process. 
+	 */
 	synchronized int insertBatchesEntrySynchronized(int nCurTask,boolean bVerify) throws SQLException {
 		//Random rand = new Random(Calendar.getInstance().getTimeInMillis() + Thread.currentThread().getId());
   		//int nRandom = rand.nextInt();
 		String strBatchesTable = "batches";
 		if (bVerify==true)
-			strBatchesTable = "batches_verify";
+			strBatchesTable = "verify_batches";
 			
   		String strUpdate = "insert into " + strBatchesTable + " (batch_date_collected,task_id) values (NOW()," + nCurTask + ") ";
   		
