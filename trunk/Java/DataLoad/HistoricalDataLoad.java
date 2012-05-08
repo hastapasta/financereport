@@ -234,7 +234,15 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 		 * Format of csv is Ticker,01/01/2012,value 
 		 */
 	
-		final String strFactDataTable = "fact_data";
+		final String strFactDataWriteTable = "fact_data5";
+		
+		
+		/*
+		 * In order to successfully use a batches test table, you have to
+		 * copy over the structure AND the data from the exsting batches data,
+		 * otherwise you will most likely see "duplicate id".
+		 */
+		final String strBatchesTable = "batches5";
 		
 		int nBaseBatch = 31000;
 		
@@ -286,12 +294,22 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 			cal.set(Calendar.MINUTE,0);
 			cal.set(Calendar.SECOND,0);
 			
+			Calendar calBefore = (Calendar)cal.clone();//add(Calendar.SECOND, 450));
+			Calendar calAfter = (Calendar)cal.clone();
+			
+			/*
+			 * Look for the closest batch# +/- 7.5 minutes.
+			 */
+			calBefore.add(Calendar.SECOND, -450);
+			calAfter.add(Calendar.SECOND,450);
 			/*
 			 * First do a batch lookup.
 			 */
 			
-			String batchlookup = "select * from batches "; //where id>30999 and id<31101 ";
-			batchlookup += " where batch_date_collected='" + formatter.format(cal.getTime()) +"'";
+			String batchlookup = "select * from " + strBatchesTable; //where id>30999 and id<31101 ";
+			//batchlookup += " where batch_date_collected='" + formatter.format(cal.getTime()) +"'";
+			batchlookup += " where batch_date_collected<'" + formatter.format(calAfter.getTime()) + "' ";
+			batchlookup += " AND batch_date_collected>'" + formatter.format(calBefore.getTime()) + "' ";
 			batchlookup += " and task_id=6 ";
 			int nBatch = 0;
 			
@@ -301,7 +319,7 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 					nBatch = rs4.getInt("id");
 				}
 				else {
-					String batchlookup2 = "select max(id) as mx from batches where id > 30999 and id<31101 ";
+					String batchlookup2 = "select max(id) as mx from " + strBatchesTable + " where id > 30999 and id<31101 ";
 					ResultSet rs5 = tmpdbf.db_run_query(batchlookup2);
 					rs5.next();
 					if (rs5.getInt("mx")==0)
@@ -311,12 +329,10 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 			
 					
 					
-					String insertbatch = "insert into batches (id,batch_date_collected,task_id) values (" + nBatch + ",'" + formatter.format(cal.getTime()) + "',6) ";
+					String insertbatch = "insert into " + strBatchesTable + " (id,batch_date_collected,task_id) values (" + nBatch + ",'" + formatter.format(cal.getTime()) + "',6) ";
+				
 					tmpdbf.db_update_query(insertbatch);
-					UtilityFunctions.stdoutwriter.writeln("Created new batch id " + nBatch,Logs.STATUS1,"HDL10.32");
-					
-					
-					
+					UtilityFunctions.stdoutwriter.writeln("Created new batch id " + nBatch + " in table " + strBatchesTable,Logs.STATUS1,"HDL10.32");		
 					
 				}
 			}
@@ -384,7 +400,7 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 			
 			String strValue = values[2].replace(",", "");
 			
-			String query = "insert into " + strFactDataTable + " (value,date_collected,entity_id,metric_id,batch_id) values ( ";
+			String query = "insert into " + strFactDataWriteTable + " (value,date_collected,entity_id,metric_id,batch_id) values ( ";
 			query += strValue + ","; //value
 			query += "'" + HistoricalDataLoad.formatter.format(cal.getTime()) + "',"; //date collected
 			query += strEntityId + ","; //entity id
