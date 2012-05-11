@@ -6,7 +6,7 @@
  */
 
 require_once '../../common/functions.php';
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
@@ -83,7 +83,7 @@ if ($gdptype=="ppp") {
 	$metrics.="12,13";
 	$tasks.="30,29";
 }
-else if ($gdptype=="cp") { //we'll default to current prices gdp
+else { //we'll default to current prices gdp
 	$metrics.="2,3";
 	$tasks.="22,33";
 }
@@ -145,7 +145,7 @@ if (isset($_GET['group']))
         		echo "$(\"#checkPPP\").attr('checked','checked');\n";
         		//echo "$('#checkPPP').checked = true;";
         	}
-        	else if ($gdptype=="cp") {
+        	else /*if ($gdptype=="cp")*/ {
         		echo "$(\"#checkCP\").attr('checked','checked');\n";
         		//echo "$('#checkCP').checked = true;";
         	}
@@ -437,7 +437,7 @@ if (isset($_GET['group']))
          		else if ($gdptype='cp')
          			$gdpstring = 'Current Prices';
          			
-         		echo "options.title='Comparison of GDP Growth (".$gdpstring." - Actual and Estimated) to Equity Indexes for Country: ".$countryname."';";
+         		echo "options.title='Comparison of Cumulative GDP Growth (".$gdpstring.": Actual and Estimated) to Equity Indexes for Country: ".$countryname."';";
          	?>
          	
             
@@ -513,7 +513,7 @@ if (isset($_GET['group']))
             var lineChart1 = new google.visualization.LineChart(container1);
         
             
-         
+         	//alert(queryPath);
             if (window.console && window.console.firebug) {console.log(queryPath)}
 
             
@@ -561,9 +561,9 @@ if (isset($_GET['group']))
     <BR>
   	<input type='text' id='a_c' style='z-index:3' /><br/>
   	<BR>
-  	<input type="radio" name="vehicle" value="checkPPP" id="checkPPP"/>&nbsp;Purchasing Power Parity&nbsp;&nbsp;&nbsp;<a target='_blank' href="http://en.wikipedia.org/wiki/Gross_domestic_product#Cross-border_comparison">Difference between Purchasing Power Parity and Current Prices</a>
-  	<BR>
-	<input type="radio" name="vehicle" value="checkCP" id="checkCP" />&nbsp;Current Prices
+	<input type="radio" name="vehicle" value="checkCP" id="checkCP" />&nbsp;Current Prices&nbsp;&nbsp;&nbsp;<a target='_blank' href="http://en.wikipedia.org/wiki/Gross_domestic_product#Cross-border_comparison">Difference between Purchasing Power Parity and Current Prices</a>
+	<BR>
+  	<input type="radio" name="vehicle" value="checkPPP" id="checkPPP"/>&nbsp;Purchasing Power Parity
    	<BR>
    	Time Frame:&nbsp;&nbsp;
 Start: <input type="text" id="rangeDemoStart" size="11" />
