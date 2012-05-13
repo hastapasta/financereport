@@ -160,7 +160,7 @@ else {
 *   And we will subtract 4 days from calEnd and take the maximum. 4 days just being an arbitrary number to try
 *    to ensure that we grab at least one data point without grabbing too much data.
 
-	Time line looks like this (for Time frames > 4 days)
+	Time line looks like this (for Time frames > 4 days) 
     <Earlier-------------------------------------------------Later>		
 
 
@@ -264,21 +264,48 @@ arrayListCols.add(blap10);
 
 
 
-String query2 = "select 'mysqldatasource2eh2',fact_data.entity_id,'placeholder',date_format(date_collected,'%Y-%m-%d %T') as date_begin,value,ticker ";
+String query2a = "select fact_data.entity_id, min(date_format(date_collected,'%Y-%m-%d %T')) as date_begin, ";
+query2a += " fact_data.metric_id ";
+query2a += " from fact_data ";
+query2a += " JOIN entities_entity_groups on fact_data.entity_id=entities_entity_groups.entity_id ";
+query2a += " where date_collected>'" + formatter.format(calBegin.getTime()) + "' ";
+query2a += " AND date_collected< '" + formatter.format(calBeginAdjust.getTime()) + "' ";
+query2a += " AND entities_entity_groups.entity_group_id=" + strEntityGroupId;
+query2a += " AND metric_id=" + strMetricId;
+query2a += " group by entity_id,metric_id ";
+
+
+
+
+String query2 = "select 'mysqldatasource2eh2',fact_data.entity_id,'placeholder',date_format(fact_data.date_collected,'%Y-%m-%d %T') as date_begin,value,ticker ";
 query2 += " ,countries.name,entities.full_name,fact_data.metric_id ";
 query2 += " from fact_data ";
+query2 += " JOIN (" + query2a + ") as tbl2 on tbl2.date_begin=fact_data.date_collected and tbl2.metric_id=fact_data.metric_id and tbl2.entity_id=fact_data.entity_id ";
 query2 += " JOIN entities on entities.id=fact_data.entity_id ";
 query2 += " LEFT JOIN countries_entities on countries_entities.entity_id=fact_data.entity_id ";
 query2 += " LEFT JOIN countries on countries_entities.country_id=countries.id ";
 //query2 += " LEFT JOIN countries on entities.country_id=countries.id ";
-query2 += " JOIN entities_entity_groups on fact_data.entity_id=entities_entity_groups.entity_id ";
-query2 += " where date_collected>'" + formatter.format(calBegin.getTime()) + "' ";
-query2 += " AND date_collected< '" + formatter.format(calBeginAdjust.getTime()) + "' ";
-query2 += " AND entities_entity_groups.entity_group_id=" + strEntityGroupId;
-query2 += " AND metric_id=" + strMetricId;
+//query2 += " JOIN entities_entity_groups on fact_data.entity_id=entities_entity_groups.entity_id ";
+//query2 += " where 1=1 ";
+//query2 += " AND date_collected>'" + formatter.format(calBegin.getTime()) + "' ";
+//query2 += " AND date_collected< '" + formatter.format(calBeginAdjust.getTime()) + "' ";
+//query2 += " AND entities_entity_groups.entity_group_id=" + strEntityGroupId;
+//query2 += " AND fact_data.metric_id=" + strMetricId;
 query2 += " ORDER BY fact_data.entity_id ";
 
 //out.println(query2); if (1==1) return;
+
+
+String query3a = "select fact_data.entity_id, max(date_format(date_collected,'%Y-%m-%d %T')) as date_begin, ";
+query3a += " fact_data.metric_id ";
+query3a += " from fact_data ";
+query3a += " JOIN entities_entity_groups on fact_data.entity_id=entities_entity_groups.entity_id ";
+query3a += " where date_collected<'" + formatter.format(calEnd.getTime()) + "' ";
+query3a += " AND date_collected> '" + formatter.format(calEndAdjust.getTime()) + "' ";
+query3a += " AND entities_entity_groups.entity_group_id=" + strEntityGroupId;
+query3a += " AND metric_id=" + strMetricId;
+query3a += " group by entity_id,metric_id ";
+
 
 
 
@@ -286,22 +313,24 @@ query2 += " ORDER BY fact_data.entity_id ";
 String query3 = "select 'mysqldatasource2eh2',fact_data.entity_id,'placeholder',date_format(date_collected,'%Y-%m-%d %T') as date_end,value,ticker ";
 query3 += " ,countries.name,entities.full_name,fact_data.metric_id ";
 query3 += " from fact_data ";
+query3 += " JOIN (" + query3a + ") as tbl2 on tbl2.date_begin=fact_data.date_collected and tbl2.metric_id=fact_data.metric_id and tbl2.entity_id=fact_data.entity_id ";
 query3 += " JOIN entities on entities.id=fact_data.entity_id ";
 query3 += " LEFT JOIN countries_entities on countries_entities.entity_id=fact_data.entity_id ";
 query3 += " LEFT JOIN countries on countries_entities.country_id=countries.id ";
 //query3 += " LEFT JOIN countries on entities.country_id=countries.id ";
-query3 += " JOIN entities_entity_groups on fact_data.entity_id=entities_entity_groups.entity_id ";
-query3 += " where date_collected>'" + formatter.format(calEndAdjust.getTime()) + "'  ";
-query3 += " AND date_collected<'" + formatter.format(calEnd.getTime()) + "' ";
-query3 += " AND entities_entity_groups.entity_group_id=" + strEntityGroupId;
-query3 += " AND metric_id=" + strMetricId;
+//query3 += " JOIN entities_entity_groups on fact_data.entity_id=entities_entity_groups.entity_id ";
+//query3 += " where 1=1 ";
+//query3 += " AND date_collected>'" + formatter.format(calEndAdjust.getTime()) + "'  ";
+//query3 += " AND date_collected<'" + formatter.format(calEnd.getTime()) + "' ";
+//query3 += " AND entities_entity_groups.entity_group_id=" + strEntityGroupId;
+//query3 += " AND fact_data.metric_id=" + strMetricId;
 query3 += " ORDER BY fact_data.entity_id ";
 
 //out.println(query3); if (1==1) return;  
 
 
 
-Calendar calEndTimer = null;
+//Calendar calEndTimer = null;
 
 
 
@@ -318,7 +347,7 @@ while (!bDone) {
 		dbf = new DBFunctions();
 		code=2;
 		dbf.db_run_query(query2); 
-		calEndTimer = Calendar.getInstance();
+		//calEndTimer = Calendar.getInstance();
 		code=3;
 		while (dbf.rs.next()) {
 			String [] tmp = new String[7];
@@ -431,13 +460,13 @@ if (arrayListRows2.size() == 0) {
 	return;	
 }
 
-arrayListRows1 = PopulateSpreadsheet.getMaxMinGroupBy(arrayListRows1,tmpArray,1,"DATE","MIN");
+//arrayListRows1 = PopulateSpreadsheet.getMaxMinGroupBy(arrayListRows1,tmpArray,1,"DATE","MIN");
 
 
 
 //arrayListRows1 = PopulateSpreadsheet.removeColumn(arrayListRows1,1);
 
-arrayListRows2 = PopulateSpreadsheet.getMaxMinGroupBy(arrayListRows2,tmpArray,1,"DATE","MAX");
+//arrayListRows2 = PopulateSpreadsheet.getMaxMinGroupBy(arrayListRows2,tmpArray,1,"DATE","MAX");
 
 
 
@@ -582,7 +611,7 @@ else
 
 
 
-
+//out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,100));if (1==1) return; 
 
 
 
