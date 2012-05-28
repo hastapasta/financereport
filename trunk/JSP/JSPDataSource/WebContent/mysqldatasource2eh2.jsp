@@ -53,29 +53,25 @@ if (request.getParameter("filename") != null)
 
 
 
-if (strTimeFrame==null && (strBeginDate == null || strEndDate == null))
-{
+if (strTimeFrame==null && (strBeginDate == null || strEndDate == null)) {
 	out.println("No timeframe or begindate/enddate parameters passed in the url. Exiting.");
 	return;
 }
 
-if (strMetricId==null)
-{
+if (strMetricId==null) {
 	out.println("No metricid parameter passed in the url. Exiting.");
 	return;
 }
 
 
-if (strEntityGroupId == null)
-{
+if (strEntityGroupId == null) {
 	out.println("No entitygroupid parameter passed in the url. Exiting.");
 	return;
 	
 }
 
 String strOrder = "DESC";
-if (request.getParameter("order") != null)
-{
+if (request.getParameter("order") != null) {
 	strOrder = request.getParameter("order");
 	
 }
@@ -109,24 +105,19 @@ if (strTimeFrame != null) {
 	
 	String strGranularity;
 	
-	if (strTimeFrame.toUpperCase().equals("HOUR"))
-	{
+	if (strTimeFrame.toUpperCase().equals("HOUR")) {
 		calBegin.add(Calendar.HOUR,-1);
 	}
-	else if (strTimeFrame.toUpperCase().equals("DAY"))
-	{
+	else if (strTimeFrame.toUpperCase().equals("DAY")) {
 		calBegin.add(Calendar.DAY_OF_YEAR,-1);
 	}
-	else if (strTimeFrame.toUpperCase().equals("WEEK"))
-	{
+	else if (strTimeFrame.toUpperCase().equals("WEEK"))	{
 		calBegin.add(Calendar.WEEK_OF_YEAR,-1);
 	}
-	else if (strTimeFrame.toUpperCase().equals("MONTH"))
-	{
+	else if (strTimeFrame.toUpperCase().equals("MONTH")) {
 		calBegin.add(Calendar.MONTH,-1);
 	}
-	else if (strTimeFrame.toUpperCase().equals("YEAR"))
-	{
+	else if (strTimeFrame.toUpperCase().equals("YEAR"))	{
 		calBegin.add(Calendar.YEAR,-1);
 	}
 	
@@ -182,6 +173,10 @@ Calendar calEndAdjust = Calendar.getInstance();
 calBeginAdjust.setTime(calBegin.getTime());
 calEndAdjust.setTime(calEnd.getTime());
 
+/*
+* OFP 5/16/2012 - Had to add this threshold logic because before 1/19/2011 there
+are gaps in the data that are larger than 4 days.
+*/
 
 Calendar calBeginThreshold1 = Calendar.getInstance();
 calBeginThreshold1.setTime(formatter.parse("2011-01-19 00:00:00"));
@@ -342,8 +337,7 @@ boolean bDone = false;
 while (!bDone) {
 	
 	
-	try
-	{
+	try	{
 		dbf = new DBFunctions();
 		code=2;
 		dbf.db_run_query(query2); 
@@ -370,8 +364,7 @@ while (!bDone) {
 		}
 		bDone = true;
 	}
-	catch (SQLException sqle)
-	{
+	catch (SQLException sqle) {
 		//out.println(sqle.toString());
 		fulllogger.info("PF ERROR CODE 2eh2-1,subcode:"+code);
 		fulllogger.info(sqle.getMessage());	
@@ -384,8 +377,7 @@ while (!bDone) {
 		}
 			
 	}
-	finally
-	{
+	finally	{
 		if (dbf !=null) dbf.closeConnection();
 		if (bException == true)
 			return;
@@ -429,8 +421,7 @@ while (!bDone) {
 		}
 		bDone = true;
 	}
-	catch (SQLException sqle)
-	{
+	catch (SQLException sqle) {
 		//out.println(sqle.toString());
 		fulllogger.info("PF ERROR CODE 2eh2-2,subcode:"+code);
 		fulllogger.info(sqle.getMessage());	
@@ -440,8 +431,7 @@ while (!bDone) {
 			bException = true;
 		}
 	}
-	finally
-	{
+	finally {
 		if (dbf !=null) dbf.closeConnection();
 		if (bException == true)
 			return;
