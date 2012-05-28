@@ -93,47 +93,74 @@ public class BuildViews {
 	
 	
 	public static void mysqldatasource2eh2 () {
-		String baseurl = ""; 
+		String baseurl = "http://" + strJSPHost + "mysqldatasource2eh2.jsp?topmovers=8&order=DESC";
+		
+		String[] timeframes = {"day","week","month","year"};
+		String[] assets = {"forex", "index", "commodity", "futures"};
+		int[] entitygroupids = {3,5,4,1008};
+		int[] metricids = {1,1,11,11};
+				
+		
+		int nOuter = 0;
 		
 		
 		
+		
+		for (String strTimeFrame : timeframes) {
+
+			String baseurl2 = baseurl + "&timeframe=" + strTimeFrame;
+			if (nOuter != 0)
+				baseurl2 += "todate";
 			
-		for (int i=0;i<4;i++) {
-			baseurl = "http://" + strJSPHost + "mysqldatasource2eh2.jsp?topmovers=8&timeframe=day&order=DESC";
-			switch (i) {
 			
-			case 0: 
-				baseurl += "&entitygroupid=3";
-				baseurl += "&filename=forex";
-				baseurl += "&metricid=1";
-				break;
-			case 1:
-				baseurl += "&entitygroupid=5";
-				baseurl += "&filename=index";
-				baseurl += "&metricid=1";
-				break;
-			case 2:
-				baseurl += "&entitygroupid=4";
-				baseurl += "&filename=commodity";
-				baseurl += "&metricid=11";
-				break;
-			case 3:
-				baseurl += "&entitygroupid=1008";
-				baseurl += "&filename=futures";
-				baseurl += "&metricid=11";
-				break;
+			int nInner = 0;
+			
+			//for (int i=0;i<4;i++) {
+			for (String strAsset : assets) {
+				
+				
+				
+				String url3 = baseurl2 + "&entitygroupid=" + entitygroupids[nInner];
+				url3 += "&filename=" + strTimeFrame + strAsset;
+				url3 += "&metricid=" + metricids[nInner];
+				url3 += "&tqx=reqId:" + ((nOuter * assets.length) + nInner);
+				
+				/*switch (i) {
+				
+				case 0: 
+					baseurl += "&entitygroupid=" + entitygroupids[nInner];
+					baseurl += "&filename=forex";
+					baseurl += "&metricid=1";
+					break;
+				case 1:
+					baseurl += "&entitygroupid=5";
+					baseurl += "&filename=index";
+					baseurl += "&metricid=1";
+					break;
+				case 2:
+					baseurl += "&entitygroupid=4";
+					baseurl += "&filename=commodity";
+					baseurl += "&metricid=11";
+					break;
+				case 3:
+					baseurl += "&entitygroupid=1008";
+					baseurl += "&filename=futures";
+					baseurl += "&metricid=11";
+					break;
+					
+				}*/
+				
+				/* Don't have to worry about random number since not dealing with browser cache.
+				baseurl += "&randNum="; //+ some random number;*/
+				
+				
+				
+				BuildViews.issueURL(url3);
+				
+				nInner++;
 				
 			}
-			baseurl += "&tqx=reqId:" + i;
-			/* Don't have to worry about random number since not dealing with browser cache.
-			baseurl += "&randNum="; //+ some random number;*/
-			
-			
-			
-			BuildViews.issueURL(baseurl);
-			
-		
-			
+			nOuter++;
 		}
 		
 		
