@@ -94,6 +94,23 @@ if (isset($_GET['metricid']))
 	});
 
 	$(document).ready(function() {
+		/*
+		* OFP 5/27/2012 - Workaround for issue with google tables where the tables
+		act as if the mouse button is being held down after a row in a table is clicked.
+		*/
+		window.addEventListener("focus", function(event) { 
+			 var sel = window.getSelection ? window.getSelection() : document.selection;
+			 if (sel) {
+			     if (sel.removeAllRanges) {
+			         sel.removeAllRanges();
+			     } else if (sel.empty) {
+			         sel.empty();
+			     }
+			 }
+			 				 
+			 //var td = new Date();
+			 //document.getElementById('message').innerHTML = "window has focus " + td;
+		 }, false);
 		var oneDay = 24*60*60*1000;
 		var td = new Date();
 		td.setDate(td.getDate() - 1);
@@ -112,11 +129,6 @@ if (isset($_GET['metricid']))
 
 	 
 	
-	  //t1 = new Date();
-	  //t1.setTime(1313290898000);
-	  //t1 = Date.parse(1313290898000);
-	  //alert(t1);
-
 	  <?php 
 	  if (!empty($begindate) && !empty($enddate)) {
 	  		
@@ -152,6 +164,8 @@ if (isset($_GET['metricid']))
 	  }
 	  else if (!empty($timeframe)) {
 		echo  "$(\"#timeframe\").val('".$timeframe."');\n";
+		//echo  "$(\"#timeframe\").val('');\n";
+		
 		/*
 		 * Trigger has to appear in file after the event handler function!
 		 */
@@ -309,7 +323,7 @@ if (isset($_GET['metricid']))
       //var tableChart2 = new google.visualization.Table(container2);
       
 
-      
+      //alert(dataSourceUrl + queryString1);
       if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString1);}
      
       
