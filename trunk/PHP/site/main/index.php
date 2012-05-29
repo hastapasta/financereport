@@ -106,7 +106,7 @@ require_once '../../common/functions.php';
 				  * Display the spinner for the first table only.
 				  */
 				  if (i==0)
-					  $(x).html("<img src=\"../../site/images/spinner3-black.gif\" />");
+					  $(x).html("<img src=\"../../site/images/spinner3-bluey.gif\" />");
 				  window.tObjects[currentindex].tableChart = new google.visualization.Table(window.tObjects[currentindex].container);
 				  window.tObjects[currentindex].dataSourceUrl = dataSourceRoot + timeframes[h] + assets[i] + ".html";
 				  if (window.console && window.console.firebug) {console.log(window.tObjects[currentindex].dataSourceUrl);}
