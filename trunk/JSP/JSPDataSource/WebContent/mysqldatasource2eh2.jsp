@@ -87,7 +87,7 @@ Calendar calBegin = Calendar.getInstance();
 if (strTimeFrame != null) {
 
 	
-	if (Debug.RELEASE == true)   {
+	/*if (Debug.RELEASE == true)   {
 		calEnd.set(Calendar.YEAR,2011);
 		calEnd.set(Calendar.DAY_OF_MONTH,21);
 		calEnd.set(Calendar.MONTH,8);
@@ -97,7 +97,7 @@ if (strTimeFrame != null) {
 		calBegin.set(Calendar.MONTH,8);
 
 		
-	}
+	}*/
 	
 	//System.out.println(calBegin.getTime().toString());
 	
@@ -119,6 +119,17 @@ if (strTimeFrame != null) {
 	}
 	else if (strTimeFrame.toUpperCase().equals("YEAR"))	{
 		calBegin.add(Calendar.YEAR,-1);
+	}
+	else if (strTimeFrame.toUpperCase().equals("WEEKTODATE"))	{	
+		calBegin.set(Calendar.DAY_OF_WEEK,Calendar.SUNDAY);
+		calBegin.set(Calendar.HOUR_OF_DAY,0);
+	}
+	else if (strTimeFrame.toUpperCase().equals("MONTHTODATE"))	{
+		calBegin.set(Calendar.DAY_OF_MONTH,1);
+	}
+	else if (strTimeFrame.toUpperCase().equals("YEARTODATE"))	{
+		calBegin.set(Calendar.MONTH,0);
+		calBegin.set(Calendar.DAY_OF_MONTH,1);
 	}
 	
 	/* We don't have much historical data*/
