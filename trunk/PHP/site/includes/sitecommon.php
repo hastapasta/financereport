@@ -380,32 +380,35 @@ class IncFunc {
 		";
 	}
 	
-	static function blogFeedJavaScript() {
+	/*static function blogFeedJavaScript() {
 		echo "<script src=\"https://www.google.com/jsapi?key=ABQIAAAAxIClsZ3ToqpAEYJ0xpbYDBQvMn8QNL-nLRnNjyJkuSEqYss18BSxvSrpXIIMYm_A6P2cdVBEmC64UA\" type=\"text/javascript\"></script>\n";
-		echo "<script language=\"Javascript\" type=\"text/javascript\">    \n";
-		echo "/*\n";
-		echo " *  How to use the Feed Control to grab, parse and display feeds.\n";
-		echo "*/\n";
+		echo "<script language=\"Javascript\" type=\"text/javascript\">    \n";*/
+		//echo "/*\n";
+		//echo " *  How to use the Feed Control to grab, parse and display feeds.\n";
+		//echo "*/\n";
 		
-		echo "google.load(\"feeds\", \"1\");\n";
+		//echo "google.load(\"feeds\", \"1\");\n";
 		
-		echo "function OnLoad() {\n";
-		echo "/* Create a feed control */\n";
-		echo "var feedControl = new google.feeds.FeedControl();\n";
+		//echo "function OnLoad() {\n";
+		//echo "/* Create a feed control */\n";
+		//echo "var feedControl = new google.feeds.FeedControl();\n";
 		
-		echo "/* Add two feeds. */\n";
-		echo "feedControl.addFeed(\"http://pikefin.blogspot.com/feeds/posts/default\", \"Pikefin Blog\");\n";
+		//echo "/* Add two feeds. */\n";
+		//echo "feedControl.addFeed(\"http://pikefin.blogspot.com/feeds/posts/default\", \"Pikefin Blog\");\n";
 		
-		echo "/* Draw it.*/\n";
-		echo "feedControl.draw(document.getElementById(\"blogcontrol\"))\n";
+		//echo "/* Draw it.*/\n";
+		/*echo "feedControl.draw(document.getElementById(\"blogcontrol\"))\n";
 		echo "}\n";
 		
 		echo "google.setOnLoadCallback(OnLoad);\n";
 		echo "</script>\n";
-			
-		
-		
+	
+	}*/
+	
+	static function blogFeedJS2() {
+		echo "<script src=\"../../site/includes/recent-posts-with-snippets.js\" />\n";
 	}
+	
 	
 	static function dateSelect() {
 		?>
@@ -414,10 +417,10 @@ class IncFunc {
 		    <option value="YTD">Year To Date</option>
 		    <option value="MTD">Month To Date</option>
 		    <option value="WTD">Week To Date</option>
-			<option value="year">1 Year Back</option>
-			<option value="month">1 Month Back</option>
-			<option value="day">1 Day Back</option>
-			<option value="hour">1 Hour Back</option>	
+			<option value="YEAR">1 Year Back</option>
+			<option value="MONTH">1 Month Back</option>
+			<option value="DAY">1 Day Back</option>
+			<option value="HOUR">1 Hour Back</option>	
 			<!-- <option value="Custom">Custom</option> -->
 		</select>
 		<?php 
@@ -436,15 +439,15 @@ class IncFunc {
 		    	if (tmp == '')
 		    		//do nothing
 		    		return;
-		    	else if (tmp == 'year')
+		    	else if (tmp == 'YEAR')
 		        	begindate.setMonth(enddate.getMonth() - 12);
 		    	/*else if (tmp == 'custom1')
 			    	begindate = Date.parseExact("1/20/2011", "M/d/yyyy"); */
-		    	else if (tmp == 'month')
+		    	else if (tmp == 'MONTH')
 		        	begindate.setMonth(enddate.getMonth() - 1);
-		    	else if (tmp == 'week')
+		    	else if (tmp == 'WEEK')
 		        	begindate.setDate(enddate.getDate() - 7);
-		    	else if (tmp == 'day')
+		    	else if (tmp == 'DAY')
 		        	begindate.setDate(enddate.getDate() - 1);
 		    	else if (tmp == 'YTD') {
 		    		begindate = Date.parse('January 1st');          // July 4th of this year.
