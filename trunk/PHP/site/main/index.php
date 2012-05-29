@@ -11,7 +11,7 @@ require_once '../../common/functions.php';
 	  <?php IncFunc::icon();?>
 	  <?php IncFunc::title();?>
 	  <script type="text/javascript" src="/PHP/site/includes/pftable.js" ></script>
-	  <?php IncFunc::blogFeedJavaScript();?>
+	  
 	  <?php //IncFunc::iquery(); ?>
 	  <script src="http://widgets.twimg.com/j/2/widget.js" type="text/javascript"></script>
 	  <?php IncFunc::linkStyleCSS();?>
@@ -237,8 +237,8 @@ for($i=0;$i<sizeof($tabs);$i++) {
 			</div> <!-- jq-intro -->
 			<!-- <div id="blogcontrol">Loading...</div> -->
 			<div id="blogcontrol2" >
-<script src="../../gadgetsamples/blogger/recent-posts-with-snippets.js">
-</script>
+			<script src="../../site/includes/recent-posts-with-snippets.js">
+			</script>
 <script>
 var numposts = 5;var showpostdate = true;var showpostsummary = true;var numchars = 100;var standardstyling = true;
 </script>
