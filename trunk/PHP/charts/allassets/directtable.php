@@ -163,7 +163,7 @@ if (isset($_GET['metricid']))
 	
 	  }
 	  else if (!empty($timeframe)) {
-		echo  "$(\"#timeframe\").val('".$timeframe."');\n";
+		echo  "$(\"#timeframe\").val('".strtoupper($timeframe)."');\n";
 		//echo  "$(\"#timeframe\").val('');\n";
 		
 		/*
