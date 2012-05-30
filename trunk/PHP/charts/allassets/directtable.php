@@ -246,9 +246,11 @@ if (isset($_GET['metricid']))
 		//var test5 = queryWrapper2;
 
 		var dt = localQueryWrapper.currentDataTable;
-		var val = dt.getValue(row[0].row,8);
+		var entityid = dt.getValue(row[0].row,8);
+		var metricid = dt.getValue(row[0].row,9);
+		
 		<?php //echo "window.location.href = \"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\";";?>
-		<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&type=1\");";?>
+		<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + entityid + \"&type=1&m=\" + metricid);";?>
 
 	}
  
