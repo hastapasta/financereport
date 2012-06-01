@@ -245,9 +245,9 @@ for (int i=0;i<entityIds.length;i++) {
 
 	
 
-query += ") AND date_format(fact_data.date_collected,'%Y-%m-%d')>'" + strBeginDate + "' ";
+query += ") AND date_format(fact_data.date_collected,'%Y-%m-%d')>='" + strBeginDate + "' ";
 if (strEndDate!=null && !strEndDate.isEmpty())
-	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
+	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<='" + strEndDate + "' ";
 
 query += " order by date_col ASC ,entities.ticker ASC, time_col ASC";
 
@@ -447,12 +447,19 @@ for (int i=0;i<saveListRows.size();i++) {
 
 //out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
 
+/*
+* If not using percent values, then we will not display zero values since they are typically bad prints.
+*/
+boolean bEmptyZeroes = true;
+if (bPercent)
+	bEmptyZeroes = false;
+
 
 
 if (bTableFormat==true)
 	out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));
 else
-	out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,true));
+	out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,bEmptyZeroes));
 
 
 
