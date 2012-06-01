@@ -228,7 +228,7 @@ query += "JOIN tasks on batches.task_id=tasks.id ";
 query += " where date_format(fact_data.date_collected,'%Y-%m-%d')>='" + strBeginDate + "' ";
 
 if (strEndDate!=null && !strEndDate.isEmpty())
-	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')=<'" + strEndDate + "' ";
+	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<='" + strEndDate + "' ";
 query += " AND entities.id=" + strEntityId;
 query += " AND fact_data.metric_id=" + strMetricId;
 
