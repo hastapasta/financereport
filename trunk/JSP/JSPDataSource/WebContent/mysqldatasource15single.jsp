@@ -225,10 +225,10 @@ query += "from fact_data ";
 query += "JOIN entities on fact_data.entity_id=entities.id ";
 query += "JOIN batches on fact_data.batch_id=batches.id ";
 query += "JOIN tasks on batches.task_id=tasks.id ";
-query += " where date_format(fact_data.date_collected,'%Y-%m-%d')>'" + strBeginDate + "' ";
+query += " where date_format(fact_data.date_collected,'%Y-%m-%d')>='" + strBeginDate + "' ";
 
 if (strEndDate!=null && !strEndDate.isEmpty())
-	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<'" + strEndDate + "' ";
+	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')=<'" + strEndDate + "' ";
 query += " AND entities.id=" + strEntityId;
 query += " AND fact_data.metric_id=" + strMetricId;
 
@@ -309,16 +309,16 @@ DateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
 
 int nCount = 0;
 try {
-	float fInitial = 0;
+
 	dbf = new DBFunctions();
 	dbf.db_run_query(query);
 	while (dbf.rs.next()) {
 		String [] tmp = new String[4];
 		tmp[0] = dbf.rs.getString("date_col");
 		tmp[1] = dbf.rs.getString("entities.ticker");
-		if (bPercent == false)
-			tmp[2] = dbf.rs.getString("fdvalue");
-		else {
+		//if (bPercent == false)
+		tmp[2] = dbf.rs.getString("fdvalue");
+		/*else {
 			if (nCount == 0) {
 				fInitial = Float.parseFloat(dbf.rs.getString("fdvalue"));
 				tmp[2] = "0";	
@@ -335,7 +335,7 @@ try {
 			
 			
 			
-		}
+		}*/
 		tmp[3] = dbf.rs.getString("time_col");
 
 				
@@ -367,42 +367,6 @@ if (arrayListRows.size() == 0) {
 
 
 
-/*Comparator<String[]> comp2 = new Comparator<String[]>() {
-	  public int compare(String[] first, String[] second) {
-		//BigDecimal bdFirst = new BigDecimal(first[2]);
-		//BigDecimal bdSecond = new BigDecimal(second[2]);
-		
-		String[] strFirstDay = first[0].split("-");
-		String[] strSecondDay = second[0].split("-");
-		String[] strFirstTime = first[3].split(":");
-		String[] strSecondTime = second[3].split(":");
-		
-		Calendar calFirst = Calendar.getInstance();
-		Calendar calSecond = Calendar.getInstance();
-		
-		calFirst.set(Calendar.MONTH,Integer.parseInt(strFirstDay[0])-1);
-		calFirst.set(Calendar.DAY_OF_MONTH,Integer.parseInt(strFirstDay[1]));
-		calFirst.set(Calendar.YEAR,Integer.parseInt(strFirstDay[2]));
-		
-		calSecond.set(Calendar.MONTH,Integer.parseInt(strSecondDay[0])-1);
-		calSecond.set(Calendar.DAY_OF_MONTH,Integer.parseInt(strSecondDay[1]));
-		calSecond.set(Calendar.YEAR,Integer.parseInt(strSecondDay[2]));
-		
-		calFirst.set(Calendar.HOUR_OF_DAY,Integer.parseInt(strFirstTime[0]));
-		calFirst.set(Calendar.MINUTE,Integer.parseInt(strFirstTime[1]));
-		calFirst.set(Calendar.SECOND,Integer.parseInt(strFirstTime[2]));
-		
-		calSecond.set(Calendar.HOUR_OF_DAY,Integer.parseInt(strSecondTime[0]));
-		calSecond.set(Calendar.MINUTE,Integer.parseInt(strSecondTime[1]));
-		calSecond.set(Calendar.SECOND,Integer.parseInt(strSecondTime[2]));
-		
-		return calSecond.compareTo(calFirst);
-		
-		
-	  }
-};*/
-
-//Collections.sort(arrayListRows,comp2);
 
 //out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,100));if (1==1) return; 
 
@@ -411,6 +375,9 @@ if (strGranularity.equals("day")) {
 	arrayListRows = PopulateSpreadsheet.getLastGroupBy(arrayListRows,tmpArray);
 	arrayListRows = PopulateSpreadsheet.removeLastColumn(arrayListRows);
 }
+
+
+
 
 
 if (strGranularity.equals("minute")) {
@@ -428,6 +395,33 @@ if (strGranularity.equals("minute")) {
 	
 	
 	
+}
+
+
+/* OFP 6/1/2012 - Move the % change calculation after doing the group by */
+
+
+//ArrayList<String[]> tmpList = new ArrayList<String[]>();
+float fInitial = 0;
+if (bPercent == true) {
+	int i=0;
+	for (String[] tmp : arrayListRows) {
+		if (i==0) {
+			fInitial = Float.parseFloat(tmp[2]);
+			tmp[2] = "0";
+		}
+		else {
+			Formatter formatter1 = new Formatter();
+			float fCurrent = Float.parseFloat(tmp[2]);
+			float fPercent = 0;
+			if (fInitial!=0)
+				fPercent = (((fCurrent-fInitial)/fInitial) * 100);
+			formatter1.format(Locale.US,"%2.3f",fPercent);
+			tmp[2] = formatter1.toString();	
+		}
+	
+		i++;
+	}
 }
 
 //out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return; 
@@ -526,10 +520,18 @@ for (String[] tmpSave : saveListRows) {
 //out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));if (1==1) return;
 
 
+/*
+* If not using percent values, then we will not display zero values since they are typically bad prints.
+*/
+boolean bEmptyZeroes = true;
+if (bPercent)
+	bEmptyZeroes = false;
+
+
 if (bTableFormat==true)
 	out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows,1000));
 else
-	out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,true));
+	out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,bEmptyZeroes));
 	
 	
 
