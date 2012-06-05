@@ -10,7 +10,7 @@ $enddate = $_GET['enddate'];
 
 
 
-$timeframe="month";
+$timeframe="MONTH";
 if (isset($_GET['timeframe']))
 	$timeframe = strtolower($_GET['timeframe']);
 	
