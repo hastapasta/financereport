@@ -10,20 +10,30 @@ $enddate = $_GET['enddate'];
 
 
 
-$timeframe="month";
+$timeframe="MONTH";
 if (isset($_GET['timeframe']))
 	$timeframe = strtolower($_GET['timeframe']);
 	
 $order = "ASC";
 if (isset($_GET['order']))
 	$order = $_GET['order'];
-
-/*$title="";
-if (isset($_GET['title']))
-	$title=urldecode($_GET['title']);*/
+	
+/*
+ * Defaulting cache to false. Database is fast enough to handle
+ * this query now.
+ */	
+$cache = false;
+if (isset($_GET['cache']))
+	if (strcasecmp('true', $_GET['cache'])==0)
+		$cache=true;
+		
+$gdptype = 'cp';
+if (isset($_GET['gdptype']))
+	$gdptype = $_GET['gdptype'];
+		
 	
 $title="Global GDP Growth Data Table";
-if ($entitygroupid==3) {
+/*if ($entitygroupid==3) {
 	$title = "Global Forex";
 }
 else if ($entitygroupid==4) {
@@ -46,16 +56,22 @@ else if ($entitygroupid==1) {
 }
 else if ($entitygroupid==101027) {
 	$title = "Benchmark Global Equity Indexes";
-}
+}*/
 	
 $showRowNumber='false';
 if (isset($_GET['showrow']))
 	$showRowNumber=$_GET['showrow'];
 	
-$metricid="1";
-if (isset($_GET['metricid']))
-	$metricid=$_GET['metricid'];
+$abs = false;
+if (isset($_GET['abs']))
+	if (strcasecmp('true', $_GET['abs'])==0)
+		$abs = true;
 
+
+$metricids = "2,3";
+if (strcasecmp('ppp', $gdptype)==0) {
+	$metricids="12,13";
+}
 
 
 
@@ -210,17 +226,30 @@ if (isset($_GET['metricid']))
     //google.setOnLoadCallback(function() { sendAndDraw('') });
     var firstpass = true;
 
-    <?php 
-            //echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2eh2.jsp';";
-            //echo "var dataSourceUrl ='".IncFunc::$JSP_ROOT_PATH."/mysqldatasource7_2.jsp';";
+    <?php
+    
+    	if ($cache == true)
+    		$dataSourceUrl = IncFunc::$PHP_ROOT_PATH."/json/gdpmotion.html";
+    	else {
+    		$dataSourceUrl = IncFunc::$JSP_ROOT_PATH."/mysqldatasource7.jsp?metricids=".$metricids;
+    		if ($abs == true)
+    			$dataSourceUrl.="&abs=true";
+    	}
+    
+    	echo "var dataSourceUrl='".$dataSourceUrl."';";
+    
+    	/*if ($cache==true) 
             echo "var dataSourceUrl='".IncFunc::$PHP_ROOT_PATH."/json/gdpmotion.html';";
+        else {
+        	echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."/mysqldatasource7.jsp?metricids=".$metricids."';";
+        }*/
+        
+        
+        
     ?>
-        // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
-           
-
-   // var dataSourceUrl = 'https://spreadsheets.google.com/tq?key=rCaVQNfFDMhOM6ENNYeYZ9Q&pub=1';
-    var query1;
-   // var query2;
+       
+   var query1;
+  
    
    function genericClickHandler(localTableChart,localQueryWrapper) {
 
@@ -265,8 +294,7 @@ if (isset($_GET['metricid']))
       //alert("here 1");
 	  //alert("firstpass: " + firstpass);
 
-      if (firstpass==true)
-      {
+      if (firstpass==true)  {
           //taskid='0';
           <?php //if (!empty($timeframe)) echo "var timeframe='".$timeframe."';";?>
           firstpass=false;
@@ -281,6 +309,8 @@ if (isset($_GET['metricid']))
       	echo "options['showRowNumber'] = true;\n";
       
       ?>
+
+      queryString1 = '';
       
 
 
@@ -288,7 +318,7 @@ if (isset($_GET['metricid']))
 
      	 //queryString1 = '?userid='+userid+'&taskid='+tasks.value+'&timeeventid='+timeeventid.value;
      	<?php 
-     	echo "queryString1 = '?datecollected=true&order=".$order."&entitygroupid=".$entitygroupid."&begindate='+ (Date.parse(rangeDemoStart.value)).getTime() + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime() + '&metricid=".$metricid."&order=ASC';\n";
+     //	echo "queryString1 = '?datecollected=true&order=".$order."&entitygroupid=".$entitygroupid."&begindate='+ (Date.parse(rangeDemoStart.value)).getTime() + '&enddate=' + (Date.parse(rangeDemoFinish.value)).getTime() + '&metricid=".$metricid."&order=ASC';\n";
 
      //	echo "queryString2 = '?taskid=".$taskid."&timeframe='+timeframe.value + '&order=DESC';\n";
      	
