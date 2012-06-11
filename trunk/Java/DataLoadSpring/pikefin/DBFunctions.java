@@ -1,13 +1,31 @@
+package pikefin;
 import java.sql.Connection;
 
 import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Random;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+import org.hibernate.service.ServiceRegistryBuilder;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+
+//import com.visualpatterns.timex.util.HibernateUtil;
+
 import pikefin.log4jWrapper.Logs;
 
 /* OFP: Something to be aware of:
@@ -27,8 +45,19 @@ import pikefin.log4jWrapper.Logs;
 public class DBFunctions {
 	
 	private Connection con;
+	
+	private String strUrl;
+	private String strUser;
+	
+	private JdbcTemplate jdbcTemplate;
+	
+	//private Session session;
+	
+	private SessionFactory sessionFactory;
+	private ServiceRegistry serviceRegistry;
+	
 	//private Statement stmt;
-	private String strHost,strPort,strDatabase,strUser,strPass;
+	//private String strHost,strPort,strDatabase,strUser,strPass;
 
 	//UtilityFunctions uf;
 	
@@ -38,7 +67,7 @@ public class DBFunctions {
 		
 	}*/
 	
-	public void closeConnection()
+	/*public void closeConnection()
 	{
 		try
 		{
@@ -51,9 +80,47 @@ public class DBFunctions {
 			
 		}
 		
+	}*/
+	
+	public void setDataSource(DataSource dataSource) {
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
+		
+	
 	}
 	
-	public void openConnection() //throws SQLException
+	public void setSessionFactory(String placeholder) {
+		Configuration configuration = new Configuration();
+	    configuration.configure();
+	    serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();        
+	    sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+	 
+	    
+
+		/*Session session = HibernateUtil.getSessionFactory()
+                .getCurrentSession();*/
+	}
+	
+	public void setUrl(String inputURL) {
+		this.strUrl = inputURL;
+	}
+	
+	public void setUser(String inputUser) {
+		this.strUser = inputUser;
+	}
+	
+	public String getUrl() {
+		return strUrl;
+	}
+	
+	public String getUser() {
+		return strUser;
+	}
+	
+	public DBFunctions() {
+		System.out.println("");
+	}
+	
+	/*public void openConnection() //throws SQLException
 	{
 		
 		boolean bFirstAttempt=true;
@@ -97,16 +164,16 @@ public class DBFunctions {
 				
 			}
 		}
-	}
+	}*/
 	
-	public void cycleConnection() throws SQLException
+	/*public void cycleConnection() throws SQLException
 	{
 		this.closeConnection();
 		this.openConnection();
 		
-	}
+	}*/
 	
-	public DBFunctions(String strDBHostParam, String strDBPortParam, String strDatabaseParam, String strUserParam, String strPassParam) throws SQLException
+	/*public DBFunctions(String strDBHostParam, String strDBPortParam, String strDatabaseParam, String strUserParam, String strPassParam) throws SQLException
 	{
 	
 		this.strHost = strDBHostParam;
@@ -118,10 +185,95 @@ public class DBFunctions {
 		
 
 		
+	}*/
+	
+	public SqlRowSet dbSpringRunQuery(String strQuery) {
+
+		return (this.jdbcTemplate.queryForRowSet(strQuery));
+
 	}
 	
-	public void db_update_query(String strUpdateStmt) throws SQLException
-	{
+	public void dbSpringUpdateQuery(String strQuery) {
+
+		this.jdbcTemplate.update(strQuery);
+
+	}
+	
+	public List dbHibernateRunQuery(String strQuery) {
+		Session localSession = this.sessionFactory.openSession();
+		localSession.beginTransaction();
+		Query q = localSession.createQuery(strQuery);
+		/*return(session.createQuery(
+                strQuery).list());*/
+		List l = q.list();
+		localSession.getTransaction().commit();
+		return(l);
+	}
+	
+	public DBObjectSession<List,Session> dbHibernateRunQueryLeaveOpen(String strQuery) {
+		Session localSession = this.sessionFactory.openSession();
+		localSession.beginTransaction();
+		Query q = localSession.createQuery(strQuery);
+		/*return(session.createQuery(
+                strQuery).list());*/
+		List l = q.list();
+		return(new DBObjectSession<List,Session>(l,localSession));
+	}
+	
+	public Object dbHibernateRunQueryUnique(String strQuery) {
+		Session localSession = this.sessionFactory.openSession();
+		localSession.beginTransaction();
+		Query q = localSession.createQuery(strQuery);
+		Object obj = q.uniqueResult();
+		localSession.getTransaction().commit();
+		return(obj);
+	}
+	
+	public DBObjectSession<Object,Session> dbHibernateRunQueryUniqueLeaveOpen(String strQuery) {
+		Session localSession = this.sessionFactory.openSession();
+		localSession.beginTransaction();
+		Query q = localSession.createQuery(strQuery);
+		Object obj = q.uniqueResult();
+		localSession.getTransaction().commit();
+		return(new DBObjectSession<Object,Session>(obj,localSession));
+	}
+	
+	public Criteria dbHibernateGetCriteria(Class inputClass) {
+		Session localSession = this.sessionFactory.openSession();
+		Criteria c = localSession.createCriteria(inputClass);
+		return(c);
+	}
+	
+	/*public void dbHibernateUpdateQuery(Object obj) {
+		session.beginTransaction();
+		this.session.update(obj);
+		session.getTransaction().commit();
+	}*/
+	
+	public void dbHibernateExecuteUpdateQuery(String strQuery) {
+		Session localSession = this.sessionFactory.openSession();
+		localSession.beginTransaction();
+		Query q = localSession.createQuery(strQuery);
+		q.executeUpdate();
+		localSession.getTransaction().commit();
+		
+	}
+	
+	public void dbHibernateSaveQuery(Object obj) {
+		Session localSession = this.sessionFactory.openSession();
+		localSession.beginTransaction();
+		localSession.save(obj);
+		localSession.getTransaction().commit();
+	}
+	
+	/*public void dbHibernateUpdateQuery(String strQuery) {	
+		Session session = this.sessionFactory.getCurrentSession();
+		return(session.createQuery(
+                strQuery).list());
+	}*/
+	
+	@Deprecated
+	public void db_update_query(String strUpdateStmt) throws SQLException {
 
 	
 
@@ -153,9 +305,8 @@ public class DBFunctions {
 
 	
 	
-	
-	public ResultSet db_run_query(String query) throws SQLException
-	{
+	@Deprecated
+	public ResultSet db_run_query(String query) throws SQLException	{
 
 		ResultSet rs =null;
 		//try
@@ -238,7 +389,7 @@ public class DBFunctions {
 	 * batch number. We insert and then we read back the just-inserted row. We don't want this 
 	 * to be mingled with the batch generation of any other process. 
 	 */
-	synchronized int insertBatchesEntrySynchronized(int nCurTask,boolean bVerify) throws SQLException {
+	synchronized int insertBatchesEntrySynchronized(int nCurTask,boolean bVerify) throws DataAccessException {
 		//Random rand = new Random(Calendar.getInstance().getTimeInMillis() + Thread.currentThread().getId());
   		//int nRandom = rand.nextInt();
 		String strBatchesTable = "batches";
@@ -248,11 +399,13 @@ public class DBFunctions {
   		String strUpdate = "insert into " + strBatchesTable + " (batch_date_collected,task_id) values (NOW()," + nCurTask + ") ";
   		
  
-  		this.db_update_query(strUpdate);
+  		//this.db_update_query(strUpdate);
+  		this.dbSpringUpdateQuery(strUpdate);
 	  	
   		
   		String strQuery2 = "select id from " + strBatchesTable + " where task_id=" + nCurTask + " order by batch_date_collected DESC";
-  		ResultSet rs = this.db_run_query(strQuery2);
+  		//ResultSet rs = this.db_run_query(strQuery2);
+  		SqlRowSet rs = this.dbSpringRunQuery(strQuery2);
   		rs.next();
   		return(rs.getInt("id"));
 	}
@@ -297,7 +450,7 @@ public class DBFunctions {
 
 		
 	
-			int nCount=0;
+			//int nCount=0;
 			for (int j=0;j<columnnames.length;j++)
 			{	
 			  /*
@@ -309,23 +462,20 @@ public class DBFunctions {
 					
 			  rsColumns = meta.getColumns(null, null, tablename, null);
 
-			  nCount=0;
-	    	while (rsColumns.next())
-				{
+			  //nCount=0;
+	    	while (rsColumns.next()) {
 		
 					/*System.out.println(rsColumns.getString("COLUMN_NAME"));
 					System.out.println(rsColumns.getString("TYPE_NAME"));*/
 					//UtilityFunctions.stdoutwriter.writeln(columnnames[j],Logs.STATUS2,"DBF5");
-					if (columnnames[j].compareTo(rsColumns.getString("COLUMN_NAME")) == 0)
-					{
+					if (columnnames[j].compareTo(rsColumns.getString("COLUMN_NAME")) == 0) {
 						datatypes[j] = rsColumns.getString("TYPE_NAME");
 						UtilityFunctions.stdoutwriter.writeln(datatypes[j],Logs.STATUS2,"DBF6");
 						break;
 					}
-					nCount++;
+					//nCount++;
 				}
-		    	if (datatypes[j] == null)
-		    	{
+		    	if (datatypes[j] == null) {
 		    		//column name wasn't found, most likely a typo. Fatal error.
 		    		UtilityFunctions.stdoutwriter.writeln("Column name " + columnnames[j] + " not found in database. Fatal error. Data not loaded into db.",Logs.ERROR,"DBF10.5");
 		    		return;
@@ -456,15 +606,13 @@ public class DBFunctions {
 
 		
 	
-			int nCount=0;
-			for (int j=0;j<columnnames.length;j++)
-			{	
+			//int nCount=0;
+			for (int j=0;j<columnnames.length;j++) {	
 	
 			  rsColumns = meta.getColumns(null, null, tablename, null);
 
-			  nCount=0;
-	    	while (rsColumns.next())
-				{
+			  //nCount=0;
+	    	while (rsColumns.next()) {
 		
 					/*System.out.println(rsColumns.getString("COLUMN_NAME"));
 					System.out.println(rsColumns.getString("TYPE_NAME"));*/
@@ -475,7 +623,7 @@ public class DBFunctions {
 						UtilityFunctions.stdoutwriter.writeln(datatypes[j],Logs.STATUS2,"DBF12");
 						break;
 					}
-					nCount++;
+					//nCount++;
 				}
 			}
 		}
@@ -520,21 +668,29 @@ public class DBFunctions {
 		UtilityFunctions.stdoutwriter.writeln("Updated " + nInsertCount + " records.",Logs.STATUS2,"DBF16");
 	}
 	
-	public Integer getBatchNumber() throws SQLException
-	{
-		
-
+	public Integer getBatchNumber() throws DataAccessException	{
 		
 		String query = "select max(id) from batches ";
 		//query = query + "(select batch_id from fact_data union all ";
 		//query = query + "select batch from fact_data_stage union all ";
 		//query = query + "select batch_id from fact_data_stage_est) t1";
-		ResultSet rs = db_run_query(query);
+		//ResultSet rs = db_run_query(query);
+		SqlRowSet rs = this.dbSpringRunQuery(query);
 		rs.next();
 		return (rs.getInt("max(id)") + 1);
-			
-	
-		
+
 	}
 
 }
+
+class DBObjectSession<A,B> {
+	public final A a;
+	public final B b;
+	
+	public DBObjectSession(A a, B b) {
+		this.a = a;
+		this.b = b;
+	}
+	
+}
+

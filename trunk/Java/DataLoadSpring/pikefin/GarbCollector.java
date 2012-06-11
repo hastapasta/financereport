@@ -1,10 +1,15 @@
-import java.sql.ResultSet;
-import java.sql.SQLException;
+package pikefin;
+
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+
 import pikefin.log4jWrapper.Logs;
 
 
@@ -99,8 +104,7 @@ public class GarbCollector {
 			 return false;
 	}
 	
-	public void takeOutTrash() throws SQLException
-	{
+	public void takeOutTrash() throws DataAccessException {
 		
 		UtilityFunctions.stdoutwriter.writeln("RUNNING GARBAGE COLLECTOR",Logs.STATUS1,"GC2");
 		Calendar calBegin = Calendar.getInstance();
@@ -115,12 +119,13 @@ public class GarbCollector {
 				" HOUR(date_collected)) as b where a.batch=b.maxb and a.ticker=b.ticker) and data_set " +
 				"like '%xrateorg%' and dateDiff(date_collected,NOW())<-" + nDaysPrior;
 		
-		ResultSet rs1 = DataLoad.dbf.db_run_query(query);
+		//ResultSet rs1 = Broker.dbf.db_run_query(query);
+		SqlRowSet rs1 = Broker.dbf.dbSpringRunQuery(query);
+		
 		int nCount=0;
 		int nKey;
-		ResultSet rs2;
-		while(rs1.next())
-		{
+		SqlRowSet rs2;
+		while(rs1.next()) {
 			nKey = rs1.getInt("id");
 			/*
 			 * Check if record is referenced in the notify table. If it is, don't remove it.
@@ -128,7 +133,8 @@ public class GarbCollector {
 			
 			query = "select * from alerts where fact_data_key=" + nKey;
 			
-			rs2 = DataLoad.dbf.db_run_query(query);
+			//rs2 = Broker.dbf.db_run_query(query);
+			rs2 = Broker.dbf.dbSpringRunQuery(query);
 			
 			if (!rs2.next())
 			{
@@ -139,7 +145,8 @@ public class GarbCollector {
 					query = "update fact_data set garbage_collect=1 where ";
 			
 				query = query + "id='" + rs1.getInt("id") + "'";
-				DataLoad.dbf.db_update_query(query);
+				//Broker.dbf.db_update_query(query);
+				Broker.dbf.dbSpringRunQuery(query);
 				nCount++;
 			}
 		}

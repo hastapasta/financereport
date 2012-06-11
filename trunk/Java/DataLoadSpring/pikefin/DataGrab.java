@@ -1,13 +1,11 @@
+package pikefin;
 /*CAREFUL with using a final data extraction pattern that matches the last searched table,row,cell,div pattern. */
 
-//package com.roeschter.jsl; 
-
-import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.lang.reflect.Method;
 import java.net.*;
-//import java.nio.charset.Charset;
+
 import java.io.*;
 import java.util.regex.*;
 import java.util.ArrayList;
@@ -15,6 +13,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 import pikefin.log4jWrapper.Logs;
+import pikefin.hibernate.*;
 
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -28,12 +27,26 @@ import org.apache.http.protocol.HTTP;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFText2HTML;
 import org.apache.pdfbox.util.PDFTextStripper;
+import org.hibernate.Criteria;
+//import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
+import org.hibernate.criterion.Subqueries;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import java.util.Arrays;
-//import org.apache.log4j.NDC;
 import java.lang.reflect.InvocationTargetException;
-//import java.math.BigInteger;
 
+
+/*
+ * Using Thread here instead of Runnable. Broker uses getState which Runnable doesn't have. We aren't extending from another
+ * class so there's no real need to use Runnable.
+ * 
+ * Update 5/29/2012 - Apparently ThreadPoolTaskExecutor expects a Runnable and not a Thread so if we ever switch over to using TPTE, this class will have to
+ * be switched to Runnable.
+ */
 class DataGrab extends Thread {
 
 	String returned_content;
@@ -53,10 +66,11 @@ class DataGrab extends Thread {
 
 	/* nJobBatch is not currenlty implemented */
 	int nJobBatch;
+	
+	int nPriority;
 
-	UtilityFunctions uf;
-	ProcessingFunctions pf;
-	boolean bContinue;
+	
+	boolean bContinue = true;
 	Calendar calJobProcessingStart = null;
 	Calendar calJobProcessingEnd = null;
 	Calendar calAlertProcessingStart = null;
@@ -75,12 +89,29 @@ class DataGrab extends Thread {
 	String strCurrentTicker;
 
 	DBFunctions dbf;
-
-	DataGrab(UtilityFunctions tmpUF, DBFunctions dbfparam, String strTask/*Primary key of task but as a string.*/, int nBatchId, String strScheduleIdParam, String strRepeatTypeIdParam, boolean bVerifyMode) {
+	//UtilityFunctions uf;
+	ProcessingFunctions pf;
 	
-	  	this.uf = tmpUF;
+	
+	public void setProcessingFunctions(ProcessingFunctions inputPF) {
+		pf = inputPF;
+	}
+	
+	public void setDbFunctions(DBFunctions inputDBF) {
+		dbf = inputDBF;
+	}
+		
+	/*public void setUtilityFunctions(UtilityFunctions inputUF) {
+		uf = inputUF;
+	}*/
+
+	DataGrab(/*UtilityFunctions tmpUF,*/ DBFunctions dbfparam, String strTask/*Primary key of task but as a string.*/, int nBatchId, String strScheduleIdParam, String strRepeatTypeIdParam, boolean bVerifyMode, int nInputPriority) {
+	
+	  	//this.uf = tmpUF;
 	  	this.dbf = dbfparam;
-	  	this.pf = new ProcessingFunctions(tmpUF,this);
+	  	this.pf = new ProcessingFunctions(this);
+	  	
+	  	this.nPriority = nInputPriority;
 	  	
 	  	
 	  	this.nCurTask = Integer.parseInt(strTask);
@@ -104,8 +135,15 @@ class DataGrab extends Thread {
 	  			this.nTaskBatch = nBatchId;
 	
 	  	
-		  	String strQuery = "select jobs_tasks.job_id,tasks.name from jobs_tasks,tasks where tasks.id=jobs_tasks.task_id and jobs_tasks.task_id=" + strTask;
-		  	ResultSet rs = dbf.db_run_query(strQuery);
+		  	//String strQuery = "select jobs_tasks1.job_id,tasks1.name from jobs_tasks as jobs_tasks1,tasks as tasks1 where tasks1.id=jobs_tasks1.task_id and jobs_tasks1.task_id=" + strTask;
+		  	
+		  	String strQuery = "from Task t ";
+		  	strQuery += " inner join t.job j ";
+		  	strQuery += " where t.id=" + strTask;
+		  	
+		  	//ResultSet rs = dbf.db_run_query(strQuery);
+		  	//SqlRowSet rs = dbf.dbSpringRunQuery(strQuery);
+		  	List<Object[]> l = dbf.dbHibernateRunQuery(strQuery);
 		  	
 		  	
 		  	jobsArray = new ArrayList<String>();
@@ -113,16 +151,20 @@ class DataGrab extends Thread {
 		  	//this.strCurTask=rs.getString("tasks.name");
 		  	//String tmp = "job_primary_key";
 	
-		  	while(rs.next())
-		  	{
+		  	//while(rs.next()) {
+		  	for (Object[] objArray : l) {
+		  		Task t = (Task)objArray[0];
+		  		Job j = (Job)objArray[1];
+		  		
 		  		if (strCurTask.isEmpty())
-		  			this.strCurTask=rs.getString("tasks.name");
-		  		jobsArray.add(rs.getInt("jobs_tasks.job_id")+"");
+		  			this.strCurTask=t.getName();
+		  		
+		  		jobsArray.add(j.getJobId() + "");
+		  		//jobsArray.add(rs.getInt("jobs_tasks1.job_id")+"");
 		   	}
 	
 	  	}
-	  	catch (SQLException sqle)
-	  	{
+	  	catch (DataAccessException sqle) {
 	  		UtilityFunctions.stdoutwriter.writeln("Problem retreiving list of jobs. Aborting task.",Logs.ERROR,"DG12.5");
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 			return;
@@ -143,79 +185,80 @@ class DataGrab extends Thread {
 	
   }
 	
-	public String getTaskMetric(TaskMetrics tm) throws CustomGenericException {
-		String strRet="";
+	public Calendar getTaskMetric(TaskMetrics tm) throws CustomGenericException {
+	
+	
 		switch (tm) {
 		case JOB_START:
 			if (calJobProcessingStart != null)
-				strRet = this.formatter.format(calJobProcessingStart.getTime());
+				return(calJobProcessingStart);
 			else
-				strRet = null;
-			break;
+				throw new CustomGenericException();
+			//break;
+			
 		case JOB_END:
 			if (calJobProcessingEnd != null)
-				strRet = this.formatter.format(calJobProcessingEnd.getTime());
+				return(calJobProcessingEnd);
 			else
-				strRet = null;
-			break;
+				throw new CustomGenericException();
+			//break;
 		case ALERT_START:
 			/*
 			 * We aren't processing alerts if in verify mode.
 			 */
 			if (this.bVerify == false) {
 				if (calAlertProcessingStart != null)
-					strRet = this.formatter.format(calAlertProcessingStart.getTime());	
+					return(calAlertProcessingStart);
 				else 
-					strRet = null;
+					throw new CustomGenericException();
 			}
-			break;
+			else
+				return(null);
+			//break;
 		case ALERT_END:
 			if (this.bVerify == false) {
 				if (calAlertProcessingEnd != null)
-					strRet = this.formatter.format(calAlertProcessingEnd.getTime());
+					return(calAlertProcessingEnd);
 				else
-					strRet = null;
+					throw new CustomGenericException();
 			}
-			break;
+			else 
+				return(null);
+			//break;
 			
 		/*
 		 * The Stage performance markers are only used for default url processing.
 		 */
 		case STAGE1_START:
-			if (calJobProcessingStage1Start != null)
-				strRet = this.formatter.format(calJobProcessingStage1Start.getTime());
-			else
-				strRet = "";
-			break;
+			return(calJobProcessingStage1Start);
+			//break;
 
 		case STAGE1_END:
-			if (calJobProcessingStage1End != null)
-				strRet = this.formatter.format(calJobProcessingStage1End.getTime());
-			else
-				strRet = "";
-			break;
+			return(calJobProcessingStage1End);
+			//break;
+		
 			
 		case STAGE2_START:
-			if (calJobProcessingStage2Start != null)
-				strRet = this.formatter.format(calJobProcessingStage2Start.getTime());
-			else
-				strRet = "";
-			break;
+			return(calJobProcessingStage2Start);
+			//break;
+		
+			
 		case STAGE2_END:
-			if (calJobProcessingStage2End != null)
-				strRet = this.formatter.format(calJobProcessingStage2End.getTime());
-			else
-				strRet = "";
-			break;
+			return(calJobProcessingStage2End);
+			//break;
+			
+		default:
+			throw new CustomGenericException();
+			//break;
 
 		}
 		
-		if (strRet == null)
+		/*if (strRet == null)
 			throw new CustomGenericException();
 		else if (strRet.isEmpty())
 			return "null";
 		else
-			return "'" + strRet + "'";
+			return "'" + strRet + "'";*/
 		
 	}
 
@@ -310,18 +353,18 @@ class DataGrab extends Thread {
 	 * is not being used (and no plans to implement it further).
 	 */
 
-	public void startThread() {
+	/*public void startThread() {
 		bContinue = true;
 		this.start();
-	}
+	}*/
 
-	public void stopThread() {
+	/*public void stopThread() {
 		bContinue = false;
 	}
 
 	public boolean getWillTerminate() {
 		return (!bContinue);
-	}
+	}*/
 	
 	/*
 	 * end thread related helper methods.
@@ -342,7 +385,7 @@ class DataGrab extends Thread {
 
 		if (bContinue == false) {
 			UtilityFunctions.stdoutwriter.wrapperNDCPop();
-			dbf.closeConnection();
+			//dbf.closeConnection();
 			return;
 		}
 		
@@ -359,7 +402,7 @@ class DataGrab extends Thread {
 		UtilityFunctions.stdoutwriter.writeln("INITIATING THREAD",
 				Logs.STATUS1, "DG1");
 
-		if (DataLoad.bLoadingHistoricalData == true)
+		if (Broker.getLoadingHistoricalData() == true)
 			UtilityFunctions.stdoutwriter.wrapperNDCPush(HistoricalDataLoad.calCurrent.getTime().toString());
 
 		
@@ -373,7 +416,7 @@ class DataGrab extends Thread {
 				+ calJobProcessingEnd.getTime().toString(), Logs.STATUS1,
 				"DG38.15");
 
-		if (DataLoad.bLoadingHistoricalData == true)
+		if (Broker.getLoadingHistoricalData() == true)
 			UtilityFunctions.stdoutwriter.wrapperNDCPop();
 		
 		if (this.bVerify == true)
@@ -385,7 +428,7 @@ class DataGrab extends Thread {
 		 * Don't process alerts if loading historical data or in verfiy mode where we just 
 		 * verify the data collection process.
 		 */
-		if (DataLoad.bLoadingHistoricalData == false && this.bVerify == false) {
+		if (Broker.getLoadingHistoricalData() == false && this.bVerify == false) {
 
 			calAlertProcessingStart = Calendar.getInstance();
 			UtilityFunctions.stdoutwriter.writeln(
@@ -396,22 +439,26 @@ class DataGrab extends Thread {
 			Alerts al = new Alerts();
 			try {
 				al.checkAlerts(this);
-			} catch (SQLException sqle) {
+			} catch (DataAccessException sqle) {
 				UtilityFunctions.stdoutwriter.writeln(
-						"Problem process alerts.", Logs.ERROR, "DG11.52");
+						"Problem processing alerts.", Logs.ERROR, "DG11.52");
 				UtilityFunctions.stdoutwriter.writeln(sqle);
 				// dbf.closeConnection();
 				// return;
 
+			} catch (PikefinException pe) {
+				UtilityFunctions.stdoutwriter.writeln(
+						"Problem processing alerts.", Logs.ERROR, "DG11.558");
+				UtilityFunctions.stdoutwriter.writeln(pe);
+				
 			}
-
 			calAlertProcessingEnd = Calendar.getInstance();
 			UtilityFunctions.stdoutwriter.writeln("ALERT PROCESSING END TIME: "
 					+ calAlertProcessingEnd.getTime().toString(), Logs.STATUS1,
 					"DG54");
 		}
 		UtilityFunctions.stdoutwriter.wrapperNDCPop();
-		dbf.closeConnection();
+		//dbf.closeConnection();
 
 	}
 
@@ -421,7 +468,7 @@ class DataGrab extends Thread {
 
 
 	public String get_value(String local_data_set)
-			throws IllegalStateException, TagNotFoundException, SQLException,
+			throws IllegalStateException, TagNotFoundException, DataAccessException,
 			CustomRegexException {
 		String strDataValue = "";
 
@@ -431,15 +478,27 @@ class DataGrab extends Thread {
 		// run sql to get info about the data_set
 		// Connection con = UtilityFunctions.db_connect();
 
-		String query = "select extract_singles.* from extract_singles,jobs where extract_singles.id=jobs.extract_key and jobs.Data_Set='"
-				+ local_data_set + "'";
+		//String query = "select extract_singles.* from extract_singles,jobs where extract_singles.id=jobs.extract_key and jobs.Data_Set='"
+		//		+ local_data_set + "'";
+		
+		Criteria criteria = dbf.dbHibernateGetCriteria(ExtractSingle.class);
+		DetachedCriteria existsCriteria = DetachedCriteria.forClass(Job.class);
+		existsCriteria.add(Property.forName("Job.extract_key").eqProperty("ExtractSingle.id"));
+		criteria.add(Subqueries.exists(existsCriteria.setProjection(Projections.property("Job.jobId"))));
+		ExtractSingle es = (ExtractSingle)criteria.uniqueResult();
+		
+		
+		
 
 		// Statement stmt = con.createStatement();
-		ResultSet rs = dbf.db_run_query(query);
+		//ResultSet rs = dbf.db_run_query(query);
+		//SqlRowSet rs = dbf.dbSpringRunQuery(query);
 
-		rs.next();
+		//rs.next();
 		
-		if (rs.getInt("parse_post_process")!=0) {
+		
+		if (es.isParsePostProcess() == true) {
+			//We do the parsing in the post process function
 			return(this.returned_content);
 		}
 
@@ -448,10 +507,10 @@ class DataGrab extends Thread {
 		 * This next line will throw an exception if you meant to do a table
 		 * extraction but forgot to set the table_extraction flag in the db.
 		 */
-		tables = rs.getInt("Table_Count");
-		cells = rs.getInt("Cell_Count");
-		rows = rs.getInt("Row_Count");
-		divs = rs.getInt("Div_Count");
+		tables = es.getTableCount();
+		cells = es.getCellCount();
+		rows = es.getRowCount();
+		divs = es.getDivCount();
 
 		int nCurOffset = 0;
 
@@ -459,8 +518,7 @@ class DataGrab extends Thread {
 		 * Initial regex search.
 		 */
 
-		String strInitialOpenUniqueCode = rs
-				.getString("Initial_Bef_Unique_Code");
+		String strInitialOpenUniqueCode =es.getInitialBefUniqueCode();
 		Pattern pattern;
 		Matcher matcher;
 		if ((strInitialOpenUniqueCode != null)
@@ -492,22 +550,22 @@ class DataGrab extends Thread {
 
 		UtilityFunctions.stdoutwriter.writeln("Before table searches.",
 				Logs.STATUS2, "DG16");
-		nCurOffset = this.uf.regexSeekLoop("(?i)(<TABLE[^>]*>)", tables, nCurOffset,returned_content);
+		nCurOffset = UtilityFunctions.regexSeekLoop("(?i)(<TABLE[^>]*>)", tables, nCurOffset,returned_content);
 
 		UtilityFunctions.stdoutwriter.writeln("Before table row searches.",
 				Logs.STATUS2, "DG17");
-		nCurOffset = this.uf.regexSeekLoop("(?i)(<tr[^>]*>)", rows, nCurOffset,returned_content);
+		nCurOffset = UtilityFunctions.regexSeekLoop("(?i)(<tr[^>]*>)", rows, nCurOffset,returned_content);
 
 		UtilityFunctions.stdoutwriter.writeln("Before table cell searches.",
 				Logs.STATUS2, "DG18");
-		nCurOffset = this.uf.regexSeekLoop("(?i)(<td[^>]*>)", cells, nCurOffset,returned_content);
+		nCurOffset = UtilityFunctions.regexSeekLoop("(?i)(<td[^>]*>)", cells, nCurOffset,returned_content);
 
 		UtilityFunctions.stdoutwriter.writeln("Before div searches",
 				Logs.STATUS2, "DG19");
-		nCurOffset = this.uf.regexSeekLoop("(?i)(<div[^>]*>)", divs, nCurOffset,returned_content);
+		nCurOffset = UtilityFunctions.regexSeekLoop("(?i)(<div[^>]*>)", divs, nCurOffset,returned_content);
 
-		String strBeforeUniqueCode = rs.getString("Before_Unique_Code");
-		String strAfterUniqueCode = rs.getString("After_Unique_Code");
+		String strBeforeUniqueCode = es.getBeforeUniqueCode();
+		String strAfterUniqueCode = es.getAfterUniqueCode();
 		/*
 		 * String strBeforeUniqueCodeRegex = "(?i)(" + strBeforeUniqueCode +
 		 * ")";
@@ -515,14 +573,14 @@ class DataGrab extends Thread {
 		 * String strAfterUniqueCodeRegex = "(?i)(" + strAfterUniqueCode + ")";
 		 */
 
-		strDataValue = this.uf.regexSnipValue(strBeforeUniqueCode, strAfterUniqueCode,
+		strDataValue = UtilityFunctions.regexSnipValue(strBeforeUniqueCode, strAfterUniqueCode,
 				nCurOffset,this.returned_content);
 
 		/*
 		 * OFP 3/28/2011 - Don't remove commas if this is csv format. Let the
 		 * postProcessing function handle the commas.
 		 */
-		if (rs.getBoolean("is_csv_format") == false)
+		if (es.isIsCSVFormat() == false)
 			strDataValue = strDataValue.replace(",", "");
 
 		strDataValue = strDataValue.replace("&nbsp;", "");
@@ -549,11 +607,12 @@ class DataGrab extends Thread {
 	}
 
 	private ArrayList<String[]> get_table_with_headers(String strTableSet)
-			throws SQLException, TagNotFoundException,
+			throws DataAccessException, TagNotFoundException,
 			PrematureEndOfDataException {
 		String query = "select extract_key_colhead,extract_key_rowhead,multiple_tables from jobs where data_set='"
 				+ strTableSet + "'";
-		ResultSet rs = dbf.db_run_query(query);
+		//ResultSet rs = dbf.db_run_query(query);
+		SqlRowSet rs = dbf.dbSpringRunQuery(query);
 		rs.next();
 
 		//ArrayList<String[]> tabledatabody = get_table(strTableSet, "body");
@@ -588,7 +647,8 @@ class DataGrab extends Thread {
 
 	}
 
-	private void defaultURLProcessing(String strDataSet) throws SQLException,
+	
+	private void defaultURLProcessing(String strDataSet) throws DataAccessException,
 			MalformedURLException, IOException, IllegalAccessException,
 			InvocationTargetException, NoSuchMethodException {
 
@@ -596,7 +656,8 @@ class DataGrab extends Thread {
 
 		query = "select * from jobs where data_set='" + strDataSet + "'";
 
-		ResultSet rs2 = dbf.db_run_query(query);
+		//ResultSet rs2 = dbf.db_run_query(query);
+		SqlRowSet rs2 = dbf.dbSpringRunQuery(query);
 		rs2.next();
 		calJobProcessingStage1Start = Calendar.getInstance();
 		HttpClient httpclient = new DefaultHttpClient();
@@ -605,25 +666,26 @@ class DataGrab extends Thread {
 		if ((rs2.getInt("input_source") != 0)) {
 			query = "select * from input_source where id="
 					+ rs2.getInt("input_source");
-			ResultSet rs3 = dbf.db_run_query(query);
+			//ResultSet rs3 = dbf.db_run_query(query);
+			SqlRowSet rs3 = dbf.dbSpringRunQuery(query);
 			rs3.next();
 			String strStProperties = rs3.getString("form_static_properties");
 			String[] listItems = strStProperties.split(":");
-			String[] listItems2;
-			String data = "";
+			//String[] listItems2;
+			//String data = "";
 			for (int i = 0; i < listItems.length; i++) {
-				listItems2 = listItems[i].split("=");
-				if (i != 0) {
+				//listItems2 = listItems[i].split("=");
+				/*if (i != 0) {
 					data += "&";
-				}
+				}*/
 
 				// check to see if there is an equal sign or a value on the
 				// right side of the equality
-				if (listItems2.length == 1)
+				/*if (listItems2.length == 1)
 					data += URLEncoder.encode(listItems2[0], "UTF-8") + "=";
 				else
 					data += URLEncoder.encode(listItems2[0], "UTF-8") + "="
-							+ URLEncoder.encode(listItems2[1], "UTF-8");
+							+ URLEncoder.encode(listItems2[1], "UTF-8");*/
 
 			}
 
@@ -631,7 +693,7 @@ class DataGrab extends Thread {
 					"Retrieving URL Form: " + rs3.getString("url_form"),
 					Logs.STATUS2, "DG24.5");
 
-			data = "series_id=LNS14000000&survey=ln&format=&html_tables=&delimiter=&catalog=&print_line_length=&lines_per_page=&row_stub_key=&year=&date=&net_change_start=&net_change_end=&percent_change_start=&percent_change_end=";
+			//data = "series_id=LNS14000000&survey=ln&format=&html_tables=&delimiter=&catalog=&print_line_length=&lines_per_page=&row_stub_key=&year=&date=&net_change_start=&net_change_end=&percent_change_start=&percent_change_end=";
 			HttpPost httppost = new HttpPost(
 					"http://data.bls.gov/cgi-bin/surveymost");
 
@@ -655,6 +717,7 @@ class DataGrab extends Thread {
 			nvps.add(new BasicNameValuePair("series_id", "LNS14000000"));
 			nvps.add(new BasicNameValuePair("survey", "ln"));
 
+			
 			httppost.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
 
 			response = httpclient.execute(httppost);
@@ -743,13 +806,15 @@ class DataGrab extends Thread {
 		 * bloomberg index tasks.
 		 */
 		
+		StringBuilder sb = new StringBuilder();
 		boolean bDone = false;
 		while (!bDone) {
 			try {
 
 				while ((nTmp = in.read()) != -1) {
 					this.nCount++;
-					returned_content += (char) nTmp;
+					sb.append((char)nTmp);
+					//returned_content += (char) nTmp;
 					//if (nCount == 10000 && nCurTask == 6) {
 						//Calendar cal2 = Calendar.getInstance();
 						//System.out.println("b");
@@ -773,10 +838,12 @@ class DataGrab extends Thread {
 							.writeln(
 									"Processing one of the bloomberg tasks, resubmitting URL",
 									Logs.WARN, "DG42.2");
+					sb = new StringBuilder();
 				}
 
 			}
 		}
+		returned_content = sb.toString();
 
 		in.close();
 		calJobProcessingStage2End = Calendar.getInstance();
@@ -788,14 +855,16 @@ class DataGrab extends Thread {
 
 	}
 
-	private void get_url(String strDataSet) throws SQLException,
+	private void get_url(String strDataSet) throws DataAccessException,
 			MalformedURLException, IOException, IllegalAccessException,
 			InvocationTargetException, NoSuchMethodException {
 		String query;
 
 		query = "select * from jobs where data_set='" + strDataSet + "'";
 
-		ResultSet rs2 = dbf.db_run_query(query);
+		//ResultSet rs2 = dbf.db_run_query(query);
+		SqlRowSet rs2 = dbf.dbSpringRunQuery(query);
+		
 		rs2.next();
 		String strCustomURLFuncName = rs2.getString("custom_url_func_name");
 		if (strCustomURLFuncName == null || strCustomURLFuncName.isEmpty()) {
@@ -811,8 +880,8 @@ class DataGrab extends Thread {
 
 	}
 
-	private ArrayList<String[]> obsolete_get_table(String strTableSet, String strSection)
-			throws SQLException, TagNotFoundException,
+	/*private ArrayList<String[]> obsolete_get_table(String strTableSet, String strSection)
+			throws DataAccessException, TagNotFoundException,
 			PrematureEndOfDataException {
 		// retrieve the table data_set
 		ArrayList<String[]> tabledata = new ArrayList<String[]>();
@@ -831,19 +900,19 @@ class DataGrab extends Thread {
 		} else {
 			UtilityFunctions.stdoutwriter.writeln(
 					"Table type not found. Exiting.", Logs.ERROR, "DG26.5");
-			/*
+			#*
 			 * Lazy here, should create a new exception type but just reusing
 			 * one that this function already throws.
-			 */
+			 *#
 			throw new TagNotFoundException();
 		}
 
 		ResultSet rs = dbf.db_run_query(query);
 		rs.next();
-		/*
+		#*
 		 * if nFixedDataRows is null or zero, then we are grabbing an
 		 * indeterminate number of rows.
-		 */
+		 *#
 		int nFixedDataRows = rs.getInt("rowsofdata");
 		int nRowInterval = rs.getInt("rowinterval");
 		String strEndDataMarker = rs.getString("end_data_marker");
@@ -920,17 +989,17 @@ class DataGrab extends Thread {
 						strDataValue = this.uf.regexSnipValue(strBeforeUniqueCodeRegex,
 								strAfterUniqueCodeRegex, nCurOffset,this.returned_content);
 
-						/*
+						#*
 						 * Going to strip out &nbsp; for all data streams, let's
 						 * see if this is a problem.
-						 */
-						/* See below for exit conditions. */
+						 *#
+						#* See below for exit conditions. *#
 						if (strEndDataMarker != null
 								&& (strEndDataMarker.length() > 0))
 							if (strDataValue.equals(strEndDataMarker)) {
-								/*
+								#*
 								 * Finished grabbing data for this table.
-								 */
+								 *#
 								nCurOffset = nEndTableOffset; // this breaks us
 																// out of the
 																// while loop
@@ -955,10 +1024,10 @@ class DataGrab extends Thread {
 
 				nRowCount++;
 
-				/*
+				#*
 				 * First part of if clause is for data sets with predefined
 				 * fixed number of rows.
-				 */
+				 *#
 				if (nFixedDataRows > 0) {
 					if (nFixedDataRows == nRowCount)
 						break;
@@ -974,9 +1043,9 @@ class DataGrab extends Thread {
 						throw new PrematureEndOfDataException();
 
 				}
-				/*
+				#*
 				 * else part is for data sets of an indeterminate size.
-				 */
+				 *#
 				else {
 					try {
 						nCurOffset = this.uf.regexSeekLoop("(?i)(<tr[^>]*>)",
@@ -997,7 +1066,7 @@ class DataGrab extends Thread {
 		}
 
 		return (tabledata);
-	}
+	}*/
 	
 	
 	
@@ -1006,33 +1075,55 @@ class DataGrab extends Thread {
 
 		try {
 
-			String query = "select entity_groups.id,tasks.metric_id,tasks.use_group_for_reading,tasks.delay from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id="
-					+ nCurTask;
-			ResultSet rs = dbf.db_run_query(query);
-			rs.next();
-			int nMetricId = rs.getInt("tasks.metric_id");
-			int nGroupId = rs.getInt("entity_groups.id");
-			int nDelay = rs.getInt("tasks.delay");
+			//String query = "select entity_groups.id,tasks.metric_id,tasks.use_group_for_reading,tasks.delay from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id="
+			//		+ nCurTask;
+			
+			String query = " from Task t ";
+			query += " join t.entityGroup eg ";
+			query += " join t.metric m ";
+			query += " where t.taskId=" + nCurTask;
+			
+			//ResultSet rs = dbf.db_run_query(query);
+			
+			List<Object[]> l2 = dbf.dbHibernateRunQuery(query);
+			Object[] objArray  = l2.get(0);
+			Task t = (Task)objArray[0];
+			EntityGroup eg = (EntityGroup)objArray[1];
+			Metric m = (Metric)objArray[2];
+			
+			//SqlRowSet rs = dbf.dbSpringRunQuery(query);
+			
+			
+			//rs.next();
+			int nMetricId = m.getMetricId();
+			int nGroupId = eg.getEntityGroupId();
+			int nDelay = t.getDelay();
 			
 
-			boolean bUseGroupForReading = rs
-					.getBoolean("tasks.use_group_for_reading");
+			boolean bUseGroupForReading = t.isUseGroupForReading();
 
 			boolean bTableExtraction = true;
-
-			query = "select * from jobs where id='" + strJobPrimaryKey + "'";
-			rs = dbf.db_run_query(query);
-			rs.next();
 			
-			this.strStage1URL = rs.getString("url_static");
+			String query2 = " from Job j";
+			query2 += " where j.jobId=" + strJobPrimaryKey;
+			
+			Job j  = (Job) dbf.dbHibernateRunQueryUnique(query2);
+			
+			
+			//query = "select * from jobs where id='" + strJobPrimaryKey + "'";
+			//rs = dbf.db_run_query(query);
+			//rs = dbf.dbSpringRunQuery(query);
+			///rs.next();
+			
+			this.strStage1URL = j.getUrlStatic();
 
-			strCurDataSet = rs.getString("data_set");
+			strCurDataSet = j.getDataSet();
 
 			UtilityFunctions.stdoutwriter.writeln("====> PROCESSING JOB:"
 					+ strCurDataSet, Logs.STATUS1, "DG1.55");
 
-			if (rs.getInt("table_extraction") == 0)
-				bTableExtraction = false;
+			//if (j.isTableExtraction() == 0)
+			bTableExtraction = j.isTableExtraction();
 
 			pf.preJobProcessing(strCurDataSet);
 
@@ -1056,15 +1147,19 @@ class DataGrab extends Thread {
 						ArrayList<String[]> tabledata2 = pf.postProcessing(
 								tabledata, strCurDataSet);
 
-						ResultSet rs2 = dbf
-								.db_run_query("select custom_insert from jobs where data_set='"
-										+ strCurDataSet + "'");
-						rs2.next();
+						//ResultSet rs2 = dbf
+						//		.db_run_query("select custom_insert from jobs where data_set='"
+						//				+ strCurDataSet + "'");
+						/*String query = " from "
+						SqlRowSet rs2 = dbf.dbSpringRunQuery("select custom_insert from jobs where data_set='"
+								+ strCurDataSet + "'");
+						
+						rs2.next();*/
 
 						/*
 						 * Insert directly into fact_data now.
 						 */
-						if (rs2.getInt("custom_insert") != 1)
+						if (j.isCustomInsert() == false)
 							dbf.importTableIntoDB(tabledata2, this.strFactTable,
 									this.nTaskBatch, this.nCurTask, nMetricId);
 
@@ -1073,7 +1168,7 @@ class DataGrab extends Thread {
 								"Badly formed url, processing dataset aborted",
 								Logs.ERROR, "DG38.1");
 						UtilityFunctions.stdoutwriter.writeln(mue);
-					} catch (SQLException sqle) {
+					} catch (DataAccessException sqle) {
 						UtilityFunctions.stdoutwriter
 								.writeln(
 										"Problem issuing sql statement, processing dataset aborted",
@@ -1135,9 +1230,13 @@ class DataGrab extends Thread {
 					ArrayList<String[]> tabledata2 = pf.postProcessing(
 							tabledata, strCurDataSet);
 
-					ResultSet rs2 = dbf
-							.db_run_query("select custom_insert from jobs where data_set='"
+					//ResultSet rs2 = dbf
+					//		.db_run_query("select custom_insert from jobs where data_set='"
+					//				+ strCurDataSet + "'");
+					
+					SqlRowSet rs2 = dbf.dbSpringRunQuery("select custom_insert from jobs where data_set='"
 									+ strCurDataSet + "'");
+					
 					rs2.next();
 					if (rs2.getInt("custom_insert") != 1) {
 						/*
@@ -1155,20 +1254,31 @@ class DataGrab extends Thread {
 
 				// query = "select * from entities where groups like '%" + group
 				// + "%' order by ticker";
-				query = "select entities.* from entities,entities_entity_groups ";
+				/*query = "select entities.* from entities,entities_entity_groups ";
 				query += " where entities_entity_groups.entity_group_id="
 						+ nGroupId;
-				query += " AND entities_entity_groups.entity_id=entities.id ";
+				query += " AND entities_entity_groups.entity_id=entities.id ";*/
+				
+				query = " from EntityGroup eg ";
+				query += " join eg.entity e ";
+				query += " where eg.groupId=" + nGroupId;
+				
+				List<Object[]> l = dbf.dbHibernateRunQuery(query);
+				
 
-				rs = dbf.db_run_query(query);
+				//rs = dbf.db_run_query(query);
+				//rs = dbf.dbSpringRunQuery(query);
+				
 
 				// String strCurTicker="";
 				// String fullUrl;
 				String strDataValue = "";
-				int count = 0;
+				//int count = 0;
 
 				/* Loop through the list of group items, e.g. stock tickers */
-				while (rs.next()) {
+				for (Object[] objArray3 : l) {
+					Entity e = (Entity)objArray3[1];
+				//while (rs.next()) {
 					try {
 						/*
 						 * Have to maintain original ticker and current ticker
@@ -1178,9 +1288,8 @@ class DataGrab extends Thread {
 						 * entity table. "Current Ticker" gets modified to the
 						 * format that the website uses.
 						 */
-						this.strOriginalTicker = this.strCurrentTicker = rs
-								.getString("ticker");
-						this.nCurrentEntityId = rs.getInt("id");
+						this.strOriginalTicker = this.strCurrentTicker = e.getTicker();
+						this.nCurrentEntityId = e.getEntityId();
 
 						UtilityFunctions.stdoutwriter.writeln(
 								"Processing ticker: " + this.strCurrentTicker,
@@ -1191,10 +1300,10 @@ class DataGrab extends Thread {
 							if (strCurrentTicker
 									.compareTo(strStaticTickerLimit) != 0)
 								continue;
-							else {
+							/*else {
 								int o = 0;
 								o++;
-							}
+							}*/
 
 						/*
 						 * Group table extraction.
@@ -1245,9 +1354,13 @@ class DataGrab extends Thread {
 										.postProcessing(tabledata,
 												strCurDataSet);
 
-								ResultSet rs2 = dbf
-										.db_run_query("select custom_insert from jobs where data_set='"
+								//ResultSet rs2 = dbf
+								//		.db_run_query("select custom_insert from jobs where data_set='"
+								//				+ strCurDataSet + "'");
+								
+								SqlRowSet rs2 = dbf.dbSpringRunQuery("select custom_insert from jobs where data_set='"
 												+ strCurDataSet + "'");
+								
 								rs2.next();
 								if (rs2.getInt("custom_insert") != 1)
 									dbf.importTableIntoDB(tabledata2,
@@ -1278,7 +1391,7 @@ class DataGrab extends Thread {
 								UtilityFunctions.stdoutwriter.writeln(
 										cese.getMessage(),
 										Logs.WARN, "DG41.38");
-							} catch (SQLException sqle) {
+							} catch (DataAccessException sqle) {
 								UtilityFunctions.stdoutwriter
 										.writeln(
 												"Problem issuing sql statement, skipping ticker",
@@ -1289,13 +1402,13 @@ class DataGrab extends Thread {
 										"Problem with I/O, skipping ticker",
 										Logs.ERROR, "DG43");
 								UtilityFunctions.stdoutwriter.writeln(ioe);
-							} catch (Exception e) {
+							} catch (Exception ex) {
 								UtilityFunctions.stdoutwriter.writeln(
 										"Processing table for ticker "
 												+ strCurrentTicker
 												+ " failed, skipping",
 										Logs.ERROR, "DG44");
-								UtilityFunctions.stdoutwriter.writeln(e);
+								UtilityFunctions.stdoutwriter.writeln(ex);
 							}
 
 						} else
@@ -1345,9 +1458,14 @@ class DataGrab extends Thread {
 										.postProcessing(tabledata,
 												strCurDataSet);
 
-								ResultSet rs2 = dbf
-										.db_run_query("select custom_insert from jobs where data_set='"
+								//ResultSet rs2 = dbf
+								//		.db_run_query("select custom_insert from jobs where data_set='"
+								//				+ strCurDataSet + "'");
+								SqlRowSet rs2 = dbf.dbSpringRunQuery("select custom_insert from jobs where data_set='"
 												+ strCurDataSet + "'");
+								
+								
+								
 								rs2.next();
 								if (rs2.getInt("custom_insert") != 1)
 									dbf.importTableIntoDB(tabledata2,
@@ -1368,7 +1486,7 @@ class DataGrab extends Thread {
 										cese.getMessage(),
 										Logs.WARN, "DG41.38");
 							}
-							catch (SQLException sqle) {
+							catch (DataAccessException sqle) {
 								UtilityFunctions.stdoutwriter
 										.writeln(
 												"Problem issuing sql statement, skipping ticker",
@@ -1379,13 +1497,13 @@ class DataGrab extends Thread {
 										"Problem with I/O, skipping ticker",
 										Logs.ERROR, "DG50");
 								UtilityFunctions.stdoutwriter.writeln(ioe);
-							} catch (Exception e) {
+							} catch (Exception ex) {
 								UtilityFunctions.stdoutwriter.writeln(
 										"Processing table for ticker "
 												+ strCurrentTicker
 												+ " failed, skipping",
 										Logs.ERROR, "DG51");
-								UtilityFunctions.stdoutwriter.writeln(e);
+								UtilityFunctions.stdoutwriter.writeln(ex);
 								
 							}
 
@@ -1412,7 +1530,7 @@ class DataGrab extends Thread {
 							// uf.db_update_query(query);
 						}
 
-					} catch (SQLException sqle) {
+					} catch (DataAccessException sqle) {
 						UtilityFunctions.stdoutwriter.writeln(
 								"problem with sql statement in grab_data_set",
 								Logs.ERROR, "DG52");
@@ -1423,7 +1541,7 @@ class DataGrab extends Thread {
 						UtilityFunctions.stdoutwriter.writeln(sqle);
 					}
 
-					count++;
+					//count++;
 					/*
 					 * This delay is being used as a pause between each group
 					 * member of a group extraction. Can't remember why this was
@@ -1457,7 +1575,7 @@ class DataGrab extends Thread {
 
 	}
 	
-	public void customPDFURL(String strDataSet) throws SQLException,IOException {
+	public void customPDFURL(String strDataSet) throws DataAccessException,IOException {
 		//HttpResponse response;
 		//HttpGet httpget;
 		//HttpClient httpclient = new DefaultHttpClient();
@@ -1465,7 +1583,9 @@ class DataGrab extends Thread {
 		
 		String query = "select * from jobs where data_set='" + strDataSet + "'";
 
-		ResultSet rs2 = dbf.db_run_query(query);
+		//ResultSet rs2 = dbf.db_run_query(query);
+		SqlRowSet rs2 = dbf.dbSpringRunQuery(query);
+		
 		rs2.next();
 		
 		String strURL = rs2.getString("url_static");
@@ -1487,7 +1607,7 @@ class DataGrab extends Thread {
 	 * It has to be public or the dynamic invocation doesn't work.
 	 *
 	 */
-	public void customYahooBulkURL(String strDataSet) throws SQLException,
+	public void customYahooBulkURL(String strDataSet) throws DataAccessException,
 			IOException {
 
 		// Get a list of all the tickers
@@ -1501,27 +1621,33 @@ class DataGrab extends Thread {
 
 		String query2 = "select entity_groups.id,tasks.metric_id,tasks.use_group_for_reading from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id="
 				+ nCurTask;
-		ResultSet rs = dbf.db_run_query(query2);
+		//ResultSet rs = dbf.db_run_query(query2);
+		SqlRowSet rs = dbf.dbSpringRunQuery(query2);
+		
 		rs.next();
 		int nGroupId = rs.getInt("entity_groups.id");
 
 		String query = "select count(entities.id) as cnt from entities,entities_entity_groups ";
 		query += " where entities_entity_groups.entity_group_id=" + nGroupId;
 		query += " AND entities_entity_groups.entity_id=entities.id ";
-		rs = dbf.db_run_query(query);
+		
+		//rs = dbf.db_run_query(query);
+		rs = dbf.dbSpringRunQuery(query);
+		
 		rs.next();
 
 		int nTotalCount = rs.getInt("cnt");
 
 		query = "select * from jobs where data_set='" + strDataSet + "'";
 
-		ResultSet rs2 = dbf.db_run_query(query);
+		//ResultSet rs2 = dbf.db_run_query(query);
+		SqlRowSet rs2 = dbf.dbSpringRunQuery(query);
 		rs2.next();
 
 		String strURLStatic = rs2.getString("url_static");
 
 		int nGroupCount = 1;
-		int nCurrentCount = 0;
+		//int nCurrentCount = 0;
 
 		HttpResponse response;
 
@@ -1540,7 +1666,8 @@ class DataGrab extends Thread {
 			query += " order by entities.id ";
 			query += " limit " + nGroupSize + " offset "
 					+ (nGroupSize * (nGroupCount - 1));
-			rs = dbf.db_run_query(query);
+			//rs = dbf.db_run_query(query);
+			rs = dbf.dbSpringRunQuery(query);
 
 			String strList = "";
 			while (rs.next()) {
@@ -1799,7 +1926,8 @@ class EnhancedTable {
 	
 	boolean bDoneProcessing;
 	
-	ResultSet rs;
+	//ResultSet rs;
+	SqlRowSet rs;
 	
 	
 	public EnhancedTable(DataGrab dg,String inputTableSet, String inputSection) {
@@ -1812,7 +1940,7 @@ class EnhancedTable {
 	
 	//public ArrayList<String[]> enhancedGetTable(String strTableSet, String strSection)
 	public ArrayList<String[]> enhancedGetTable()
-	throws SQLException, TagNotFoundException,	PrematureEndOfDataException {
+	throws DataAccessException, TagNotFoundException,	PrematureEndOfDataException {
 		// retrieve the table data_set
 		ArrayList<String[]> tabledata = new ArrayList<String[]>();
 		// try
@@ -1837,7 +1965,9 @@ class EnhancedTable {
 			throw new TagNotFoundException();
 		}
 		
-		rs = dg.dbf.db_run_query(query);
+		//rs = dg.dbf.db_run_query(query);
+		rs = dg.dbf.dbSpringRunQuery(query);
+		
 		rs.next();
 		/*
 		 * if nFixedDataRows is null or zero, then we are grabbing an
@@ -1873,16 +2003,16 @@ class EnhancedTable {
 			UtilityFunctions.stdoutwriter.writeln("Searching table count: "
 					+ nCurTable, Logs.STATUS2, "DG27");
 		
-			nCurOffset = dg.uf.regexSeekLoop("(?i)(<TABLE[^>]*>)", nCurTable,
+			nCurOffset = UtilityFunctions.regexSeekLoop("(?i)(<TABLE[^>]*>)", nCurTable,
 					nCurOffset,dg.returned_content);
 		
-			nCurOffset = dg.uf.regexSeekLoop("(?i)(<tr[^>]*>)",
+			nCurOffset = UtilityFunctions.regexSeekLoop("(?i)(<tr[^>]*>)",
 					rs.getInt("top_corner_row"), nCurOffset, dg.returned_content);
 			
-			int nEndRowOffset = dg.uf.regexSeekLoop("(?i)(</tr>)",
+			int nEndRowOffset = UtilityFunctions.regexSeekLoop("(?i)(</tr>)",
 					1, nCurOffset,dg.returned_content);
 		
-			int nEndTableOffset = dg.uf.regexSeekLoop("(?i)(</TABLE>)", 1, nCurOffset,dg.returned_content);
+			int nEndTableOffset = UtilityFunctions.regexSeekLoop("(?i)(</TABLE>)", 1, nCurOffset,dg.returned_content);
 		
 			// iterate over rows, iterate over columns
 			boolean done = false;
@@ -1919,9 +2049,9 @@ class EnhancedTable {
 						break;
 		
 					try {
-						nCurOffset = dg.uf.regexSeekLoop("(?i)(<tr[^>]*>)",
+						nCurOffset = UtilityFunctions.regexSeekLoop("(?i)(<tr[^>]*>)",
 								nRowInterval, nCurOffset,dg.returned_content);
-						nEndRowOffset = dg.uf.regexSeekLoop("(?i)(</tr>)",
+						nEndRowOffset = UtilityFunctions.regexSeekLoop("(?i)(</tr>)",
 								1, nCurOffset,dg.returned_content);
 					} catch (TagNotFoundException tnfe) {
 						throw new PrematureEndOfDataException();
@@ -1936,9 +2066,9 @@ class EnhancedTable {
 				 */
 				else {
 					try {
-						nCurOffset = dg.uf.regexSeekLoop("(?i)(<tr[^>]*>)",
+						nCurOffset = UtilityFunctions.regexSeekLoop("(?i)(<tr[^>]*>)",
 								nRowInterval, nCurOffset,dg.returned_content);
-						nEndRowOffset = dg.uf.regexSeekLoop("(?i)(</tr>)",
+						nEndRowOffset = UtilityFunctions.regexSeekLoop("(?i)(</tr>)",
 								1, nCurOffset,dg.returned_content);
 					} catch (TagNotFoundException tnfe) {
 						// No more TR tags in the file - we'll assume it's the
@@ -1958,7 +2088,7 @@ class EnhancedTable {
 		return (tabledata);
 	}
 	
-	private String[] enhancedProcessRow(String strRow) throws SQLException {
+	private String[] enhancedProcessRow(String strRow) throws DataAccessException {
 		
 		String[] rowdata;
 		UtilityFunctions.stdoutwriter.writeln("row: " + nRowCount,
@@ -1976,10 +2106,10 @@ class EnhancedTable {
 						Logs.STATUS2, "DG29");
 	
 				if (bColTHTags == false)
-					nRowOffset = dg.uf.regexSeekLoop("(?i)(<td[^>]*>)",
+					nRowOffset = UtilityFunctions.regexSeekLoop("(?i)(<td[^>]*>)",
 							rs.getInt("Column" + (i + 1)), nRowOffset,strRow);
 				else
-					nRowOffset = dg.uf.regexSeekLoop("(?i)(<th[^>]*>)",
+					nRowOffset = UtilityFunctions.regexSeekLoop("(?i)(<th[^>]*>)",
 							rs.getInt("Column" + (i + 1)), nRowOffset,strRow);
 	
 				// String strBeforeUniqueCode = rs.getString("bef_code_col"
@@ -1991,7 +2121,7 @@ class EnhancedTable {
 				strAfterUniqueCodeRegex = "(?i)("
 						+ rs.getString("aft_code_col" + (i + 1)) + ")";
 				try {
-					strDataValue = dg.uf.regexSnipValue(strBeforeUniqueCodeRegex,
+					strDataValue = UtilityFunctions.regexSnipValue(strBeforeUniqueCodeRegex,
 							strAfterUniqueCodeRegex, nRowOffset,strRow);
 	
 					

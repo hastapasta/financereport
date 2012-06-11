@@ -1,20 +1,18 @@
-//package com.roeschter.jsl;
- 
+package pikefin;
 
-
-import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-//import java.util.Calendar;
+import java.util.Map;
+
 import java.util.HashMap;
-//import java.util.List;
+
 import java.util.Properties;
-//import java.util.Calendar;
+
 import java.io.*;
 import java.math.BigDecimal;
-//import java.util.StringTokenizer;
+
 import java.util.regex.*;
 
 import javax.mail.Message;
@@ -26,36 +24,57 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 
-import twitter4j.Status; 
+
 import twitter4j.Twitter;
-import twitter4j.TwitterBase;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
-import twitter4j.auth.AccessToken;
-import twitter4j.auth.RequestToken;
-import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
 import com.rosaloves.bitlyj.Url;
 import static com.rosaloves.bitlyj.Bitly.*;
 
 import org.apache.commons.mail.*;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 
 import pikefin.log4jWrapper.MainWrapper;
 import pikefin.log4jWrapper.Logs;
 
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine; 
 
 
+/*
+ * This class should be threadsafe. All of the class properties are set once at startup and
+ * MainWrapper functions are synchronized.
+ * 
+ * This is basically a hybrid singleton/static class. One one instance is needed for the entire application.
+ * 
+ * Functionally the only difference I've seen between a static and a singleton class is how the class loader handles them. Static
+ * class is automatically loaded by class loader at the beginning whereas a singleton class can have its loading managed.
+ */
 
 
-public class UtilityFunctions
-{
+public class UtilityFunctions {
 	
-	//public static Connection con;
-	static public boolean bCalledByJsp;
-	String strCapturedOutput;
-	//static CustomBufferedWriter stdoutwriter;
+
+	//static public boolean bCalledByJsp;
+	//String strCapturedOutput;
+
 	static MainWrapper stdoutwriter;
+	
+	private static String strEmailUser;
+	private static String strEmailPassword;
+	private static String strEmailHost;
+	private static int nEmailPort;
+	private static String strEmailFromAddy;
+	private static String strEmailCakeUrl;
+	private static String strEmailPhpUrl;
+	private static String strEmailSubjectText;
+	
+	private static VelocityEngine ve;
 	
 	
 	static final BigDecimal bdGallonsPerLiter = new BigDecimal(".264");
@@ -68,7 +87,80 @@ public class UtilityFunctions
 		
 	}*/
 	
+	public void setMainWrapper(MainWrapper inputMW) {
+		stdoutwriter = inputMW;
+		
+	}
 	
+	public void setVe(VelocityEngine inputVE) {
+		ve = inputVE;
+		ve.init();
+	}
+	
+	
+	public static String getEmailPassword() {
+		return strEmailPassword;
+	}
+	
+	public static String getEmailUser() {
+		return strEmailUser;
+	}
+	
+	public void setEmailPassword(String inputPass) {
+		strEmailPassword = inputPass;
+	}
+	
+	public void setEmailUser(String inputUser) {
+		strEmailUser = inputUser;
+	}
+	
+	public void setEmailPort(String inputPort) {
+		nEmailPort = Integer.parseInt(inputPort);
+	}
+	
+	public static int getEmailPort() {
+		return nEmailPort;
+	}
+	
+	public static String getEmailHost() {
+		return strEmailHost;
+	}
+	
+	public void setEmailHost(String inputHost) {
+		strEmailHost = inputHost;
+	}
+	
+	public static String getEmailFromAddy() {
+		return strEmailFromAddy;
+	}
+	
+	public void setEmailFromAddy(String inputFromAddy) {
+		strEmailFromAddy = inputFromAddy;
+	}
+	
+	public static String getEmailCakeUrl() {
+		return strEmailCakeUrl;
+	}
+	
+	public void setEmailCakeUrl(String inputCakeUrl) {
+		strEmailCakeUrl = inputCakeUrl;
+	}
+	
+	public static String getEmailPhpUrl() {
+		return strEmailPhpUrl;
+	}
+	
+	public void setEmailPhpUrl(String inputPhpUrl) {
+		strEmailPhpUrl = inputPhpUrl;
+	}
+	
+	public static String getEmailSubjectText() {
+		return strEmailSubjectText;
+	}
+	
+	public void setEmailSubjectText(String input) {
+		strEmailSubjectText = input;
+	}
 		
 		
 	
@@ -77,31 +169,21 @@ public class UtilityFunctions
 
 		
 	
-	public UtilityFunctions() 
-	{
-	
-		//try
-		//{
-		try
-		{
-			/*Class.forName("com.mysql.jdbc.Driver");
-			//String url = "jdbc:mysql://localhost:3306/" + strDatabase;
-			String url = "jdbc:mysql://" + strDBHost + ":" + strDBPort + "/" + strDatabase;
-			UtilityFunctions.con = DriverManager.getConnection(url,strUser, strPass);*/
-			//this.bCalledByJsp = bCalled;
-			UtilityFunctions.stdoutwriter = new MainWrapper();
+	public UtilityFunctions() {
+
+		/*try {
+
+			//UtilityFunctions.stdoutwriter = new MainWrapper();
+			//UtilityFunctions.stdoutwriter.writeln("instantiating utility functions",Logs.STATUS1,"UF20.1");
 	
 
 		}
-		catch (Exception e)
-		{
+		catch (Exception e)	{
 			System.out.println("UtilityFunctions constructor failed.");
 			e.printStackTrace();
-		}
+		}*/
 			
-		
-		
-		
+
 	}
 	
 	/*
@@ -109,7 +191,7 @@ public class UtilityFunctions
 	 * issue with how HttpClient was being utilitzed. The issue at that time turned out to
 	 * be caused by something else. I still think that the current HttpCLient implementation
 	 * is thread-safe and I don't want to rework something right now that looks to be working.
-	 * But having said that, I'm leaving these functions in here for now in case it's later
+	 * But having said that, I'm leaving these functions in here for the time being in case it's later
 	 * deemed necessary to make a change and go with the THreadSafeConnectionManager.
 	 * 
 	 * 
@@ -140,7 +222,7 @@ public class UtilityFunctions
 		return(this.httpClient);
 	}*/
 	
-	/*public static void db_update_query(String strUpdateStmt) throws SQLException
+	/*public static void db_update_query(String strUpdateStmt) throws DataAccessException
 	{
 
 	
@@ -156,7 +238,7 @@ public class UtilityFunctions
 				
 			
 		///}
-		//catch (SQLException sqle)
+		//catch (DataAccessException sqle)
 		//{
 		//	stdoutwriter.writeln("1 SQL statement failed: " + strUpdateStmt);
 		//	stdoutwriter.writeln(sqle);
@@ -169,7 +251,7 @@ public class UtilityFunctions
 		
 	}*/
 	
-	public int regexSeekLoop(String regex, int nCount, int nCurOffset, String strHayStack)
+	public static int regexSeekLoop(String regex, int nCount, int nCurOffset, String strHayStack)
 	throws TagNotFoundException {
 		// nCurOffset =
 		// regexSeekLoop("(?i)(<TABLE[^>]*>)",returned_content,tables);
@@ -193,13 +275,13 @@ public class UtilityFunctions
 			nCurOffset = matcher.start() + 1;
 		
 			UtilityFunctions.stdoutwriter.writeln("regex iteration " + i
-					+ ", offset: " + nCurOffset, Logs.STATUS2, "DG3");
+					+ ", offset: " + nCurOffset, Logs.STATUS2, "UF3");
 		
 		}
 		return (nCurOffset);
 	}
 	
-	public String regexSnipValue(String strBeforeUniqueCode,
+	public static String regexSnipValue(String strBeforeUniqueCode,
 			String strAfterUniqueCode, int nCurOffset,String strHayStack)
 			throws CustomRegexException {
 
@@ -215,18 +297,18 @@ public class UtilityFunctions
 			// ")";
 			String strBeforeUniqueCodeRegex = "(" + strBeforeUniqueCode + ")";
 			UtilityFunctions.stdoutwriter.writeln(strBeforeUniqueCodeRegex,
-					Logs.STATUS2, "DG4");
+					Logs.STATUS2, "UF4");
 
 			pattern = Pattern.compile(strBeforeUniqueCodeRegex);
 			UtilityFunctions.stdoutwriter.writeln(
 					"after strbeforeuniquecoderegex compile", Logs.STATUS2,
-					"DG5");
+					"UF5");
 
 			matcher = pattern.matcher(strHayStack);
 
 			UtilityFunctions.stdoutwriter.writeln(
 					"Current offset before final data extraction: "
-							+ nCurOffset, Logs.STATUS2, "DG6");
+							+ nCurOffset, Logs.STATUS2, "UF6");
 
 			matcher.find(nCurOffset);
 
@@ -235,13 +317,13 @@ public class UtilityFunctions
 			nBeginOffset = nCurOffset;
 
 		UtilityFunctions.stdoutwriter.writeln("begin offset: " + nBeginOffset,
-				Logs.STATUS2, "DG7");
+				Logs.STATUS2, "UF7");
 
 		// String strAfterUniqueCodeRegex = "(?i)(" + strAfterUniqueCode + ")";
 		String strAfterUniqueCodeRegex = "(" + strAfterUniqueCode + ")";
 		pattern = Pattern.compile(strAfterUniqueCodeRegex);
 		UtilityFunctions.stdoutwriter.writeln(
-				"after strAfterUniqueCodeRegex compile", Logs.STATUS2, "DG8");
+				"after strAfterUniqueCodeRegex compile", Logs.STATUS2, "UF8");
 
 		matcher = pattern.matcher(strHayStack);
 
@@ -249,7 +331,7 @@ public class UtilityFunctions
 
 		int nEndOffset = matcher.start();
 		UtilityFunctions.stdoutwriter.writeln("end offset: " + nEndOffset,
-				Logs.STATUS2, "DG9");
+				Logs.STATUS2, "UF9");
 
 		if (nEndOffset <= nBeginOffset) {
 			/*
@@ -257,7 +339,7 @@ public class UtilityFunctions
 			 * processing the rest of the table.
 			 */
 			UtilityFunctions.stdoutwriter.writeln("EndOffset is < BeginOffset",
-					Logs.STATUS2, "DG10");
+					Logs.STATUS2, "UF10");
 			throw new CustomRegexException();
 		}
 		strDataValue = strHayStack.substring(nBeginOffset, nEndOffset);
@@ -277,7 +359,7 @@ public class UtilityFunctions
 				tmp = String.format("%x", new BigInteger("".getBytes(c)));
 				tmp = String.format("%x", new BigInteger(strDataValue.getBytes(c)));
 				UtilityFunctions.stdoutwriter.writeln("blap",
-						Logs.STATUS2, "DG10");
+						Logs.STATUS2, "UF10");
 				
 			}
 			catch (Exception e) {
@@ -287,7 +369,7 @@ public class UtilityFunctions
 		}*/
 
 		UtilityFunctions.stdoutwriter.writeln(
-				"Raw Data Value: " + strDataValue, Logs.STATUS2, "DG11");
+				"Raw Data Value: " + strDataValue, Logs.STATUS2, "UF11");
 		/*
 		 * } catch (IOException ioe) { Sy }
 		 */
@@ -295,20 +377,14 @@ public class UtilityFunctions
 		return (strDataValue);
 
 	}
-	
 
 	
-	
-	
-	
-	
-	//public static HashMap<String,HashMap<String,String>> convertResultSetToHashMap(ResultSet rs,String strColumnKey) throws SQLException
-	public static HashMap<TheKey,HashMap<String,String>> convertResultSetToHashMap(ResultSet rs,String strColumnKey1,String strColumnKey2) throws SQLException
-	{
+
+	public static HashMap<TheKey,HashMap<String,String>> convertRowSetToHashMap(SqlRowSet rs,String strColumnKey1,String strColumnKey2) throws DataAccessException, PikefinException	{
 		//HashMap<String,HashMap<String,String>> parentHash = null;
 		HashMap<TheKey,HashMap<String,String>> parentHash = null;
 	
-		ResultSetMetaData rsMetaData = rs.getMetaData();
+		SqlRowSetMetaData rsMetaData = rs.getMetaData();
 		int numberOfColumns = rsMetaData.getColumnCount();
 		String strHashKey1=null;
 		String strHashKey2=null;
@@ -374,7 +450,7 @@ public class UtilityFunctions
 						
 					default:
 						stdoutwriter.writeln("Problem converting ResultSet to HashMap - unhandled column type",Logs.ERROR,"UF18.5");
-						throw new SQLException("Custom SQL Exception - Unable to convert ResultSet to HashMap");
+						throw new PikefinException("Custom SQL Exception - Unable to convert ResultSet to HashMap");
 						
 						
 				}
@@ -389,7 +465,7 @@ public class UtilityFunctions
 			}
 			if (strHashKey1 == null) {
 				stdoutwriter.writeln("Problem converting ResultSet to HashMap - column for hash key not found",Logs.ERROR,"UF18.7");
-				throw new SQLException("Custom SQL Exception - Unable to convert ResultSet to HashMap");
+				throw new PikefinException("Custom SQL Exception - Unable to convert ResultSet to HashMap");
 			}
 			
 			TheKey tk = new TheKey(strHashKey1,strHashKey2);
@@ -400,14 +476,13 @@ public class UtilityFunctions
 		return(parentHash);
 	}
 	
-	public static ArrayList<String[]> convertResultSetToArrayList2(ResultSet rs) throws SQLException {
+	public static ArrayList<String[]> convertRowSetToArrayList2(SqlRowSet rs) throws DataAccessException, PikefinException {
 		ArrayList<String[]> tmpArrayList = new ArrayList<String[]>();
-		ResultSetMetaData rsMetaData = rs.getMetaData();
+		SqlRowSetMetaData rsMetaData = rs.getMetaData();
 		int numberOfColumns = rsMetaData.getColumnCount();
-		int nRow=0;
+		//int nRow=0;
 		
-		while (rs.next())
-		{
+		while (rs.next()) {
 			String[] tmpArray = new String[numberOfColumns];
 			for (int i=1;i<=numberOfColumns;i++)
 			{
@@ -455,7 +530,7 @@ public class UtilityFunctions
 						
 					default:
 						stdoutwriter.writeln("Problem converting ResultSet to ArrayList - unhandled column type",Logs.ERROR,"UF18.5");
-						throw new SQLException("Custom SQL Exception - Unable to convert ResultSet to ArrayList");
+						throw new PikefinException("Custom SQL Exception - Unable to convert ResultSet to ArrayList");
 						
 						
 				}
@@ -464,7 +539,7 @@ public class UtilityFunctions
 				
 			}
 			tmpArrayList.add(tmpArray);
-			nRow++;
+			//nRow++;
 			/*if (nRow==ntmp)
 			{
 				String tmp = "blap";
@@ -482,28 +557,25 @@ public class UtilityFunctions
 		
 	}
 	
-	//public static ArrayList<HashMap<String,String>> convertResultSetToArrayList(ResultSet rs) throws SQLException
-	public static ArrayList<HashMap<String,String>> convertResultSetToArrayList(ResultSet rs,String strUnique) throws SQLException
-	{
+	//public static ArrayList<HashMap<String,String>> convertResultSetToArrayList(ResultSet rs) throws DataAccessException
+	public static ArrayList<HashMap<String,String>> convertRowSetToArrayList(SqlRowSet rs,String strUnique) throws DataAccessException, PikefinException {
 		
 		//ArrayList<HashMap<String,String>> tmpArrayList = null;
 		ArrayList<HashMap<String,String>> tmpArrayList = null;
-		ResultSetMetaData rsMetaData = rs.getMetaData();
+		SqlRowSetMetaData rsMetaData = rs.getMetaData();
 		
 		HashMap<String,String> hashUnique = new HashMap<String,String>();
 		int numberOfColumns = rsMetaData.getColumnCount();
-		int nRow=0;
+		//int nRow=0;
 		//int ntmp = 200;
-		while (rs.next())
-		{
+		while (rs.next()) {
 			if (tmpArrayList == null)
 				//tmpArrayList = new ArrayList<HashMap<String,String>>();
 				tmpArrayList = new ArrayList<HashMap<String,String>>();
 			
 			//HashMap<String,String> tmpHash = new HashMap<String,String>();
 			HashMap<String,String> tmpHash = new HashMap<String,String>();
-			for (int i=1;i<=numberOfColumns;i++)
-			{
+			for (int i=1;i<=numberOfColumns;i++) {
 				int j = rsMetaData.getColumnType(i);
 				String strValue="";
 				switch(j)
@@ -550,7 +622,7 @@ public class UtilityFunctions
 						
 					default:
 						stdoutwriter.writeln("Problem converting ResultSet to ArrayList - unhandled column type",Logs.ERROR,"UF18.5");
-						throw new SQLException("Custom SQL Exception - Unable to convert ResultSet to ArrayList");
+						throw new PikefinException("Custom SQL Exception - Unable to convert ResultSet to ArrayList");
 						
 						
 				}
@@ -570,7 +642,7 @@ public class UtilityFunctions
 				
 			}
 			tmpArrayList.add(tmpHash);
-			nRow++;
+			//nRow++;
 			/*if (nRow==ntmp)
 			{
 				String tmp = "blap";
@@ -584,20 +656,16 @@ public class UtilityFunctions
 	
 	
 	
-	public static void createCSV(ArrayList<String[]> tabledata,String filename,boolean append)
-	{
-		try
-		{
+	public static void createCSV(ArrayList<String[]> tabledata,String filename,boolean append)	{
+		try	{
 			BufferedWriter writer = new BufferedWriter(new FileWriter(filename,append));
 			String strLine="";
 			String[] rowdata;
 	
-	    for (int x=0;x<tabledata.size();x++)
-	    {
+	    for (int x=0;x<tabledata.size();x++) {
 	    	rowdata = tabledata.get(x);
 	    	strLine="";
-				for (int y=0;y<rowdata.length;y++)
-				{
+				for (int y=0;y<rowdata.length;y++) {
 					if (y !=0)
 						strLine = strLine +",";
 						
@@ -612,8 +680,7 @@ public class UtilityFunctions
 	
 	    writer.close();  // Close to unlock and flush to disk.
 	  }
-	  catch (IOException ioe)
-	  {
+	  catch (IOException ioe)  {
 	  	stdoutwriter.writeln("Problem writing CSV file",Logs.ERROR,"UF18");
 	  	stdoutwriter.writeln(ioe);
 	  }
@@ -628,8 +695,7 @@ public class UtilityFunctions
 	}
 	
 	
-	public static ArrayList<String[]> readInCSV(String strFilename, String strDelimiter, String strEncloseString)
-	{
+	public static ArrayList<String[]> readInCSV(String strFilename, String strDelimiter, String strEncloseString) {
 		/*This code will not correctly handle the delimiter character (e.g. ",") being inside a quoted
 		string (e.g. "5,600,000"). One way to handle this is to do the following:
 		1) Replace ,,, with |||
@@ -647,7 +713,7 @@ public class UtilityFunctions
 		{
 			String strCurToken;
 			//StringTokenizer st;
-			int nTokenCount;
+			//int nTokenCount;
 			ArrayList<String[]> arraylist = new ArrayList<String[]>();
 			ArrayList<String> rowarraylist;
 			boolean bEncloseBefore = false;
@@ -664,7 +730,7 @@ public class UtilityFunctions
 				/*was using string tokenizer, switch to split() since it returns tokens for consecutive delimiters, e.g ,, */
 				//st = new StringTokenizer(nTmp, strDelimiter);
 				String[] tokens = nTmp.split(strDelimiter);
-				nTokenCount = 0;
+				//nTokenCount = 0;
 				for (int z=0;z<tokens.length;z++)
 				{
 					//strCurToken = st.nextToken();
@@ -695,7 +761,7 @@ public class UtilityFunctions
 					rowarraylist.add(strCurToken);
 					
 						
-					nTokenCount++;
+					//nTokenCount++;
 				}
 				
 				String[] strArray = new String[rowarraylist.size()];
@@ -844,20 +910,19 @@ public class UtilityFunctions
 		
 	}
 	
-	public static void mail(String strEmail, String strMessage, String strSubject, String strFromAddy)
-	  {	
+	public static void mail(String strEmail, String strMessage, String strSubject, String strFromAddy) {	
 	  	//String host = "smtp.gmail.com";
 	  	//int port = 587;
 	  	//String username = "hastapasta99";
 	  	//String password = "ginger1.";
-		String username = (String)DataLoad.props.getProperty("emailuser");
-		String password = (String)DataLoad.props.getProperty("emailpass");
+		String username = UtilityFunctions.getEmailUser();
+		String password = UtilityFunctions.getEmailPassword();
 
 	  	Properties props = new Properties();
 	  	//props.put("mail.smtp.port","587");
 	  	//props.put("mail.smtp.host", "smtp.gmail.com");
-	  	props.put("mail.smtp.port", Integer.parseInt((String)DataLoad.props.getProperty("emailport")));
-	  	props.put("mail.smtp.host", (String)DataLoad.props.getProperty("emailhost"));
+	  	props.put("mail.smtp.port", UtilityFunctions.getEmailPort());
+	  	props.put("mail.smtp.host", UtilityFunctions.getEmailHost());
 	  	props.put("mail.smtp.auth", "true");
 	  	props.put("mail.smtp.starttls.enable", "true");
 	  	props.put("mail.debug", "false");
@@ -889,16 +954,16 @@ public class UtilityFunctions
 		    
 		    
 		    //emails are disabled for testing
-		    if (DataLoad.bDebugMode == false)
+		    if (Broker.getDebugMode() == false)
 		    	Transport.send(message);
 
-		    DataLoad.nMailMessageCount++;	
+		    Broker.nMailMessageCount++;	
 
 	  	} catch (MessagingException e) {
 	  		
 	  	    //throw new RuntimeException(e);
 	  		stdoutwriter.writeln("Problem sending email.",Logs.ERROR,"UF28.5");
-	  		stdoutwriter.writeln("Message Count: " + DataLoad.nMailMessageCount,Logs.ERROR,"UF28.52");
+	  		stdoutwriter.writeln("Message Count: " + Broker.nMailMessageCount,Logs.ERROR,"UF28.52");
 	  		stdoutwriter.writeln(e);
 	  	}
 	  	
@@ -910,10 +975,10 @@ public class UtilityFunctions
 		HtmlEmail email = new HtmlEmail();
 
 		try {
-			email.setHostName((String)DataLoad.props.getProperty("emailhost"));
-			email.setAuthentication((String)DataLoad.props.getProperty("emailuser"), (String)DataLoad.props.getProperty("emailpass"));
-			email.setSmtpPort(Integer.parseInt((String)DataLoad.props.getProperty("emailport")));
-			email.setFrom((String)DataLoad.props.getProperty("fromaddy"));
+			email.setHostName(UtilityFunctions.getEmailHost());
+			email.setAuthentication(UtilityFunctions.getEmailUser(), UtilityFunctions.getEmailPassword());
+			email.setSmtpPort(UtilityFunctions.getEmailPort());
+			email.setFrom(UtilityFunctions.getEmailFromAddy());
 			email.addTo(strEmail);
 			email.setSubject(strSubject);
 	
@@ -936,7 +1001,7 @@ public class UtilityFunctions
 		
 	}
 	
-	public static BigDecimal convertToGallonsAndDollars(String strValue, String strCurrencyCross, String strDay, DBFunctions dbf) throws SQLException {
+	public static BigDecimal convertToGallonsAndDollars(String strValue, String strCurrencyCross, String strDay, DBFunctions dbf) throws DataAccessException {
 		
 		
 		
@@ -948,7 +1013,8 @@ public class UtilityFunctions
 		strQuery += " limit 1";
 		
 		// try	{
-			  ResultSet rs = dbf.db_run_query(strQuery);
+			  //ResultSet rs = dbf.db_run_query(strQuery);
+			SqlRowSet rs = dbf.dbSpringRunQuery(strQuery);
 			  rs.next();
 			  BigDecimal bdRate = rs.getBigDecimal("value");
 			  BigDecimal bdPrice = new BigDecimal(strValue);
@@ -967,7 +1033,7 @@ public class UtilityFunctions
 
 			  return(bdPrice);
 		 // }
-		/*  catch (SQLException sqle)	{
+		/*  catch (DataAccessException sqle)	{
 			  UtilityFunctions.stdoutwriter.writeln("Problem looking up exchange rate for currency cross: USDCAD,row skipped",Logs.WARN,"PF200.25");
 			  continue;	
 		  }
@@ -1067,63 +1133,9 @@ public class UtilityFunctions
 			c.OAuthAccessToken/Secret(UNIQUE);*/
 			
 			//AccessToken accessToken = loadAccessToken(Integer.parseInt(args[0]));
-			try
-			{
-				//RequestToken requestToken = twitter.getOAuthRequestToken();
-				
-				
-				//twitter.getOAuthRequestToken("x");
-
-				/*AccessToken accessToken = null;
-				while (null == accessToken)
-				{
-					#*System.out.println("Open the following URL and grant access to your account:");
-					System.out.println(requestToken.getAuthorizationURL());
-					System.out.print("Enter the PIN(if available) and hit enter after you granted access.[PIN]:");
-					String pin = br.readLine();*#
-					String pin = "ginger1.";
-					try
-					{
-						if (pin.length() > 0)
-						{
-						    accessToken = twitter.getOAuthAccessToken(requestToken, pin);
-						} 
-						else
-						{
-						    accessToken = twitter.getOAuthAccessToken(requestToken);
-						}
-					} 
-					catch (TwitterException te)
-					{
-						stdoutwriter.writeln("Problem authenticating with twitter",Logs.ERROR,"UF45.5");
-						stdoutwriter.writeln(te);
-						#*if (401 == te.getStatusCode()) {
-						    System.out.println("Unable to get the access token.");
-						} else {
-						    te.printStackTrace();
-						}*#
-					}
-				}	*/
-			  
-			}
-			catch (IllegalStateException ie)
-			{
-				
-			    // access token is already available, or consumer key/secret is not set.
-				if (!twitter.getAuthorization().isEnabled())
-				{
-				    //System.out.println("OAuth consumer key/secret is not set.");
-					stdoutwriter.writeln("OAuth consumer key/secret is not set.",Logs.ERROR,"UF47.5");
-					strErrorMsg = "OAuth consumer key/secret is not set.";
-				        //System.exit(-1);
-				}
-				else
-					strErrorMsg = ie.getMessage();
-				return(strErrorMsg);
-			}
 			
-			if (strTweet.length() > 140)
-			{
+			
+			if (strTweet.length() > 140) {
 			
 				stdoutwriter.writeln("Tweet longer than 140 characters; tweet truncated.",Logs.WARN,"UF49.5");
 				stdoutwriter.writeln(strTweet,Logs.WARN,"UF49.5");
@@ -1131,12 +1143,11 @@ public class UtilityFunctions
 			}
 				
 			
-			if (DataLoad.bDebugMode == false)
+			if (Broker.getDebugMode() == false)
 				twitter.updateStatus(strTweet);
 		
 		}
-		catch (TwitterException te)
-		{
+		catch (TwitterException te)	{
 		    //te.printStackTrace();
 		    //System.out.println("Failed to get timeline: " + te.getMessage());
 		    //System.exit(-1);
@@ -1178,16 +1189,13 @@ public class UtilityFunctions
 		
 	}
 	  	
-	public static String shortenURL(String strInputURL)
-	{
+	public static String shortenURL(String strInputURL)	{
 		
-		try
-		{
+		try	{
 			Url url = as("pikefin", "R_f08326b12abd18288243b65ef2c71c40").call(shorten(strInputURL));
 			return(url.getShortUrl());
 		}
-		catch (Exception ex)
-		{
+		catch (Exception ex) {
 			stdoutwriter.writeln("Failed to shorten url: " + strInputURL,Logs.ERROR,"UF51.5");
 			stdoutwriter.writeln(ex);
 		}
@@ -1199,6 +1207,44 @@ public class UtilityFunctions
 		
 	}  
 	
+	public static String generateVelocity(ArrayList<HashMap<String, String>> hm, String strListName, String strTemplate) {
+		
+		VelocityContext vc = new VelocityContext();
+		Template t = ve.getTemplate( strTemplate );
+		vc.put(strListName, hm);
+		/*for (Map.Entry<String, String> entry : hm.entrySet()) {
+		    String key = entry.getKey();
+		    String value = entry.getValue();
+		    vc.put(key, value);
+		}*/
+		
+		StringWriter writer = new StringWriter();
+		t.merge(vc,writer);
+		
+		return(writer.toString());
+		
+
+	}
+	
+	public static String generateVelocity2() {
+		
+		VelocityContext vc = new VelocityContext();
+		Template t = ve.getTemplate( "twitter.vm" );
+		vc.put("name","World");
+		/*for (Map.Entry<String, String> entry : hm.entrySet()) {
+		    String key = entry.getKey();
+		    String value = entry.getValue();
+		    vc.put(key, value);
+		}*/
+		
+		StringWriter writer = new StringWriter();
+		t.merge(vc,writer);
+		
+		return(writer.toString());
+		
+
+	}
+	
 
 
 	
@@ -1207,12 +1253,17 @@ public class UtilityFunctions
 	
 }
 	
-	class TestException extends Exception
-	{
+	class PikefinException extends Exception {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 4426155592602941937L;
+		
+		public PikefinException(String input) {
+			super(input,null);
+		}
+		
+
 
 		/*void TestException()
 		{
@@ -1222,8 +1273,7 @@ public class UtilityFunctions
 		
 	}
 	
-	class SkipLoadException extends Exception
-	{
+	class SkipLoadException extends Exception {
 
 		/**
 		 * 
@@ -1233,8 +1283,7 @@ public class UtilityFunctions
 	}
 	
 
-	class MyPasswordAuthenticator extends Authenticator 
-	{
+	class MyPasswordAuthenticator extends Authenticator {
 		String user;
 		String pw;
 		public MyPasswordAuthenticator (String username, String password)

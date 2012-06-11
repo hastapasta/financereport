@@ -1,6 +1,5 @@
-//package com.roeschter.jsl;
+package pikefin;
  
-import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.io.FileWriter;
@@ -12,17 +11,23 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+
+import pikefin.hibernate.EntityAlias;
+import pikefin.hibernate.Exclude;
 import pikefin.log4jWrapper.Logs;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.xml.sax.HandlerBase;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -37,8 +42,7 @@ import org.xml.sax.Attributes;
  */
 
 
-class ProcessingFunctions
-{
+class ProcessingFunctions {
 	/*Individual extraction processing function parameters*/
 	
 	String strDataValue;
@@ -51,27 +55,24 @@ class ProcessingFunctions
 	ArrayList<String[]> propTableData;
 	String propStrTableDataSet;
 	
-	
-	
-	
-	/* Need to figure out why two log files are being written to... UtilityFunctions.stdoutwriter and stdoutwriter */
-	UtilityFunctions uf;
+	//UtilityFunctions uf;
 	DataGrab dg;
 	DBFunctions dbf;
 	
 	//CustomBufferedWriter stdoutwriter;
 	
-	public ProcessingFunctions(UtilityFunctions tmpUF, DataGrab tmpDG)
-	{
-		this.uf = tmpUF;
+	public ProcessingFunctions(DataGrab tmpDG) {
+		//this.uf = tmpUF;
 		this.dg = tmpDG;
 		this.dbf = dg.dbf;
 	}
 	
-	public boolean preNoDataCheck(String strDataSet)
-	{
-		try
-		{
+	/*public ProcessingFunctions() {
+		
+	}*/
+	
+	public boolean preNoDataCheck(String strDataSet) {
+		try	{
 			String query;
 			/*if ((strDataSet.substring(0,5)).compareTo("table") == 0)
 				query = "select pre_nodata_check_func from extract_tables where Data_Set='" + strDataSet + "'";
@@ -80,7 +81,8 @@ class ProcessingFunctions
 			
 			query = "select pre_nodata_check_func from jobs where data_set='" + strDataSet + "'";
 			
-			ResultSet rs = dbf.db_run_query(query);
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
 			rs.next();
 			String strFunctionName = rs.getString("pre_nodata_check_func");
 			
@@ -104,23 +106,21 @@ class ProcessingFunctions
 		
 	}
 	
-	public boolean preJobProcessing(String strDataSet)
-	{
+	public boolean preJobProcessing(String strDataSet)	{
 		String query = "select pre_job_process_func_name from jobs where Data_Set='" + strDataSet + "'";
 		
 		
 		
 		
-		try
-		{
-			ResultSet rs = dbf.db_run_query(query);
+		try	{
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
 			rs.next();
 			String strFunctionName = rs.getString("pre_job_process_func_name");
 			
 			UtilityFunctions.stdoutwriter.writeln("Pre Job Process Func Name: " + strFunctionName,Logs.STATUS2,"PF3.2");
 			//this.strTicker = strTicker;
-			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
-			{
+			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0)) {
 				UtilityFunctions.stdoutwriter.writeln("No pre job process function, exiting...",Logs.STATUS2,"PF3.3");
 				return(true);
 			}
@@ -143,16 +143,16 @@ class ProcessingFunctions
 		}
 	}
 	
-	public boolean postJobProcessing(String strDataSet)
-	{
+	public boolean postJobProcessing(String strDataSet)	{
 		String query = "select post_job_process_func_name from jobs where Data_Set='" + strDataSet + "'";
 		
 		
 		
 		
-		try
-		{
-			ResultSet rs = dbf.db_run_query(query);
+		try	{
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
+			
 			rs.next();
 			String strFunctionName = rs.getString("post_job_process_func_name");
 			
@@ -183,8 +183,7 @@ class ProcessingFunctions
 	}
 	
 
-public boolean preProcessing(String strDataSet, String strTicker)
-{
+public boolean preProcessing(String strDataSet, String strTicker) {
 	  /* For the return value, return false if the attempt to grab the value should be skipped. */
 	  
 	
@@ -194,9 +193,10 @@ public boolean preProcessing(String strDataSet, String strTicker)
 		
 		
 	
-		try
-		{
-			ResultSet rs = dbf.db_run_query(query);
+		try	{
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
+			
 			rs.next();
 			String strFunctionName = rs.getString("pre_process_func_name");
 			
@@ -228,8 +228,7 @@ public boolean preProcessing(String strDataSet, String strTicker)
 }
 
 
-public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , String strDataSet) throws SkipLoadException,CustomEmptyStringException
-{
+public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , String strDataSet) throws SkipLoadException,CustomEmptyStringException {
 	
 		String query = "select post_process_func_name from jobs where Data_Set='" + strDataSet + "'";
 		
@@ -241,16 +240,16 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Stri
 			strDataValue = tabledata.get(0)[0];
 
 	
-		try
-		{
+		try	{
 			
-			ResultSet rs = dbf.db_run_query(query);
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
+			
 			rs.next();
 			String strFunctionName = rs.getString("post_process_func_name");
 			
 			UtilityFunctions.stdoutwriter.writeln("Post Process Func Name: " + strFunctionName,Logs.STATUS2,"PF8");
-			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
-			{
+			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0)) {
 				UtilityFunctions.stdoutwriter.writeln("No post process function, exiting...",Logs.STATUS2,"PF9");
 				return(tabledata);
 			}
@@ -287,13 +286,11 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Stri
 			}
 		
 		}
-		catch (NoSuchMethodException nsme)
-		{
+		catch (NoSuchMethodException nsme) {
 			UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF16.5");
 			UtilityFunctions.stdoutwriter.writeln(nsme);
 		}
-		catch (SQLException tmpE)
-		{
+		catch (DataAccessException tmpE) {
 			UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF17");
 			UtilityFunctions.stdoutwriter.writeln(tmpE);
 		}
@@ -395,7 +392,7 @@ public ArrayList<String[]> postProcessingTable(ArrayList<String[]> tabledata,Str
 		UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF16.5");
 		UtilityFunctions.stdoutwriter.writeln(nsme);
 	}
-	catch (SQLException tmpE)
+	catch (DataAccessException tmpE)
 	{
 		UtilityFunctions.stdoutwriter.writeln("postProcessing method call failed",Logs.ERROR,"PF17");
 		UtilityFunctions.stdoutwriter.writeln(tmpE);
@@ -416,7 +413,7 @@ public ArrayList<String[]> postProcessingTable(ArrayList<String[]> tabledata,Str
 
 
 
-public void postProcessYahooSharePrice() throws SQLException
+public void postProcessYahooSharePrice() throws DataAccessException
 {
 	//System.out.println("here");
 	String[] strTmpValue = propTableData.get(0);
@@ -434,7 +431,7 @@ public void postProcessYahooSharePrice() throws SQLException
 	//rowdata[0] = dg.nCurTask + "";
 	//rowdata[0] = strTmpValue[0];
 
-	if (DataLoad.bLoadingHistoricalData==false)
+	if (Broker.getLoadingHistoricalData()==false)
 	{
 		rowdata[0] = values[0];
 		rowdata[1] = "NOW()";
@@ -461,14 +458,14 @@ public void postProcessYahooSharePrice() throws SQLException
 
 }
 
-public void postProcessCNBCCDSJson() throws SQLException {
+public void postProcessCNBCCDSJson() throws DataAccessException {
 	
-	String strData = this.propTableData.get(0)[0];
+	//String strData = this.propTableData.get(0)[0];
 	System.out.println("");
 	
 }
 
-public void postProcessYahooSharePriceYQL() throws SQLException {
+public void postProcessYahooSharePriceYQL() throws DataAccessException {
 	/*
 	 * OFP 2/24/2012 - The Yahoo processsing is really convoluted now. We splice together up to 5
 	 * xml streams and then we have to strip out the xml header and tail before putting it through
@@ -646,7 +643,7 @@ public void postProcessYahooSharePriceYQL() throws SQLException {
 	//String[] values = strTmpValue[0].split(",");
 	
 	
-	boolean bDone = false;
+	//boolean bDone = false;
 	
 	
 	
@@ -654,17 +651,17 @@ public void postProcessYahooSharePriceYQL() throws SQLException {
 	String[] tmpArray = {"value","date_collected","entity_id"};
 	propTableData.add(tmpArray);
 	
-	int nBegin=0;
-	int nEnd =0;
+	//int nBegin=0;
+	//int nEnd =0;
 	
-	int nCount = 0;
-	int nCount2 = 0;
+	//int nCount = 0;
+	//int nCount2 = 0;
 	
 	for (int i=0;i<handler.quoteList.size();i++) {
 		
 		Quote curQuote = handler.quoteList.get(i);
 		
-		nCount2++;
+		//nCount2++;
 		
 		String[] rowdata = new String[tmpArray.length];
 		
@@ -763,11 +760,13 @@ public void postProcessYahooSharePriceYQL() throws SQLException {
 		
 		try {
 			String query = "select id from entities where ticker='" + curQuote.symbol + "'";
-			ResultSet rs = dbf.db_run_query(query);
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
+			
 			rs.next();
 			rowdata[2] = rs.getInt("id") + "";
 		}
-		catch (SQLException sqle) {
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Issue looking up ticker " + curQuote.symbol + ",skipping",Logs.ERROR,"PF50");
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 			continue;
@@ -778,7 +777,7 @@ public void postProcessYahooSharePriceYQL() throws SQLException {
 
 		//rowdata[4] = "share_price";
 		
-		nCount++;
+		//nCount++;
 	
 		propTableData.add(rowdata);
 	}
@@ -793,7 +792,7 @@ public void postProcessYahooSharePriceYQL() throws SQLException {
 
 }
 
-public void postProcessGoogleSharePrice() throws SQLException
+public void postProcessGoogleSharePrice() throws DataAccessException
 {
 	//System.out.println("here");
 	String strTmpValue = propTableData.get(0)[0];
@@ -808,13 +807,13 @@ public void postProcessGoogleSharePrice() throws SQLException
 	propTableData.add(tmpArray);
 
 	
-	int nCount = 0;
-	int nCount2 = 0;
+	//int nCount = 0;
+	//int nCount2 = 0;
 	
 	//skip the first and last lines 
 	for (int i=1;i<lines.length-1;i++) {
 		
-		nCount2++;
+		//nCount2++;
 		
 		String[] rowdata = new String[tmpArray.length];
 		String[] inputrow = lines[i].split(",");
@@ -832,11 +831,12 @@ public void postProcessGoogleSharePrice() throws SQLException
 		
 		try {
 			String query = "select id from entities where ticker='" + strSymbol + "'";
-			ResultSet rs = dbf.db_run_query(query);
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
 			rs.next();
 			rowdata[2] = rs.getInt("id") + "";
 		}
-		catch (SQLException sqle) {
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Issue looking up ticker " + strSymbol + ",skipping",Logs.ERROR,"PF50");
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 			continue;
@@ -889,7 +889,7 @@ public void postProcessGoogleSharePrice() throws SQLException
 
 		//rowdata[4] = "share_price";
 		
-		nCount++;
+		//nCount++;
 	
 		propTableData.add(rowdata);
 	}
@@ -906,14 +906,14 @@ public void postProcessGoogleSharePrice() throws SQLException
 
 
 
-public void postProcessNasdaqSharesOut() throws SQLException
-{
+public void postProcessNasdaqSharesOut() throws DataAccessException {
 	
 	//query = "LOCK TABLES repeat_types WRITE, schedules WRITE";
 	//dbf.db_update_query(query);
 	strDataValue.replace(",", "");
 	String query = "update entities set shares_outstanding=" + this.propTableData.get(0)[0] + " where ticker='" + this.strTicker + "'";
-	dbf.db_update_query(query);
+	//dbf.db_update_query(query);
+	dbf.dbSpringUpdateQuery(query);
 	
 	//finally
 	//query = "UNLOCK TABLES";
@@ -985,17 +985,16 @@ public void postNasdaqFiscalYear()
 	
 }
 
-public void processTableSAndPCoList(ArrayList<String[]> tabledata,String strDataSet,UtilityFunctions tmpUF)
-{
+public void processTableSAndPCoList(ArrayList<String[]> tabledata,String strDataSet,UtilityFunctions tmpUF) {
 	String[] rowdata;
 	String query;
 	String groups;
 	UtilityFunctions.stdoutwriter.writeln("In function processTableSAndPCoList",Logs.STATUS2,"PF36");
-	try
-	{
-		ResultSet rs;
-		for (int x=0;x<tabledata.size();x++)
-		{
+	try	{
+		//ResultSet rs;
+		SqlRowSet rs;
+		
+		for (int x=0;x<tabledata.size();x++) {
 			rowdata = tabledata.get(x);
 			
 			/* Some custom processing logic */
@@ -1008,20 +1007,21 @@ public void processTableSAndPCoList(ArrayList<String[]> tabledata,String strData
 			
 			/*Determine if ticker is already in entities table, if not, add it*/
 			query = "select * from entities where ticker='" + rowdata[0] + "'";
-			rs = dbf.db_run_query(query);
-			if (rs.next() == false)
-			{
+			//rs = dbf.db_run_query(query);
+			rs = dbf.dbSpringRunQuery(query);
+			
+			if (rs.next() == false) {
 				query = "insert into entities (ticker, groups) values ('" + rowdata[0] + "','sandp')";
-				dbf.db_update_query(query);
+				//dbf.db_update_query(query);
+				dbf.dbSpringUpdateQuery(query);
 			}
-			else
-			{
+			else {
 				groups = rs.getString("groups");
-				if (groups.indexOf("sandp") == -1)
-				{
+				if (groups.indexOf("sandp") == -1) {
 					groups = groups + ",sandp";
 					query = "update entities set groups='" + groups + "' where ticker='" + rowdata[0] + "'";
-					dbf.db_update_query(query);
+					//dbf.db_update_query(query);
+					dbf.dbSpringUpdateQuery(query);
 				}
 				
 				
@@ -1030,7 +1030,7 @@ public void processTableSAndPCoList(ArrayList<String[]> tabledata,String strData
 			
 		}
 	}
-	catch (SQLException sqle)
+	catch (DataAccessException sqle)
 	{
 		UtilityFunctions.stdoutwriter.writeln("Problem processing S and P company list table data",Logs.ERROR,"PF37");
 		UtilityFunctions.stdoutwriter.writeln(sqle);		
@@ -1042,7 +1042,7 @@ public void processTableSAndPCoList(ArrayList<String[]> tabledata,String strData
 }
 
 
-public void postProcessTableNasdaqUpdateEPS() throws SQLException,SkipLoadException
+public void postProcessTableNasdaqUpdateEPS() throws DataAccessException,SkipLoadException
 {
 	
 	/*
@@ -1096,10 +1096,10 @@ public void postProcessTableNasdaqUpdateEPS() throws SQLException,SkipLoadExcept
 	//check to see if the data already exists
 	String query="select * from fact_data where ticker='" + dg.strOriginalTicker + "' and data_set='" + dg.strCurDataSet +"'";
 	query = query + " and fiscalquarter=" + nRecentFisQtr + " and fiscalyear=" + colheaders[0];
-	ResultSet rs = dbf.db_run_query(query);
+	//ResultSet rs = dbf.db_run_query(query);
+	SqlRowSet rs = dbf.dbSpringRunQuery(query);
 	
-	if (rs.next())
-	{
+	if (rs.next()) {
 		UtilityFunctions.stdoutwriter.writeln("MRQ already loaded, skipping",Logs.STATUS1,"PF38.5");
 		propTableData = null;
 		throw new SkipLoadException();
@@ -1122,7 +1122,7 @@ public void postProcessTableNasdaqUpdateEPS() throws SQLException,SkipLoadExcept
 	
 }
 
-public void postProcessNasdaqEPSTable() throws SQLException
+public void postProcessNasdaqEPSTable() throws DataAccessException
 {
 	/*
 	 * Special Situations That need to be handled:
@@ -1258,16 +1258,15 @@ public void postProcessBloombergCommodities()
 		
 		String query = "select * from entities where ticker='"+tmp+"'";
 		
-		try
-		{
-			ResultSet rs = dbf.db_run_query(query);
+		try {
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
 			rs.next();
 			newrow[2] = rs.getInt("id") + "";
 			newTableData.add(newrow);
 			
 		}
-		catch (SQLException sqle)
-		{
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + tmp + ",row skipped",Logs.WARN,"PF99.55");
 			
 			/*
@@ -1350,11 +1349,12 @@ public void postProcessBloombergFutures() {
 		String query = "select * from entity_aliases where ticker_alias='" + tmp + "'";
 		
 		try {
-			ResultSet rs = dbf.db_run_query(query);
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
 			rs.next();
 			strEntityIndex = rs.getInt("entity_id") + "";		
 		}
-		catch (SQLException sqle) {
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker alias: " + tmp + ",row skipped",Logs.WARN,"PF99.63");
 		}
 		
@@ -1394,19 +1394,17 @@ public void postProcessBloombergFutures() {
 }
 
 
-public void postProcessOneTimeYahooIndex()
-{
+public void postProcessOneTimeYahooIndex() {
 	String[] rowdata;
 	for (int row=1;row<propTableData.size();row++)
 	{
 		rowdata = propTableData.get(row);
 		String strInsert = "insert into entities_yahoo (ticker,full_name) values ('" + rowdata[0] + "','" + rowdata[1] + "')";
-		try
-		{
-			dbf.db_update_query(strInsert);
+		try	{
+			//dbf.db_update_query(strInsert);
+			dbf.dbSpringRunQuery(strInsert);
 		}
-		catch (SQLException sqle)
-		{
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Problem inserting row" + strInsert,Logs.ERROR,"PF88.1");
 		}
 	}
@@ -1540,11 +1538,12 @@ public void postProcessBloombergGovtBonds() {
 
 		
 		try {
-			ResultSet rs = dbf.db_run_query(strQuery);
+			//ResultSet rs = dbf.db_run_query(strQuery);
+			SqlRowSet rs = dbf.dbSpringRunQuery(strQuery);
 			rs.next();
 			newrow[2] = rs.getInt("id") + "";
 		}
-		catch (SQLException sqle) {
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + strTicker  + ",row skipped",Logs.WARN,"PF43.51");
 			continue;
 		}
@@ -1582,12 +1581,13 @@ public void postProcessBloombergQuote() throws CustomEmptyStringException {
 	String query = "select id from entities where ticker='" + dg.strCurrentTicker + "'";
 	
 	try {
-		ResultSet rs = dbf.db_run_query(query);
+		//ResultSet rs = dbf.db_run_query(query);
+		SqlRowSet rs = dbf.dbSpringRunQuery(query);
 		rs.next();
 		newrow[2] = rs.getInt("id") + "";
 		
 		
-	} catch (SQLException sqle) {
+	} catch (DataAccessException sqle) {
 		UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + dg.strCurrentTicker + ",row skipped",Logs.WARN,"PF47.33");
 		return;
 	}
@@ -1657,27 +1657,18 @@ public void postProcessBloombergIndexes() {
 		 * OFP 4/27/2012 - Switched lookup to use entity_aliases.
 		 */
 		
-		String query = "select * from entity_aliases where ticker_alias='" + ticker + "'";
+		//String query = "select * from entity_aliases where ticker_alias='" + ticker + "'";
+		String query = " from EntityAlias ea where tickerAlias='" + ticker + "'";
 		
-		try {
-			ResultSet rs = dbf.db_run_query(query);
-			rs.next();
-			newrow[2] = rs.getInt("entity_id") + "";
-			newTableData.add(newrow);
-			
-		}
-		catch (SQLException sqle) {
+		List<EntityAlias> rs = dbf.dbHibernateRunQuery(query);
+		
+		if (rs.size() == 0) {
 			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker alias: " + ticker + ",row skipped",Logs.WARN,"PF42.51");
-			
-			/*
-			 * This is not a fatal error so we won't display the full exception.
-			 */
-			//UtilityFunctions.stdoutwriter.writeln(sqle);
+			continue;
 		}
 		
-		
-		
-		
+		newrow[2] = rs.get(0).getEntity().getEntityId() + "";
+		newTableData.add(newrow);
 		
 		/*newrow[2] = tmp.substring(tmp.indexOf(">")+1,tmp.indexOf("</"));
 		newrow[2] = newrow[2].replace("&amp;", "&");
@@ -1733,9 +1724,8 @@ public void postProcessNasdaqEPSEstTable()
 
 	
 	
-	try
-	{
-		String query = "select url_dynamic from jobs where jobs.Data_Set='" + propStrTableDataSet + "'";
+	try	{
+		//String query = "select url_dynamic from jobs where jobs.Data_Set='" + propStrTableDataSet + "'";
 
 
 		strTicker = dg.strOriginalTicker;
@@ -1803,7 +1793,7 @@ public void postProcessNasdaqEPSEstTable()
 		newTableData.add(0, tmpArray);
 		propTableData = newTableData;
 	}
-	catch (SQLException sqle)
+	catch (DataAccessException sqle)
 	{
 		UtilityFunctions.stdoutwriter.writeln("Problem processing table data",Logs.ERROR,"PF43");
 		UtilityFunctions.stdoutwriter.writeln(sqle);
@@ -1827,7 +1817,7 @@ public void postProcessMsnMoneyEPSEst()
 		
 }
 
-public boolean preProcessYahooEPSEst() throws SQLException {
+public boolean preProcessYahooEPSEst() throws DataAccessException {
 
 
 	
@@ -1860,7 +1850,7 @@ public boolean preProcessYahooEPSEst() throws SQLException {
 		
 }
 
-public boolean preProcessGoogleEPS() throws SQLException {
+public boolean preProcessGoogleEPS() throws DataAccessException {
 
 
 	
@@ -1894,8 +1884,7 @@ public boolean preProcessGoogleEPS() throws SQLException {
 		
 }
 
-public void postProcessTableYahooBeginYearVerify() throws CustomEmptyStringException, SQLException
-{ 
+public void postProcessTableYahooBeginYearVerify() throws CustomEmptyStringException, DataAccessException { 
 	/* The purpose of this function is to verify that the quarter end months
 	 * reported in yahoo match the begin_fiscal_calendar property stated in the
 	 * entities table.
@@ -1905,17 +1894,16 @@ public void postProcessTableYahooBeginYearVerify() throws CustomEmptyStringExcep
 	String[] colheaders = propTableData.get(0);
 	String strQEndMonth = colheaders[0];
 	String query = "select begin_fiscal_calendar from entities where ticker='" + this.strTicker + "'";
-	ResultSet rs = dbf.db_run_query(query);
+	//ResultSet rs = dbf.db_run_query(query);
+	SqlRowSet rs = dbf.dbSpringRunQuery(query);
 	rs.next();
 	int nBeginFiscalCal = MoneyTime.convertMonthStringtoInt(rs.getString("begin_fiscal_calendar"));
 	PrintWriter fullfilewriter = null;
 	
-	try
-	{
+	try	{
 		fullfilewriter = new PrintWriter( new FileWriter("YahooVerify.txt",true),true);
 	}
-	catch (IOException ioe)
-	{
+	catch (IOException ioe)	{
 	}
 	
 	
@@ -1967,20 +1955,18 @@ public void postProcessTableYahooBeginYearVerify() throws CustomEmptyStringExcep
 
 }
 
-public void postProcessTreasuryDebtTable6()
-{
-	int j=0;
+public void postProcessTreasuryDebtTable6() {
+	/*int j=0;
 	for (int i=0;i<10;i++)
 	{
 		j++;
-	}
+	}*/
 	
 	
 }
 
 
-public void postProcessTreasuryDirect() throws SQLException
-{
+public void postProcessTreasuryDirect() throws DataAccessException {
 	
 	String[] data = propTableData.get(1);
 	
@@ -2003,12 +1989,11 @@ public void postProcessTreasuryDirect() throws SQLException
 	strQuery += dg.nTaskBatch + ",NOW()," + dg.nCurTask;
 	strQuery += ")";
 	
-	try
-	{
-		dbf.db_update_query(strQuery);
+	try	{
+		//dbf.db_update_query(strQuery);
+		dbf.dbSpringUpdateQuery(strQuery);
 	}
-	catch (SQLException sqle)
-	{
+	catch (DataAccessException sqle) {
 		UtilityFunctions.stdoutwriter.writeln("Problem with custom insert",Logs.ERROR,"PF55.52");
 		UtilityFunctions.stdoutwriter.writeln(sqle);
 	}
@@ -2022,12 +2007,11 @@ public void postProcessTreasuryDirect() throws SQLException
 	strQuery += lPublicDebt;
 	strQuery += ",7,NOW(),1360,9," + dg.nTaskBatch + ")";
 	
-	try
-	{
-		dbf.db_update_query(strQuery);
+	try	{
+		//dbf.db_update_query(strQuery);
+		dbf.dbSpringUpdateQuery(strQuery);
 	}
-	catch (SQLException sqle)
-	{
+	catch (DataAccessException sqle) {
 		UtilityFunctions.stdoutwriter.writeln("Problem with custom insert",Logs.ERROR,"PF55.5");
 		UtilityFunctions.stdoutwriter.writeln(sqle);
 	}
@@ -2038,12 +2022,11 @@ public void postProcessTreasuryDirect() throws SQLException
 	strQuery += lIntraGov;
 	strQuery += ",7,NOW(),1360,10," + dg.nTaskBatch + ")";
 	
-	try
-	{
-		dbf.db_update_query(strQuery);
+	try	{
+		//dbf.db_update_query(strQuery);
+		dbf.dbSpringUpdateQuery(strQuery);
 	}
-	catch (SQLException sqle)
-	{
+	catch (DataAccessException sqle) {
 		UtilityFunctions.stdoutwriter.writeln("Problem with custom insert",Logs.ERROR,"PF55.6");
 		UtilityFunctions.stdoutwriter.writeln(sqle);
 	}
@@ -2055,7 +2038,7 @@ public void postProcessTreasuryDirect() throws SQLException
 	
 }
 
-public void preJobProcessTableXrateorg() throws SQLException
+public void preJobProcessTableXrateorg() throws DataAccessException
 {
 	//clean out all fact_data items that aren't linked to in the notify table
 	/*
@@ -2126,8 +2109,7 @@ public void preJobProcessTableXrateorg() throws SQLException
 	}*/
 }
 
-public void postProcessTableXrateorg() 
-{
+public void postProcessTableXrateorg() {
 	String[] rowheaders = propTableData.get(1);
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
 	
@@ -2138,14 +2120,12 @@ public void postProcessTableXrateorg()
 	newTableData.add(tmpArray);
 	
 	
-	for (int i=0;i<rowheaders.length;i++)
-	{
+	for (int i=0;i<rowheaders.length;i++) {
 		String strTmp = rowheaders[i];
 		strTmp = "USD" + strTmp.substring(strTmp.indexOf("(")+1,strTmp.indexOf(")"));
 		
 		//The first 2 crosses on the europe page are inverse: EURUSD and GBPUSD
-		if (propStrTableDataSet.contains("europe"))
-		{
+		if (propStrTableDataSet.contains("europe"))	{
 			if (i==0)
 				strTmp = "EURUSD";
 			else if (i==1)
@@ -2158,16 +2138,15 @@ public void postProcessTableXrateorg()
 		
 		String query = "select * from entities where ticker='"+strTmp+"'";
 		
-		try
-		{
-			ResultSet rs = dbf.db_run_query(query);
+		try	{
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
 			rs.next();
 			tmpA[2] = rs.getInt("id") + "";
 			newTableData.add(tmpA);
 			
 		}
-		catch (SQLException sqle)
-		{
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + strTmp + ",row skipped",Logs.WARN,"PF42.5");
 			
 			/*
@@ -2190,8 +2169,7 @@ public void postProcessTableXrateorg()
 	
 }
 
-public void postProcessDescriptionXrateorg() 
-{
+public void postProcessDescriptionXrateorg() {
 	/* Function to populate the full description for the ticker names, e.g. Argentine Peso for ARS */
 	//String[] rowheaders = propTableData.get(1);
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
@@ -2204,8 +2182,7 @@ public void postProcessDescriptionXrateorg()
 	String query;
 	
 	
-	for (int i=0;i<propTableData.size();i++)
-	{
+	for (int i=0;i<propTableData.size();i++) {
 		String strTmp = propTableData.get(i)[0];
 		String ticker = "USD" + strTmp.substring(strTmp.indexOf("(")+1,strTmp.indexOf(")"));
 		
@@ -2213,20 +2190,18 @@ public void postProcessDescriptionXrateorg()
 		
 		
 		//The first 2 crosses on the europe page are inverse: EURUSD and GBPUSD
-		if (propStrTableDataSet.contains("europe"))
-		{
+		if (propStrTableDataSet.contains("europe"))	{
 			if (i==0 || i==1)
 				continue;
 		}
 		
 		query = "insert into entities (ticker,full_name) values ('" + ticker + "','" + strTmp +"')";
 		
-		try
-		{
-			dbf.db_update_query(query);
+		try	{
+			//dbf.db_update_query(query);
+			dbf.dbSpringUpdateQuery(query);
 		}
-		catch (SQLException sqle)
-		{
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Failed to insert ticker " + ticker + " into entities table",Logs.STATUS2,"PF43.49");
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 		}
@@ -2240,7 +2215,7 @@ public void postProcessDescriptionXrateorg()
 	
 }
 
-public void postProcessTableYahooEPSAct() throws CustomEmptyStringException, SQLException
+public void postProcessTableYahooEPSAct() throws CustomEmptyStringException, DataAccessException
 {
 	String[] tmpArray = {"data_set","value","date_collected","ticker","fiscalquarter","fiscalyear","calquarter","calyear"};
 	
@@ -2321,7 +2296,7 @@ public void postProcessTableYahooEPSAct() throws CustomEmptyStringException, SQL
 }
 
 
-public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQLException
+public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, DataAccessException
 {
 	/*String query = "select url_dynamic from extract_tables where Data_Set='" + propStrTableDataSet + "'";
 	//ResultSet rs = dbf.db_run_query(query);
@@ -2422,7 +2397,7 @@ public void postProcessTableYahooEPSEst() throws CustomEmptyStringException, SQL
 	
 }
 
-public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQLException {
+public void postProcessTableBriefIClaims() throws CustomEmptyStringException, DataAccessException {
 	String[] rowdata, newrow;
 	String[] colheaders = propTableData.get(0);
 	
@@ -2466,7 +2441,7 @@ public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQ
 	propTableData = newTableData;
 }
 
-/*public void postProcessIMFGdpPPPActual() throws SQLException {
+/*public void postProcessIMFGdpPPPActual() throws DataAccessException {
 	
 	String[] tmpArray = {"value","date_collected","entity_id","calyear","scale"};
 	
@@ -2504,7 +2479,7 @@ public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQ
 	
 }
 
-public void postProcessIMFGdpPPPEst() throws SQLException {
+public void postProcessIMFGdpPPPEst() throws DataAccessException {
 	
 }*/
 
@@ -2515,7 +2490,7 @@ public boolean preProcessImfGdp() {
 	int nMaxEndYear = 2016;
 	int nMinBeginYear = 2004;
 	
-	int nTempCurrent = 2012;
+	int nTempCurrent = 2011;
 	
 	//dg.strStage1URL = dg.strStage1URL.replace("${dynamic8}", cal.get(Calendar.YEAR)+"");
 	dg.strStage1URL = dg.strStage1URL.replace("${dynamic8}", nTempCurrent +"");
@@ -2531,7 +2506,7 @@ public boolean preProcessImfGdp() {
 
 }
 
-public void postProcessImfGdp() throws SQLException {
+public void postProcessImfGdp() throws DataAccessException {
 	
 	String[] tmpArray = {"value","date_collected","entity_id","calyear","scale"};
 	
@@ -2628,15 +2603,14 @@ public void postProcessImfGdp() throws SQLException {
 		query += " and countries.name='"+strCountry+"'";
 			
 		
-		try
-		{
-			ResultSet rs = dbf.db_run_query(query);
+		try	{
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
 			rs.next();
 			newrow[2] = rs.getInt("entities.id") + "";
 			
 		}
-		catch (SQLException sqle)
-		{
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Problem looking up country: " + strCountry + ",row skipped",Logs.ERROR,"PF43.55");
 			continue;	
 			/*
@@ -2668,7 +2642,7 @@ public void postProcessImfGdp() throws SQLException {
 	
 }
 
-public void postProcessTableBLSUERate() throws CustomEmptyStringException, SQLException
+public void postProcessTableBLSUERate() throws CustomEmptyStringException, DataAccessException
 {
 	String[] rowdata, newrow;
 	String[] colheaders = propTableData.get(0);
@@ -2740,7 +2714,7 @@ public void postProcessExchRate()
 
 
 
-public void postProcessYahooEPSEst() throws CustomEmptyStringException, SQLException
+public void postProcessYahooEPSEst() throws CustomEmptyStringException, DataAccessException
 {
 	
 	
@@ -2809,7 +2783,7 @@ public void postProcessYahooEPSEst() throws CustomEmptyStringException, SQLExcep
 		
 }
 
-public boolean preProcessSECFiscalYear() throws SQLException
+public boolean preProcessSECFiscalYear() throws DataAccessException
 {
 	/*
 	 * Currently no analyst estimates for IVZ or LUK.
@@ -3051,7 +3025,7 @@ public void postProcessYahooFiscalYearEndRaw()
 
 }
 
-public void postProcessGoogleEPSTable() throws SQLException {
+public void postProcessGoogleEPSTable() throws DataAccessException {
 
 
 		String strTicker = dg.strOriginalTicker;
@@ -3154,7 +3128,7 @@ public void postProcessGoogleEPSTable() throws SQLException {
 
 public void postProcessGasolineEurope() {
 
-	String[] rowdata, newrow;
+	String[] newrow;
 	final String strDefaultTime = " 14:00:00";
 	
 	
@@ -3232,12 +3206,13 @@ public void postProcessGasolineEurope() {
 		
 		
 	  try	{
-		  ResultSet rs = dbf.db_run_query(strQuery);
+		  //ResultSet rs = dbf.db_run_query(strQuery);
+		  SqlRowSet rs = dbf.dbSpringRunQuery(strQuery);
 		  rs.next();
 		  newrow[2] = rs.getInt("id") + "";
 		
 	  }
-	  catch (SQLException sqle)	{
+	  catch (DataAccessException sqle)	{
 		  UtilityFunctions.stdoutwriter.writeln("Problem looking up country name or alias: " + strCountry + ",row skipped",Logs.ERROR,"PF200.25");
 		  continue;	
 	  }
@@ -3251,7 +3226,7 @@ public void postProcessGasolineEurope() {
 		  
 		  newrow[0] = bdPrice.toString();
 	  }
-	  catch (SQLException sqle) {
+	  catch (DataAccessException sqle) {
 		  UtilityFunctions.stdoutwriter.writeln("Problem converting to gallons and dollars for currency cross: USD" + tokens[2] + ",row skipped",Logs.WARN,"PF200.25");
 		  continue;	
 	  }
@@ -3278,7 +3253,7 @@ public void postProcessGasolineEurope() {
 		  bdPrice = bdPrice.divide(UtilityFunctions.bdGallonsPerLiter,BigDecimal.ROUND_UP);
 		  newrow[0] = bdPrice.toString();
 	  }
-	  catch (SQLException sqle)	{
+	  catch (DataAccessException sqle)	{
 		  UtilityFunctions.stdoutwriter.writeln("Problem looking up exchange rate for currency cross: USD" + tokens[2] + ",row skipped",Logs.WARN,"PF200.25");
 		  continue;	
 	  }*/
@@ -3312,7 +3287,7 @@ public void postProcessGasolineEurope() {
 	
 }
 
-public void postProcessGasolineUSCanada() throws SQLException {
+public void postProcessGasolineUSCanada() throws DataAccessException {
 	
 	String[] tmpArray = {"value","date_collected","entity_id"};
 	Calendar calToday = Calendar.getInstance();
@@ -3345,7 +3320,7 @@ public void postProcessGasolineUSCanada() throws SQLException {
 				newrow[0] = bdPrice.toString();
 				
 			}
-			catch (SQLException sqle) {
+			catch (DataAccessException sqle) {
 				UtilityFunctions.stdoutwriter.writeln("Problem converting to Gallons and Dollars, Country " + strCountry + " skipped",Logs.WARN,"PF200.25");
 				continue;	
 			}
@@ -3360,12 +3335,13 @@ public void postProcessGasolineUSCanada() throws SQLException {
 		query += " and countries.name='"+strCountry+"'";
 		
 		try		{
-			ResultSet rs = dbf.db_run_query(query);
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
 			rs.next();
 			newrow[2] = rs.getInt("id") + "";
 			
 		}
-		catch (SQLException sqle)	{
+		catch (DataAccessException sqle)	{
 			UtilityFunctions.stdoutwriter.writeln("Problem looking up country: " + strCountry + ",row skipped",Logs.ERROR,"PF300.25");
 			continue;	
 			/*
@@ -3385,7 +3361,7 @@ public void postProcessGasolineUSCanada() throws SQLException {
 	
 }
 
-public void postProcessWikipediaGasoline() throws SQLException {
+public void postProcessWikipediaGasoline() throws DataAccessException {
 
 		final String strDefaultTime = " 14:00:00";
 		String[] tmpArray = {"value","date_collected","entity_id"};
@@ -3395,7 +3371,7 @@ public void postProcessWikipediaGasoline() throws SQLException {
 		String[] newrow;
 		//String[] colheaders = propTableData.get(0);
 		
-		String[] colheaders = propTableData.remove(0);
+		//String[] colheaders = propTableData.remove(0);
 		String[] rowheaders = propTableData.remove(0);
 		
 		int nCounter=0;
@@ -3502,12 +3478,13 @@ public void postProcessWikipediaGasoline() throws SQLException {
 						
 			
 			try		{
-				ResultSet rs = dbf.db_run_query(query);
+				//ResultSet rs = dbf.db_run_query(query);
+				SqlRowSet rs = dbf.dbSpringRunQuery(query);
 				rs.next();
 				newrow[2] = rs.getInt("id") + "";
 				
 			}
-			catch (SQLException sqle)	{
+			catch (DataAccessException sqle)	{
 				UtilityFunctions.stdoutwriter.writeln("Problem looking up country: " + strCountry + ",row skipped",Logs.ERROR,"PF99.25");
 				continue;	
 				/*
@@ -3539,7 +3516,7 @@ public void postProcessWikipediaGasoline() throws SQLException {
 		
 	}
 
-public void postProcessMWatchEPSEstTable() throws SQLException,SkipLoadException {
+public void postProcessMWatchEPSEstTable() throws DataAccessException,SkipLoadException {
 	
 		/* OFP 11/12/2011 - One issue with this data source is because the column headers are
 		 * relative (i.e. "this quarter", "next quarter") there is no way to guarantee which quarter

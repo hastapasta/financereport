@@ -1,6 +1,5 @@
+package pikefin;
 import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,7 +8,11 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+
 import pikefin.log4jWrapper.Logs;
+import pikefin.hibernate.*;
 
 
 
@@ -47,18 +50,26 @@ class Alerts {
 	 *  
 	 * 
 	 */
-	void checkAlerts(DataGrab dg) throws SQLException {
+	void checkAlerts(DataGrab dg) throws DataAccessException, PikefinException {
 		  
 		int nCurTask = dg.nCurTask;
-		String strTaskName,strTaskDescription;
+		String strTaskDescription;
 		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		  
-		String query = "select tasks.* from tasks where id=" + nCurTask;
+		//String query = "select tasks.* from tasks where id=" + nCurTask;
+		String query = " from Task where id=" + nCurTask;
 		  
-		ResultSet rsTask = dg.dbf.db_run_query(query);
-		if (rsTask.next()) {
-			strTaskName = rsTask.getString("tasks.name");
-			strTaskDescription = rsTask.getString("tasks.description");
+		//ResultSet rsTask = dg.dbf.db_run_query(query);
+		//SqlRowSet rsTask = dg.dbf.dbSpringRunQuery(query);
+		
+		Task t = null;
+		
+		t = (Task)dg.dbf.dbHibernateRunQueryUnique(query);
+		
+		
+		if (t != null) {
+			//strTaskName = rsTask.getString("tasks.name");
+			strTaskDescription = t.getDescription();
 			  
 
 			/*
@@ -77,7 +88,7 @@ class Alerts {
 			query += " fact_data.value,fact_data.id,fact_data.date_collected,";
 			query += " time_events.id,time_events.name,time_events.next_datetime,time_events.last_datetime, ";
 			query += " tasks.metric_id, ";
-			query += " countries.hash, countries.name ";
+			query += " countries.hash ";
 			query += " from alerts ";
 			query += " LEFT JOIN entities ON alerts.entity_id=entities.id ";
 			query += " LEFT JOIN users ON alerts.user_id=users.id ";
@@ -87,6 +98,9 @@ class Alerts {
 			query += " LEFT JOIN countries_entities ON countries_entities.entity_id=entities.id ";
 			query += " LEFT JOIN countries ON countries.id=countries_entities.country_id ";
 			query += " where alerts.task_id=" + nCurTask;
+			
+			
+			String query2 = 
 			/* OFP 2/12/2012 - Regarding the countries_entities.country_default field:
 			 * 
 			 * This was added because if an entity belongs to multiple countries, like USDXCD, then this query results in an alert
@@ -104,22 +118,26 @@ class Alerts {
 			query += " order by time_events.id";
 			  
 			 
-			ResultSet rsAlert1 = dg.dbf.db_run_query(query);
+			//ResultSet rsAlert1 = dg.dbf.db_run_query(query);
+			SqlRowSet rsAlert1 = dg.dbf.dbSpringRunQuery(query);
 			  
-			ArrayList<HashMap<String,String>> arrayListAlerts = UtilityFunctions.convertResultSetToArrayList(rsAlert1,"alerts.id");
+			ArrayList<HashMap<String,String>> arrayListAlerts = UtilityFunctions.convertRowSetToArrayList(rsAlert1,"alerts.id");
 			  
 			//check if there are any alerts to process
 			if (arrayListAlerts == null)		
 				return;
 			 
-			int nRow=0;
+			//int nRow=0;
 			  
 			/*
 			 * 
 			 * Moved this code outside of the loop to speed up processing.
 			 */
 			query = "select max(batch_id) from fact_data,batches where fact_data.batch_id=batches.id AND task_id=" + nCurTask;
-			ResultSet rs7 = dg.dbf.db_run_query(query);
+			//ResultSet rs7 = dg.dbf.db_run_query(query);
+			SqlRowSet rs7 = dg.dbf.dbSpringRunQuery(query);
+			
+			
 			rs7.next();
 			int nMaxBatch = rs7.getInt("max(batch_id)");
 			  
@@ -131,10 +149,11 @@ class Alerts {
 			query3 += " and batch_id=" + nMaxBatch;
 			
 			  
-			ResultSet rsCurFactData1 = dg.dbf.db_run_query(query3);
+			//ResultSet rsCurFactData1 = dg.dbf.db_run_query(query3);
+			SqlRowSet rsCurFactData1 = dg.dbf.dbSpringRunQuery(query3);
 			  
 			  
-			this.hmCurFactData = UtilityFunctions.convertResultSetToHashMap(rsCurFactData1,"entity_id","calyear");
+			this.hmCurFactData = UtilityFunctions.convertRowSetToHashMap(rsCurFactData1,"entity_id","calyear");
 			  
 			if (hmCurFactData == null)  {
                 UtilityFunctions.stdoutwriter.writeln("No fact_data entries found for task " + nCurTask + "and batch " + nMaxBatch + ". Alert processing terminated.",Logs.WARN,"A4.0");
@@ -144,14 +163,14 @@ class Alerts {
 
 			  
 	  
-			int nAlertIndex = 0;
+			//int nAlertIndex = 0;
 			 
 			for(Iterator<HashMap<String,String>> alertIterator = arrayListAlerts.iterator(); alertIterator.hasNext();){
 				
 				this.hmAlert = alertIterator.next(); 
 			
-				nAlertIndex++;
-				nRow++;
+				//nAlertIndex++;
+				//nRow++;
 				try  {
 				 
 					boolean bDisabled = customParseBoolean(hmAlert.get("alerts.disabled"));
@@ -192,13 +211,13 @@ class Alerts {
 					}
 				  
 					
-					HashMap<String,String> tmpHash = hmCurFactData.get(new TheKey(nEntityId+"",strCalYear));
+					//HashMap<String,String> tmpHash = hmCurFactData.get(new TheKey(nEntityId+"",strCalYear));
 					calJustCollected.setTime(inputFormat.parse(hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.date_collected")));
 					calObservationPeriodBegin.setTime(inputFormat.parse(hmAlert.get("time_events.last_datetime")));
 					calObservationPeriodEnd.setTime(inputFormat.parse(hmAlert.get("time_events.next_datetime")));
 					
 
-					int nCount=0;
+					//int nCount=0;
 
 					/*
 					 * This is the check to see if the alert period has ended and time to update the initial value and reset the adjustment to zero.
@@ -240,7 +259,8 @@ class Alerts {
 								strQuery += " and calyear=" + strCalYear;
 							strQuery += " order by fact_data.date_collected asc";
 								  
-							ResultSet rsFactData = dg.dbf.db_run_query(strQuery);
+							//ResultSet rsFactData = dg.dbf.db_run_query(strQuery);
+							SqlRowSet rsFactData = dg.dbf.dbSpringRunQuery(strQuery);
 							  
 							if (!rsFactData.next()) {
 								//we should never get here, but you never know.
@@ -257,9 +277,10 @@ class Alerts {
 							query4 += "fired=0 ";
 							query4 += " where id=" + nAlertId;
 							  
-							dg.dbf.db_update_query(query4);
+							//dg.dbf.db_update_query(query4);
+							dg.dbf.dbSpringUpdateQuery(query4);
 							  
-							nCount++;
+							//nCount++;
 							  
 							/*
 							 * We're past the end of the time period so don't do anything else and proceed to the next alert.
@@ -286,7 +307,8 @@ class Alerts {
 								strQuery += " and calyear=" + strCalYear;
 							strQuery += " order by fact_data.date_collected asc";
 								  
-							ResultSet rsFactData = dg.dbf.db_run_query(strQuery);
+							//ResultSet rsFactData = dg.dbf.db_run_query(strQuery);
+							SqlRowSet rsFactData = dg.dbf.dbSpringRunQuery(strQuery);
 							  
 							if (!rsFactData.next()) {
 								/*
@@ -313,7 +335,8 @@ class Alerts {
 							query4 += "fired=0 ";
 							query4 += " where id=" + nAlertId;
 							  
-							dg.dbf.db_update_query(query4);
+							//dg.dbf.db_update_query(query4);
+							dg.dbf.dbSpringUpdateQuery(query4);
 							
 							/*
 							 * We also have to a continue here as well since we use the initial fact data value
@@ -346,7 +369,8 @@ class Alerts {
 								strQuery += " and calyear=" + strCalYear;
 							strQuery += " order by fact_data.date_collected asc";
 								  
-							ResultSet rsFactData = dg.dbf.db_run_query(strQuery);
+							//ResultSet rsFactData = dg.dbf.db_run_query(strQuery);
+							SqlRowSet rsFactData = dg.dbf.dbSpringRunQuery(strQuery);
 							  
 							if (!rsFactData.next()) {
 								//we should never get here, but you never know.
@@ -362,7 +386,8 @@ class Alerts {
 							query4 += "fired=0 ";
 							query4 += " where id=" + nAlertId;
 							  
-							dg.dbf.db_update_query(query4);
+							//dg.dbf.db_update_query(query4);
+							dg.dbf.dbSpringUpdateQuery(query4);
 					//	}
 						
 					}
@@ -373,12 +398,11 @@ class Alerts {
 					int nNotificationCount = Integer.parseInt(hmAlert.get("alerts.notification_count"));//rsAlert.getInt("alert_count");
 				  	
 					String strUpdateQuery = "update alerts set current_fact_data_id=" + hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + " where alerts.id=" + nAlertId;
-					dg.dbf.db_update_query(strUpdateQuery);
+					//dg.dbf.db_update_query(strUpdateQuery);
+					dg.dbf.dbSpringUpdateQuery(strUpdateQuery);
 
 					
-				
-	
-					
+			
 					int nMaxNotifications = 1;
 						
 					if (this.getTriggered()) {
@@ -392,7 +416,8 @@ class Alerts {
 						strQuery20 += " LEFT JOIN security_accounts on alert_targets.security_account_id=security_accounts.id ";
 						strQuery20 += " where alert_id=" + nAlertId;
 						  
-						ResultSet rs20 = dg.dbf.db_run_query(strQuery20);
+						//ResultSet rs20 = dg.dbf.db_run_query(strQuery20);
+						SqlRowSet rs20 = dg.dbf.dbSpringRunQuery(strQuery20);
 						
 						while (rs20.next()) {
 							
@@ -455,20 +480,21 @@ class Alerts {
 											strMsg += "Observation Period Begin: " + sdf.format(calObservationPeriodBegin.getTime()) + "\r\n";
 											 
 											  
-											strMsg += "Chart: " + (String)DataLoad.props.getProperty("phpbaseurl") + "charts/allassets/linechart.php?a=" + nAlertId + "\r\n";
+											strMsg += "Chart: " + UtilityFunctions.getEmailPhpUrl() + "charts/allassets/linechart.php?a=" + nAlertId + "\r\n";
 													  
 											//Add link for Increase Alert Limit form
-											strMsg = strMsg + "Modify/View Alert Properties: " + (String)DataLoad.props.getProperty("cakebaseurl") + "alerts/edit?alert=" + nAlertId;
+											strMsg = strMsg + "Modify/View Alert Properties: " + UtilityFunctions.getEmailCakeUrl() + "alerts/edit?alert=" + nAlertId;
 											  
-											String strSubject = (String)DataLoad.props.get("subjecttext") + " : " + strTicker + " : " + hmAlert.get("time_events.name") + " Observation Period";
+											String strSubject = UtilityFunctions.getEmailSubjectText() + " : " + strTicker + " : " + hmAlert.get("time_events.name") + " Observation Period";
 											  
 								
-											UtilityFunctions.mail(rs20.getString("address"),strMsg,strSubject,(String)DataLoad.props.get("fromaddy"));
+											UtilityFunctions.mail(rs20.getString("address"),strMsg,strSubject,UtilityFunctions.getEmailFromAddy());
 					
 											  
 											String query9 = "update alerts set notification_count=" + (nNotificationCount+1) + " where id=" + nAlertId;
 											  
-											dg.dbf.db_update_query(query9);
+											//dg.dbf.db_update_query(query9);
+											dg.dbf.dbSpringUpdateQuery(query9);
 											  
 											bEmailSent = true;
 										}
@@ -496,20 +522,16 @@ class Alerts {
 										if (hmAlert.get("entities.full_name") != null)
 											strTweet += " (" + hmAlert.get("entities.full_name") + ")";									  
 										
-										String strUrl = (String)DataLoad.props.getProperty("phpbaseurl") + "charts/allassets/linechart.php";
-										
-										
-										/*if (hmAlert.get("time_events.id").equals("1") || hmAlert.get("time_events.id").equals("3"))
+										String strUrl = UtilityFunctions.getEmailPhpUrl() + "charts/allassets/";
+										if (hmAlert.get("time_events.id").equals("1") || hmAlert.get("time_events.id").equals("3"))
 											strUrl += "linechart15min.php";
 										else
-											strUrl += "linechart.php";*/
+											strUrl += "linechart.php";
 										
 										strUrl += "?a=" + nAlertId;
 										
-										if (hmAlert.get("time_events.id").equals("1") || hmAlert.get("time_events.id").equals("3"))
-											strUrl += "&gran=minute";
-										
-								  
+									
+												  
 										strTweet += " " + UtilityFunctions.shortenURL(strUrl);
 											  
 											  
@@ -521,7 +543,8 @@ class Alerts {
 										tmpQuery += " where entity_id=" + hmAlert.get("entities.id");
 										tmpQuery += " AND entity_group_id in (1,3,4,5,1008) ";
 										  
-										ResultSet rs10 = dg.dbf.db_run_query(tmpQuery);
+										//ResultSet rs10 = dg.dbf.db_run_query(tmpQuery);
+										SqlRowSet rs10 = dg.dbf.dbSpringRunQuery(tmpQuery);
 										
 										if (rs10.next()) {
 											switch (rs10.getInt("entity_group_id")) {
@@ -540,9 +563,9 @@ class Alerts {
 												/* Global Equity Indexes */
 												case 1008:
 												case 5:
-													if (hmAlert.get("countries.name") != null) {
-														if (!hmAlert.get("countries.name").isEmpty()) {
-															strTweet += " " + hmAlert.get("countries.name");
+													if (hmAlert.get("countries.hash") != null) {
+														if (!hmAlert.get("countries.hash").isEmpty()) {
+															strTweet += " " + hmAlert.get("countries.hash");
 														}
 													}
 													if (rs10.getInt("entity_group_id")==1008)
@@ -597,7 +620,8 @@ class Alerts {
 										
 									
 										  
-										ResultSet rs11 = dg.dbf.db_run_query(strTweetLimitQuery);
+										//ResultSet rs11 = dg.dbf.db_run_query(strTweetLimitQuery);
+										SqlRowSet rs11 = dg.dbf.dbSpringRunQuery(strTweetLimitQuery);
 										  
 										rs11.next();
 										nTweetCount = rs11.getInt("cnt");
@@ -639,9 +663,10 @@ class Alerts {
 											strTweetLogQuery += ",null)";
 										else
 											strTweetLogQuery += ",'" + (strErrorMsg.length()>200?strErrorMsg.substring(0,200):strErrorMsg) + "')";
-										dg.dbf.db_update_query(strTweetLogQuery);
+										//dg.dbf.db_update_query(strTweetLogQuery);
+										dg.dbf.dbSpringUpdateQuery(strTweetLogQuery);
 									} 
-									catch (SQLException sqle) {
+									catch (DataAccessException sqle) {
 										UtilityFunctions.stdoutwriter.writeln("Issue inserting into log_tweets",Logs.ERROR,"A4.6");
 										UtilityFunctions.stdoutwriter.writeln(sqle);
 									}
@@ -703,7 +728,8 @@ class Alerts {
 							query8 += "0,";
 						query8 += dChange + ")";
 								  
-						dg.dbf.db_update_query(query8);
+						//dg.dbf.db_update_query(query8);
+						dg.dbf.dbSpringUpdateQuery(query8);
 						  
 						if (bAutoResetFired)	  {
 							query8 = "update alerts set notification_count=0,initial_fact_data_id=" + hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + " where id=" + nAlertId;
@@ -714,7 +740,8 @@ class Alerts {
 									  
 					
 								  
-						dg.dbf.db_update_query(query8);
+						//dg.dbf.db_update_query(query8);
+						dg.dbf.dbSpringUpdateQuery(query8);
 								  
 					}
 
@@ -850,4 +877,54 @@ class Alerts {
 	
 	  
 
+}
+
+class TheKey {
+	
+	 public final String strVal1;
+	 public final String strVal2;
+	 
+	 public TheKey(String strVal1, String strVal2) {
+		    this.strVal1 = strVal1; this.strVal2 = strVal2; //this.k3 = k3; this.k4 = k4;
+		  }
+	 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		int outerhashcode = 7;
+		//result = prime * result + getOuterType().hashCode();
+		result = prime * result + outerhashcode;
+		result = prime * result
+				+ ((strVal1 == null) ? 0 : strVal1.hashCode());
+		result = prime * result
+				+ ((strVal2 == null) ? 0 : strVal2.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TheKey other = (TheKey) obj;
+		/*if (!getOuterType().equals(other.getOuterType()))
+			return false;*/
+		if (strVal1 == null) {
+			if (other.strVal1 != null)
+				return false;
+		} else if (!strVal1.equals(other.strVal1))
+			return false;
+		if (strVal2 == null) {
+			if (other.strVal2 != null)
+				return false;
+		} else if (!strVal2.equals(other.strVal2))
+			return false;
+		return true;
+	}
+	/*private TheKey getOuterType() {
+		return this;
+	}*/
 }

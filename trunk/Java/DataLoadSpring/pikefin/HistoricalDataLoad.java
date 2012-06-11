@@ -1,8 +1,7 @@
+package pikefin;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,13 +9,14 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 import pikefin.log4jWrapper.Logs;
-
+ 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-//import org.apache.log4j.NDC;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 
 public class HistoricalDataLoad {
@@ -64,7 +64,7 @@ public class HistoricalDataLoad {
 	
 	public static void testFunc() {
 		String strTime = "12:40pm";
-		String strHour = strTime.substring(0,strTime.indexOf(":"));
+		//String strHour = strTime.substring(0,strTime.indexOf(":"));
 		String strMinute = strTime.substring(strTime.indexOf(":")+1,strTime.indexOf(":")+3);
 		String strPeriod = strTime.substring(strTime.length()-2,strTime.length());
 		
@@ -82,7 +82,7 @@ public class HistoricalDataLoad {
 		cal2.setTimeZone(TimeZone.getTimeZone("America/New_York"));
 		
 		Calendar cal3 = Calendar.getInstance();
-		int nHour = Integer.parseInt(strHour);
+		//int nHour = Integer.parseInt(strHour);
 		cal3.setTimeZone(TimeZone.getTimeZone("America/New_York"));
 		//cal2.set(cal2.get(Calendar.YEAR), cal2.get(Calendar.MONTH),cal2.get(Calendar.DAY_OF_MONTH,nHour,nMinute,0);
 		
@@ -93,41 +93,45 @@ public class HistoricalDataLoad {
 	public static void updateBatchDate(DBFunctions dbf) {
 		try {
 			String tmp = "select * from fact_data2 where entity_id=1";
-			ResultSet rs = dbf.db_run_query(tmp);
+			
+			
+			//ResultSet rs = dbf.db_run_query(tmp);
+			SqlRowSet rs = dbf.dbSpringRunQuery(tmp);
+			
 			while (rs.next()) {
 				
 				String strUpdate = "update batches3 set batch_date_collected='" + formatter.format(rs.getTimestamp("date_collected")) + "'";
 				strUpdate += " where id=" + rs.getString("batch_id");
 				
-				dbf.db_update_query(strUpdate);
+				//dbf.db_update_query(strUpdate);
+				dbf.dbSpringUpdateQuery(strUpdate);
 				
 				
 				
 				
 			}
 		} 
-		catch (SQLException sqle) {
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 		}
 		
 	}
 
-	public static void yahooFinanceVerify(DBFunctions dbf, int nMaxBatch)
-	{
+	public static void yahooFinanceVerify(DBFunctions dbf, int nMaxBatch) {
 		
-		String strTask = "10";
+		//String strTask = "10";
 		
-		try
-		{
-			DBFunctions tmpdbf = new DBFunctions((String)DataLoad.props.get("dbhost"),(String)DataLoad.props.get("dbport"),(String)DataLoad.props.get("database"),(String)DataLoad.props.get("dbuser"),(String)DataLoad.props.get("dbpass"));
-			DataGrab dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,nMaxBatch, "", "",true);
+		/*try	{
+			//DBFunctions tmpdbf = new DBFunctions((String)DataLoad.props.get("dbhost"),(String)DataLoad.props.get("dbport"),(String)DataLoad.props.get("database"),(String)DataLoad.props.get("dbuser"),(String)DataLoad.props.get("dbpass"));
+			//DBFunctions tmpdbf = new DBFunctions();
+			DataGrab dg = new DataGrab(#*DataLoad.uf,tmpdbf,*#strTask,nMaxBatch, "", "",true);
 		}
-		catch (SQLException sqle)
+		catch (DataAccessException sqle)
 		{
 			UtilityFunctions.stdoutwriter.writeln("Issue with database",Logs.ERROR,"DL110.5");
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 			
-		}
+		}*/
 		
 		
 		
@@ -142,9 +146,10 @@ public class HistoricalDataLoad {
 		
 		DBFunctions tmpdbf = null;
 		try {
-			tmpdbf = new DBFunctions((String)DataLoad.props.get("dbhost"),(String)DataLoad.props.get("dbport"),(String)DataLoad.props.get("database"),(String)DataLoad.props.get("dbuser"),(String)DataLoad.props.get("dbpass"));
+			//tmpdbf = new DBFunctions((String)DataLoad.props.get("dbhost"),(String)DataLoad.props.get("dbport"),(String)DataLoad.props.get("database"),(String)DataLoad.props.get("dbuser"),(String)DataLoad.props.get("dbpass"));
+			tmpdbf = new DBFunctions();
 		}
-		catch (SQLException sqle) {
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Issue instantiating DBFunctions",Logs.ERROR,"HDL101.5");
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 			
@@ -199,9 +204,10 @@ public class HistoricalDataLoad {
 			String insertBatch = "insert into batches (id,batch_date_collected,task_id) values (" + nMaxBatch + ",'" + formatter.format(cal.getTime()) + "',12)";
 			
 			try {
-				tmpdbf.db_update_query(insertBatch);
+				//tmpdbf.db_update_query(insertBatch);
+				tmpdbf.dbSpringUpdateQuery(insertBatch);
 			}
-			catch (SQLException sqle) {
+			catch (DataAccessException sqle) {
 				UtilityFunctions.stdoutwriter.writeln(sqle);
 			}
 			
@@ -249,9 +255,10 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 		
 		DBFunctions tmpdbf = null;
 		try {
-			tmpdbf = new DBFunctions((String)DataLoad.props.get("dbhost"),(String)DataLoad.props.get("dbport"),(String)DataLoad.props.get("database"),(String)DataLoad.props.get("dbuser"),(String)DataLoad.props.get("dbpass"));
+			//tmpdbf = new DBFunctions((String)DataLoad.props.get("dbhost"),(String)DataLoad.props.get("dbport"),(String)DataLoad.props.get("database"),(String)DataLoad.props.get("dbuser"),(String)DataLoad.props.get("dbpass"));
+			tmpdbf = new DBFunctions();
 		}
-		catch (SQLException sqle) {
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Issue instantiating DBFunctions",Logs.ERROR,"HDL101.5");
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 			
@@ -314,13 +321,15 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 			int nBatch = 0;
 			
 			try {
-				ResultSet rs4 = tmpdbf.db_run_query(batchlookup);
+				//ResultSet rs4 = tmpdbf.db_run_query(batchlookup);
+				SqlRowSet rs4 = tmpdbf.dbSpringRunQuery(batchlookup);
 				if (rs4.next()) {
 					nBatch = rs4.getInt("id");
 				}
 				else {
 					String batchlookup2 = "select max(id) as mx from " + strBatchesTable + " where id > 30999 and id<31101 ";
-					ResultSet rs5 = tmpdbf.db_run_query(batchlookup2);
+					//ResultSet rs5 = tmpdbf.db_run_query(batchlookup2);
+					SqlRowSet rs5 = tmpdbf.dbSpringRunQuery(batchlookup2);
 					rs5.next();
 					if (rs5.getInt("mx")==0)
 						nBatch=nBaseBatch;
@@ -331,12 +340,13 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 					
 					String insertbatch = "insert into " + strBatchesTable + " (id,batch_date_collected,task_id) values (" + nBatch + ",'" + formatter.format(cal.getTime()) + "',6) ";
 				
-					tmpdbf.db_update_query(insertbatch);
+					//tmpdbf.db_update_query(insertbatch);
+					tmpdbf.dbSpringUpdateQuery(insertbatch);
 					UtilityFunctions.stdoutwriter.writeln("Created new batch id " + nBatch + " in table " + strBatchesTable,Logs.STATUS1,"HDL10.32");		
 					
 				}
 			}
-			catch (SQLException sqle) {
+			catch (DataAccessException sqle) {
 				UtilityFunctions.stdoutwriter.writeln("Unable to retrieve/generate batch #, skipping load",Logs.ERROR,"HDL5.9");
 				UtilityFunctions.stdoutwriter.writeln(sqle);
 				continue;
@@ -347,12 +357,13 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 			String strEntityId = "";
 			
 			try {
-				ResultSet rs = tmpdbf.db_run_query(lookupquery);
+				//ResultSet rs = tmpdbf.db_run_query(lookupquery);
+				SqlRowSet rs = tmpdbf.dbSpringRunQuery(lookupquery);
 				rs.next();
 				strEntityId = rs.getInt("id") + "";
 				
 			}
-			catch (SQLException sqle) {
+			catch (DataAccessException sqle) {
 				UtilityFunctions.stdoutwriter.writeln("Unable to locate entity ticker, skipping load",Logs.ERROR,"HDL5.2");
 				UtilityFunctions.stdoutwriter.writeln(sqle);
 				continue;
@@ -380,7 +391,7 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 			try {
 				tmpdbf.db_update_query(insertbatchquery);
 			}
-			catch (SQLException sqle) {
+			catch (DataAccessException sqle) {
 				UtilityFunctions.stdoutwriter.writeln(sqle);
 			}*/
 			
@@ -411,9 +422,10 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 			 * 
 			 */
 			try {
-				tmpdbf.db_update_query(query);
+				//tmpdbf.db_update_query(query);
+				tmpdbf.dbSpringUpdateQuery(query);
 			}
-			catch (SQLException sqle) {
+			catch (DataAccessException sqle) {
 				UtilityFunctions.stdoutwriter.writeln(sqle);
 			}
 			
@@ -467,7 +479,7 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 		cal.set(Calendar.MINUTE,59);
 		cal.set(Calendar.SECOND,59);
 	
-		int nBatch = 0;
+		//int nBatch = 0;
 		DBFunctions tmpdbf = null;
 		ArrayList<String[]> tabledata = new ArrayList<String[]>();
 		String[] firstrow = {"value","date_collected","entity_id"};
@@ -475,9 +487,10 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 		HttpResponse response;
 		
 		try {
-			tmpdbf = new DBFunctions((String)DataLoad.props.get("dbhost"),(String)DataLoad.props.get("dbport"),(String)DataLoad.props.get("database"),(String)DataLoad.props.get("dbuser"),(String)DataLoad.props.get("dbpass"));
+			//tmpdbf = new DBFunctions((String)DataLoad.props.get("dbhost"),(String)DataLoad.props.get("dbport"),(String)DataLoad.props.get("database"),(String)DataLoad.props.get("dbuser"),(String)DataLoad.props.get("dbpass"));
+			tmpdbf = new DBFunctions();
 		}
-		catch (SQLException sqle) {
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Issue instantiating DBFunctions",Logs.ERROR,"HDL101.5");
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 			
@@ -486,14 +499,18 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 		String update = "update extract_singles set row_count=138 where id=111186";
 		
 		try {
-			tmpdbf.db_update_query(update);
+			//tmpdbf.db_update_query(update);
+			tmpdbf.dbSpringUpdateQuery(update);
 		}
-		catch (SQLException sqle) {
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 		}
 		
 		
-		DataGrab dg = new DataGrab(DataLoad.uf,tmpdbf,"1",nMaxBatch,"","",true);
+		/*
+		 * OFP 5/10/2012 - This may have to be adjusted for the new spring framework.
+		 */
+		DataGrab dg = new DataGrab(tmpdbf,"1",nMaxBatch,"","",true,0);
 		
 		String strURL;
 		
@@ -503,12 +520,13 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 		String strRawURL = "";
 		
 		try {
-			ResultSet rs1 = tmpdbf.db_run_query(strJobQuery);
+			//ResultSet rs1 = tmpdbf.db_run_query(strJobQuery);
+			SqlRowSet rs1 = tmpdbf.dbSpringRunQuery(strJobQuery);
 			rs1.next();
 			strRawURL = rs1.getString("url_static");
 				
 		}
-		catch (SQLException sqle) {
+		catch (DataAccessException sqle) {
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 		}
 		
@@ -521,7 +539,8 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 			//loop through crosses
 			
 			try {
-				ResultSet rs = tmpdbf.db_run_query(strQuery);
+				//ResultSet rs = tmpdbf.db_run_query(strQuery);
+				SqlRowSet rs = tmpdbf.dbSpringRunQuery(strQuery);
 				while (rs.next()) {
 					
 					String strCross = rs.getString("ticker");
@@ -597,7 +616,7 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 					
 				}
 			}
-			catch (SQLException sqle) {
+			catch (DataAccessException sqle) {
 				UtilityFunctions.stdoutwriter.writeln("Issue running query",Logs.ERROR,"HDL102.5");
 				UtilityFunctions.stdoutwriter.writeln(sqle);
 				
@@ -609,9 +628,10 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 			String insertBatch = "insert into batches (id,batch_date_collected,task_id) values (" + nMaxBatch + ",'" + formatter.format(cal.getTime()) + "',1)";
 			
 			try {
-				tmpdbf.db_update_query(insertBatch);
+				//tmpdbf.db_update_query(insertBatch);
+				tmpdbf.dbSpringUpdateQuery(insertBatch);
 			}
-			catch (SQLException sqle) {
+			catch (DataAccessException sqle) {
 				UtilityFunctions.stdoutwriter.writeln(sqle);
 			}
 			
@@ -620,9 +640,10 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 			update = "update extract_singles set row_count=row_count+1 where id=111186";
 			
 			try {
-				tmpdbf.db_update_query(update);
+				//tmpdbf.db_update_query(update);
+				tmpdbf.dbSpringUpdateQuery(update);
 			}
-			catch (SQLException sqle) {
+			catch (DataAccessException sqle) {
 				UtilityFunctions.stdoutwriter.writeln(sqle);
 			}
 			
@@ -643,9 +664,8 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 		
 	}
 	
-	public static void yahooFinanceDataLoad(DBFunctions dbf, int nMaxBatch)
-	{
-		String url = "http://ichart.finance.yahoo.com/table.csv?s=INTC&a=01&b=23&c=2009&d=02&e=05&f=2009&g=m";
+	public static void yahooFinanceDataLoad(DBFunctions dbf, int nMaxBatch)	{
+		//String url = "http://ichart.finance.yahoo.com/table.csv?s=INTC&a=01&b=23&c=2009&d=02&e=05&f=2009&g=m";
 		
 		String baseURL="http://ichart.finance.yahoo.com/table.csv?g=d";
 		
@@ -715,12 +735,20 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 				
 				String update = "update jobs set url_static='" + currentURL + "' where id=11246";
 				
-				dbf.db_update_query(update);		
+				//dbf.db_update_query(update);	
+				dbf.dbSpringUpdateQuery(update);
 				
-				DBFunctions tmpdbf = new DBFunctions((String)DataLoad.props.get("dbhost"),(String)DataLoad.props.get("dbport"),(String)DataLoad.props.get("database"),(String)DataLoad.props.get("dbuser"),(String)DataLoad.props.get("dbpass"));
-				DataGrab dg = new DataGrab(DataLoad.uf,tmpdbf,strTask,nMaxBatch,"","",true);
+				//DBFunctions tmpdbf = new DBFunctions((String)DataLoad.props.get("dbhost"),(String)DataLoad.props.get("dbport"),(String)DataLoad.props.get("database"),(String)DataLoad.props.get("dbuser"),(String)DataLoad.props.get("dbpass"));
+				DBFunctions tmpdbf = new DBFunctions();
 				
-				dg.startThread();
+				/*
+				 * OFP 5/10/2012 - This may have to be adjusted for the new spring framework.
+				 */
+				DataGrab dg = new DataGrab(tmpdbf,strTask,nMaxBatch,"","",true,0);
+				
+				dg.start();
+				
+				//dg.startThread();
 				UtilityFunctions.stdoutwriter.writeln("Initiated DataGrab thread " + dg.getName(),Logs.STATUS1,"HDL4");
 				
 				while (dg.getState() != Thread.State.TERMINATED)
@@ -767,7 +795,7 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 				
 			}
 		}
-		catch (SQLException sqle)
+		catch (DataAccessException sqle)
 		{
 			
 			UtilityFunctions.stdoutwriter.writeln("Issue instantiating DBFunctions",Logs.ERROR,"DL100.5");

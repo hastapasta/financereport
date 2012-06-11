@@ -1,9 +1,11 @@
-//package com.roeschter.jsl;
- 
+package pikefin;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
 import java.util.Calendar;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+
 import pikefin.log4jWrapper.Logs;
 
 public class MoneyTime {
@@ -29,8 +31,7 @@ public class MoneyTime {
 	
 
 	
-	public MoneyTime(String strTmpMonth, String strTmpCalYear, String strTicker, DBFunctions dbf) throws SQLException
-	{
+	public MoneyTime(String strTmpMonth, String strTmpCalYear, String strTicker, DBFunctions dbf) throws DataAccessException {
 		strMonth = strTmpMonth;
 		if (strTmpCalYear.length() == 2)
 			strCalYear = "20" + strTmpCalYear;
@@ -151,14 +152,14 @@ public class MoneyTime {
 	    
 		Integer adjustment_code = 0;
 		
-		try
-		{
-			ResultSet rs = dbf.db_run_query(query);
+		try {
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
 			rs.next();
 			adjustment_code = rs.getInt("qtr_code_adjusted");
 			
 		}
-		catch (SQLException sqle)
+		catch (DataAccessException sqle)
 		{
 			UtilityFunctions.stdoutwriter.writeln("Problem adjusting quarter value",Logs.ERROR,"UF24");
 			UtilityFunctions.stdoutwriter.writeln(sqle);
@@ -175,12 +176,14 @@ public class MoneyTime {
 	
 
 	
-	public static String getCalendarYearAndQuarter(String strTicker, int fiscalquarter, int fiscalyear, DBFunctions dbf) throws SQLException
+	public static String getCalendarYearAndQuarter(String strTicker, int fiscalquarter, int fiscalyear, DBFunctions dbf) throws DataAccessException
 	{
 		int calquarter=0;
 		int calyear=fiscalyear;
 		String query = "select begin_fiscal_calendar from entities where ticker='" + strTicker +"'";
-		ResultSet rs = dbf.db_run_query(query);
+		//ResultSet rs = dbf.db_run_query(query);
+		SqlRowSet rs = dbf.dbSpringRunQuery(query);
+		
 		rs.next();
 		int nBeginFiscalYear = convertMonthStringtoInt(rs.getString("begin_fiscal_calendar"));
 		
@@ -218,7 +221,7 @@ public class MoneyTime {
 		return calquarter + "" + calyear;
 	}
 	
-	public static String getFiscalYearAndQuarter(String strTicker, int curmonth, int curyear, DBFunctions dbf) throws SQLException
+	public static String getFiscalYearAndQuarter(String strTicker, int curmonth, int curyear, DBFunctions dbf) throws DataAccessException
 	{
 		/*NOTE: If a 2 digit year is submitted, a 2 digit year is returned. 
 		 *  4 digit year submitted, 4 digits returned.
@@ -248,7 +251,9 @@ public class MoneyTime {
 		//{
 			Integer nBeginFiscalYear=0;
 			String query = "select begin_fiscal_calendar from entities where ticker='" + strTicker +"'";
-			ResultSet rs = dbf.db_run_query(query);
+			//ResultSet rs = dbf.db_run_query(query);
+			SqlRowSet rs = dbf.dbSpringRunQuery(query);
+			
 			rs.next();
 			String strBeginFiscalYear = rs.getString("begin_fiscal_calendar");
 			Calendar cal = Calendar.getInstance(); 
@@ -281,7 +286,7 @@ public class MoneyTime {
 			
 			
 		//}
-		/*catch (SQLException sqle)
+		/*catch (DataAccessException sqle)
 		{
 			stdoutwriter.writeln("Problem with query",Logs.ERROR);
 			stdoutwriter.writeln(sqle);
