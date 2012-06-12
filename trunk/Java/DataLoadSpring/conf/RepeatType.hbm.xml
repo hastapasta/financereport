@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="pikefin.hibernate.RepeatType" table="repeat_types" dynamic-update="true">
+		<id name="repeatTypeId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		<property name="type" column="type" type="string"/>
+		<property name="nextTrigger" column="next_trigger" type="calendar" />
+		<property name="multiplier" column="multiplier" type="integer" />
+   </class>
+</hibernate-mapping>

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="pikefin.hibernate.LogTask" table="log_tasks" dynamic-update="true">
+		<id name="logTaskId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		<property name="taskId" column="task_id" type="integer" />
+		<property name="jobProcessStart" column="job_process_start" type="calendar" />
+		<property name="jobProcessEnd" column="job_process_end" type="calendar" />
+		<property name="alertProcessStart" column="alert_process_start" type="calendar" />
+		<property name="alertProcessEnd" column="alert_process_end" type="calendar" />
+		
+		<property name="batch" column="batch" type="integer" />
+		<property name="repeatTypeId" column="repeat_type_id" type="integer" />
+		<property name="schedule" column="schedule" type="integer" />
+		
+		<property name="stage1Start" column="stage1_start" type="calendar" />
+		<property name="stage1End" column="stage1_end" type="calendar" />
+		<property name="stage2Start" column="stage2_start" type="calendar" />
+		<property name="stage2End" column="stage2_end" type="calendar" />
+		
+		<property name="verifyMode" column="verify_mode" type="boolean" />
+
+   </class>
+</hibernate-mapping>
+

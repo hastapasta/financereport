@@ -1,0 +1,13 @@
+$change% $tename 
+#if ($futures != '')
+Futures
+#end
+move in $ticker
+#if ($fullname != '')
+($fullname)
+#end
+
+$url
+#foreach( $hash in $hashList )
+ $hash
+#end
