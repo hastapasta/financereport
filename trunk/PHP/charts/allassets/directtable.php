@@ -66,7 +66,7 @@ if (isset($_GET['metricid']))
 <head>
 <style type="text/css">
   #rangeDemoStart, #rangeDemoFinish {
-    background-image:url("calendar.png");
+    background-image:url("../../site/includes/images/calendar.png");
     background-position:right center;
     background-repeat:no-repeat; }
 </style>
@@ -75,23 +75,78 @@ if (isset($_GET['metricid']))
 <?php IncFunc::generalDateFunctions();?>
 
 <script>
-   
+
+
+	/* JQuery plugin example */
 	
 	$(function(){
 
+		jQuery.fn.selText = function() {
+		    var obj = this[0];
+		    if ($.browser.msie) {
+		        var range = obj.offsetParent.createTextRange();
+		        range.moveToElementText(obj);
+		        range.select();
+		    } 
+			//webkit is chrome
+		    else if ($.browser.mozilla || $.browser.opera || $.browser.webkit) {
+		        var selection = obj.ownerDocument.defaultView.getSelection();
+		        var range = obj.ownerDocument.createRange();
+		        range.selectNodeContents(obj);
+		        selection.removeAllRanges();
+		        selection.addRange(range);
+		    } else if ($.browser.safari) {
+		        var selection = obj.ownerDocument.defaultView.getSelection();
+		        selection.setBaseAndExtent(obj, 0, obj, 1);
+		    }
+		    return this;
+		};
+				
+
 		<?php IncFunc::jqueryTimeFrame();?>
-		//$( "input:button", "#pf-form" ).button();
-		//$( "input:button", "#pf-form" ).css("padding",0);
+	
 		$( "input:button").button();
 		$( "input:button").css("padding",0);
+
+		$( "#dialog-form" ).dialog({
+			autoOpen: false,
+			height: 150,
+			width: 350,
+			modal: true,
+			open: function() {
+				//alert(generateURL());
+				$( "#urllabel" ).html(generateURL());
+				$(this).selText().addClass("selected");
 				
-		
-		/*$('#dialog').dialog({autoOpen:false, title : "HELP"});
-		$('.help').click(function(){
-			$('#dialog').dialog('open')
-		});*/
+			},
+			buttons: {
+				/*"CopyClipboard": function() {
+					var bValid = true;
+					allFields.removeClass( "ui-state-error" );
+					
+
+				
+				},*/
+				Close: function() {
+					$( this ).dialog( "close" );
+				}
+			},
+			close: function() {
+				//allFields.val( "" ).removeClass( "ui-state-error" );
+			}
+		});
+
+		$( "#generateurl" )
+			.button()
+			.click(function() {
+				//tmp = $("#generateurl").attr("name");
+				//alert(tmp);
+				$( "#dialog-form" ).dialog( "open" );
+			});
 		
 	});
+
+	
 
 	$(document).ready(function() {
 		/*
@@ -182,6 +237,8 @@ if (isset($_GET['metricid']))
 				
 	});
 
+	
+
 	function generateURL() {
 		var rangeDemoStart = document.getElementById('rangeDemoStart');
 	    var rangeDemoFinish = document.getElementById('rangeDemoFinish');
@@ -209,7 +266,8 @@ if (isset($_GET['metricid']))
 		var url = location.href;
 		var url_parts = url.split('?');
 		var main_url = url_parts[0]; 		
-		alert(main_url + '?' + newquery);
+		//alert(main_url + '?' + newquery);
+		return(main_url + '?' + newquery);
 	}
 </script>
 <?php IncFunc::icon();?>
@@ -326,7 +384,7 @@ if (isset($_GET['metricid']))
       
 
       //alert(dataSourceUrl + queryString1);
-      if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString1);}
+      if (window.console) {console.log(dataSourceUrl + queryString1);}
      
       
       query1 && query1.abort();
@@ -371,8 +429,8 @@ if (isset($_GET['metricid']))
 
 <BR>
 Time Frame:&nbsp;&nbsp;
-Start: <input type="text" id="rangeDemoStart" size="18" />
-&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="18" />
+Start: <input type="text" id="rangeDemoStart" size="23" />
+&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="23" />
 <!-- <input type="button" id="rangeDemoToday" value="today" /> -->
 <input type="button" id="rangeDemoClear" value="clear" />
 
@@ -398,7 +456,7 @@ Start: <input type="text" id="rangeDemoStart" size="18" />
 	<div id="table1" style="color: #000;"> </div>
 <br>
 <div style="font-size: 1.5em;">
-<input type="button"  value="Generate URL"	onclick="generateURL();return false;"> <br />
+<input type="button"  id="generateurl" value="Generate URL"	> <br />
 </div>
 </div> <!--  pf-body -->
 
@@ -406,5 +464,14 @@ Start: <input type="text" id="rangeDemoStart" size="18" />
 
 
 </div> <!--  siteContain -->  
+
+<div id="dialog-form" title="Url">
+    <div id="urllabel" class="selected"></div>
+	<form>
+	<fieldset>
+		
+	</fieldset>
+	</form>
+</div>
 </body>
 </html>
