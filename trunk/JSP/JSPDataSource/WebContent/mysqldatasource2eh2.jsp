@@ -288,7 +288,11 @@ query2 += " ,countries.name,entities.full_name,fact_data.metric_id ";
 query2 += " from fact_data ";
 query2 += " JOIN (" + query2a + ") as tbl2 on tbl2.date_begin=fact_data.date_collected and tbl2.metric_id=fact_data.metric_id and tbl2.entity_id=fact_data.entity_id ";
 query2 += " JOIN entities on entities.id=fact_data.entity_id ";
-query2 += " LEFT JOIN countries_entities on countries_entities.entity_id=fact_data.entity_id ";
+/*
+* OFP 6/21/2012 - Added the default_country=1 clause. This field needs to be maintained correctly in the db. Otherwise should 
+switch to using code to removed duplicates after the query (there may already be something for this in UtilityFunctions).
+*/
+query2 += " LEFT JOIN countries_entities on countries_entities.entity_id=fact_data.entity_id and countries_entities.default_country=1";
 query2 += " LEFT JOIN countries on countries_entities.country_id=countries.id ";
 //query2 += " LEFT JOIN countries on entities.country_id=countries.id ";
 //query2 += " JOIN entities_entity_groups on fact_data.entity_id=entities_entity_groups.entity_id ";
@@ -321,7 +325,11 @@ query3 += " ,countries.name,entities.full_name,fact_data.metric_id ";
 query3 += " from fact_data ";
 query3 += " JOIN (" + query3a + ") as tbl2 on tbl2.date_begin=fact_data.date_collected and tbl2.metric_id=fact_data.metric_id and tbl2.entity_id=fact_data.entity_id ";
 query3 += " JOIN entities on entities.id=fact_data.entity_id ";
-query3 += " LEFT JOIN countries_entities on countries_entities.entity_id=fact_data.entity_id ";
+/*
+* OFP 6/21/2012 - Added the default_country=1 clause. This field needs to be maintained correctly in the db. Otherwise should 
+switch to using code to removed duplicates after the query (there may already be something for this in UtilityFunctions).
+*/
+query3 += " LEFT JOIN countries_entities on countries_entities.entity_id=fact_data.entity_id and countries_entities.default_country=1 ";
 query3 += " LEFT JOIN countries on countries_entities.country_id=countries.id ";
 //query3 += " LEFT JOIN countries on entities.country_id=countries.id ";
 //query3 += " JOIN entities_entity_groups on fact_data.entity_id=entities_entity_groups.entity_id ";
