@@ -4,19 +4,21 @@
 //various include functions for javascript libraries,etc.
 class IncFunc {
 	
-	//static public $PHP_ROOT_PATH="/PHP";
+	static public $offline=false;
+	
+	static public $PHP_ROOT_PATH="/PHP";
 	//static public $PHP_ROOT_PATH="/phpdev";
-	static public $PHP_ROOT_PATH="/phptest";
+	//static public $PHP_ROOT_PATH="/phptest";
 	
 	//static public $CAKE_ROOT_PATH="/cakepfdev";
 	static public $CAKE_ROOT_PATH="/cakepftest";
 	
 	
-	//static public $JSP_ROOT_PATH="http://devdataload:8080/JSPDataSource/";
+	static public $JSP_ROOT_PATH="http://devdataload:8080/JSPDataSource/";
 	//static public $JSP_ROOT_PATHxx="http://devdataload:8080/JSPDataSourcexx/";
 	//static public $JSP_ROOT_PATH="http://testdataload:8080/JSPDataSource/";	
 	//static public $JSP_ROOT_PATH="http://www.testpikefin.com/devjsp/JSPDataSource/";
-	static public $JSP_ROOT_PATH="http://www.pikefin.com/testjsp/JSPDataSource/";
+	//static public $JSP_ROOT_PATH="http://www.pikefin.com/testjsp/JSPDataSource/";
 	//static public $JSP_ROOT_PATH="http://192.168.122.133:8080/JSPDataSource/";
 	
 	
@@ -41,10 +43,10 @@ class IncFunc {
 	}
 	
 	static function jQuery() {
-		echo "<link rel=\"stylesheet\" href=\"../../site/includes/jquery-ui-1.8.11.custom.css\" type=\"text/css\" />";
+		echo "<link rel=\"stylesheet\" href=\"../../site/includes/jquery/css/overcast/jquery-ui-1.8.21.custom.css\" type=\"text/css\" />";
    		//echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-1.5.1.js\"></script>";
-   		echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-1.7.2.min.js\"></script>";
-    	echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-ui-1.8.11.custom.min.js\"></script>";		
+   		echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery/js/jquery-1.7.2.min.js\"></script>";
+    	echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery/js/jquery-ui-1.8.21.custom.min.js\"></script>";		
 	}
 	
 	
@@ -53,13 +55,103 @@ class IncFunc {
 		echo "<script type=\"text/javascript\" src=\"../../site/includes/anytimec.js\"></script>";	
 	}
 	
+	static function generateUrlCode() {
+		/*
+		 * This code is just for the dialog. The actual construction of the url is currently
+		 * contained in a function in the chart/table file itself and has to be
+		 * called generateURL.
+		 */
+	?>
+		<script>
+		$(function(){
+		
+		/*
+		* Create the dialog div.
+		*/
+		var newdiv = document.createElement('div');
+		newdiv.setAttribute("id","dialog-form");
+		newdiv.setAttribute("title","Url");
+		var newdiv2 = document.createElement('div');
+		newdiv2.setAttribute("id","urllabel");
+		newdiv2.setAttribute("class","selected");
+		var form = document.createElement('form');
+		var fieldset = document.createElement('fieldset');
+		form.appendChild(fieldset);
+		newdiv2.appendChild(form);
+		newdiv.appendChild(newdiv2);
+		document.body.appendChild(newdiv);
+		
+		jQuery.fn.selText = function() {
+		    var obj = this[0];
+		    if ($.browser.msie) {
+		        var range = obj.offsetParent.createTextRange();
+		        range.moveToElementText(obj);
+		        range.select();
+		    } 
+			//webkit is chrome
+		    else if ($.browser.mozilla || $.browser.opera || $.browser.webkit) {
+		        var selection = obj.ownerDocument.defaultView.getSelection();
+		        var range = obj.ownerDocument.createRange();
+		        range.selectNodeContents(obj);
+		        selection.removeAllRanges();
+		        selection.addRange(range);
+		    } else if ($.browser.safari) {
+		        var selection = obj.ownerDocument.defaultView.getSelection();
+		        selection.setBaseAndExtent(obj, 0, obj, 1);
+		    }
+		    return this;
+		};
+		$( "#dialog-form" ).dialog({
+    			autoOpen: false,
+    			height: 150,
+    			width: 350,
+    			modal: true,
+    			open: function() {
+    				//alert(generateURL());
+    				$( "#urllabel" ).html(generateURL());
+    				$(this).selText().addClass("selected");
+    				
+    			},
+    			buttons: {
+    				/*"CopyClipboard": function() {
+    					var bValid = true;
+    					allFields.removeClass( "ui-state-error" );
+    					
+
+    				
+    				},*/
+    				Close: function() {
+    					$( this ).dialog( "close" );
+    				}
+    			},
+    			close: function() {
+    				//allFields.val( "" ).removeClass( "ui-state-error" );
+    			}
+    		});
+
+    		$( "#generateurl" )
+    			.button()
+    			.click(function() {
+    				//tmp = $("#generateurl").attr("name");
+    				//alert(tmp);
+    				$( "#dialog-form" ).dialog( "open" );
+    			});
+    	});
+		</script>
+
+	<?php 
+	}
+	
 	static function generalDateFunctions() {
 		//Documentation here: http://www.datejs.com/
 		echo "<script type=\"text/javascript\" src=\"../../site/includes/date.js\"></script>\n";	
 	}
 	
 	static function dyGraphs() {
-		echo "<script type='text/javascript' src='http://dygraphs.com/dygraph-combined.js'></script>\n";
+		if (self::$offline)
+			echo "<script type='text/javascript' src='".self::$PHP_ROOT_PATH."/site/includes/offline/dygraph-combined.js'></script>\n";
+		else
+			echo "<script type='text/javascript' src='http://dygraphs.com/dygraph-combined.js'></script>\n";
 	}
 	
 	static function checkFlash() {
@@ -90,7 +182,11 @@ class IncFunc {
 		//echo "<script type=\"text/javascript\" src=\"../../site/includes/querywrapper.js\"></script>";
 		echo "<script type=\"text/javascript\" src=\"".self::$PHP_ROOT_PATH."/site/includes/querywrapper.js\"></script>";
 		//echo "<script type=\"text/javascript\" src=\"".IncFunc::$CAKE_ROOT_PATH."/webroot/js/querywrapper.js\"></script>";
-		echo "<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>";
+		
+		if (self::$offline)
+			echo "<script type=\"text/javascript\" src=\"".self::$PHP_ROOT_PATH."/site/includes/offline/jsapi.js\"></script>";
+		else
+			echo "<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>";
 		
 		echo   "<STYLE type=\"text/css\">\n";
 		echo "#google-visualization-errors-0 span{\n";
@@ -320,7 +416,7 @@ class IncFunc {
 						<a href='".self::$PHP_ROOT_PATH."/charts/equities/epslinechart3.php?entityid=1'>US Equities Quarterly Earnings</a>
 						</li>
 						<li>
-						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=1&group=1&amp;type=4' >US Equities Individual Charts</a>
+						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=1&type=4' >US Equities Individual Charts</a>
 						</li>
 						<li>
 						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=5' >Global Equity Indexes Table</a>
@@ -337,28 +433,28 @@ class IncFunc {
 					<a href='#'>Commodities</a>
 					<ul class='sub_menu'>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=4&amp;metricid=11' >Commodity Futures Table</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=673&group=4&amp;type=3' >Commodity Futures Individual Charts</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=673&type=3' >Commodity Futures Individual Charts</a></li>
 					</ul>
 				</li>
 				<li>
 					<a href='#'>Foreign Exchange</a>
 					<ul class='sub_menu'>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=3'>Global Forex Table</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=508&group=3&type=2'>Forex Individual Charts</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=508&type=2'>Forex Individual Charts</a></li>
 					</ul>
 				</li>
 					<li>
 					<a href='#'>Bonds</a>
 					<ul class='sub_menu'>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101024&order=DESC&metricid=1'>Global CDS Table</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101023&order=DESC&metricid=1001'>Global Sovereign Bonds Table</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101029&group=101023&type=5'>UK Yield Curve</a></li>			
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101030&group=101023&type=5'>Australian Yield Curve</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101031&group=101023&type=5'>Japanese Yield Curve</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101032&group=101023&type=5'>Brazilian Yield Curve</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101033&group=101023&type=5'>German Yield Curve</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101034&group=101023&type=5'>Hong Kong Yield Curve</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101035&group=101023&type=5'>U.S. Yield Curve</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?type=6&order=DESC&metricid=1'>Global CDS Table</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?type=5&order=DESC&metricid=1001'>Global Sovereign Bonds Table</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101029&type=5'>UK Yield Curve</a></li>			
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101030&type=5'>Australian Yield Curve</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101031&type=5'>Japanese Yield Curve</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101032&type=5'>Brazilian Yield Curve</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101033&type=5'>German Yield Curve</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101034&type=5'>Hong Kong Yield Curve</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101035&type=5'>U.S. Yield Curve</a></li>
 					</ul>
 				</li>
 				<li>
