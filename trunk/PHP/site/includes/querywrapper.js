@@ -83,6 +83,7 @@ var QueryWrapper = function(query, visualization, visOptions, errorContainer, co
   this.hideColumns = columns;
   this.arrows = arrows;
 
+
   if (!visualization || !('draw' in visualization) ||
       (typeof(visualization['draw']) != 'function')) {
     throw Error('Visualization must have a draw method.');
@@ -132,8 +133,12 @@ QueryWrapper.prototype.handleResponse = function(response) {
    	
   if (response.isError()) {
     this.handleErrorResponse(response);
-  } else {
+  } 
+  else {
     this.currentDataTable = response.getDataTable();
+  
+    
+    
     if (this.arrows != null) {
     	var formatter = new google.visualization.ArrowFormat();
     	formatter.format(this.currentDataTable,this.arrows);
