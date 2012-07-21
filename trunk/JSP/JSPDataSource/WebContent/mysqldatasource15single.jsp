@@ -11,6 +11,7 @@
 <%@ page import="java.math.BigDecimal" %>
 <%@ page import="java.util.Collections" %>
 <%@ page import="java.util.Calendar" %>
+<%@ page import="java.util.Date" %>
 <%@ page import="java.util.Formatter" %>
 <%@ page import="java.util.Locale" %>
 
@@ -23,6 +24,10 @@ also pulls from log_alerts based off of either entity_id & user_id combo, or ale
 
 NOTE: THIS DATASOURCE ONLY HANDLES A SINGLE ENTITY ID (OR TICKER OR ALERT).
 Use msqldatasource15multiple.jsp for multiple ids.
+
+OFP 7/4/2012 - When the datepicker control was added to the interface, this file was modified
+to only accept the seconds formatted begin and end dates.
+
 */
 
 String strTqx = request.getParameter("tqx");
@@ -41,11 +46,13 @@ if (request.getParameter("gran")!=null)
 
 UtilityFunctions uf = new UtilityFunctions();
 
+DateFormat formatter3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 String strEntityId = request.getParameter("entityid");
 String strMetricId = request.getParameter("metricid");
 String strAlertId = request.getParameter("alertid");
 String strUserId = request.getParameter("userid");
-String strTicker = request.getParameter("ticker");
+String strTicker = request.getParameter("tickers");
 boolean bPercent = false;
 
 boolean bTableFormat = false;
@@ -63,19 +70,32 @@ if (request.getParameter("percent")!=null)
 String strEndDate = request.getParameter("enddate");
 String strBeginDate = request.getParameter("begindate"); 
 
+Calendar calBegin = Calendar.getInstance();
+Calendar calEnd = Calendar.getInstance();
+
+calBegin.setTime(new Date(Long.parseLong(strBeginDate)));
+if (strEndDate != null)
+	calEnd.setTime(new Date(Long.parseLong(strEndDate)));
+
+/*String test1 = calBegin.getTime().toString();
+String test2 = calEnd.getTime().toString();
+
+System.out.println(test1);
+System.out.println(test2);*/
+
 if (strBeginDate==null) {
 	out.println("No begindate request parameter.");
 	return;
 }
 
-if ((strEntityId==null || strUserId==null) && strAlertId==null) {
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","Either AlertId or MetricId-EntityId-UserId combo is required.","PF ERROR CODE 15s-1"));
+if (strEntityId==null && strTicker==null && strAlertId==null) {
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","Either EntityId, Tickers or AlertId is required.","PF ERROR CODE 15s-1"));
 	return;
 }
 
 
 
-if (!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19")) {
+/*if (!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19")) {
 	//out.println("begindate format needs to be yyyy-mm-dd");
 	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","begindate format needs to be yyyy-mm-dd","PF ERROR CODE 15s-2"));
 	return;
@@ -87,7 +107,7 @@ if (strEndDate!=null) {
 		out.println(PopulateSpreadsheet.createGoogleError(strReqId,"invalid_parameter","enddate format needs to be yyyy-mm-dd","PF ERROR CODE 15s-3"));
 		return;
 	}
-}
+}*/
 
 
 	
@@ -152,26 +172,7 @@ if (strEntityId.contains(",") || strMetricId.contains(",")) {
 	return;
 }
 
-//String[] entityIds = null;
 
-/*if (strEntityId!=null)
-	entityIds = strEntityId.split(",");*/
-
-/*
- * Get the metricids for each entity id
- */ 
-//String[] metricIds = new String[entityIds.length];
-//String[] inputMetricsArray = strMetrics.split(",");
-
-/*for (int i=0;i<metricIds.length;i++) {
-	metricIds[i] = "0";
-}*/
-
-//int nCount = (inputMetricsArray.length<metricIds.length ? inputMetricsArray.length : metricIds.length);
-
-/*for (int i=0;i<nCount;i++) {
-	metricIds[i] = inputMetricsArray[i];
-}*/
 
 dbf = null;
 bException = false;
@@ -225,10 +226,10 @@ query += "from fact_data ";
 query += "JOIN entities on fact_data.entity_id=entities.id ";
 query += "JOIN batches on fact_data.batch_id=batches.id ";
 query += "JOIN tasks on batches.task_id=tasks.id ";
-query += " where date_format(fact_data.date_collected,'%Y-%m-%d')>='" + strBeginDate + "' ";
+query += " where fact_data.date_collected>= '" + formatter3.format(calBegin.getTime()) + "' ";
 
 if (strEndDate!=null && !strEndDate.isEmpty())
-	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<='" + strEndDate + "' ";
+	query += " AND fact_data.date_collected<= '" + formatter3.format(calEnd.getTime()) + "' ";
 query += " AND entities.id=" + strEntityId;
 query += " AND fact_data.metric_id=" + strMetricId;
 
