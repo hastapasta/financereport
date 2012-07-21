@@ -1,6 +1,6 @@
 <?php
 require_once '../../common/functions.php';
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
@@ -34,7 +34,7 @@ if (isset($_GET['entityid']))
 		$( "#a_c" ).autocomplete({
 			source: function( request, response ) {
 				$.ajax({
-					url: "../../site/includes/getTicker.php",
+					url: "../../site/ajax/getTicker.php",
 					dataType: "json",
 					data: {
 						maxRows: 12,
@@ -214,8 +214,8 @@ if (isset($_GET['entityid']))
       var chart1 = new google.visualization.LineChart(container1);
       var chart2 = new google.visualization.LineChart(container2);
 
-      if (window.console && window.console.firebug) {console.log(dataSourceUrl1 + queryString1)}
-      if (window.console && window.console.firebug) {console.log(dataSourceUrl2 + queryString2)}
+      if (window.console) {console.log(dataSourceUrl1 + queryString1)}
+      if (window.console) {console.log(dataSourceUrl2 + queryString2)}
 
 
 
