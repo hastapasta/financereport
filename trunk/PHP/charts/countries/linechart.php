@@ -209,7 +209,7 @@ if (isset($_GET['group']))
     		$( "#a_c" ).autocomplete({
     			source: function( request, response ) {
 					$.ajax({
-						url: "../../site/includes/getCountry.php",
+						url: "../../site/ajax/getCountry.php",
 						dataType: "json",
 						data: {
 							maxRows: 12,
@@ -514,7 +514,7 @@ if (isset($_GET['group']))
         
             
          	//alert(queryPath);
-            if (window.console && window.console.firebug) {console.log(queryPath)}
+            if (window.console) {console.log(queryPath)}
 
             
             query1 && query1.abort();
