@@ -9,6 +9,8 @@
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="java.util.Formatter" %>
 <%@ page import="java.util.Locale" %>
+<%@ page import="java.util.Calendar" %>
+<%@ page import="java.util.Date" %>
 <%@ page import="org.apache.log4j.Logger" %>
 
  
@@ -24,7 +26,7 @@ also pulls from log_alerts based off of either entity_id & user_id combo, or ale
 NOTE: This datasource, which also provides annotated alerts, can only handle a single entity id.
 */
 
-
+DateFormat formatter3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 Logger fulllogger = Logger.getLogger("FullLogging");
 UtilityFunctions uf = new UtilityFunctions();
 
@@ -70,6 +72,13 @@ if (request.getParameter("percent")!=null)
 String strEndDate = request.getParameter("enddate");
 String strBeginDate = request.getParameter("begindate"); 
 
+Calendar calBegin = Calendar.getInstance();
+Calendar calEnd = Calendar.getInstance();
+
+calBegin.setTime(new Date(Long.parseLong(strBeginDate)));
+if (strEndDate != null)
+	calEnd.setTime(new Date(Long.parseLong(strEndDate)));
+
 if (strBeginDate==null) {
 	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No begindate request parameter.","PF ERROR CODE 15multiple-1"));
 	//out.println("No begindate request parameter.");
@@ -93,7 +102,7 @@ String[] tmpArray2 = strBeginDate.split("-");
 
 
 
-if ((!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19")) || !(tmpArray2[1].length()==2)) {
+/*if ((!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19")) || !(tmpArray2[1].length()==2)) {
 	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"invalid_parameter","begindate format needs to be yyyy-mm-dd","PF ERROR CODE 15multiple-3"));
 	//out.println("begindate format needs to be yyyy-mm-dd");
 	return;
@@ -106,7 +115,7 @@ if (strEndDate!=null) {
 		//out.println("enddate format needs to be yyyy-mm-dd");
 		return;
 	}
-}
+}*/
 
 /*
 * Look up the id for each ticker.
@@ -128,7 +137,7 @@ if (strTickers != null) {
 	try {
 		query = "select id from entities where ticker in (";
 		for (String strTick : tickerarray) { 
-			query += "'" + strTick + "',";
+			query += "'" + strTick.trim() + "',";
 		}
 		query = query.substring(0,query.length()-1);
 		query += ")";
@@ -245,9 +254,9 @@ for (int i=0;i<entityIds.length;i++) {
 
 	
 
-query += ") AND date_format(fact_data.date_collected,'%Y-%m-%d')>='" + strBeginDate + "' ";
+query += ") AND fact_data.date_collected >= '" + formatter3.format(calBegin.getTime()) + "' ";
 if (strEndDate!=null && !strEndDate.isEmpty())
-	query += " AND date_format(fact_data.date_collected,'%Y-%m-%d')<='" + strEndDate + "' ";
+	query += " AND fact_data.date_collected <= '" + formatter3.format(calEnd.getTime()) + "'  ";
 
 query += " order by date_col ASC ,entities.ticker ASC, time_col ASC";
 
