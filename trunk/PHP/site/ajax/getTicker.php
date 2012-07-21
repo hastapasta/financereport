@@ -4,6 +4,12 @@
 require_once '../../common/functions.php';
 include ("../../site/includes/sitecommon.php");
 
+/*
+ * This returns all of the tickers based off of entity group and a 'term'. 
+ * 
+ * This is the script used for the autocomplete control in linechart (et. al.)
+ */
+
 db_utility::db_connect();
 
 
@@ -19,6 +25,9 @@ $sql = "select entities.ticker,entities.id,entities.full_name ";
 $sql.=" from entities ";
 $sql.=" join entities_entity_groups on entities.id = entities_entity_groups.entity_id " ;
 $sql.=" join entity_groups on entities_entity_groups.entity_group_id=entity_groups.id ";
+/*
+ * mysql_real_escape_string to prevent sql injection.
+ */
 $sql.=" where ticker like '" . mysql_real_escape_string($_REQUEST['term']). "%' "; 
 
 
