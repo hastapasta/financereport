@@ -22,13 +22,12 @@
 <%
 
 /*
-* This data_source pulls from the fact_data based off of entities, a date range and a metric and
-also pulls from log_alerts based off of either entity_id & user_id combo, or alert_id
-
-NOTE: This datasource, which also provides annotated alerts, can only handle a single entity id.
-
+OFP 4/29/2012
+This datasource is used by countries/linechart.php which is a specialized instance of 
+selecting linechart data for the equity index/gdp growth line chart.
 
 */
+
 DateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd");
 
 String strTqx = request.getParameter("tqx");
