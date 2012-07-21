@@ -16,10 +16,9 @@ require_once '../../common/functions.php';
 	  <script src="http://widgets.twimg.com/j/2/widget.js" type="text/javascript"></script>
 	  <?php IncFunc::linkStyleCSS();?>
 	  <script language="Javascript" type="text/javascript"> 
-		 $(function() {
-			 $("#tabs").tabs();
-		 });
+
 		 $(document).ready(function() {
+			 $("#tabs").tabs();
 			 window.addEventListener("focus", function(event) { 
 				 var sel = window.getSelection ? window.getSelection() : document.selection;
 				 if (sel) {
@@ -89,7 +88,7 @@ require_once '../../common/functions.php';
 			}
 			var options = {};
 			options['height'] = 220;
-			options['width'] = 400;
+			options['width'] = 420;
 			window.tObjects = new Array();
 			for (h=0;h<tabs.length;h++) {
 			  for (i=0;i<tables.length;i++) {
