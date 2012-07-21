@@ -354,7 +354,9 @@ if (strGranularity.equals("minute")) {
 }
 
 if (arrayListRows.size() > nMaxRows) {
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"max_rows","Maximum number of rows exceeded (" + nMaxRows + ").","PF ERROR CODE 15multiple-8"));
+	String strErrorMessage = "Maximum number of rows exceeded (" + nMaxRows + ").";
+	strErrorMessage += " Try selecting fewer entities or narrowing the time frame.";
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"max_rows",strErrorMessage,"PF ERROR CODE 15multiple-8"));
 	return;
 }
 
