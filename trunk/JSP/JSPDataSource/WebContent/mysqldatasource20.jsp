@@ -29,14 +29,82 @@ interface (yet).
 
 */
 
+UtilityFunctions uf = new UtilityFunctions();
+
 Calendar calBeginTimer = Calendar.getInstance(); 
 
 Logger fulllogger = Logger.getLogger("FullLogging");
+
+String strTqx = request.getParameter("tqx");
+String strReqId=null;
+if (strTqx!=null) {
+	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
+	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
+}
+else
+	strReqId="0";
 
 
 
 
 String strEntityId = request.getParameter("entityid");
+String strTicker = request.getParameter("ticker");
+
+if (strEntityId==null && strTicker==null) {
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","Url parameter entityid or ticker is required.","PF ERROR CODE 20-2"));
+	return;
+}
+
+/*
+* Look up the id for the ticker.
+*/
+String query;
+DBFunctions dbf;
+boolean bException;
+
+if (strTicker != null) {
+
+
+	//String[] tickerarray = strTickers.split(",");
+	dbf = null;
+	bException = false;
+
+	
+	try	{
+		query = "select id from entities where ticker='" + strTicker + "'";
+		/*for (String strTick : tickerarray) { 
+			query += "'" + strTick + "',";
+		}*/
+		//query = query.substring(0,query.length()-1);
+		//query += ")";
+		
+		dbf = new DBFunctions();
+		dbf.db_run_query(query);
+			
+		if (dbf.rs.next())
+			strEntityId = dbf.rs.getInt("id") + "";
+		else {
+			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"data_issue","No entity id from for ticker " + strTicker,"PF ERROR CODE 15s-20"));
+			bException = true;
+		}
+		/*while (dbf.rs.next()) {
+			strEntityId +=  dbf.rs.getInt("id") + ",";
+		    
+		}*/
+		//strEntityId = strEntityId.substring(0,strEntityId.length()-1);
+	}
+	catch (SQLException sqle) {
+		//out.println(sqle.toString());
+		out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 15s-5"));
+		bException = true;
+	}
+	finally	{
+		if (dbf !=null) dbf.closeConnection();
+		if (bException == true)
+			return;
+	}
+}
+
 String strGroupBy = "false";
 if (request.getParameter("groupby") != null)
 	strGroupBy = request.getParameter("groupby");
@@ -49,62 +117,54 @@ if (strEntityId==null) {
 }
 
 
+boolean bDebug = false;
+if (request.getParameter("debug") != null)
+	if (request.getParameter("debug").equalsIgnoreCase("true")) {
+		out.println("here");
+		bDebug = true;
+	}
 
 
 
 
-String strTqx = request.getParameter("tqx");
-String strReqId=null;
-if (strTqx!=null)
-{
-	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
-	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
-}
-else
-	strReqId="0";
 
 
-UtilityFunctions uf = new UtilityFunctions();
+
+
+
+
+
 
 ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
-//String[] columns = tmpArrayList.get(0);
-//String[] blap1 = {"task name","task name","string"};
-String[] blap1 = {"entityid", "entityid", "number"};
-String[] blap2 = {"ticker","ticker","string"};
-
-//String[] blap3 = {"time event name","time event name","string"};
-//String[] blap4 = {"full_name","full_name","string"};
-String[] blap3 = {"country","country","string"};
-String[] blap4 = {"description","description","string"};
-String[] blap5 = {"initial value","initial value","number"};
-String[] blap6 = {"current value","current value","number"};
-String[] blap7 = {"% change","% change","number"};
-String[] blap8 = {"date initial","date initial","datetime"};
-String[] blap9 = {"date current","date current","datetime"};
-
-String[] blap10 = {"metricid","metricid","number"};
 
 
+
+
+String[] blap1 = {"calyearquarter", "calyearquarter", "string"};
+String[] blap7 = {"cal quarter", "cal quarter", "number"};
+String[] blap8 = {"cal year", "cal year ", "number"};
+String[] blap2 = {"task name","task name","string"};
+String[] blap3 = {"date collected","date collected","datetime"};
+String[] blap4 = {"value","value","number"};
+String[] blap5 = {"metric name","metric name","string"};
+String[] blap6 = {"meta set id","meta set id","number"};
+
+arrayListCols.add(blap1);
 arrayListCols.add(blap2);
-
-//arrayListCols.add(blap3);
-//arrayListCols.add(blap4);
-arrayListCols.add(blap5);
-arrayListCols.add(blap6);
 arrayListCols.add(blap7);
 arrayListCols.add(blap8);
-arrayListCols.add(blap9);
 arrayListCols.add(blap3);
 arrayListCols.add(blap4);
-arrayListCols.add(blap1);
-arrayListCols.add(blap10);
+arrayListCols.add(blap5);
+arrayListCols.add(blap6);
 
 
-String query3 = "select fact_data.calyear || 'Y' || fact_data.calquarter || 'Q' as calyearquarter, fact_data.calquarter, fact_data.calyear, tasks.name, fact_data.date_collected ";
-query3 += " ,fact_data.value, fact_data.meta_set_id ";
+String query3 = "select CONCAT(fact_data.calyear,'Y',fact_data.calquarter,'Q') as calyearquarter, fact_data.calquarter, fact_data.calyear, tasks.name, fact_data.date_collected ";
+query3 += " ,fact_data.value, fact_data.meta_set_id, metrics.name ";
 query3 += " from fact_data ";
 query3 += " join batches on fact_data.batch_id=batches.id ";
 query3 += " join tasks on batches.task_id=tasks.id ";
+query3 += " join metrics on metrics.id = fact_data.metric_id ";
 query3 += " where entity_id=" + strEntityId;
 query3 += " and fact_data.metric_id in (4,5) ";
 query3 += " order by calyearquarter asc, tasks.name, fact_data.date_collected ";
@@ -113,8 +173,8 @@ query3 += " order by calyearquarter asc, tasks.name, fact_data.date_collected ";
 
 
 boolean bDone = false;
-DBFunctions dbf = null;
-boolean bException = false;
+dbf = null;
+bException = false;
 int code=1;
 
 bDone = false;
@@ -128,13 +188,20 @@ while (!bDone) {
 		dbf.db_run_query(query3);
 	
 		while (dbf.rs.next()) {
-			String [] tmp = new String[5];
+			String [] tmp = new String[8];
 			
 			tmp[0] = dbf.rs.getString("calyearquarter");
 			tmp[1] = dbf.rs.getString("tasks.name");
-			tmp[2] = dbf.rs.getString("fact_data.date_collected");
-			tmp[3] = dbf.rs.getString("fact_data.value");
-			tmp[4] = dbf.rs.getString("fact_data.meta_set_id");
+			tmp[2] = dbf.rs.getString("fact_data.calquarter");
+			tmp[3] = dbf.rs.getString("fact_data.calyear");
+			tmp[4] = dbf.rs.getString("fact_data.date_collected");
+			tmp[5] = dbf.rs.getString("fact_data.value");
+			tmp[6] = dbf.rs.getString("metrics.name");
+			
+			if (dbf.rs.getString("fact_data.meta_set_id") == null)
+				tmp[7] = "";
+			else
+				tmp[7] = dbf.rs.getString("fact_data.meta_set_id");
 			
 				
 			
@@ -168,22 +235,22 @@ if (arrayListRows2.size() == 0) {
 	return;	
 }
 
-if (strGroupBy.compareToIgnoreCase("false") == 0) {
-	out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows2,1000));
-	if (1==1) return;
+
+if (strGroupBy.compareToIgnoreCase("true") == 0) {
+	int[] tmpArray = {0,1};
+	arrayListRows2 = PopulateSpreadsheet.getLastGroupBy(arrayListRows2,tmpArray);
 }
 
 
 
-int[] tmpArray = {0,1};
-arrayListRows2 = PopulateSpreadsheet.getLastGroupBy(arrayListRows2,tmpArray);
 
-out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows2,1000));if (1==1) return;
-
-
-
-
-
-
-//out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows,strReqId,false));
+if (bDebug == true)
+	out.println(PopulateSpreadsheet.displayDebugTable(arrayListRows2,1000));
+else {
+	/*
+	* Added function to duplicate the array elements since this is what createGoogleJSON expects.
+	*/
+	arrayListRows2 = PopulateSpreadsheet.duplicateArrayList(arrayListRows2);
+	out.println(PopulateSpreadsheet.createGoogleJSON(arrayListCols,arrayListRows2,strReqId,false));
+}
  %> 
