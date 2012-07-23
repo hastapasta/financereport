@@ -12,6 +12,8 @@ require_once ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
+date_default_timezone_set('America/Phoenix');
+
 /*
  * Initialize page default values
  */
@@ -122,8 +124,8 @@ if (!empty($urlenddate))
 	$enddate = $urlenddate;
 else {
 	/*Check which environment we are in because test/dev may not have the latest data.*/
-	if (strpos(php_uname('n'),'prod') != false) {
-		$enddate = date('Y-m-d');
+	if (strpos(php_uname('n'),'prod') !== false) {
+		$enddate = date('Y-m-d H:i:s');
 	}
 	else {
 		$enddate = date('Y-m-d',strtotime('2012-03-01'));
@@ -143,11 +145,11 @@ else {
 	//echo "<br>pagedefault begindate";
 	if ($gran == 'minute') {
 		$newdate = strtotime ( '-1 month' , strtotime ( $enddate ) ) ;
-		$begindate = date ( 'Y-m-d' , $newdate );
+		$begindate = date ( 'Y-m-d H:i:s' , $newdate );
 	}
 	else {
-		$newdate = strtotime ( '-1 year' , strtotime ( $enddate ) ) ;
-		$begindate = date('Y-m-d', $newdate);
+		$newdate = strtotime ( '-3 month' , strtotime ( $enddate ) ) ;
+		$begindate = date('Y-m-d H:i:s', $newdate);
 	}
 }
 
@@ -364,6 +366,9 @@ if (strpos($enddate,"-") == true)
 						url: "../../site/ajax/getTicker.php",
 						dataType: "json",
 						data: {
+							/*
+							These are url parameters.
+							*/
 							maxRows: 12,
 							term: extractLast(request.term),
 							group: document.entityGroup
@@ -428,21 +433,7 @@ if (strpos($enddate,"-") == true)
             		//yourFunction($('#yourAutoComplete').val()); return false;
             		value = $("#a_c").val();
             		window.id = ui.item.id;
-            		//redraw(value);
       
-					<?php
-						//echo "window.location.replace(\"";
-						//echo IncFunc::$PHP_ROOT_PATH;
-						//echo "/charts/allassets/linechart.php?title=";
-						//echo urlencode($title);
-						//#*
-						// * There are other javascript enocde functions: escape() and encodeURIComponent()
-						// *#
-						//echo "&t=\"+encodeURI(value));";
-						
-					?>
-		
-        			//sendAndDraw(ui.item.id,ui.item.label,ui.item.full_name); 
             	} 
         	}); 
         	$('#refreshChart').click(function () {
@@ -472,6 +463,7 @@ if (strpos($enddate,"-") == true)
     	function generateURL() {
     
     		var newquery = "";
+
 
     		var cleantickers = $('#a_c').val().trim();
 
@@ -513,11 +505,10 @@ if (strpos($enddate,"-") == true)
     	}
 
     
-		var count = 0;
+		//var count = 0;
 
         google.load('visualization', '1', {packages: ['annotatedtimeline']});
     
-        var firstpass = true;
         var options = {};
         var query1;
 
