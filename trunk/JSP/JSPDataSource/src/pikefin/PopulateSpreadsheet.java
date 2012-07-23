@@ -13,6 +13,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import org.json.*;
 import java.text.ParseException;
@@ -64,13 +66,18 @@ public class PopulateSpreadsheet {
 		    //  "spreadsheet");
 		  int spreadsheetIndex = 0;
 		  
-		  for (int i = 0; i < spreadsheets.size(); i++) {
-		      BaseEntry entry = (BaseEntry) spreadsheets.get(i);
+		  int i = 0;
+		  for(Iterator<List> listIterator = spreadsheets.iterator(); listIterator.hasNext();i++){
+
+		  //for (int i = 0; i < spreadsheets.size(); i++) {
+		      //BaseEntry entry = (BaseEntry) spreadsheets.get(i);
+			  BaseEntry entry = (BaseEntry) listIterator.next();
 		      if (entry.getTitle().getPlainText().equals(docName))
 		   	  {
 		    	  spreadsheetIndex = i;
 		    	  break;
 		   	  }
+		      
 		    		  
 		    } 
 	  		
@@ -318,15 +325,36 @@ public class PopulateSpreadsheet {
 			throw new CustomInvalidInputException("Invalid input. String arrays in both array lists must be the same size.");
 		}
 		
-		for (int i=0; i<arrayList1.size(); i++) {
-			tmp1 = arrayList1.get(i);
-			arrayList2.add(i,tmp1);
+		//for (int i=0; i<arrayList1.size(); i++) {
+		int i = 0;
+		for (String[] tmp3 : arrayList1) {
+			//tmp3 = arrayList1.get(i);
+			arrayList2.add(i,tmp3);
+			i++;
 		}
 		
 		return (arrayList2);
 		
 		
 		
+	}
+	
+	public static ArrayList<String[]> duplicateArrayList(ArrayList<String[]> inputList) {
+		//ArrayList<String[]> newList = new ArrayList<String[]>();
+		//for (String[] item : inputList) {
+		for (int j=0;j<inputList.size();j++) {
+			String[] item = inputList.get(j);
+			String[] tmp = new String[2*item.length];
+			for (int i=0;i<item.length;i++) {
+				tmp[2*i] = item[i];
+				tmp[(2*i)+1] = item[i];
+			}
+			inputList.set(j,tmp);
+
+		}
+		
+		
+		return inputList;
 	}
 	
 	public static ArrayList<String[]> joinListsInner(ArrayList<String[]> arrayList1,ArrayList<String[]> arrayList2,int nCol)
@@ -451,8 +479,7 @@ public class PopulateSpreadsheet {
 		
 	}
 	
-	public static String createGoogleError(String strReqId,String strReason,String strMessage,String strDetailed)
-	{
+	public static String createGoogleError(String strReqId,String strReason,String strMessage,String strDetailed) {
 		try
 		{
 		
@@ -612,11 +639,13 @@ public class PopulateSpreadsheet {
 		
 	}
 	
-	public static String createGoogleJSON(ArrayList<String[]> arrayListCols, ArrayList<String[]> arrayListRows,String strReqId,boolean bEmptyZeros) 
-	{
-		
+	public static String createGoogleJSON(ArrayList<String[]> arrayListCols, ArrayList<String[]> arrayListRows,String strReqId,boolean bEmptyZeros) {
+
 		/*
 		 * OFP 4/1/2011 - Added bEmptyZeros to indicate if zero values should be replaced with the empty string.
+		 * OFP 7/22/2012 - Can't remember why empty string is preferrable to a zero.
+		 * 
+		 * OFP 7/22/2012 - This can't handle null values, the caller has to make sure that something else is passed instead of null.
 		 * 
 		 */
 		try 
@@ -629,7 +658,7 @@ public class PopulateSpreadsheet {
 		jsonTop.put("reqId", strReqId);
 		jsonTop.put("status","ok");
 
-		JSONObject jsonTable = new JSONObject();
+		JSONObject jsonTable = new JSONObject(); 
 
 		JSONArray jsonArrayCols = new JSONArray();
 
@@ -653,13 +682,14 @@ public class PopulateSpreadsheet {
 		*/
 
 
-		for (int i=0;i<arrayListRows.size();i++)
-		{
+		//for (int i=0;i<arrayListRows.size();i++) {
+		int i = 0;
+		for (String[] foo2 : arrayListRows)	{
 			JSONArray tmpArray = new JSONArray();
 			//JSONObject cJSON = new JSONObject();
 			
 
-			String[] foo2 = arrayListRows.get(i);
+			//String[] foo2 = arrayListRows.get(i);
 			for (int k=0;k<arrayListCols.size();k++)
 			{
 				JSONObject tmp = new JSONObject();
@@ -726,7 +756,7 @@ public class PopulateSpreadsheet {
 
 			jsonArrayRows.put(new JSONObject().put("c",tmpArray));
 			
-			
+			i++;
 		}
 		
 		jsonTable.put("rows",jsonArrayRows);
@@ -749,14 +779,7 @@ public class PopulateSpreadsheet {
 		
 	}
 	
-	/*public PopulateSpreadsheet()
-	{
-		
-		uf = new UtilityFunctions();
-		dbf = new DBFunctions
-		
-		
-	}*/
+	
 	
 	
 	
@@ -945,9 +968,9 @@ public class PopulateSpreadsheet {
   		
 
   		
-  		for (int i=0;i<inputArrayList.size();i++)
-  		{
-  			String[] inRow = inputArrayList.get(i);
+  		//for (int i=0;i<inputArrayList.size();i++)
+  		for (String[] inRow : inputArrayList) {
+  			//String[] inRow = inputArrayList.get(i);
   			
   	  		if (nCol >= inRow.length)
 				throw new CustomInvalidInputException("Invalid input. Column is zero based and needs to be less than the array length.");
@@ -983,9 +1006,9 @@ public class PopulateSpreadsheet {
   		
   		ArrayList<String[]> outputArrayList = new ArrayList<String[]>();
   		
-  		for (int i=0;i<inputArrayList.size();i++)
-  		{
-  			String[] inRow = inputArrayList.get(i);
+  		//for (int i=0;i<inputArrayList.size();i++)
+  		for (String[] inRow : inputArrayList) {
+  			//String[] inRow = inputArrayList.get(i);
   			
   		
   			
