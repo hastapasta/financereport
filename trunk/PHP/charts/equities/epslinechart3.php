@@ -4,13 +4,41 @@ require_once ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
-//$taskid = $_GET['taskid'];
+/* 
+ * This is pulled from the beginning of allassets/linechart.php which is now the model for how 
+ * to handle initialization & processing for using url parameters with the auto-complete control.
+ */
 
-if (isset($_GET['entityid']))
-	$entityid = $_GET['entityid'];
-/*else
-	die("No entity id parameter in url. Unable to render chart.");*/
 
+if (isset ($_GET['e']))
+	$entityid = $_GET['e'];
+elseif (isset ($_GET['t']))
+	$ticker = $_GET['t'];
+
+if (empty($ticker)) {
+
+	$sql2 = "select distinct ticker from entities ";
+	if (!empty($entityid)) {
+		$sql2.=" where entities.id in (".$entityid.") ";
+		$tmperror = "No entity ids were found.";
+	}
+	
+
+	$result2 = mysql_query($sql2);
+	$count=0;
+	while ($row1 = mysql_fetch_array($result2)) {
+		$ticker.=$row1['ticker'].",";
+		$count++;
+	}
+
+	if ($count==0) {
+		$error = $tmperror;
+	}
+
+	$ticker=substr($ticker,0,strlen($ticker)-1);
+
+
+}
 	
 
 
@@ -31,6 +59,14 @@ if (isset($_GET['entityid']))
 <script type="text/javascript">
 
 	$(function(){
+		document.firstPass = true;
+		<?php 
+			if (!empty($ticker))
+				echo "document.ticker= '".$ticker."';\n";
+		?>
+
+		$("#a_c").val('<?php echo $ticker; ?>');
+		
 		$( "#a_c" ).autocomplete({
 			source: function( request, response ) {
 				$.ajax({
@@ -44,7 +80,7 @@ if (isset($_GET['entityid']))
 					success: function( data ) {
 						//console.log(data);
 						response( $.map( data, function( item ) {
-							//alert(item.id);
+							//alert(item.ticker);
 							return {
 								
 								value: item.ticker,
@@ -59,96 +95,110 @@ if (isset($_GET['entityid']))
 				});
 			},
 			minLength: 1,
+			focus: function() {
+				// prevent value inserted on focus
+				return false;
+			},
 			select: function( event, ui ) {
-				if(ui.item)
-				{
-					//loadChart("",  ui.item.value);
-					//alert('value:' + ui.item.value);
-					//var tmp[] = split(ui.item.value,'|');
-					//$( "#a_c" ).val(ui.item.value.split("|")[1]);
-					//sendAndDraw(ui.item.value.split("|")[0],ui.item.value.split("|")[1],ui.item.value.split("|")[2]);
-					sendAndDraw(ui.item.id,ui.item.label,ui.item.full_name);
-				}
+
+				//alert($('#a_c').val());
+
+				/*
+					This next line is needed here or otherwise $('a_c').val() only returns the first letter.
+				*/
+				this.value = ui.item.value;
+				document.ticker = ui.item.value;
+				sendAndDraw();
+
 			}
 		});
+		$("#a_c").keypress(function (e,ui) { 
+        	if (e.which == 13) { 
+            	//yourFunction($('#yourAutoComplete').val()); return false;
+            	value = $("#a_c").val();
+            	document.ticker = ui.item.value;
+            	//window.id = ui.item.id;
+      
+            } 
+        }); 
+		
+
+		<?php  	
+	      /* If $ticker is set then url value (either e,t,eg or a) was passed in. */
+	      //echo "//ticker: ".$ticker."\n";
+			if (!empty($ticker)) {
+				echo "google.setOnLoadCallback(function() { sendAndDraw(null) });\n";
+			}
+			        	
+		?>
+	        	  	
+       	
+		document.firstpass = false;
 	});
 	
     google.load('visualization', '1', {'packages' : ['corechart']});
-    google.setOnLoadCallback(function() { sendAndDraw(null) });
+    //google.setOnLoadCallback(function() { sendAndDraw(null) });
 
-    var firstPass = true;
-
-
-    <?php 
-            //echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2.jsp';";
-            
-            echo "var dataSourceUrl1 ='".IncFunc::$JSP_ROOT_PATH."/mysqldatasource11.jsp';"; 
-            
-            echo "var dataSourceUrl2 ='".IncFunc::$JSP_ROOT_PATH."/mysqldatasource12.jsp';";
-            ?>
-        // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
-           
-
-   // var dataSourceUrl = 'https://spreadsheets.google.com/tq?key=rCaVQNfFDMhOM6ENNYeYZ9Q&pub=1';
-    var query1;
-    var query2;
+    
 
 
 
-    function sendAndDraw(id,ticker,fullname) {
+
+
+    function sendAndDraw() {
     	  var queryString1,queryString2;
     	  var title = document.getElementById('page-title');
           var description = document.getElementById('page-description');
 
-    	if(id != undefined){
+          var query1;
+          var query2;
 
-			queryString1 = '?entityid=' + id;
+          <?php 
+                 
+                  
+          echo "var dataSourceUrl1 ='".IncFunc::$JSP_ROOT_PATH."/mysqldatasource11.jsp';"; 
+                  
+          echo "var dataSourceUrl2 ='".IncFunc::$JSP_ROOT_PATH."/mysqldatasource12.jsp';";
+          ?>
 
-			queryString2 = '?entityid=' + id;
 
-			title.innerHTML = 'Ticker: ' + ticker;
-
-			description.innerHTML = fullname;
-
-			
-
-			//alert(ticker);
-		}
-		else
-		{
-
+           //alert($('#a_c').val());
+    
 			
 				
-		
-			<?php //echo "options.title='".$row['ticker']." - ".$row['full_name']."';"; ?>
-					
-			<?php	 
-			
-				if ($entityid == null)
-				{
-					echo "return;";
-				}
-				else 
-				{
-					$sql = "select entities.* from entities where id=".$entityid;
-					$result = mysql_query($sql);
 
-					$row = mysql_fetch_array($result);
-					
-					echo "queryString1 = '?entityid=".$entityid."';\n";
-					echo "queryString2 = '?entityid=".$entityid."';\n"; 
-					echo "title.innerHTML ='Ticker: ".$row['ticker']."';"; 
-				    echo "description.innerHTML ='".$row['full_name']."';"; 
-				}
-			?> 
-		}
+				var cleantickers = document.ticker;
 
+				//alert(cleantickers);
+
+	        	 if (cleantickers.charAt(cleantickers.length - 1) == ',')
+	                 cleantickers = cleantickers.substr(0,cleantickers.length-1);
+
+
+				var url = "../../site/ajax/getEntityId.php?tickers=" + encodeURIComponent(cleantickers);
+		   $.ajax({
+				url: url,
+				dataType: "json",
+				success: function(data) {
+					$.map( data, function( item ) {
+	
+					var tmptext = item.ticker;
+					if (item.full_name) {
+						tmptext += " - " + item.full_name;
+					}
+					$('<li>').text(tmptext).appendTo('#chart-legend');
+				
+
+				});
+					
+				}
+
+            });
       var container1 = document.getElementById('chart1');
       var container2 = document.getElementById('chart2');
 
-      
+      queryString1 = queryString2 = '?ticker=' + encodeURIComponent(cleantickers);
 
-    
       container1.innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";
 
 
@@ -194,33 +244,13 @@ if (isset($_GET['entityid']))
      	options2.vAxis = {};
      	options2.vAxis.format = '#%';
       
-     
-
-     
-
-     	
-  
-    	 
-
- 
-
-      //alert(dataSourceUrl1 + queryString1);
-
-      //alert(dataSourceUrl2 + queryString2);
-
-
-
-      
       var chart1 = new google.visualization.LineChart(container1);
       var chart2 = new google.visualization.LineChart(container2);
 
-      if (window.console) {console.log(dataSourceUrl1 + queryString1)}
-      if (window.console) {console.log(dataSourceUrl2 + queryString2)}
+      //if (window.console) {console.log(dataSourceUrl1 + queryString1);}
+      //if (window.console) {console.log(dataSourceUrl2 + queryString2);}
 
 
-
-     
-      
       query1 && query1.abort();
       query1 = new google.visualization.Query(dataSourceUrl1 + queryString1);
       query1.setTimeout(120);
@@ -234,6 +264,14 @@ if (isset($_GET['entityid']))
       queryWrapper2.sendAndDraw();
 
     }
+
+    function viewDataTable() {
+
+		var url = "<?php echo IncFunc::$PHP_ROOT_PATH;?>";
+		url += "/charts/equities/epsdetailtable.php?t=" + document.ticker;
+		window.open(url);
+    	<?php //echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/equities/epsdetailtable.php\");";?>
+	}
 
   </script>
 </head>
@@ -278,7 +316,7 @@ if (isset($_GET['entityid']))
 <div id="tmp2A" style="font-size: small">EPS actuals, EPS estimates and share price (% change):</div>
 <div id="chart2" style="margin: 10px 0 0 0"> </div>
 </div>
-
+<input type="button"  value="View Data Table" style="float: left;clear: both;margin-bottom: 10px;"	onclick="viewDataTable();return false;"> <br />
 
 </div> <!--  pf-body -->
 
