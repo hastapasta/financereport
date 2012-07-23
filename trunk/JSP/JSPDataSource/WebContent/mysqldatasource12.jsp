@@ -15,10 +15,11 @@
 * This data_source pulls earnings estimates from the fact_data table based off of an entity id
 */
 
+UtilityFunctions uf = new UtilityFunctions();
+
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
-if (strTqx!=null)
-{
+if (strTqx!=null) {
 	strReqId = strTqx.substring(strTqx.indexOf("reqId"),strTqx.length());
 	strReqId = strReqId.substring(strReqId.indexOf(":")+1,strReqId.length());
 }
@@ -26,58 +27,69 @@ else
 	strReqId="0";
 
 String strEntityId = request.getParameter("entityid");
+String strTicker = request.getParameter("ticker");
 
-if (strEntityId==null)
-{
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No entityid request parameter.","PF ERROR CODE 12-1"));
-	//out.println("No begindate request parameter.");
-	return;
-}
-//String strEntityId="75";
-
-//String strEndDate = request.getParameter("enddate");
-//String strBeginDate = request.getParameter("begindate"); 
-
-/*if (strBeginDate==null)
-{
-	out.println("No begindate request parameter.");
+if (strEntityId==null && strTicker==null) {
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","Url parameter entityid or ticker is required.","PF ERROR CODE 11-2"));
 	return;
 }
 
-if (!strBeginDate.startsWith("20") && !strBeginDate.startsWith("19"))
-{
-	out.println("begindate format needs to be yyyy-mm-dd");
-	return;
-}
+/*
+* Look up the id for the ticker.
+*/
+String query;
+DBFunctions dbf;
+boolean bException;
 
-if (strEndDate!=null)
-{
-	if (!strEndDate.startsWith("20") && !strEndDate.startsWith("19"))
-	{
-		out.println("enddate format needs to be yyyy-mm-dd");
-		return;
+if (strTicker != null) {
+
+
+	//String[] tickerarray = strTickers.split(",");
+	dbf = null;
+	bException = false;
+
+	
+	try	{
+		query = "select id from entities where ticker='" + strTicker + "'";
+		/*for (String strTick : tickerarray) { 
+			query += "'" + strTick + "',";
+		}*/
+		//query = query.substring(0,query.length()-1);
+		//query += ")";
+		
+		dbf = new DBFunctions();
+		dbf.db_run_query(query);
+			
+		if (dbf.rs.next())
+			strEntityId = dbf.rs.getInt("id") + "";
+		else {
+			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"data_issue","No entity id from for ticker " + strTicker,"PF ERROR CODE 15s-20"));
+			bException = true;
+		}
+		/*while (dbf.rs.next()) {
+			strEntityId +=  dbf.rs.getInt("id") + ",";
+		    
+		}*/
+		//strEntityId = strEntityId.substring(0,strEntityId.length()-1);
 	}
-}*/
+	catch (SQLException sqle) {
+		//out.println(sqle.toString());
+		out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 15s-5"));
+		bException = true;
+	}
+	finally	{
+		if (dbf !=null) dbf.closeConnection();
+		if (bException == true)
+			return;
+	}
+}
 
 
 
 
-
-
-
-
-UtilityFunctions uf = new UtilityFunctions();
 
 ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 
-
-//String[] columns = tmpArrayList.get(0);
-
-//DBFunctions dbf = new DBFunctions("localhost","3306","findata","root","madmax1.");
-
-
-//String query1 = "select ticker from entities where id " + strInClause;
-//ResultSet rs1 = dbf.db_run_query(query1);
 
 String query2 = "select value as initval,entity_id,(calyear*10+calquarter) as cyq,calyear,calquarter ";
 query2 += "from fact_data,metrics ";
@@ -89,8 +101,8 @@ query2 += " order by cyq asc limit 1";
 //ResultSet rstmp = null;
 int nMonth=0;
 int nYear = 0;
-DBFunctions dbf = null;
-boolean bException = false;
+dbf = null;
+bException = false;
 try
 {
 	dbf = new DBFunctions();
@@ -164,7 +176,7 @@ query += " where metric_id=1 and fact_data.entity_id=" + strEntityId + " and met
 query += " and t2.initcyq<= (year(date_collected)*10+( " + strCase + ")))";
 query += " order by cyq asc,name,batch_id ";*/
 
-String query = "(select metrics.name,(fact_data.calyear*10+fact_data.calquarter) as cyq,value,batch_id,t1.initval,";
+query = "(select metrics.name,(fact_data.calyear*10+fact_data.calquarter) as cyq,value,batch_id,t1.initval,";
 query += "(if (initval=0,initval,round(((value - initval)/(if (initval<0,initval*-1,initval))),2)))as pctchange ";
 query += " from fact_data ";
 query += " join metrics on fact_data.metric_id=metrics.id ";

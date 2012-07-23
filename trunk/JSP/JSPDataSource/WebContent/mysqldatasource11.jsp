@@ -14,6 +14,7 @@
 /*
 * This data_source pulls earnings estimates from the fact_data table based off of an entity id
 */
+UtilityFunctions uf = new UtilityFunctions();
 
 String strTqx = request.getParameter("tqx");
 String strReqId=null;
@@ -26,18 +27,68 @@ else
 	strReqId="0";
 
 String strEntityId = request.getParameter("entityid");
+String strTicker = request.getParameter("ticker");
 
-if (strEntityId==null)
-{
-	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","No entityid request parameter.","PF ERROR CODE 11-1"));
+if (strEntityId==null && strTicker==null) {
+	out.println(PopulateSpreadsheet.createGoogleError(strReqId,"missing_parameter","Url parameter entityid or ticker is required.","PF ERROR CODE 11-2"));
 	return;
+}
+
+/*
+* Look up the id for the ticker.
+*/
+String query;
+DBFunctions dbf;
+boolean bException;
+
+if (strTicker != null) {
+
+
+	//String[] tickerarray = strTickers.split(",");
+	dbf = null;
+	bException = false;
+
+	
+	try	{
+		query = "select id from entities where ticker='" + strTicker + "'";
+		/*for (String strTick : tickerarray) { 
+			query += "'" + strTick + "',";
+		}*/
+		//query = query.substring(0,query.length()-1);
+		//query += ")";
+		
+		dbf = new DBFunctions();
+		dbf.db_run_query(query);
+			
+		if (dbf.rs.next())
+			strEntityId = dbf.rs.getInt("id") + "";
+		else {
+			out.println(PopulateSpreadsheet.createGoogleError(strReqId,"data_issue","No entity id from for ticker " + strTicker,"PF ERROR CODE 15s-20"));
+			bException = true;
+		}
+		/*while (dbf.rs.next()) {
+			strEntityId +=  dbf.rs.getInt("id") + ",";
+		    
+		}*/
+		//strEntityId = strEntityId.substring(0,strEntityId.length()-1);
+	}
+	catch (SQLException sqle) {
+		//out.println(sqle.toString());
+		out.println(PopulateSpreadsheet.createGoogleError(strReqId,"sql_exception",sqle.getMessage(),"PF ERROR CODE 15s-5"));
+		bException = true;
+	}
+	finally	{
+		if (dbf !=null) dbf.closeConnection();
+		if (bException == true)
+			return;
+	}
 }
 
 
 
 
 
-UtilityFunctions uf = new UtilityFunctions();
+
 
 ArrayList<String[]> arrayListCols = new ArrayList<String[]>();
 
@@ -51,14 +102,14 @@ query2 += " (select name,(calyear*10+calquarter) as cyq,value,batch_id ";
 query2 += " from fact_data,metrics where metric_id=5 and entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id) ";
 query2 += " order by cyq asc,name";*/
 
-String query = "(select name,(calyear*10+calquarter) as cyq,value,batch_id ";
+query = "(select name,(calyear*10+calquarter) as cyq,value,batch_id ";
 query += " from fact_data,metrics ";
 query += " where (metric_id=4 or metric_id=5) and entity_id=" + strEntityId + " and metrics.id=fact_data.metric_id) ";
 query += " order by cyq asc,name";
 
 ArrayList<String[]> arrayListRows = new ArrayList<String[]>();
-DBFunctions dbf = null;
-boolean bException = false;
+dbf = null;
+bException = false;
 try
 {
 	dbf = new DBFunctions();
