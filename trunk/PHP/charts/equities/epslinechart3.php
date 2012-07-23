@@ -9,13 +9,15 @@ db_utility::db_connect();
  * to handle initialization & processing for using url parameters with the auto-complete control.
  */
 
+$ticker="";
 
 if (isset ($_GET['e']))
 	$entityid = $_GET['e'];
 elseif (isset ($_GET['t']))
 	$ticker = $_GET['t'];
 
-if (empty($ticker)) {
+
+if (empty($ticker) && !empty($entityid)) {
 
 	$sql2 = "select distinct ticker from entities ";
 	if (!empty($entityid)) {
