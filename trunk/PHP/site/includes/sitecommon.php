@@ -413,7 +413,7 @@ class IncFunc {
 						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=1' >US Equities Top Gainers/Losers</a>
 						</li>
 						<li>
-						<a href='".self::$PHP_ROOT_PATH."/charts/equities/epslinechart3.php?entityid=1'>US Equities Quarterly Earnings</a>
+						<a href='".self::$PHP_ROOT_PATH."/charts/equities/epslinechart3.php?t=ge'>US Equities Quarterly Earnings</a>
 						</li>
 						<li>
 						<a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=1&type=4' >US Equities Individual Charts</a>
@@ -446,8 +446,8 @@ class IncFunc {
 					<li>
 					<a href='#'>Bonds</a>
 					<ul class='sub_menu'>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?type=6&order=DESC&metricid=1'>Global CDS Table</a></li>
-						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?type=5&order=DESC&metricid=1001'>Global Sovereign Bonds Table</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101024&order=DESC&metricid=1'>Global CDS Table</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/directtable.php?entitygroupid=101023&order=DESC&metricid=1001'>Global Sovereign Bonds Table</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101029&type=5'>UK Yield Curve</a></li>			
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101030&type=5'>Australian Yield Curve</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101031&type=5'>Japanese Yield Curve</a></li>
