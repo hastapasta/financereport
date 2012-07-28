@@ -60,7 +60,7 @@ div#menu li div {
     top: 36px;
     left: 0;
     visibility: hidden;
-    /*ofp 187 */
+    /*ofp - original 187 */
     width: 500px;
     padding: 0 0 11px 7px;
     background: url(images/submenu-bottom.png) no-repeat 7px bottom;
@@ -106,7 +106,7 @@ div#menu span {
     margin-top: 2px;
     padding-left: 30px;
     color: #fff;
-    /* ofp */
+    /* ofp - original 11px */
     font: bold 15px Trebuchet MS,Arial,san-serif;
     background: none;
     line-height: 40px;
@@ -180,8 +180,8 @@ div#menu ul ul a {
     z-index: -1;
     padding-left: 5px;
     white-space: normal;
-    /*ofp 160 */
-    width: 180px;
+    /*ofp - original 160 */
+    width: 160px;
     margin: 0 5px;
     text-transform: none;
 }
@@ -189,7 +189,8 @@ div#menu ul ul a {
 div#menu ul ul a span {
     padding: 0 15px;
     line-height: 26px;
-    font-size: 11px;
+    /* ofp - original 11 px */
+    font-size: 13px;
 }
 div#menu li.current ul a,
 div#menu li.current ul a span {
