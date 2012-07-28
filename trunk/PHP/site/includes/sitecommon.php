@@ -363,7 +363,13 @@ class IncFunc {
 		
 	}
 	
-	static function yuiDropDownMenu() {
+	static function apycomDropDownMenu() {
+		/* from http://apycom.com/menus/4-steel-blue.html */
+		self::dropdownInclude();
+		self::dropdownMenu();
+	}
+	
+	static function obsoleteyuiDropDownMenu() {
 
 		/*echo "<div class=\"yui-skin-sam\" id=\"yahoo-com\" style=\"padding: 0 160px;\">";
 		echo "	<div id=\"doc\" class=\"yui-t1\" width=\"30em\">";
@@ -396,13 +402,112 @@ class IncFunc {
 	
 	}
 	
-	static function dropdownInclude() {
+	static function obsoletedropdownInclude() {
 		//echo "<script type=\"text/javascript\" src=\"".self::$PHP_ROOT_PATH."/site/includes/jquery-1.5.1.js\"></script>";
 		echo "<script type=\"text/javascript\" src=\"".self::$PHP_ROOT_PATH."/site/includes/dropdown.js\"></script>";
 		echo "<link type=\"text/css\" rel=\"stylesheet\"   href=\"".self::$PHP_ROOT_PATH."/site/includes/dropdown.css\"></link>";
 	}
 	
-	static function dropdownMenu()	{
+	static function dropdownInclude() { 
+		echo "<link type=\"text/css\" href=\"".self::$PHP_ROOT_PATH."/site/includes/menucustom/menu.css\" rel=\"stylesheet\" />";
+		//echo "<script type=\"text/javascript\" src=\"jquery.js\"></script>";
+		echo "<script type=\"text/javascript\" src=\"".self::$PHP_ROOT_PATH."/site/includes/menucustom/menu.js\"></script>";
+	}
+	
+	static function dropdownMenu() {
+	
+		/*<script>
+		  function removeApyLink() {
+				var tmp = $("body>div:last-child");
+				tmp.empty();
+				//alert("here");
+		    }
+			    if(window.attachEvent) {
+				    window.attachEvent('onload', removeApyLink);
+				} else {
+				    if(window.onload) {
+				        var curronload = window.onload;
+				        var newonload = function() {
+				            curronload();
+				            removeApyLink();
+				        };
+				        window.onload = newonload;
+				    } else {
+				        window.onload = removeApyLink;
+				    }
+				}
+
+		</script>*/
+		?>
+		<div id="menu" style='margin-left:200px;margin-bottom:20px;z-index:10;position:relative;'>
+		<ul class="menu">
+			<li><a href="#" class="parent"><span>Equities</span></a>
+				<div><ul>
+					<li><a href="#" class="parent"><span>United States</span></a>
+						<div><ul>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=1"><span>● Top Gainers/Losers</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/equities/epslinechart3.php?t=ge"><span>● Quarterly Earnings</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?e=1&type=4"><span>● Individual Charts</span></a></li>
+						</ul></div>
+					</li>
+					<li><a href="#" class="parent"><span>Global</span></a>
+						<div><ul>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=5"><span>● Global Equity Indexes Table</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=101027&amp;begindate=1293865200000&amp;enddate=current"><span>● Benchmark Global Equity Indexes Table</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=1008&amp;metricid=11"><span>● Global Equity Futures Table</span></a></li>
+						</ul></div>
+					</li>					
+				</ul></div>
+			</li>
+			<li><a href="#" class="parent"><span>Commodities</span></a>
+				<div><ul>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=4&amp;metricid=11"><span>● Complete Futures Table</span></a></li>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?e=673&type=3"><span>● Futures Individual Charts</span></a></li>
+				</ul></div>
+			</li>
+			<li><a href="#" class="parent"><span>Forex</span></a>
+				<div><ul>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=3"><span>● Global Forex Table</span></a></li>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?e=508&type=2"><span>● Forex Individual Charts</span></a></li>
+				</ul></div>
+			</li>
+			<li><a href="#" class="parent"><span>Bonds</span></a>
+				<div><ul>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=101024&order=DESC&metricid=1"><span>● Global CDS Table</span></a></li>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=101023&order=DESC&metricid=1001"><span>● Global Sovereign Bonds Table</span></a></li>
+					<li><a href="#" class="parent"><span>Yield Curves</span></a>
+						<div><ul>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101029&type=5"><span>● U.K.</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101030&type=5"><span>● Australia</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101031&type=5"><span>● Japan</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101032&type=5"><span>● Brazil</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101033&type=5"><span>● Germany</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101039&type=5"><span>● Germany (short end only)</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101034&type=5"><span>● Hong Kong</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101035&type=5"><span>● U.S.</span></a></li>
+						</ul></div>
+					</li>
+				</ul></div>
+			</li>
+			<li class="last"><a href="#" class="parent"><span>Miscellaneous</span></a>
+				<div><ul>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/topchart.php"><span>● All Assets - Tables</span></a></li>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?e=508&type=2"><span>● All Assets - Inidivdual Line Charts</span></a></li>					
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/countries/linechart.php"><span>● GDP/Equity Index Line Chart</span></a></li>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/gdp/motionchart.php"><span>● GDP Growth Estimates</span></a></li>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/alerts/twittertable.php"><span>● Twitter Alerts Table</span></a></li>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?e=508&type=2"><span>● Global Gasoline Prices</span></a></li>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/fed/balsheet.php"><span>● Federal Reserve Balance Sheet</span></a></li>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/other/comingsoon.php"><span>● Federal Reserve Change WOW</span></a></li>
+				</ul></div>
+			</li>
+		</ul>
+	</div>
+		
+		
+	<?php }
+	
+	static function obsoletedropdownMenu()	{
 		echo "
 			<div style='padding-left:400px;margin-bottom:20px;z-index:10;position:relative;'>
 			<ul class='dropdown'>
@@ -453,6 +558,7 @@ class IncFunc {
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101031&type=5'>Japanese Yield Curve</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101032&type=5'>Brazilian Yield Curve</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101033&type=5'>German Yield Curve</a></li>
+						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101039&type=5'>German Yield Curve (short duration only)</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101034&type=5'>Hong Kong Yield Curve</a></li>
 						<li><a href='".self::$PHP_ROOT_PATH."/charts/allassets/linechart.php?eg=101035&type=5'>U.S. Yield Curve</a></li>
 					</ul>
