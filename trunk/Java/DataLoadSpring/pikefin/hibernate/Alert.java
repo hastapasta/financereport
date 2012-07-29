@@ -1,6 +1,6 @@
 package pikefin.hibernate;
 
-// Generated Jun 13, 2012 10:24:38 AM by Hibernate Tools 3.4.0.CR1
+// Generated Jun 18, 2012 7:54:36 AM by Hibernate Tools 3.4.0.CR1
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,22 +13,33 @@ public class Alert implements java.io.Serializable {
 	private Integer alertId;
 	private float limitValue;
 	private Entity alertEntity;
+	private Task alertTask;
+	private User alertUser;
 	private TimeEvent alertTimeEvent;
+	private FactData alertInitialFactData;
 	private Set alertTarget = new HashSet(0);
 
 	public Alert() {
 	}
 
-	public Alert(Entity alertEntity, TimeEvent alertTimeEvent) {
+	public Alert(Entity alertEntity, Task alertTask, User alertUser,
+			TimeEvent alertTimeEvent, FactData alertInitialFactData) {
 		this.alertEntity = alertEntity;
+		this.alertTask = alertTask;
+		this.alertUser = alertUser;
 		this.alertTimeEvent = alertTimeEvent;
+		this.alertInitialFactData = alertInitialFactData;
 	}
 
-	public Alert(float limitValue, Entity alertEntity,
-			TimeEvent alertTimeEvent, Set alertTarget) {
+	public Alert(float limitValue, Entity alertEntity, Task alertTask,
+			User alertUser, TimeEvent alertTimeEvent,
+			FactData alertInitialFactData, Set alertTarget) {
 		this.limitValue = limitValue;
 		this.alertEntity = alertEntity;
+		this.alertTask = alertTask;
+		this.alertUser = alertUser;
 		this.alertTimeEvent = alertTimeEvent;
+		this.alertInitialFactData = alertInitialFactData;
 		this.alertTarget = alertTarget;
 	}
 
@@ -56,12 +67,36 @@ public class Alert implements java.io.Serializable {
 		this.alertEntity = alertEntity;
 	}
 
+	public Task getAlertTask() {
+		return this.alertTask;
+	}
+
+	public void setAlertTask(Task alertTask) {
+		this.alertTask = alertTask;
+	}
+
+	public User getAlertUser() {
+		return this.alertUser;
+	}
+
+	public void setAlertUser(User alertUser) {
+		this.alertUser = alertUser;
+	}
+
 	public TimeEvent getAlertTimeEvent() {
 		return this.alertTimeEvent;
 	}
 
 	public void setAlertTimeEvent(TimeEvent alertTimeEvent) {
 		this.alertTimeEvent = alertTimeEvent;
+	}
+
+	public FactData getAlertInitialFactData() {
+		return this.alertInitialFactData;
+	}
+
+	public void setAlertInitialFactData(FactData alertInitialFactData) {
+		this.alertInitialFactData = alertInitialFactData;
 	}
 
 	public Set getAlertTarget() {
