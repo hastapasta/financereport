@@ -1400,3 +1400,10 @@ margin-left: 100px;
 #custom-body{
 	margin: 20px 50px;
 }
+
+#AnyTime--rangeDemoStart {
+	z-index:30;
+}
+#AnyTime--rangeDemoFinish {
+	z-index:30;
+}
