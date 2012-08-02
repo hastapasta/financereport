@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="pikefin.hibernate.CountryAssociation" table="countries_entities" dynamic-update="true">
+		<id name="countryEntityId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		<property name="defaultCountry" column="default_country" type="boolean"/>
+		<property name="country" column="country_id"
+   </class>
+</hibernate-mapping>

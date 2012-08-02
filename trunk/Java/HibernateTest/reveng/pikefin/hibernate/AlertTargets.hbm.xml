@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jun 18, 2012 5:59:05 AM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="pikefin.hibernate.AlertTargets" table="alert_targets" catalog="findata">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="type" type="int">
+            <column name="type" not-null="true">
+                <comment>1 - email, 2 - twitter, 3 - fb, 4 - g+</comment>
+            </column>
+        </property>
+        <property name="address" type="string">
+            <column name="address" length="100" not-null="true" />
+        </property>
+        <property name="securityAccountId" type="java.lang.Integer">
+            <column name="security_account_id" />
+        </property>
+        <property name="userId" type="int">
+            <column name="user_id" not-null="true" />
+        </property>
+        <property name="bulkEmail" type="boolean">
+            <column name="bulk_email" not-null="true" />
+        </property>
+        <property name="maxNotifications" type="int">
+            <column name="max_notifications" not-null="true" />
+        </property>
+        <property name="tweetLimit" type="int">
+            <column name="tweet_limit" not-null="true">
+                <comment>&gt; 0:# per 15 min, 0:none,-1: unlimited (with delay)</comment>
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>

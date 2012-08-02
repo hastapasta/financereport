@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="pikefin.hibernate.LogAlert" table="log_alerts" dynamic-update="true">
+		<id name="logAlertId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		 <property name="dateTimeFired" column="date_time_fired" type="calendar" />
+		 <property name="diff" column="diff" type="float" />
+		 <property name="emailSent" column="email_sent" type="boolean" />
+		 <many-to-one name="logAlertUser" 
+			class="pikefin.hibernate.User" column="user_id" 
+			not-null="true" cascade="all" unique="true"/>
+		<many-to-one name="beforeFactData" 
+			class="pikefin.hibernate.FactData" column="bef_fact_data_id" 
+			not-null="true" cascade="all" unique="true"/>
+		<many-to-one name="afterFactData" 
+			class="pikefin.hibernate.FactData" column="aft_fact_data_id" 
+			not-null="true" cascade="all" unique="true"/>
+		<many-to-one name="logAlertEntity" 
+			class="pikefin.hibernate.Entity" column="entity_id" 
+			not-null="true" cascade="all" unique="true"/>
+		<many-to-one name="logAlertAlert" 
+			class="pikefin.hibernate.Alert" column="alert_id" 
+			not-null="true" cascade="all" unique="true"/>
+   </class>
+</hibernate-mapping>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="pikefin.hibernate.Entity" table="entities" dynamic-update="true">
+		<id name="entityId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		<property name="ticker" column="ticker" type="string"/>
+		<property name="beginFiscalCalendar" column="begin_fiscal_calendar" type="string"/>
+	
+		<set name="countryEntities" table="countries_entities">
+			<key column="entity_id" not-null="true" />
+			<one-to-many class="pikefin.hibernate.CountryEntity"></one-to-many>
+		</set> 
+		
+		<set name="countryWrapper" table="countries_entities">
+			<key column="entity_id" not-null="true" />
+			<one-to-many class="pikefin.hibernate.CountryWrapper"></one-to-many>
+		</set> 
+		
+   </class>
+</hibernate-mapping>

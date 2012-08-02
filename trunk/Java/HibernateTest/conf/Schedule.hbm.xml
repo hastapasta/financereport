@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="pikefin.hibernate.Schedule" table="schedules" dynamic-update="true">
+		<id name="scheduleId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		<property name="priority" column="priority" type="integer"/>
+		<!--  This could end up being an issue. I'm attempting to map both the actual foreign key reference and the objects
+		the key refers to. -->
+		<property name="taskId" column="task_id" type="integer" insert="false" update="false"/>
+		<property name="repeatTypeId" column="repeat_type_id" type="integer" insert="false" update="false"/>
+		<property name="verifyMode" column="verify_mode" type="boolean"/>
+		<many-to-one name="task" 
+			class="pikefin.hibernate.Task" column="task_id" 
+			not-null="true" cascade="all" unique="true"/>
+		<many-to-one name="repeatType" 
+			class="pikefin.hibernate.RepeatType" column="repeat_type_id" 
+			not-null="true" cascade="all" unique="true"/>
+   </class>
+</hibernate-mapping>

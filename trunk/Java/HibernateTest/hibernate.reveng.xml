@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering 
+  SYSTEM "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd" >
+
+<hibernate-reverse-engineering>
+
+<type-mapping>
+ <!-- jdbc-type is name fom java.sql.Types -->
+ <sql-type jdbc-type="VARCHAR" length='20' hibernate-type="SomeUserType" /> 
+ <sql-type jdbc-type="VARCHAR" length='1' hibernate-type="yes_no" />
+ <!-- length, scale and precision can be used to specify the mapping precisly -->
+ <sql-type jdbc-type="NUMERIC"  precision='1' hibernate-type="boolean" /> 
+ <!-- the type-mappings are ordered. This mapping will be consulted last, 
+  thus overriden by the previous one if precision=1 for the column -->
+ <sql-type jdbc-type="NUMERIC"  hibernate-type="integer" /> 
+</type-mapping>
+
+<!-- BIN$ is recycle bin tables in Oracle -->
+<table-filter match-name="BIN$.*" exclude="true" /> 
+
+<!--  first hit wins -->
+<table-filter match-name="entities" exclude="false" />
+<table-filter match-name="alerts" exclude="false" />
+<table-filter match-name="alert_targets" exclude="false" />
+<table-filter match-name="columns" exclude="false" />
+<table-filter match-name="countries" exclude="false" />
+<table-filter match-name="entities" exclude="false" />
+<table-filter match-name="entity_groups" exclude="false" />
+<table-filter match-name="excludes" exclude="false" />
+<table-filter match-name="extract_singles" exclude="false" />
+<table-filter match-name="fact_data" exclude="false" />
+<table-filter match-name="input_source" exclude="false" />
+<table-filter match-name="jobs" exclude="false" />
+<table-filter match-name="job_queue" exclude="false" />
+<table-filter match-name="log_notifications" exclude="false" />
+<table-filter match-name="log_tasks" exclude="false" />
+<table-filter match-name="metrics" exclude="false" />
+<table-filter match-name="repeat_types" exclude="false" />
+<table-filter match-name="schedules" exclude="false" />
+<table-filter match-name="tasks" exclude="false" />
+<table-filter match-name="time_events" exclude="false" />
+<table-filter match-name="users" exclude="false" />
+
+<table-filter match-name=".*"  exclude="true" />
+
+
+
+
+
+
+
+
+<!-- table allows you to override/define how reverse engineering 
+     are done for a specific table -->
+<table name="ORDERS"> 
+ <primary-key>
+   <!-- setting up a specific id generator for a table -->
+  <generator class="sequence">
+    <param name="table">seq_table</param>
+  </generator>
+   <key-column name="CUSTID"/>
+ </primary-key>
+ <column name="NAME" property="orderName" type="string" />
+ <!-- control many-to-one and set names for a specific named foreign key constraint -->
+ <foreign-key constraint-name="ORDER_CUST">
+   <many-to-one property="customer"/>
+   <set property="orders"/>
+ </foreign-key>
+</table>
+
+</hibernate-reverse-engineering>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="pikefin.hibernate.EntityAlias" table="entity_aliases" dynamic-update="true">
+		<id name="entityAliasId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		<property name="tickerAlias" column="ticker_alias" type="string"/>
+		
+		<many-to-one name="entity" 
+			class="pikefin.hibernate.Entity" column="entity_id" 
+			not-null="true" cascade="all" unique="true"/>
+   </class>
+</hibernate-mapping>

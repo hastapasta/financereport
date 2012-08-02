@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jun 18, 2012 5:59:05 AM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="pikefin.hibernate.Jobs" table="jobs" catalog="findata">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="dataSet" type="string">
+            <column name="data_set" length="45" not-null="true" unique="true" />
+        </property>
+        <property name="extractKey" type="int">
+            <column name="extract_key" not-null="true" />
+        </property>
+        <property name="extractKeyColhead" type="java.lang.Integer">
+            <column name="extract_key_colhead" />
+        </property>
+        <property name="extractKeyRowhead" type="java.lang.Integer">
+            <column name="extract_key_rowhead" />
+        </property>
+        <property name="preProcessFuncName" type="string">
+            <column name="pre_process_func_name" length="45">
+                <comment>pre process function executed before each group item</comment>
+            </column>
+        </property>
+        <property name="postProcessFuncName" type="string">
+            <column name="post_process_func_name" length="45" />
+        </property>
+        <property name="preNodataCheckFunc" type="string">
+            <column name="pre_nodata_check_func" length="45" />
+        </property>
+        <property name="preJobProcessFuncName" type="string">
+            <column name="pre_job_process_func_name" length="45">
+                <comment>pre process function executed once for entire job</comment>
+            </column>
+        </property>
+        <property name="postJobProcessFuncName" type="string">
+            <column name="post_job_process_func_name" length="45" />
+        </property>
+        <property name="tableExtraction" type="boolean">
+            <column name="table_extraction" not-null="true" />
+        </property>
+        <property name="source" type="SomeUserType">
+            <column name="source" length="20" />
+        </property>
+        <property name="customInsert" type="boolean">
+            <column name="custom_insert" not-null="true" />
+        </property>
+        <property name="dataGroup" type="string">
+            <column name="data_group" length="25" />
+        </property>
+        <property name="inputSource" type="java.lang.Integer">
+            <column name="input_source" />
+        </property>
+        <property name="dataSetAlias" type="string">
+            <column name="data_set_alias" length="25" />
+        </property>
+        <property name="urlStatic" type="string">
+            <column name="url_static" length="3000" />
+        </property>
+        <property name="obsoleteUrlDynamic" type="string">
+            <column name="obsolete_url_dynamic" length="200" />
+        </property>
+        <property name="obsoleteMultipleTables" type="string">
+            <column name="obsolete_multiple_tables" length="100" />
+        </property>
+        <property name="customUrlFuncName" type="string">
+            <column name="custom_url_func_name" length="40" />
+        </property>
+    </class>
+</hibernate-mapping>

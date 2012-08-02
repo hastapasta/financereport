@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jun 18, 2012 5:59:05 AM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="pikefin.hibernate.Alerts" table="alerts" catalog="findata">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="type" type="int">
+            <column name="type" not-null="true" />
+        </property>
+        <property name="limitValue" type="big_decimal">
+            <column name="limit_value" precision="8" scale="3" />
+        </property>
+        <property name="initialFactDataId" type="java.lang.Integer">
+            <column name="initial_fact_data_id" />
+        </property>
+        <property name="notificationCount" type="int">
+            <column name="notification_count" not-null="true" />
+        </property>
+        <property name="disabled" type="boolean">
+            <column name="disabled" not-null="true" />
+        </property>
+        <property name="userId" type="int">
+            <column name="user_id" not-null="true" />
+        </property>
+        <property name="groupId" type="java.lang.Integer">
+            <column name="group_id">
+                <comment>Not implemented yet</comment>
+            </column>
+        </property>
+        <property name="entityId" type="int">
+            <column name="entity_id" not-null="true" />
+        </property>
+        <property name="currentFactDataId" type="int">
+            <column name="current_fact_data_id" not-null="true" />
+        </property>
+        <property name="timeEventId" type="int">
+            <column name="time_event_id" not-null="true" />
+        </property>
+        <property name="autoResetPeriod" type="boolean">
+            <column name="auto_reset_period" not-null="true" />
+        </property>
+        <property name="autoResetFired" type="boolean">
+            <column name="auto_reset_fired" not-null="true" />
+        </property>
+        <property name="fired" type="boolean">
+            <column name="fired" not-null="true" />
+        </property>
+        <property name="emailAlert" type="boolean">
+            <column name="email_alert" not-null="true" />
+        </property>
+        <property name="twitterAlert" type="boolean">
+            <column name="twitter_alert" not-null="true" />
+        </property>
+        <property name="taskId" type="int">
+            <column name="task_id" not-null="true" />
+        </property>
+        <property name="calyear" type="java.lang.Integer">
+            <column name="calyear" />
+        </property>
+    </class>
+</hibernate-mapping>
