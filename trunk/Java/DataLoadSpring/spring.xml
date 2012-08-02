@@ -14,17 +14,31 @@
     </property>
 </bean>
 
+<bean
+    id="sessionFactoryId"
+    class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+
+    <property name="configLocation">    
+        <value>
+            classpath:hibernate.cfg.xml
+        </value>
+    </property>
+
+
+</bean>
+
+
 <bean id="velocityEngine" class="org.apache.velocity.app.VelocityEngine" />
 
 <bean id="dbFunctions" class="pikefin.DBFunctions" scope="prototype">
         <property name="dataSource" ref="dataSource"/>
         <property name="url" value="${jdbc.url}" />
         <property name="user" value="${jdbc.user}" />
-        <property name="sessionFactory" value=" " />
+        <property name="sessionFactory" value="sessionFactoryId" />
 </bean>
 
 <bean id="notificationId" class="pikefin.Notification">
-	<constructor-arg index="0" ref="dbFunctions"/>
+	 <constructor-arg index="0" ref="dbFunctions"/> 
 </bean>
 
 <bean id="mainWrapper" class="pikefin.log4jWrapper.MainWrapper">
@@ -39,7 +53,8 @@
 		<property name="emailFromAddy" value="${email.fromaddy}" />
 		<property name="emailCakeUrl" value="${email.cakebaseurl}" />
 		<property name="emailPhpUrl" value="${email.phpbaseurl}" />
-		<property name="emailSubjectText" value="${email.subjecttext}" />		
+		<property name="emailSubjectText" value="${email.subjecttext}" />	
+		<property name="debugMode" value="${app.debugmode}" />	
 	    <property name="ve" ref="velocityEngine" />
 </bean>
 
@@ -52,7 +67,7 @@
 </bean>
 
 <bean id="dataLoad" class="pikefin.DataLoad">
-	<property name="broker" ref="broker" />
+	<property name="broker" ref="broker" /> 
 </bean>
 
 
@@ -62,14 +77,14 @@
 
 	<property name="utilityFunctions" ref="utilityFunctions" />
 	
-	<property name="notification" ref="notificationId" />
+	<property name="notification" ref="notificationId" /> 
 
 	<!-- <property name="taskExecutor" ref="taskExecutor" /> -->
 	
-	<property name="debugMode" value="${app.debugmode}" />
+ 	<property name="debugMode" value="${app.debugmode}" />
 	<property name="loadingHistoricalData" value="${app.historicaldata}" />
 	<property name="sleepInterval" value="${app.sleep_interval}" />
-	<property name="maxThreads" value="${app.max_threads}" />
+	<property name="maxThreads" value="${app.max_threads}" /> 
 	
 
 	<!-- <property name="threadList">
@@ -106,12 +121,13 @@
 
 
 
-
+<!--
 <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
      <property name="corePoolSize" value="${app.max_threads}" />
      <property name="maxPoolSize" value="${app.max_threads}" />
      <property name="queueCapacity" value="3" />
 </bean>
+-->
 
 
 

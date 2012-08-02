@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC 
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
     <class name="pikefin.hibernate.Task" table="tasks" dynamic-update="true">
@@ -17,13 +17,13 @@
 			class="pikefin.hibernate.Metric" column="metric_id" 
 			not-null="true" cascade="all" unique="true"/>
 		
-		<set name="job" table="jobs_tasks" cascade="all">
+		<set name="jobs" table="jobs_tasks" cascade="all">
 			<key column="task_id" />
 			<many-to-many column="job_id"
 				class="pikefin.hibernate.Job" />	
 		</set>
 		
-		<set name="entityGroup" table="entity_groups_tasks" cascade="all">
+		<set name="entityGroups" table="entity_groups_tasks" cascade="all">
 			<key column="task_id" />
 			<many-to-many column="entity_group_id"
 				class="pikefin.hibernate.EntityGroup" />	

@@ -1,8 +1,9 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-configuration PUBLIC
         "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
-        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
-
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+ 
+ 
 <hibernate-configuration>
 	<session-factory>
 		<!-- Database connection settings -->
@@ -23,7 +24,7 @@
 		<property name="current_session_context_class">thread</property>
 		<property name="cache.provider_class">
 			org.hibernate.cache.NoCacheProvider
-		</property>
+		</property> 
 
 		<mapping resource="conf/Alert.hbm.xml" />
 		<mapping resource="conf/Entity.hbm.xml" />
@@ -45,5 +46,8 @@
 		<mapping resource="conf/ExtractSingle.hbm.xml" />
 		<mapping resource="conf/EntityAlias.hbm.xml" />
 		<mapping resource="conf/Country.hbm.xml" />
+		<mapping resource="conf/ExtractTable.hbm.xml" />
+		<mapping resource="conf/Column.hbm.xml" />
+		<mapping resource="conf/InputSource.hbm.xml" />
 	</session-factory>
 </hibernate-configuration>

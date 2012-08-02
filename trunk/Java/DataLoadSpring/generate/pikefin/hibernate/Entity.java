@@ -1,6 +1,6 @@
 package pikefin.hibernate;
 
-// Generated Jun 13, 2012 10:24:38 AM by Hibernate Tools 3.4.0.CR1
+// Generated Jun 18, 2012 7:54:36 AM by Hibernate Tools 3.4.0.CR1
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,13 +12,15 @@ public class Entity implements java.io.Serializable {
 
 	private Integer entityId;
 	private String ticker;
+	private String beginFiscalCalendar;
 	private Set country = new HashSet(0);
 
 	public Entity() {
 	}
 
-	public Entity(String ticker, Set country) {
+	public Entity(String ticker, String beginFiscalCalendar, Set country) {
 		this.ticker = ticker;
+		this.beginFiscalCalendar = beginFiscalCalendar;
 		this.country = country;
 	}
 
@@ -36,6 +38,14 @@ public class Entity implements java.io.Serializable {
 
 	public void setTicker(String ticker) {
 		this.ticker = ticker;
+	}
+
+	public String getBeginFiscalCalendar() {
+		return this.beginFiscalCalendar;
+	}
+
+	public void setBeginFiscalCalendar(String beginFiscalCalendar) {
+		this.beginFiscalCalendar = beginFiscalCalendar;
 	}
 
 	public Set getCountry() {

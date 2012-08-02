@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC 
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
     <class name="pikefin.hibernate.Alert" table="alerts" dynamic-update="true">
@@ -13,8 +13,17 @@
 		<many-to-one name="alertEntity" 
 			class="pikefin.hibernate.Entity" column="entity_id" 
 			not-null="true" cascade="all" unique="true"/>
+		<many-to-one name="alertTask" 
+			class="pikefin.hibernate.Task" column="task_id" 
+			not-null="true" cascade="all" unique="true"/>
+		<many-to-one name="alertUser" 
+			class="pikefin.hibernate.User" column="user_id" 
+			not-null="true" cascade="all" unique="true"/>
 		<many-to-one name="alertTimeEvent" 
 			class="pikefin.hibernate.TimeEvent" column="time_event_id" 
+			not-null="true" cascade="all" unique="true"/>
+		<many-to-one name="alertInitialFactData" 
+			class="pikefin.hibernate.FactData" column="inital_fact_data_id" 
 			not-null="true" cascade="all" unique="true"/>
 		<set name="alertTarget" table="alerts_alert_targets" cascade="all">
 			<key column="alert_id" />

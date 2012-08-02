@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC 
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
     <class name="pikefin.hibernate.Job" table="jobs" dynamic-update="true">
@@ -12,5 +12,26 @@
 		<property name="urlStatic" column="url_static" type="string"/>
 		<property name="tableExtraction" column="table_extraction" type="boolean"/>
 		<property name="customInsert" column="custom_insert" type="boolean"/>
+		
+		<property name="preJobProcessFuncName" column="pre_job_process_func_name" type="string"/>
+		<property name="postJobProcessFuncName" column="post_job_process_func_name" type="string"/>
+		<property name="preProcessFuncName" column="pre_process_func_name" type="string"/>
+		<property name="postProcessFuncName" column="post_process_func_name" type="string"/>
+		<property name="preNoDataCheckFunc" column="pre_nodata_check_func" type="string"/>
+		<property name="customUrlFuncName" column="custom_url_func_name" type="string"/>
+		
+		<many-to-one name="extractKeyColhead" 
+			class="pikefin.hibernate.ExtractTable" column="extract_key_colhead" 
+			not-null="true" cascade="all" unique="true"/>
+		<many-to-one name="extractKeyRowhead" 
+			class="pikefin.hibernate.ExtractTable" column="extract_key_rowhead" 
+			not-null="true" cascade="all" unique="true"/>
+		<many-to-one name="extractKeyBody" 
+			class="pikefin.hibernate.ExtractTable" column="extract_key" 
+			not-null="true" cascade="all" unique="true"/>
+			
+		<many-to-one name="inputSource" 
+			class="pikefin.hibernate.InputSource" column="input_source" 
+			not-null="true" cascade="all" unique="true"/>
    </class>
 </hibernate-mapping>
