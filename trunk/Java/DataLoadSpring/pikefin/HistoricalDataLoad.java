@@ -584,7 +584,7 @@ public static void bloombergIndexDataLoadFromFile(DBFunctions dbf, int nMaxBatch
 						
 						dg.returned_content = strTemp;
 						try {
-							String strVal = dg.get_value("xrateorg_historical");
+							String strVal = dg.getValue("xrateorg_historical");
 							String[] tmpArray = new String[3];
 							tmpArray[0] = strVal;
 							tmpArray[1] = "'" + formatter.format(cal.getTime()) + "'";

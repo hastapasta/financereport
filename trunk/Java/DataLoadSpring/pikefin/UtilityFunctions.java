@@ -74,6 +74,8 @@ public class UtilityFunctions {
 	private static String strEmailPhpUrl;
 	private static String strEmailSubjectText;
 	
+	private static boolean bDebugMode;
+	
 	private static VelocityEngine ve;
 	
 	
@@ -102,12 +104,20 @@ public class UtilityFunctions {
 		return strEmailPassword;
 	}
 	
+	public static boolean getDebugMode() {
+		return bDebugMode;
+	}
+	
 	public static String getEmailUser() {
 		return strEmailUser;
 	}
 	
 	public void setEmailPassword(String inputPass) {
 		strEmailPassword = inputPass;
+	}
+	
+	public void setDebugMode(boolean inputDebugMode) {
+		bDebugMode = inputDebugMode;
 	}
 	
 	public void setEmailUser(String inputUser) {
@@ -954,7 +964,7 @@ public class UtilityFunctions {
 		    
 		    
 		    //emails are disabled for testing
-		    if (Broker.getDebugMode() == false)
+		    if (UtilityFunctions.getDebugMode() == false)
 		    	Transport.send(message);
 
 		    Broker.nMailMessageCount++;	
@@ -1143,7 +1153,7 @@ public class UtilityFunctions {
 			}
 				
 			
-			if (Broker.getDebugMode() == false)
+			if (UtilityFunctions.getDebugMode() == false)
 				twitter.updateStatus(strTweet);
 		
 		}

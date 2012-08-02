@@ -1,6 +1,6 @@
 package pikefin.hibernate;
 
-// Generated Jun 13, 2012 10:24:38 AM by Hibernate Tools 3.4.0.CR1
+// Generated Jun 18, 2012 7:54:36 AM by Hibernate Tools 3.4.0.CR1
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,8 +16,8 @@ public class Task implements java.io.Serializable {
 	private Integer delay;
 	private String description;
 	private Metric metric;
-	private Set job = new HashSet(0);
-	private Set entityGroup = new HashSet(0);
+	private Set jobs = new HashSet(0);
+	private Set entityGroups = new HashSet(0);
 
 	public Task() {
 	}
@@ -27,14 +27,14 @@ public class Task implements java.io.Serializable {
 	}
 
 	public Task(String name, boolean useGroupForReading, Integer delay,
-			String description, Metric metric, Set job, Set entityGroup) {
+			String description, Metric metric, Set jobs, Set entityGroups) {
 		this.name = name;
 		this.useGroupForReading = useGroupForReading;
 		this.delay = delay;
 		this.description = description;
 		this.metric = metric;
-		this.job = job;
-		this.entityGroup = entityGroup;
+		this.jobs = jobs;
+		this.entityGroups = entityGroups;
 	}
 
 	public Integer getTaskId() {
@@ -85,20 +85,20 @@ public class Task implements java.io.Serializable {
 		this.metric = metric;
 	}
 
-	public Set getJob() {
-		return this.job;
+	public Set getJobs() {
+		return this.jobs;
 	}
 
-	public void setJob(Set job) {
-		this.job = job;
+	public void setJobs(Set jobs) {
+		this.jobs = jobs;
 	}
 
-	public Set getEntityGroup() {
-		return this.entityGroup;
+	public Set getEntityGroups() {
+		return this.entityGroups;
 	}
 
-	public void setEntityGroup(Set entityGroup) {
-		this.entityGroup = entityGroup;
+	public void setEntityGroups(Set entityGroups) {
+		this.entityGroups = entityGroups;
 	}
 
 }

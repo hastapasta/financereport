@@ -4,9 +4,10 @@ package pikefin;
 import java.util.Calendar;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
+//import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import pikefin.log4jWrapper.Logs;
+import pikefin.hibernate.*;
 
 public class MoneyTime {
 	
@@ -53,8 +54,7 @@ public class MoneyTime {
 		
 	}
 	
-	public static int convertMonthStringtoInt(String strMonth)
-	{
+	public static int convertMonthStringtoInt(String strMonth) {
 		strMonth = strMonth.toUpperCase();
 		
 		if (strMonth.substring(0,3).equals("JAN")) return(1);
@@ -71,15 +71,14 @@ public class MoneyTime {
 		else if (strMonth.substring(0,3).equals("DEC")) return(12);
 		else
 		{
-			UtilityFunctions.stdoutwriter.writeln("Unable to match month string.", Logs.ERROR,"PF42");
+			UtilityFunctions.stdoutwriter.writeln("Unable to match month string.", Logs.ERROR,"MT2");
 			return(0);
 		}
 		
 		
 	}
 	
-	public static String convertMonthInttoString(int nMonth)
-	{
+	public static String convertMonthInttoString(int nMonth)	{
 		if (nMonth==1)
 			return "January";
 		else if (nMonth==2)
@@ -106,13 +105,12 @@ public class MoneyTime {
 			return "December";
 		else 
 		{
-			UtilityFunctions.stdoutwriter.writeln("Invalid month integer value", Logs.ERROR,"PF42");
+			UtilityFunctions.stdoutwriter.writeln("Invalid month integer value", Logs.ERROR,"MT3");
 			return "";
 		}
 	}
 	
-	public int retrieveCalQuarter(int nMonth)
-	{
+	public int retrieveCalQuarter(int nMonth)	{
 		if ((2 <= nMonth) && (nMonth <= 4))
 			return(1);
 		else if ((5 <= nMonth) && (nMonth <=7))
@@ -131,17 +129,45 @@ public class MoneyTime {
 	}
 	
 	
-	public int retrieveAdjustedQuarter(int fiscalquarter,int fiscalyear, String strTicker,DBFunctions dbf)
-	{
+	public int retrieveAdjustedQuarter(int fiscalquarter,int fiscalyear, String strTicker,DBFunctions dbf)	{
 		/*Adjusted quarter starts with the first quarter of calendar year 2000 as being 1*/
 		
 		/*May need to review this calculation*/
-		String query="select begin_fiscal_calendar, entities.ticker,";
+		/*String query="select begin_fiscal_calendar, entities.ticker,";
 	    query = query + " (case when begin_fiscal_calendar in ('February','March','April') then 3";
 	    query = query + " when begin_fiscal_calendar in ('May','June','July') then 2 when";
 	    query = query + " begin_fiscal_calendar in ('August','September','October') then 1";
 	    query = query + " else 0 end) as qtr_code_adjusted from entities where";
-	    query = query + " entities.ticker='" + strTicker + "'";
+	    query = query + " entities.ticker='" + strTicker + "'";*/
+	    
+	    String query = " from Entity where Entity.ticker='" + strTicker + "'";
+	    
+	    Entity e = (Entity)dbf.dbHibernateRunQueryUnique(query);
+	    
+		Integer adjustment_code = 0;
+	    if (e.getBeginFiscalCalendar().equalsIgnoreCase("February") ||
+	    		e.getBeginFiscalCalendar().equalsIgnoreCase("March") ||
+	    		e.getBeginFiscalCalendar().equalsIgnoreCase("April"))
+	    	adjustment_code = 3;
+	    else if (e.getBeginFiscalCalendar().equalsIgnoreCase("May") ||
+	    		e.getBeginFiscalCalendar().equalsIgnoreCase("June") ||
+	    		e.getBeginFiscalCalendar().equalsIgnoreCase("July"))
+	    	adjustment_code = 2;
+	    else if (e.getBeginFiscalCalendar().equalsIgnoreCase("August") ||
+	    		e.getBeginFiscalCalendar().equalsIgnoreCase("September") ||
+	    		e.getBeginFiscalCalendar().equalsIgnoreCase("October"))
+	    	adjustment_code = 1;
+	    else if (e.getBeginFiscalCalendar().equalsIgnoreCase("November") ||
+	    		e.getBeginFiscalCalendar().equalsIgnoreCase("December") ||
+	    		e.getBeginFiscalCalendar().equalsIgnoreCase("January"))
+	    	adjustment_code = 0;
+	    else {
+	    	UtilityFunctions.stdoutwriter.writeln("Invalid begin fiscal calendar month", Logs.ERROR,"MT1");
+	    }
+	    	
+	    
+	    
+	 
 		
 	    
 	    Integer unadjustedqtr;
@@ -150,9 +176,9 @@ public class MoneyTime {
 	    else
 	    	unadjustedqtr = (4*fiscalyear) + fiscalquarter;
 	    
-		Integer adjustment_code = 0;
+	
 		
-		try {
+		/*try {
 			//ResultSet rs = dbf.db_run_query(query);
 			SqlRowSet rs = dbf.dbSpringRunQuery(query);
 			rs.next();
@@ -164,7 +190,7 @@ public class MoneyTime {
 			UtilityFunctions.stdoutwriter.writeln("Problem adjusting quarter value",Logs.ERROR,"UF24");
 			UtilityFunctions.stdoutwriter.writeln(sqle);
 			
-		}
+		}*/
 		
 		return(unadjustedqtr-adjustment_code);
 	    
@@ -176,16 +202,17 @@ public class MoneyTime {
 	
 
 	
-	public static String getCalendarYearAndQuarter(String strTicker, int fiscalquarter, int fiscalyear, DBFunctions dbf) throws DataAccessException
-	{
+	public static String getCalendarYearAndQuarter(String strTicker, int fiscalquarter, int fiscalyear, DBFunctions dbf) throws DataAccessException	{
 		int calquarter=0;
 		int calyear=fiscalyear;
-		String query = "select begin_fiscal_calendar from entities where ticker='" + strTicker +"'";
-		//ResultSet rs = dbf.db_run_query(query);
-		SqlRowSet rs = dbf.dbSpringRunQuery(query);
+		String query = " from Entity where ticker='" + strTicker +"'";
 		
-		rs.next();
-		int nBeginFiscalYear = convertMonthStringtoInt(rs.getString("begin_fiscal_calendar"));
+		//ResultSet rs = dbf.db_run_query(query);
+		//SqlRowSet rs = dbf.dbSpringRunQuery(query);
+		Entity e = (Entity)dbf.dbHibernateRunQueryUnique(query);
+		
+		//rs.next();
+		int nBeginFiscalYear = convertMonthStringtoInt(e.getBeginFiscalCalendar());
 		
 		if (nBeginFiscalYear==12 || nBeginFiscalYear==1 || nBeginFiscalYear==2)
 		{
@@ -221,8 +248,7 @@ public class MoneyTime {
 		return calquarter + "" + calyear;
 	}
 	
-	public static String getFiscalYearAndQuarter(String strTicker, int curmonth, int curyear, DBFunctions dbf) throws DataAccessException
-	{
+	public static String getFiscalYearAndQuarter(String strTicker, int curmonth, int curyear, DBFunctions dbf) throws DataAccessException {
 		/*NOTE: If a 2 digit year is submitted, a 2 digit year is returned. 
 		 *  4 digit year submitted, 4 digits returned.
 		 * 
@@ -250,12 +276,13 @@ public class MoneyTime {
 		//try
 		//{
 			Integer nBeginFiscalYear=0;
-			String query = "select begin_fiscal_calendar from entities where ticker='" + strTicker +"'";
+			String query = "from Entity where ticker='" + strTicker +"'";
+			Entity e = (Entity)dbf.dbHibernateRunQueryUnique(query);
 			//ResultSet rs = dbf.db_run_query(query);
-			SqlRowSet rs = dbf.dbSpringRunQuery(query);
+			//SqlRowSet rs = dbf.dbSpringRunQuery(query);
 			
-			rs.next();
-			String strBeginFiscalYear = rs.getString("begin_fiscal_calendar");
+			//rs.next();
+			String strBeginFiscalYear = e.getBeginFiscalCalendar();
 			Calendar cal = Calendar.getInstance(); 
 			if (curmonth == -1)
 			/* if curmonth = -1, get month and year from current data, otherwise use parameter values */

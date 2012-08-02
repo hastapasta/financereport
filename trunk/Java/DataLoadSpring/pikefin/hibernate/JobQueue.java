@@ -1,6 +1,6 @@
 package pikefin.hibernate;
 
-// Generated Jun 13, 2012 10:20:03 AM by Hibernate Tools 3.4.0.CR1
+// Generated Jun 16, 2012 8:02:24 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.Calendar;
 
@@ -13,7 +13,7 @@ public class JobQueue implements java.io.Serializable {
 	private String startTime;
 	private Integer taskId;
 	private String status;
-	private Integer priority;
+	private Integer priority=0;
 	private Calendar queuedTime;
 
 	public JobQueue() {

@@ -39,7 +39,7 @@ import org.xml.sax.Attributes;
  */
 
 
-class ProcessingFunctions {
+class ProcessingFunctions3 {
 	/*Individual extraction processing function parameters*/
 	
 	String strDataValue;
@@ -59,7 +59,7 @@ class ProcessingFunctions {
 	
 	//CustomBufferedWriter stdoutwriter;
 	
-	public ProcessingFunctions(DataGrab tmpDG) {
+	public ProcessingFunctions3(DataGrab tmpDG) {
 		//this.uf = tmpUF;
 		this.dg = tmpDG;
 		this.dbf = dg.dbf;

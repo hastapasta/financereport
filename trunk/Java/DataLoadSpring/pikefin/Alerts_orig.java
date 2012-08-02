@@ -16,7 +16,7 @@ import pikefin.hibernate.*;
 
 
 
-public class Alerts {
+public class Alerts_orig {
 	
 	int nAlertType;
 	HashMap<TheKey,HashMap<String,String>> hmCurFactData;
@@ -31,7 +31,7 @@ public class Alerts {
 	BigDecimal dInitialFactDataValue;
 	BigDecimal bdLimitValue;
 	
-	public Alerts()	{
+	public Alerts_orig()	{
 		
 	}
 	
@@ -120,13 +120,11 @@ public class Alerts {
 			String query2  = " from Alert a ";
 			query2 += " left join a.alertEntity e ";
 			query2 += " left join a.alertUser u ";
-			query2 += " left join a.alertInitialFactData fd with a.calyear<=>fd.calyear ifd";
-			query2 += " left join a.alertTimeEvent te ";
-			query2 += " left join a.alertTask t ";
-			query2 += " left join ce.";
-			query2 += " left join e.country c";
-			query2 += " where t.id="+nCurTask;
-			query2 += " and (";
+			query2 += " left join a.alertInitialFactData fd with a.calyear<=>fd.calyear ";
+			query2 += " left join a.alertTimeEvent ";
+			query2 += " left join a.alertTask ";
+			query2 += " left join e.country ";
+			
 			
 			  
 			 
@@ -204,7 +202,7 @@ public class Alerts {
 					boolean bAutoResetFired = customParseBoolean(hmAlert.get("alerts.auto_reset_fired"));
 					this.bAlreadyFired = customParseBoolean(hmAlert.get("alerts.fired"));
 				
-					if (hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)) == null) {
+					if (hmCurFactData.get(new TheKey1(nEntityId+"",strCalYear)) == null) {
 						UtilityFunctions.stdoutwriter.writeln("No recent fact data collected for ticker: " + strTicker  + ", batch: " + nMaxBatch + ",alert id: "+ nAlertId + ",entity id: " + nEntityId + ". Skipping alert processing",Logs.WARN,"A2.7358");
 						continue;
 					}
@@ -225,8 +223,8 @@ public class Alerts {
 					}
 				  
 					
-					//HashMap<String,String> tmpHash = hmCurFactData.get(new TheKey(nEntityId+"",strCalYear));
-					calJustCollected.setTime(inputFormat.parse(hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.date_collected")));
+					//HashMap<String,String> tmpHash = hmCurFactData.get(new TheKey1(nEntityId+"",strCalYear));
+					calJustCollected.setTime(inputFormat.parse(hmCurFactData.get(new TheKey1(nEntityId+"",strCalYear)).get("fact_data.date_collected")));
 					calObservationPeriodBegin.setTime(inputFormat.parse(hmAlert.get("time_events.last_datetime")));
 					calObservationPeriodEnd.setTime(inputFormat.parse(hmAlert.get("time_events.next_datetime")));
 					
@@ -286,7 +284,7 @@ public class Alerts {
 							String query4 = "update alerts set ";
 							 
 							query4 += "initial_fact_data_id=" +rsFactData.getInt("fact_data.id") + ",";
-							query4 += "current_fact_data_id=" + hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + ", ";
+							query4 += "current_fact_data_id=" + hmCurFactData.get(new TheKey1(nEntityId+"",strCalYear)).get("fact_data.id") + ", ";
 							query4 += "notification_count=0,";
 							query4 += "fired=0 ";
 							query4 += " where id=" + nAlertId;
@@ -411,7 +409,7 @@ public class Alerts {
 			
 					int nNotificationCount = Integer.parseInt(hmAlert.get("alerts.notification_count"));//rsAlert.getInt("alert_count");
 				  	
-					String strUpdateQuery = "update alerts set current_fact_data_id=" + hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + " where alerts.id=" + nAlertId;
+					String strUpdateQuery = "update alerts set current_fact_data_id=" + hmCurFactData.get(new TheKey1(nEntityId+"",strCalYear)).get("fact_data.id") + " where alerts.id=" + nAlertId;
 					//dg.dbf.db_update_query(strUpdateQuery);
 					dg.dbf.dbSpringUpdateQuery(strUpdateQuery);
 
@@ -729,7 +727,7 @@ public class Alerts {
 								  						  
 						
 						+ hmAlert.get("fact_data.id") + ","
-						+ hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + ","		
+						+ hmCurFactData.get(new TheKey1(nEntityId+"",strCalYear)).get("fact_data.id") + ","		
 					
 						+ hmAlert.get("alerts.limit_value") + ","
 						
@@ -746,7 +744,7 @@ public class Alerts {
 						dg.dbf.dbSpringUpdateQuery(query8);
 						  
 						if (bAutoResetFired)	  {
-							query8 = "update alerts set notification_count=0,initial_fact_data_id=" + hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + " where id=" + nAlertId;
+							query8 = "update alerts set notification_count=0,initial_fact_data_id=" + hmCurFactData.get(new TheKey1(nEntityId+"",strCalYear)).get("fact_data.id") + " where id=" + nAlertId;
 						}
 						else  {
 							query8 = "update alerts set fired=1 where id=" + nAlertId;
@@ -778,7 +776,7 @@ public class Alerts {
 			return false;
 	 
 		dInitialFactDataValue = new BigDecimal(hmAlert.get("fact_data.value"));
-		this.dJustCollectedValue = new BigDecimal(hmCurFactData.get(new TheKey(nEntityId+"",this.strCalYear)).get("fact_data.value"));
+		this.dJustCollectedValue = new BigDecimal(hmCurFactData.get(new TheKey1(nEntityId+"",this.strCalYear)).get("fact_data.value"));
 		
 		this.bdLimitValue = new BigDecimal(hmAlert.get("alerts.limit_value"));
 		
@@ -893,12 +891,12 @@ public class Alerts {
 
 }
 
-class TheKey {
+class TheKey1 {
 	
 	 public final String strVal1;
 	 public final String strVal2;
 	 
-	 public TheKey(String strVal1, String strVal2) {
+	 public TheKey1(String strVal1, String strVal2) {
 		    this.strVal1 = strVal1; this.strVal2 = strVal2; //this.k3 = k3; this.k4 = k4;
 		  }
 	 

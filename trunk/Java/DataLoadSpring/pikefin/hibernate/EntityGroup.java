@@ -1,6 +1,6 @@
 package pikefin.hibernate;
 
-// Generated Jun 13, 2012 10:24:38 AM by Hibernate Tools 3.4.0.CR1
+// Generated Jun 18, 2012 7:54:36 AM by Hibernate Tools 3.4.0.CR1
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,13 +11,13 @@ import java.util.Set;
 public class EntityGroup implements java.io.Serializable {
 
 	private Integer entityGroupId;
-	private Set entity = new HashSet(0);
+	private Set entities = new HashSet(0);
 
 	public EntityGroup() {
 	}
 
-	public EntityGroup(Set entity) {
-		this.entity = entity;
+	public EntityGroup(Set entities) {
+		this.entities = entities;
 	}
 
 	public Integer getEntityGroupId() {
@@ -28,12 +28,12 @@ public class EntityGroup implements java.io.Serializable {
 		this.entityGroupId = entityGroupId;
 	}
 
-	public Set getEntity() {
-		return this.entity;
+	public Set getEntities() {
+		return this.entities;
 	}
 
-	public void setEntity(Set entity) {
-		this.entity = entity;
+	public void setEntities(Set entities) {
+		this.entities = entities;
 	}
 
 }
