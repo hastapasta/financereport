@@ -13,15 +13,19 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 class HibernateTest {                                               
 
 
-  static Test1 test1;
+  static TestParent testParent;
 
 
   
-  public void setTest1(Test1 input) {
+  public void setTestParent(TestParent input) {
 	  
-	  test1 = input;
+	  testParent = input;
   }
   
+  /*public void setTest2(TestParent input) {
+	  
+	  test2 = input;
+  }*/
 
 
   public static void main (String[] argv) throws Exception {       
@@ -32,7 +36,8 @@ class HibernateTest {
     			      
     
     
-	  test1.start();
+	  //test1.start();
+	  testParent.start();
 
 
   }

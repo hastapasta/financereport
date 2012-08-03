@@ -58,14 +58,14 @@
         <property name="password" value="${jdbc.pass}"/>
 </bean>
 
-<bean id="test1" class="pikefin.Test1">
+<bean id="test2" class="pikefin.Test2">
 	<property name="dbFunctions" ref="dbFunctions" />
 	<property name="utilityFunctions" ref="utilityFunctions" />
 </bean>
 
 
 <bean id="hibernateTest" class="pikefin.HibernateTest">
-	<property name="test1" ref="test1" /> 
+	<property name="testParent" ref="test2" /> 
 </bean>
 
 
