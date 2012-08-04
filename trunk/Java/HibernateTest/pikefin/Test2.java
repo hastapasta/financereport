@@ -1,9 +1,8 @@
 package pikefin;
 
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.*; 
+
 import pikefin.hibernate.*;
 
 class Test2 extends TestParent {
@@ -48,19 +47,39 @@ class Test2 extends TestParent {
   public void runTest() {
 	  
 	  System.out.println("blap");
-	  String query = "from Entity e";
-	  query += " where e.ticker like 'USD%' ";
+	  String query2  = " from Alert a ";
+		//query2 += " left join a.alertEntity e ";
+	  //query2 += " left join a.alertInitialFactData fd with a.calyear<=>fd.calyear ifd";
+	    query2 += " left join a.alertInitialFactData fd with a.calyear=fd.calyear ";
+		//query2 += " left join a.alertUser u ";
+		//query2 += " left join a.alertTimeEvent te ";
+		//query2 += " left join a.alertTask t ";
+		//query2 += " left join e.countryWrapper c ";
+		//query2 += " left join e.country c";
+		query2 += " where a.alertTask.taskId=10 ";
+		//query2 += " and (e.countryWrapper.default_country=true or e.countryWrapper.default_country is null)";
+		query2 += " order by a.alertTimeEvent.timeEventId";
 	  
 	  //dbf.dbHibernateRunQueryUnique(query);
-	  List<Entity> l = dbf.dbHibernateRunQuery(query);
-	  Set<CountryEntity> tmpCountries = (Set<CountryEntity>)l.get(0).getCountryEntities();
-	  Set<CountryWrapper> tmpCountries2 = (Set<CountryWrapper>)l.get(0).getCountryWrapper();
+	  //List<Alert> l = dbf.dbHibernateRunQuery(query2);
+	  //Alert a = (Alert)l.get(0);
+	  
+	  List<Object[]> l = dbf.dbHibernateRunQuery(query2);
+	  Alert a = (Alert)l.get(0)[0];
+	  
+	  
+	  
+	  Entity e = a.getAlertEntity();
+	  Set<CountryWrapper> tmpCountries = (Set<CountryWrapper>)e.getCountryWrapper();
+			  
+	  //Set<CountryEntity> tmpCountries = (Set<CountryEntity>)l.get(0).getCountryEntities();
+	  //Set<CountryWrapper> tmpCountries2 = (Set<CountryWrapper>)l.get(0).getAlertEntity().getCountryWrapper();
 	  
 	  System.out.println(l.size());
+	  //System.out.println(tmpCountries.size());
 	  System.out.println(tmpCountries.size());
-	  System.out.println(tmpCountries2.size());
 	  
-	  for (CountryWrapper c : tmpCountries2) {
+	  for (CountryWrapper c : tmpCountries) {
 		  System.out.println(c.isDefaultCountry());	
 		  System.out.println(c.getCountry().getName());
 	  }
