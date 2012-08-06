@@ -14,7 +14,10 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
---><!-- The contents of this file will be loaded for each web application --><Context>
+--><!-- The contents of this file will be loaded for each web application -->
+
+
+<Context>
 
     <!-- Default set of monitored resources -->
     <WatchedResource>WEB-INF/web.xml</WatchedResource>
@@ -31,6 +34,39 @@
     -->
     
     <Resource name="jdbc/findata"
+              auth="Container"
+              type="javax.sql.DataSource"
+              url="jdbc:mysql://pikefin3ham:3306/findata?autoReconnect=true"
+              username="root"
+              password="madmax1."
+              driverClassName="com.mysql.jdbc.Driver" 
+                         
+              maxActive="20"
+              maxIdle="5"
+              maxWait="10000"
+              initialSize="10"
+                          
+              testWhileIdle="true"
+              testOnBorrow="true"
+              testOnReturn="false"
+              validationQuery="SELECT 1"
+              validationInterval="30000"
+              timeBetweenEvictionRunsMillis="5000"
+                          
+              logAbandoned="true"
+              removeAbandoned="true"
+              removeAbandonedTimeout="300"  
+              minEvictableIdleTimeMillis="30000"
+              
+              
+              jmxEnabled="true"
+ 			  jdbcInterceptors="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;
+								org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;
+								org.apache.tomcat.jdbc.pool.interceptor.SlowQueryReportJmx(threshold=10000)"
+                       
+              />
+              
+   <!--  <Resource name="jdbc/findataxx"
               auth="Container"
               type="javax.sql.DataSource"
               url="jdbc:mysql://localhost:3306/findata?autoReconnect=true"
@@ -61,7 +97,7 @@
 								org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;
 								org.apache.tomcat.jdbc.pool.interceptor.SlowQueryReportJmx(threshold=10000)"
                        
-              />
+              /> -->
                
                  
     <!--  OFP 4/18/2011
