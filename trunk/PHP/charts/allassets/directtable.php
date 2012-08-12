@@ -88,7 +88,7 @@ if (isset($_GET['metricid']))
 		        range.moveToElementText(obj);
 		        range.select();
 		    } 
-			//webkit is chrome
+			//webkit is chrome (& safari too technically but safari is being handled differently here)
 		    else if ($.browser.mozilla || $.browser.opera || $.browser.webkit) {
 		        var selection = obj.ownerDocument.defaultView.getSelection();
 		        var range = obj.ownerDocument.createRange();
@@ -146,26 +146,12 @@ if (isset($_GET['metricid']))
 		
 	});
 
-	
+	<?php IncFunc::googleTableWorkaround(); ?>
 
 	$(document).ready(function() {
-		/*
-		* OFP 5/27/2012 - Workaround for issue with google tables where the tables
-		act as if the mouse button is being held down after a row in a table is clicked.
-		*/
-		window.addEventListener("focus", function(event) { 
-			 var sel = window.getSelection ? window.getSelection() : document.selection;
-			 if (sel) {
-			     if (sel.removeAllRanges) {
-			         sel.removeAllRanges();
-			     } else if (sel.empty) {
-			         sel.empty();
-			     }
-			 }
-			 				 
-			 //var td = new Date();
-			 //document.getElementById('message').innerHTML = "window has focus " + td;
-		 }, false);
+
+		
+		
 		var oneDay = 24*60*60*1000;
 		var td = new Date();
 		td.setDate(td.getDate() - 1);
@@ -174,8 +160,6 @@ if (isset($_GET['metricid']))
 		//var fromDay = td.setDay(td.getDay() - 1); 
 	  rangeDemoFormat = "%e-%b-%Y %H:%i:%s";
 	  rangeDemoConv = new AnyTime.Converter({format:rangeDemoFormat});
-	 $("#rangeDemoToday").click( function(e) {
-	      $("#rangeDemoFinish").val(rangeDemoConv.format(new Date())).change(); } );
 	  $("#rangeDemoClear").click( function(e) {
 	      $("#rangeDemoStart").val("").change();
 	      $("#rangeDemoFinish").val("").change(); } );
@@ -418,7 +402,7 @@ if (isset($_GET['metricid']))
 <div id="jq-siteContain" >
 <?php 
 	IncFunc::header2("charts"); 
-	IncFunc::yuiDropDownMenu();
+	IncFunc::apycomDropDownMenu();
 
 ?>
 <div id="pf-body">
@@ -431,7 +415,6 @@ if (isset($_GET['metricid']))
 Time Frame:&nbsp;&nbsp;
 Start: <input type="text" id="rangeDemoStart" size="23" />
 &nbsp;Finish: <input type="text" id="rangeDemoFinish" size="23" />
-<!-- <input type="button" id="rangeDemoToday" value="today" /> -->
 <input type="button" id="rangeDemoClear" value="clear" />
 
 <!-- <div id="displaycustom"></div> -->
