@@ -1,6 +1,6 @@
 <?php
 require_once '../../common/functions.php';
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
@@ -18,7 +18,7 @@ $enddate = $_GET['enddate'];
 <head>
 <style type="text/css">
   #rangeDemoStart, #rangeDemoFinish {
-    background-image:url("calendar.png");
+    background-image:url("../../site/includes/images/calendar.png");
     background-position:right center;
     background-repeat:no-repeat; }
 </style>
@@ -29,6 +29,8 @@ $enddate = $_GET['enddate'];
 <?php IncFunc::generalDateFunctions();?>
 
 <script>
+
+	<? IncFunc::googleTableWorkaround(); ?>
    
 	$(document).ready(function() {
 		var oneDay = 24*60*60*1000;
@@ -221,8 +223,7 @@ $enddate = $_GET['enddate'];
       //alert("here 1");
 	  //alert("firstpass: " + firstpass);
 
-      if (firstpass==true)
-      {
+      if (firstpass==true) {
           //taskid='0';
           //timeframe = 'week';
           firstpass=false;
@@ -276,10 +277,10 @@ $enddate = $_GET['enddate'];
       var tableChart3 = new google.visualization.Table(container3);
       var tableChart4 = new google.visualization.Table(container4);
 	  
-	  if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString1)}
-      if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString2)}
-      if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString3)}
-      if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString4)}
+	  if (window.console) {console.log(dataSourceUrl + queryString1)}
+      if (window.console) {console.log(dataSourceUrl + queryString2)}
+      if (window.console) {console.log(dataSourceUrl + queryString3)}
+      if (window.console) {console.log(dataSourceUrl + queryString4)}
       
       query1 && query1.abort();
       query1 = new google.visualization.Query(dataSourceUrl + queryString1);
@@ -334,7 +335,7 @@ $enddate = $_GET['enddate'];
 <?php 
 	IncFunc::header2("charts"); 
 	//echo "<div id=\"yuipadding\" style=\"paddin>";
-	IncFunc::yuiDropDownMenu();
+	IncFunc::apycomDropDownMenu();
 	//echo "</div>";
 
 ?>
@@ -351,10 +352,10 @@ $enddate = $_GET['enddate'];
 
 <br>
 Time Frame:&nbsp;&nbsp;
-Start: <input type="text" id="rangeDemoStart" size="18" />
-&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="18" />
+Start: <input type="text" id="rangeDemoStart" size="18" /> 
+&nbsp;&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="18" />
 <!-- <input type="button" id="rangeDemoToday" value="today" /> -->
-&nbsp;<input type="button" id="rangeDemoClear" value="clear" />&nbsp;
+&nbsp;&nbsp;<input type="button" id="rangeDemoClear" value="clear" />&nbsp;
 
 <!-- <div id="displaycustom"></div> -->
 
