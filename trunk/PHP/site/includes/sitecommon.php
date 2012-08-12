@@ -42,6 +42,32 @@ class IncFunc {
 		echo "<title>PikeFinancial Data Service</title>";
 	}
 	
+	static function googleTableWorkaround() {
+		
+		?>
+		$(document).ready(function() {
+			/*
+			 * OFP 5/27/2012 - Workaround for issue with google tables where the tables
+			act as if the mouse button is being held down after a row in a table is clicked.
+			*/
+			window.addEventListener("focus", function(event) {
+				var sel = window.getSelection ? window.getSelection() : document.selection;
+				if (sel) {
+					if (sel.removeAllRanges) {
+						sel.removeAllRanges();
+					} else if (sel.empty) {
+						sel.empty();
+					}
+				}
+					
+				//var td = new Date();
+				//document.getElementById('message').innerHTML = "window has focus " + td;
+			}, false);
+		});
+		
+		<?php 
+	}
+	
 	static function jQuery() {
 		echo "<link rel=\"stylesheet\" href=\"../../site/includes/jquery/css/overcast/jquery-ui-1.8.21.custom.css\" type=\"text/css\" />";
    		//echo "<script type=\"text/javascript\" src=\"../../site/includes/jquery-1.5.1.js\"></script>";
@@ -153,6 +179,8 @@ class IncFunc {
 		else
 			echo "<script type='text/javascript' src='http://dygraphs.com/dygraph-combined.js'></script>\n";
 	}
+	
+	
 	
 	static function checkFlash() {
 		echo "<script type='text/javascript' src='../../site/includes/swfobject.js'></script>\n";
@@ -496,7 +524,7 @@ class IncFunc {
 					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/countries/linechart.php"><span>● GDP/Equity Index Line Chart</span></a></li>
 					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/gdp/motionchart.php"><span>● GDP Growth Estimates</span></a></li>
 					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/alerts/twittertable.php"><span>● Twitter Alerts Table</span></a></li>
-					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?e=508&type=2"><span>● Global Gasoline Prices</span></a></li>
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/other/gasolinemotionchart.php"><span>● Global Gasoline Prices</span></a></li>
 					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/fed/balsheet.php"><span>● Federal Reserve Balance Sheet</span></a></li>
 					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/other/comingsoon.php"><span>● Federal Reserve Change WOW</span></a></li>
 				</ul></div>
