@@ -1,0 +1,11 @@
+<html>
+<body>
+version 1<br>
+
+
+#foreach( $name in $names)
+  	Hello $name.beatle.first $name.beatle.last !!<br>
+#end
+
+</body>
+</html>

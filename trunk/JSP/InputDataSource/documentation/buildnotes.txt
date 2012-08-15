@@ -1,0 +1,3 @@
+-if there are changes made to the velocity templates, you have to run build.xml
+which regenerates the templates.jar file. Then do a project build so that templates.jar
+gets synchronized up to tomcat.

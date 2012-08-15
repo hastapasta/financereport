@@ -1,0 +1,15 @@
+<html><body><table border=1>
+<tr>
+<th>Ticker</th>
+<th>date</th>
+<th>value</th>
+</tr>
+  #foreach( $element in $list )
+    <tr>
+    <td align="center">$element.ticker</td>
+    <td align="center">$element.date</td>
+  	<td align="center">$element.value</td>
+  	</tr>
+  #end
+
+ </table></body></html> 

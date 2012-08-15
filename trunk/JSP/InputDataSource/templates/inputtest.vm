@@ -1,0 +1,21 @@
+<html><body><table>
+<tr>
+<th>Alert Timestamp v2</th>
+<th>Ticker</th>
+<th>Observation Period</th>
+<th>% Change</th>
+<th>Begin Value</td>
+<th>Begin Timestamp</td>
+<th>End Value</th>
+<th>End Timestamp</th>
+<th>Modify Alert</th>
+</tr>
+  #foreach( $alert in $alertlist )
+    <tr>
+    <td align="center">$alert.entityid</td>
+    <td align="center">$alert.alertid</td>
+  	<td align="center">$alert.val1</td>
+  	</tr>
+  #end
+
+ </table></body></html> 

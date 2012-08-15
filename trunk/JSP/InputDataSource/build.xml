@@ -1,0 +1,7 @@
+<project name="InputDataSource">
+	<!--<jar destfile="${dist}/lib/templates.jar"> -->
+	<jar destfile="./WebContent/WEB-INF/lib/templates.jar" >
+	    <fileset dir="./templates" />
+	 </jar>
+	<eclipse.refreshLocal resource="InputDataSource/" depth="infinite" />
+</project>
