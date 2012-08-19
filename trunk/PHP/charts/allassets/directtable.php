@@ -401,11 +401,12 @@ if (isset($_GET['metricid']))
 <body>
 <div id="jq-siteContain" >
 <?php 
-	IncFunc::header2("charts"); 
-	IncFunc::apycomDropDownMenu();
-
+	IncFunc::header1("charts"); 
 ?>
 <div id="pf-body">
+<?php 
+	IncFunc::apycomDropDownMenu();
+?>
 
 <div id="chartTitle" style="border-bottom-style: solid; border-width: 2px;margin: 70px 0 0 0;font-size: medium;font-weight:bold;"><?php echo strtoupper($title); ?></div>
 

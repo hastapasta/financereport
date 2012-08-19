@@ -333,13 +333,12 @@ $enddate = $_GET['enddate'];
 <div id="jq-siteContain" >
 
 <?php 
-	IncFunc::header2("charts"); 
-	//echo "<div id=\"yuipadding\" style=\"paddin>";
-	IncFunc::apycomDropDownMenu();
-	//echo "</div>";
-
+	IncFunc::header1("charts"); 
 ?>
 <div id="pf-body">
+<?php 
+	IncFunc::apycomDropDownMenu();
+?>
 
 
 <div id="chartTitle" style="border-bottom-style: solid; border-width: 2px;margin: 50px 0 0 0;font-size: medium;font-weight:bold;"><?php echo strtoupper('GLOBAL MARKETS DASHBOARD: FOREX, EQUITY INDEXES, COMMODITIES, EQUITY FUTURES'); ?></div>
@@ -352,8 +351,8 @@ $enddate = $_GET['enddate'];
 
 <br>
 Time Frame:&nbsp;&nbsp;
-Start: <input type="text" id="rangeDemoStart" size="18" /> 
-&nbsp;&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="18" />
+Start: <input type="text" id="rangeDemoStart" size="21" /> 
+&nbsp;&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="21" />
 <!-- <input type="button" id="rangeDemoToday" value="today" /> -->
 &nbsp;&nbsp;<input type="button" id="rangeDemoClear" value="clear" />&nbsp;
 
@@ -395,8 +394,8 @@ Start: <input type="text" id="rangeDemoStart" size="18" />
 <div id="table4" style="color: #000;"> </div>
 </div>
 
-<input type="button" style="float: left;clear: both;color: #000000;background-color: #FFFFFF" value="Generate URL"
-	onclick="generateURL();return false;"> <br />
+<input type="button" style="float: left;clear: both;color: #000000;background-color: #FFFFFF;margin-bottom: 20px" value="Generate URL"
+	onclick="generateURL();return false;"> 
 
 </div>
 

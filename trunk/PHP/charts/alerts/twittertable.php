@@ -6,7 +6,7 @@
 
 
 require_once '../../common/functions.php';
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
@@ -54,7 +54,7 @@ db_utility::db_connect();
 		//var test5 = queryWrapper2;
 
 		var dt = localQueryWrapper.currentDataTable;
-		var val = dt.getValue(row[0].row,10);
+		var val = dt.getValue(row[0].row,11);
 		<?php //echo "window.location.href = \"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\";";?>
 		<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?a=\" + val + \"&type=1\");";?>
 
@@ -92,7 +92,7 @@ db_utility::db_connect();
      	queryString1 = '?pholder=val&obperiod=0&entgroup=all&userid=19';
 
 
-		if (window.console && window.console.firebug) {console.log(dataSourceUrl + queryString1)}
+		if (window.console) {console.log(dataSourceUrl + queryString1)}
  
 
       //alert(dataSourceUrl + queryString1);
@@ -116,17 +116,14 @@ db_utility::db_connect();
 <body>
 <div id="jq-siteContain">
 <?php 
-	IncFunc::header2("charts"); 
-	IncFunc::yuiDropDownMenu();
-
+	IncFunc::header1("charts"); 
 ?>
-<!-- header --> <!-- <div id="jq-whosUsing"> --></div>
-<!--  siteContain -->
-
-
-
 
 <div id="pf-body">
+<?php 
+	IncFunc::apycomDropDownMenu();
+?>
+
 <BR/>
 <div id="chartTitle" style="border-bottom-style: solid; border-width: 2px;margin: 50px 0 0 0;font-size: medium;font-weight:bold;"><?php echo strtoupper('TWITTER ALERTS - COMPLETE LIST'); ?></div>
 <BR>
@@ -137,6 +134,6 @@ db_utility::db_connect();
 <div id="orgchart" style="float: left;padding-bottom: 20px;"></div>
 </div><!-- pf-body -->
 </div> <!-- fontblack -->
-
+</div> <!--  jq-sitecontain -->
 </body>
 </html>

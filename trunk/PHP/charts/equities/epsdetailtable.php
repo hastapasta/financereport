@@ -350,11 +350,12 @@ if (isset($_GET['metricid']))
 <body>
 <div id="jq-siteContain" >
 <?php 
-	IncFunc::header2("charts"); 
-	IncFunc::yuiDropDownMenu();
-
+	IncFunc::header1("charts"); 
 ?>
 <div id="pf-body">
+<?php 
+	IncFunc::apycomDropDownMenu();
+?>
 
 
 

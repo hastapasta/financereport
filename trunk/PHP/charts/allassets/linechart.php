@@ -167,7 +167,7 @@ if (strpos($enddate,"-") == true)
 
 
 ?>
-<!DOCTYPE html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 	<style type="text/css">
@@ -212,12 +212,6 @@ if (strpos($enddate,"-") == true)
 	background-color: #0F1923;
 	color: #fff;
 }
-#AnyTime--rangeDemoStart {
-	z-index:30;
-}
-#AnyTime--rangeDemoFinish {
-	z-index:30;
-}
 
 .dygraph-legend{
 	background-color: black !important;
@@ -244,7 +238,7 @@ if (strpos($enddate,"-") == true)
 </style>
    
     <script type="text/javascript">
-		
+  
     
 	    function split( val ) {
 			return val.split( /,\s*/ );
@@ -253,6 +247,10 @@ if (strpos($enddate,"-") == true)
 			return split( term ).pop();
 		}
     	$(document).ready(function() {
+
+    		
+    		        	
+        	//apylink.empty();
     		<?php 
     		if ($noflash == true) 
     			echo "document.bFlash = false;\n";
@@ -678,11 +676,12 @@ else
 <div id="jq-siteContain">
 
 <?php 
-	IncFunc::header2("charts"); 
-	IncFunc::yuiDropDownMenu();
-
+	IncFunc::header1("charts"); 
 ?>
 <div id="pf-body">
+<?php 
+	IncFunc::apycomDropDownMenu();
+?>
 <BR>
 
 <?php 
@@ -784,23 +783,8 @@ else
 	}
 ?>
 
-<style>
-#debug * {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    font-size: 100%;
-    font: inherit;
-    vertical-align: baseline;
-}
-</style>
+
 
 </body> 
-<div id="debug">
-<?php 
-//print_r($GLOBALS);
 
-
-?>
-</div>
 </html>

@@ -4,7 +4,19 @@
 require_once ("../../site/includes/sitecommon.php");
 require_once '../../common/functions.php';
 
-
+$cache = false;
+if (isset($_GET['cache']))
+	if (strcasecmp('true', $_GET['cache'])==0)
+		$cache=true;
+		
+$gdptype = 'cp';
+if (isset($_GET['gdptype']))
+	$gdptype = $_GET['gdptype'];
+	
+$metricids = "2,3";
+if (strcasecmp('ppp', $gdptype)==0) {
+	$metricids="12,13";
+}
 
 
 
@@ -58,7 +70,7 @@ require_once '../../common/functions.php';
 
 		function viewDataTable() {
     		
-        	<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/gdp/gdpdatatable.php\");";?>
+        	<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/gdp/gdpdatatable.php?abs=true\");";?>
     	}
 
 
@@ -82,20 +94,17 @@ require_once '../../common/functions.php';
       		count++;
          	var str = '' + count;
         
-            //var str = 'select ticker,calyear,value where ((calyear=2010 or calyear=2011 or calyear=2012) and ticker=\'WMT\') group by ticker, calyear limit 30 format calyear "%d"';
-           // alert('count:' + count);
- 			
-           
-            //var query = new google.visualization.Query('http://localhost:8080/JSPDataSource/mysqldatasource7.jsp?taskid=22');
-            
-          	<?php 
-          	//echo "var datasourceurl='".IncFunc::$JSP_ROOT_PATH."/mysqldatasource7.jsp?metricid=2';";
-          	echo "var datasourceurl='".IncFunc::$PHP_ROOT_PATH."/json/gdpmotion.html';";
+         	<?php 
+          		if ($cache==true) 
+            		echo "var dataSourceUrl='".IncFunc::$PHP_ROOT_PATH."/json/gdpmotion.html';";
+     			else {
+					echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."/mysqldatasource7.jsp?metricids=".$metricids."';";
+      			}
           	?>
 
-          	if (window.console && window.console.firebug) {console.log(datasourceurl)}
+          	if (window.console) {console.log(dataSourceUrl)}
             
-            var query = new google.visualization.Query(datasourceurl);
+            var query = new google.visualization.Query(dataSourceUrl);
   
             
             query.setQuery(str);
@@ -131,8 +140,7 @@ require_once '../../common/functions.php';
            	function(res)
            	{
 				//alert('here 2.05');
-                if(res.isError())
-                {
+                if(res.isError()) {
 				  // alert('here 2.06');
                     alert(res.getDetailedMessage());
                 }
@@ -159,10 +167,11 @@ require_once '../../common/functions.php';
 
 <?php 
 	IncFunc::header2("charts"); 
-	IncFunc::yuiDropDownMenu();
-
 ?>
 <div id="pf-body">
+<?php 
+	IncFunc::apycomDropDownMenu();
+?>
 <div id="chartTitle" style="border-bottom-style: solid; border-width: 2px;margin: 50px 0 0 0;font-size: medium;font-weight:bold;"><?php echo strtoupper('GDP GROWTH (CUMULATIVE)'); ?></div>
 
     <div id="chart-div" style="margin-top:70px"></div>

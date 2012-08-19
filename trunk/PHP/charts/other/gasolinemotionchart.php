@@ -92,7 +92,7 @@ require_once '../../common/functions.php';
           	//echo "var datasourceurl='".IncFunc::$PHP_ROOT_PATH."/json/gdpmotion.html';";
           	?>
 
-          	if (window.console && window.console.firebug) {
+          	if (window.console) {
               	console.log(datasourceurl);
             }
 			//alert(datasourceurl);
@@ -161,11 +161,12 @@ require_once '../../common/functions.php';
 <div id="jq-siteContain">
 
 <?php 
-	IncFunc::header2("charts"); 
-	IncFunc::yuiDropDownMenu();
-
+	IncFunc::header1("charts"); 
 ?>
 <div id="pf-body">
+<?php 
+	IncFunc::apycomDropDownMenu();
+?>
 <BR>
 <div id="chartTitle" style="border-bottom-style: solid; border-width: 2px;margin: 20px 0 0 0;font-size: medium;font-weight:bold;"><?php echo strtoupper('GLOBAL GASOLINE PRICES'); ?></div>
     <div id="chart-div" style="margin-top:50px"></div>

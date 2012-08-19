@@ -6,7 +6,7 @@
  * /ztest/fedbalsheet - yearly
  */
 
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 require_once '../../common/functions.php';
 
 ?>
@@ -34,12 +34,14 @@ require_once '../../common/functions.php';
 
 <div id="jq-siteContain">
 
-<?php IncFunc::header2("charts"); 
-IncFunc::yuiDropDownMenu();
-
+<?php 
+	IncFunc::header1("charts"); 
 ?>
 
 <div id="pf-body">
+<?php 
+	IncFunc::apycomDropDownMenu();
+?>
 <div id="chartTitle" style="border-bottom-style: solid; border-width: 2px;margin: 50px 0 0 0;font-size: medium;font-weight:bold;"><?php echo strtoupper('US FEDERAL RESERVE BALANCE SHEET'); ?></div>
 
 

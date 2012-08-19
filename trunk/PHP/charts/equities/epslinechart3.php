@@ -281,14 +281,12 @@ if (empty($ticker) && !empty($entityid)) {
 <body style="text-align:left;">
 <div id="jq-siteContain" >
 <?php 
-	IncFunc::header2("charts"); 
-	//echo "<div id=\"yuipadding\" style=\"paddin>";
-	IncFunc::yuiDropDownMenu();
-	//echo "</div>";
-
+	IncFunc::header1("charts"); 
 ?>
 <div id="pf-body">
-
+<?php 
+	IncFunc::apycomDropDownMenu();
+?>
 
 
 

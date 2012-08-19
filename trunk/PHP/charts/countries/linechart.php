@@ -538,7 +538,7 @@ if (isset($_GET['group']))
 
 <?php 
 	IncFunc::header2("charts"); 
-	IncFunc::yuiDropDownMenu();
+	IncFunc::apycomDropDownMenu();
 
 ?>
 <BR>
