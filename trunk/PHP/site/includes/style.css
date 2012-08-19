@@ -354,9 +354,7 @@ font-weight: normal;
 line-height: 1.6;
 }
 
-#pf-body {
-	margin: 0 200px;
-}
+
 
 
 #jq-intro ul {
@@ -1397,9 +1395,9 @@ margin-left: 100px;
 .rightcol_index2_font{
 	font-size:1.2em;
 }
-#custom-body{
+/*#custom-body{
 	margin: 20px 50px;
-}
+}*/
 
 #AnyTime--rangeDemoStart {
 	z-index:30;
