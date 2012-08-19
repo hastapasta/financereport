@@ -140,7 +140,7 @@ require_once '../../common/functions.php';
 		 ?>
 		 
 		 <!-- <div id="jq-content"> -->
-		 <div id="custom-body">
+		 <div id="pf-custom-body">
 			<div id="rightcol_index2">
 			   <div class="rightcol_index2_font">
 				  <div class="heading_index2">Market Snapshots</div>
