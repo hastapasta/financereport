@@ -294,7 +294,7 @@ class IncFunc {
 		echo "</div> <!-- header -->";
 	}
 	
-	static function header2($context) {
+	static function obsolete_header2($context) {
 		//self::pageCounter();
 		self::header1($context);
 		
@@ -467,7 +467,7 @@ class IncFunc {
 
 		</script>*/
 		?>
-		<div id="menu" style='margin-left:200px;margin-bottom:20px;z-index:10;position:relative;'>
+		<div id="menu" style='margin-left:100px;margin-bottom:20px;z-index:10;position:relative;'>
 		<ul class="menu">
 			<li><a href="#" class="parent"><span>Equities</span></a>
 				<div><ul>
@@ -501,8 +501,14 @@ class IncFunc {
 			</li>
 			<li><a href="#" class="parent"><span>Bonds</span></a>
 				<div><ul>
-					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=101024&order=DESC&metricid=1"><span>● Global CDS Table</span></a></li>
 					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=101023&order=DESC&metricid=1001"><span>● Global Sovereign Bonds Table</span></a></li>
+					<li><a href="#" class="parent"><span>CDS</span></a>
+						<div><ul>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=101024&order=DESC&metricid=1"><span>● Global CDS Table</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=101038&order=DESC&metricid=1"><span>● 5 Year Soverign CDS Table</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=101038&order=DESC&metricid=1"><span>● 5 Year EU CDS Table</span></a></li>
+						</ul></div>
+					</li>
 					<li><a href="#" class="parent"><span>Yield Curves</span></a>
 						<div><ul>
 						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101029&type=5"><span>● U.K.</span></a></li>
@@ -520,7 +526,7 @@ class IncFunc {
 			<li class="last"><a href="#" class="parent"><span>Miscellaneous</span></a>
 				<div><ul>
 					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/topchart.php"><span>● All Assets - Tables</span></a></li>
-					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?e=508&type=2"><span>● All Assets - Inidivdual Line Charts</span></a></li>					
+					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?e=508&type=1"><span>● All Assets - Inidivdual Line Charts</span></a></li>					
 					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/countries/linechart.php"><span>● GDP/Equity Index Line Chart</span></a></li>
 					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/gdp/motionchart.php"><span>● GDP Growth Estimates</span></a></li>
 					<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/alerts/twittertable.php"><span>● Twitter Alerts Table</span></a></li>
