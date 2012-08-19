@@ -1,6 +1,6 @@
 <?php
 
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 require_once '../../common/functions.php';
 
 ?>
@@ -11,17 +11,18 @@ require_once '../../common/functions.php';
 <?php IncFunc::icon();?>
 <?php IncFunc::title();?>
 <?php IncFunc::linkStyleCSS(); ?>
-<?php IncFunc::yuiDropDownJavaScript(); ?>
+<?php //IncFunc::yuiDropDownJavaScript(); ?>
 
 </head>
 
 <body>
 <div id="jq-siteContain">
 <?php  IncFunc::header1("charts"); ?> 
-<?php  IncFunc::yuiDropDownMenu(); ?>
+
 
 <!-- <div id="jq-intro"> -->
-
+<div id="pf-body">
+<?php  IncFunc::apycomDropDownMenu(); ?>
 <BR/><BR/><BR/><BR/>
 <div id="tmpsize" style="font-size: medium">
 <h2>Pike Financial Data Services</h2>
@@ -30,6 +31,7 @@ require_once '../../common/functions.php';
 <p>This chart is in the process of being developed. We hope to have it completed soon...</p>
 </div>
 <!--  </div> --> <!-- intro -->
+</div> <!--  pf-body -->
 </div> <!--  siteContain -->
 </body>
 </HTML>

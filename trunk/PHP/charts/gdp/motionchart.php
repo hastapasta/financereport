@@ -166,7 +166,7 @@ if (strcasecmp('ppp', $gdptype)==0) {
 <div id="jq-siteContain">
 
 <?php 
-	IncFunc::header2("charts"); 
+	IncFunc::header1("charts"); 
 ?>
 <div id="pf-body">
 <?php 
