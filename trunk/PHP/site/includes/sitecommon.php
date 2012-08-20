@@ -6,19 +6,19 @@ class IncFunc {
 	
 	static public $offline=false;
 	
-	static public $PHP_ROOT_PATH="/PHP";
+	//static public $PHP_ROOT_PATH="/PHP";
 	//static public $PHP_ROOT_PATH="/phpdev";
-	//static public $PHP_ROOT_PATH="/phptest";
+	static public $PHP_ROOT_PATH="/phptest";
 	
 	//static public $CAKE_ROOT_PATH="/cakepfdev";
 	static public $CAKE_ROOT_PATH="/cakepftest";
 	
 	
-	static public $JSP_ROOT_PATH="http://devdataload:8080/JSPDataSource/";
+	//static public $JSP_ROOT_PATH="http://devdataload:8080/JSPDataSource/";
 	//static public $JSP_ROOT_PATHxx="http://devdataload:8080/JSPDataSourcexx/";
 	//static public $JSP_ROOT_PATH="http://testdataload:8080/JSPDataSource/";	
 	//static public $JSP_ROOT_PATH="http://www.testpikefin.com/devjsp/JSPDataSource/";
-	//static public $JSP_ROOT_PATH="http://www.pikefin.com/testjsp/JSPDataSource/";
+	static public $JSP_ROOT_PATH="http://www.pikefin.com/testjsp/JSPDataSource/";
 	//static public $JSP_ROOT_PATH="http://192.168.122.133:8080/JSPDataSource/";
 	
 	
@@ -276,6 +276,19 @@ class IncFunc {
 		
 	}
 	
+	static function mobileCompatibility() {
+		?>
+		$(document).ready(function() {
+			var isMobile = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/);
+			if (isMobile) {
+				$("#pf-custom-body").css("padding-left","20px").css("padding-right","30px");
+				//$("#pf-body").css("padding-left","20px").css("padding-right","30px");		
+			}	
+		});
+		
+		<?php 
+	}
+	
 	//header1 is for cake files, header2 non-cake
 	
 	
@@ -506,7 +519,7 @@ class IncFunc {
 						<div><ul>
 						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=101024&order=DESC&metricid=1"><span>● Global CDS Table</span></a></li>
 						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=101038&order=DESC&metricid=1"><span>● 5 Year Soverign CDS Table</span></a></li>
-						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=101038&order=DESC&metricid=1"><span>● 5 Year EU CDS Table</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=101036&order=DESC&metricid=1"><span>● 5 Year EU CDS Table</span></a></li>
 						</ul></div>
 					</li>
 					<li><a href="#" class="parent"><span>Yield Curves</span></a>
