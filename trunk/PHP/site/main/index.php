@@ -16,7 +16,7 @@ require_once '../../common/functions.php';
 	  <script src="http://widgets.twimg.com/j/2/widget.js" type="text/javascript"></script>
 	  <?php IncFunc::linkStyleCSS();?>
 	  <script language="Javascript" type="text/javascript"> 
-
+		 <?php IncFunc::mobileCompatibility(); ?>
 		 $(document).ready(function() {
 			 $("#tabs").tabs();
 			 window.addEventListener("focus", function(event) { 
