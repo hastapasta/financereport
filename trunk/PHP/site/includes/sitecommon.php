@@ -6,19 +6,19 @@ class IncFunc {
 	
 	static public $offline=false;
 	
-	//static public $PHP_ROOT_PATH="/PHP";
+	static public $PHP_ROOT_PATH="/PHP";
 	//static public $PHP_ROOT_PATH="/phpdev";
-	static public $PHP_ROOT_PATH="/phptest";
+	//static public $PHP_ROOT_PATH="/phptest";
 	
 	//static public $CAKE_ROOT_PATH="/cakepfdev";
 	static public $CAKE_ROOT_PATH="/cakepftest";
 	
 	
-	//static public $JSP_ROOT_PATH="http://devdataload:8080/JSPDataSource/";
+	static public $JSP_ROOT_PATH="http://devdataload:8080/JSPDataSource/";
 	//static public $JSP_ROOT_PATHxx="http://devdataload:8080/JSPDataSourcexx/";
 	//static public $JSP_ROOT_PATH="http://testdataload:8080/JSPDataSource/";	
 	//static public $JSP_ROOT_PATH="http://www.testpikefin.com/devjsp/JSPDataSource/";
-	static public $JSP_ROOT_PATH="http://www.pikefin.com/testjsp/JSPDataSource/";
+	//static public $JSP_ROOT_PATH="http://www.pikefin.com/testjsp/JSPDataSource/";
 	//static public $JSP_ROOT_PATH="http://192.168.122.133:8080/JSPDataSource/";
 	
 	
@@ -522,16 +522,26 @@ class IncFunc {
 						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/directtable.php?entitygroupid=101036&order=DESC&metricid=1"><span>● 5 Year EU CDS Table</span></a></li>
 						</ul></div>
 					</li>
-					<li><a href="#" class="parent"><span>Yield Curves</span></a>
+					<li><a href="#" class="parent"><span>Yield Curves (Full) </span></a>
 						<div><ul>
 						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101029&type=5"><span>● U.K.</span></a></li>
 						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101030&type=5"><span>● Australia</span></a></li>
 						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101031&type=5"><span>● Japan</span></a></li>
 						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101032&type=5"><span>● Brazil</span></a></li>
 						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101033&type=5"><span>● Germany</span></a></li>
-						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101039&type=5"><span>● Germany (short end only)</span></a></li>
 						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101034&type=5"><span>● Hong Kong</span></a></li>
 						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101035&type=5"><span>● U.S.</span></a></li>
+						</ul></div>
+					</li>
+					<li><a href="#" class="parent"><span>Yield Curves (Short End) </span></a>
+						<div><ul>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101042&type=5"><span>● U.K.</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101043&type=5"><span>● Australia</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101041&type=5"><span>● Japan</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101044&type=5"><span>● Brazil</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101039&type=5"><span>● Germany</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101045&type=5"><span>● Hong Kong</span></a></li>
+						<li><a href="<?php echo self::$PHP_ROOT_PATH;?>/charts/allassets/linechart.php?eg=101046&type=5"><span>● U.S.</span></a></li>
 						</ul></div>
 					</li>
 				</ul></div>
