@@ -119,7 +119,7 @@ $enddate = $_GET['enddate'];
     <?php 
     //added cache buster url parameter for ie.
     
-            echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2eh2.jsp?randNum=' + new Date().getTime();";
+            echo "var dataSourceUrl = '".Environment::$JSP_ROOT_PATH."mysqldatasource2eh2.jsp?randNum=' + new Date().getTime();";
             
      ?>
         // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
@@ -141,8 +141,8 @@ $enddate = $_GET['enddate'];
 		var dt = localQueryWrapper.currentDataTable;
 		var val = dt.getValue(row[0].row,8);
 		var metric = dt.getValue(row[0].row,9);
-		<?php //echo "window.location.href = \"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\";";?>
-		<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?m=\" + metric +\"&e=\" + val + \"&title=All Assets Indivdual Line Charts\");";?>
+		<?php //echo "window.location.href = \"".Environment::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\";";?>
+		<?php echo "window.open(\"".Environment::$PHP_ROOT_PATH."/charts/allassets/linechart.php?m=\" + metric +\"&e=\" + val + \"&title=All Assets Indivdual Line Charts\");";?>
 
 	}
     

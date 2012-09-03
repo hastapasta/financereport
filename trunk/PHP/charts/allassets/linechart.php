@@ -408,7 +408,7 @@ if (strpos($enddate,"-") == true)
         				window.id = ui.item.id;
         				<?php
         						//echo "window.location.replace(\"";
-        						//echo IncFunc::$PHP_ROOT_PATH;
+        						//echo Environment::$PHP_ROOT_PATH;
         						//echo "/charts/allassets/linechart.php?type=";
         						//echo $type;
         						//*
@@ -544,10 +544,10 @@ if (strpos($enddate,"-") == true)
                 tickers_no_spaces = tickers_no_spaces.substr(0,tickers_no_spaces.length-1);
 
             if ((tickers_no_spaces.split(',')).length > 1) {
-                <?php echo "queryPath = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource15multiple.jsp';";?>
+                <?php echo "queryPath = '".Environment::$JSP_ROOT_PATH."mysqldatasource15multiple.jsp';";?>
             }
             else {
-            	<?php echo "queryPath = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource15single.jsp';"; ?>
+            	<?php echo "queryPath = '".Environment::$JSP_ROOT_PATH."mysqldatasource15single.jsp';"; ?>
             }
 
         	/*

@@ -274,7 +274,7 @@ if (isset($_GET['metricid']))
     var firstpass = true;
 
     <?php 
-            echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2eh2.jsp';";
+            echo "var dataSourceUrl = '".Environment::$JSP_ROOT_PATH."mysqldatasource2eh2.jsp';";
             ?>
         // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
            
@@ -293,8 +293,8 @@ if (isset($_GET['metricid']))
 		var entityid = dt.getValue(row[0].row,8);
 		var metricid = dt.getValue(row[0].row,9);
 		
-		<?php //echo "window.location.href = \"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\";";?>
-		<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + entityid + \"&type=1&m=\" + metricid);";?>
+		<?php //echo "window.location.href = \"".Environment::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\";";?>
+		<?php echo "window.open(\"".Environment::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + entityid + \"&type=1&m=\" + metricid);";?>
 
 	}
  
