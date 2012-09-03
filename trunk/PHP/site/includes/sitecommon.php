@@ -688,42 +688,173 @@ class IncFunc {
 		
 	}
 	
-	static function jqueryTimeFrame() {
+	
+	static function dateSelectNew() {
 		?>
-			 $("#timeframe").change( function(e) {
-			 /* Called when the 'preset' drop down box is changed. */
-		    	enddate = new Date();
-		    	begindate = new Date();
-		    	var tmp = $("#timeframe").val();
-		    	if (tmp == '')
-		    		//do nothing
-		    		return;
-		    	else if (tmp == 'YEAR')
-		        	begindate.setMonth(enddate.getMonth() - 12);
-		    	/*else if (tmp == 'custom1')
-			    	begindate = Date.parseExact("1/20/2011", "M/d/yyyy"); */
-		    	else if (tmp == 'MONTH')
-		        	begindate.setMonth(enddate.getMonth() - 1);
-		    	else if (tmp == 'WEEK')
-		        	begindate.setDate(enddate.getDate() - 7);
-		    	else if (tmp == 'DAY')
-		        	begindate.setDate(enddate.getDate() - 1);
-		    	else if (tmp == 'YTD') {
-		    		begindate = Date.parse('January 1st');          // July 4th of this year.
-			    	//year = begindate.getYear();
-			    	//begindate = Date.parseExact("1/1/" + year,"M/d/yyyy");
+		 	<select id="timeframe" style="background-color: #FFFFFF;margin-top:10px;" >
+		 		<option value="CURRENT_BLANK"></option>
+			    <option value="CURRENT_YTD" >Year To Date Using Current Date & Time</option>
+			    <option value="CURRENT_MTD">Month To Date Using Current Date & Time</option>
+			    <option value="CURRENT_WTD">Week To Date Using Current Date & Time</option>
+				<option value="CURRENT_YEAR">1 Year Back Using Current Date & Time</option>
+				<option value="CURRENT_MONTH">1 Month Back Using Current Date & Time</option>
+				<option value="CURRENT_DAY">1 Day Back Using Current Date & Time</option>
+				<option value="CURRENT_HOUR">1 Hour Back Using Current Date & Time</option>
+				<option value="FINISH_YTD">Year To Date Using Finish Value</option>
+			    <option value="FINISH_MTD">Month To Date Using Finish Value</option>
+			    <option value="FINISH_WTD">Week To Date Using Finish Value</option>
+				<option value="FINISH_YEAR">1 Year Back Using Finish Value</option>
+				<option value="FINISH_MONTH">1 Month Back Using Finish Value</option>
+				<option value="FINISH_DAY">1 Day Back Using Finish Value</option>
+				<option value="FINISH_HOUR">1 Hour Back Using Finish Value</option>	
+			</select>
+			<?php 
+			
+			
+			
+		}
+		
+		static function jqueryTimeFrame() {
+			?>
+					 $("#timeframe").change( function(e) {
+					 /* Called when the 'preset' drop down box is changed. */
+				    	enddate = new Date();
+				    	begindate = new Date();
+				    	var tmp = $("#timeframe").val();
+				    	if (tmp == '')
+				    		//do nothing
+				    		return;
+				    	else if (tmp == 'YEAR')
+				        	begindate.setMonth(enddate.getMonth() - 12);
+				    	/*else if (tmp == 'custom1')
+					    	begindate = Date.parseExact("1/20/2011", "M/d/yyyy"); */
+				    	else if (tmp == 'MONTH')
+				        	begindate.setMonth(enddate.getMonth() - 1);
+				    	else if (tmp == 'WEEK')
+				        	begindate.setDate(enddate.getDate() - 7);
+				    	else if (tmp == 'DAY')
+				        	begindate.setDate(enddate.getDate() - 1);
+				    	else if (tmp == 'YTD') {
+				    		begindate = Date.parse('January 1st');          // July 4th of this year.
+					    	//year = begindate.getYear();
+					    	//begindate = Date.parseExact("1/1/" + year,"M/d/yyyy");
+				    	}
+				    	else if (tmp == 'MTD') {	
+				    		begindate = Date.parse('1'); // 1st of the current month and year
+							//year = begindate.getYear();
+							//month = begindate.getMonth();
+							//begindate = Date.parseExact("1/" + month + "/" + year,"M/d/yyyy");
+				    	}
+				    	else if (tmp == 'WTD') {
+							begindate = Date.today().last().sunday();
+				    	}
+				    	else //tmp should == hour
+				        	begindate = new Date(enddate - (3600 * 1000));
+			        
+				    	$("#rangeDemoStart").
+					  	AnyTime_noPicker().
+					  	//removeAttr("disabled").
+					  	val(rangeDemoConv.format(begindate)).
+					    AnyTime_picker(
+					              { //earliest: dayEarlier,
+					                format: rangeDemoFormat
+					                //latest: ninetyDaysLater
+					              } );
+				    	$("#rangeDemoFinish").
+					  	AnyTime_noPicker().
+					  	//removeAttr("disabled").
+					  	val(rangeDemoConv.format(enddate)).
+					    AnyTime_picker(
+					              { //earliest: dayEarlier,
+					                format: rangeDemoFormat
+					                //latest: ninetyDaysLater
+					              } );
+				        	
+				        	    
+				        	    
+				    });	
+				    <?php 
+				
+			}
+			
+			
+   
+	
+	static function jqueryTimeFrameNew() {
+		?>
+		$(function(){
+			rangeDemoFormat = "%e-%b-%Y %H:%i:%s";
+		  	rangeDemoConv = new AnyTime.Converter({format:rangeDemoFormat});
+			$("#rangeDemoClear").click( function(e) {
+		    $("#rangeDemoStart").val("").change();
+		    $("#rangeDemoFinish").val("").change(); } );
+			$("#rangeDemoStart").AnyTime_picker({format:rangeDemoFormat,placement: "popup"});
+			$("#rangeDemoFinish").AnyTime_picker({format:rangeDemoFormat,placement: "popup"});
+			$("#timeframe").change( function(e) {
+			/* Called when the 'preset' drop down box is changed. */
+		    	
+		    	
+		    	
+		    	var code = $("#timeframe").val();
+				var prefix = code.substring(0,code.indexOf("_"));
+				var suffix = code.substring(code.indexOf("_")+1,code.length);
+				
+				var enddate,begindate;
+				if (prefix === "CURRENT") {
+					enddate = new Date();
+					//begindate = new Date();				 		
+				}
+				else if (prefix === "FINISH") {
+				 	enddate = Date.parse($("#rangeDemoFinish").val());
+				 	if (!enddate) {
+				 		alert("Please set a 'Finish' date value.");
+				 		 $("#timeframe").val("CURRENT_BLANK");
+				 		return;
+				 	}
+				 	//begindate =  new Date();
+				}
+				 
+				begindate = enddate.clone();
+				
+		    	switch (suffix) {
+		    		case "YEAR":
+		    			//begindate = enndate.clone();
+		    			begindate.setYear(enddate.getFullYear() - 1);
+		    			break;
+		    		case "MONTH":
+		    			//begindate = enddate.clone();
+		    			begindate.setMonth(enddate.getMonth() - 1);
+		    			break;
+		    		case "WEEK":
+		    			//begindate = enddate.clone();
+		    			begindate.setDate(enddate.getDate() - 7);
+		    			break;
+		    		case "DAY":
+		    		    //alert("here");
+		    			begindate.setDate(enddate.getDate() - 1);
+		    			break;
+		    		case "YTD":
+		    			begindate = Date.parse('January 1st, ' + enddate.getFullYear());  
+		    			break;
+		    		/* avoiding setTime() calls in the next few options so I don't have to worry about
+		    		the day rolling forward or back when setting relative times. */
+		    		case "MTD":
+		    			//begindate = enddate.clone().moveToFirstDayOfMonth().setHours(0,0,0,0);
+		    			begindate = new Date(enddate.getFullYear(),enddate.getMonth(),enddate.getDay()).moveToFirstDayOfMonth();
+		    			break;
+		    		case "WTD":
+		    			//begindate = Date.today().last().sunday();
+		    			begindate = new Date(enddate.getFullYear(),enddate.getMonth(),enddate.getDay()).last().sunday();
+		    			//begindate = enddate.last().sunday();
+		    			break;	    			
+		    		case "HOUR":
+		    			begindate = new Date(enddate - (3600 * 1000));
+		    			break;
+		    		default:
+		    			//do nothing
+		    			return;	
 		    	}
-		    	else if (tmp == 'MTD') {	
-		    		begindate = Date.parse('1'); // 1st of the current month and year
-					//year = begindate.getYear();
-					//month = begindate.getMonth();
-					//begindate = Date.parseExact("1/" + month + "/" + year,"M/d/yyyy");
-		    	}
-		    	else if (tmp == 'WTD') {
-					begindate = Date.today().last().sunday();
-		    	}
-		    	else //tmp should == hour
-		        	begindate = new Date(enddate - (3600 * 1000));
+		    
 	        
 		    	$("#rangeDemoStart").
 			  	AnyTime_noPicker().
@@ -743,10 +874,13 @@ class IncFunc {
 			                format: rangeDemoFormat
 			                //latest: ninetyDaysLater
 			              } );
+			              
+			    $("#timeframe").val("CURRENT_BLANK");
 		        	
 		        	    
 		        	    
 		    });	
+		 });
 		    <?php 
 		
 	}
