@@ -79,6 +79,8 @@ if (isset($_GET['metricid']))
 
 	/* JQuery plugin example */
 	
+	<?php IncFunc::jqueryTimeFrameNew();?>
+	
 	$(function(){
 
 		jQuery.fn.selText = function() {
@@ -103,7 +105,7 @@ if (isset($_GET['metricid']))
 		};
 				
 
-		<?php IncFunc::jqueryTimeFrame();?>
+		
 	
 		$( "input:button").button();
 		$( "input:button").css("padding",0);
@@ -158,13 +160,13 @@ if (isset($_GET['metricid']))
 		td.setMonth(td.getMonth() - 1);
 		td.setMonth(td.getMonth() - 12);
 		//var fromDay = td.setDay(td.getDay() - 1); 
-	  rangeDemoFormat = "%e-%b-%Y %H:%i:%s";
+	 /* rangeDemoFormat = "%e-%b-%Y %H:%i:%s";
 	  rangeDemoConv = new AnyTime.Converter({format:rangeDemoFormat});
 	  $("#rangeDemoClear").click( function(e) {
 	      $("#rangeDemoStart").val("").change();
 	      $("#rangeDemoFinish").val("").change(); } );
 	  $("#rangeDemoStart").AnyTime_picker({format:rangeDemoFormat});
-	  $("#rangeDemoFinish").AnyTime_picker({format:rangeDemoFormat});
+	  $("#rangeDemoFinish").AnyTime_picker({format:rangeDemoFormat});*/
 
 	 
 	
@@ -420,9 +422,9 @@ Start: <input type="text" id="rangeDemoStart" size="23" />
 
 <!-- <div id="displaycustom"></div> -->
 
-
+<BR>
 &nbsp;(Preset Time Frames: 
-<?php IncFunc::dateSelect();?> )<BR>
+<?php IncFunc::dateSelectNew();?> )<BR>
 <BR>
 
 
