@@ -238,6 +238,8 @@ if (strpos($enddate,"-") == true)
 </style>
    
     <script type="text/javascript">
+
+    	
   
     
 	    function split( val ) {
@@ -294,6 +296,7 @@ if (strpos($enddate,"-") == true)
     	    	$('#inputPrompt').html("comma separated list of credit default swaps");
     	    	document.entityGroup = 101024;
     	    }
+    	    $('#inputPrompt').html($('#inputPrompt').html() + ":&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
         	$("#jquerytabs").tabs({
             	//select is fired too early, need to use show.
             	
@@ -303,15 +306,22 @@ if (strpos($enddate,"-") == true)
 
             	}
         	});
+
+    	});
+
+    	<?php IncFunc::jqueryTimeFrameNew();?>
+
+    	$(document).ready(function() {
+    	
         	
         	$("#checkbox1").attr("checked", <?php echo ($percent == true ? 'true' : 'false');?>);
-        	rangeDemoFormat = "%e-%b-%Y %H:%i:%s";
-        	rangeDemoConv = new AnyTime.Converter({format:rangeDemoFormat});
-        	 $("#rangeDemoClear").click( function(e) {
+        	//rangeDemoFormat = "%e-%b-%Y %H:%i:%s";
+        	//rangeDemoConv = new AnyTime.Converter({format:rangeDemoFormat});
+        	 /*$("#rangeDemoClear").click( function(e) {
         	      $("#rangeDemoStart").val("").change();
         	      $("#rangeDemoFinish").val("").change(); } );
         	  $("#rangeDemoStart").AnyTime_picker({format:rangeDemoFormat,placement: "popup"});
-        	  $("#rangeDemoFinish").AnyTime_picker({format:rangeDemoFormat,placement: "popup"});
+        	  $("#rangeDemoFinish").AnyTime_picker({format:rangeDemoFormat,placement: "popup"});*/
         	  $("#a_c").val('<?php echo $ticker; ?>');
         	  t1 = new Date();
         	  t1.setTime("<?php echo $begindate;?>");
@@ -698,11 +708,13 @@ else
 
 
     <div id="style" style='z-index:3;margin-bottom: 10px;float:left;clear:both;margin-top: 10px;' >
-  	<div id="accordion">
+    <!-- The follwoing width style fixes a weird 
+    wrapping issue that happens when a preset time frame option is selected -->
+  	<div id="accordion" style='width:110%'>
   	<h3><a href="#" style='font-size:1.3em;'>Chart Properties</a></h3>
   	<div> <!-- First Content -->
   	<div id="pf-form">   
-    Enter <span id="inputPrompt"></span>:
+    Enter <span id="inputPrompt"></span>
     <BR>
   	<input type='text' id='a_c' style='z-index:3;float:left;' size="70" />
   	<div id="style2" style='z-index:3;margin-bottom: 10px;float:left;clear:both;margin-top: 10px;' >
@@ -714,6 +726,8 @@ else
 	&nbsp;Finish: <input type="text" id="rangeDemoFinish" size="23" />
 	<!-- <input type="button" id="rangeDemoToday" value="today" /> -->
 	<input type="button" id="rangeDemoClear" value="clear" />
+	<BR>(Preset Time Frames: 
+	<?php IncFunc::dateSelectNew();?>)<BR>
 	</div> <!--  style 2 -->
 	<div style="float:left;clear:both">
 	<input type="button" id="refreshChart" value="Refresh Chart" />

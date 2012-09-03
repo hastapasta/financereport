@@ -30,29 +30,31 @@ $enddate = $_GET['enddate'];
 
 <script>
 
-	<? IncFunc::googleTableWorkaround(); ?>
+	<?php IncFunc::googleTableWorkaround(); ?>
+
+
+	<?php IncFunc::jqueryTimeFrameNew();?>
    
 	$(document).ready(function() {
+
+		$( "input:button").button();
+		$( "input:button").css("padding",0);
+		
 		var oneDay = 24*60*60*1000;
 		var td = new Date();
 		td.setDate(td.getDate() - 1);
 		td.setMonth(td.getMonth() - 1);
 		td.setMonth(td.getMonth() - 12);
 		//var fromDay = td.setDay(td.getDay() - 1); 
-	  rangeDemoFormat = "%e-%b-%Y %H:%i:%s";
+	 /* rangeDemoFormat = "%e-%b-%Y %H:%i:%s";
 	  rangeDemoConv = new AnyTime.Converter({format:rangeDemoFormat});
-	 $("#rangeDemoToday").click( function(e) {
-	      $("#rangeDemoFinish").val(rangeDemoConv.format(new Date())).change(); } );
+	 //$("#rangeDemoToday").click( function(e) {
+	 //     $("#rangeDemoFinish").val(rangeDemoConv.format(new Date())).change(); } );
 	  $("#rangeDemoClear").click( function(e) {
 	      $("#rangeDemoStart").val("").change();
 	      $("#rangeDemoFinish").val("").change(); } );
 	  $("#rangeDemoStart").AnyTime_picker({format:rangeDemoFormat});
-	  $("#rangeDemoFinish").AnyTime_picker({format:rangeDemoFormat});
-
-	  //t1 = new Date();
-	  //t1.setTime(1313290898000);
-	  //t1 = Date.parse(1313290898000);
-	  //alert(t1);
+	  $("#rangeDemoFinish").AnyTime_picker({format:rangeDemoFormat});*/
 
 	  <?php 
 	  if (!empty($begindate) && !empty($enddate)) {
@@ -87,55 +89,7 @@ $enddate = $_GET['enddate'];
 
 				
 	});
-	$(function(){
-		<?php IncFunc::jqueryTimeFrame();?>
-		 /*$("#timeframe").change( function(e) {
-		    	enddate = new Date();
-		    	begindate = new Date();
-		    	var tmp = $("#timeframe").val();
-		    	if (tmp == 'year')
-		        	begindate.setMonth(enddate.getMonth() - 12);
-		    	else if (tmp == 'custom1')
-			    	begindate = Date.parseExact("1/20/2011", "M/d/yyyy"); 
-		    	else if (tmp == 'month')
-		        	begindate.setMonth(enddate.getMonth() - 1);
-		    	else if (tmp == 'week')
-		        	begindate.setDate(enddate.getDate() - 7);
-		    	else if (tmp == 'day')
-		        	begindate.setDate(enddate.getDate() - 1);
-		    	else //tmp should == hour
-		        	begindate = new Date(enddate - (3600 * 1000));
-	        
-		    	$("#rangeDemoStart").
-			  	AnyTime_noPicker().
-			  	//removeAttr("disabled").
-			  	val(rangeDemoConv.format(begindate)).
-			    AnyTime_picker(
-			              { //earliest: dayEarlier,
-			                format: rangeDemoFormat
-			                //latest: ninetyDaysLater
-			              } );
-		    	$("#rangeDemoFinish").
-			  	AnyTime_noPicker().
-			  	//removeAttr("disabled").
-			  	val(rangeDemoConv.format(enddate)).
-			    AnyTime_picker(
-			              { //earliest: dayEarlier,
-			                format: rangeDemoFormat
-			                //latest: ninetyDaysLater
-			              } );
-		        	
-		        	    
-		        	    
-		    });*/
-		
-		
-		/*$('#dialog').dialog({autoOpen:false, title : "HELP"});
-		$('.help').click(function(){
-			$('#dialog').dialog('open')
-		});*/
-		
-	});
+
 
 	function generateURL() {
 		var rangeDemoStart = document.getElementById('rangeDemoStart');
@@ -359,12 +313,11 @@ Start: <input type="text" id="rangeDemoStart" size="21" />
 <!-- <div id="displaycustom"></div> -->
 
 
-(Preset Time Frames: 
-<?php IncFunc::dateSelect();?>)<BR>
+<BR>(Preset Time Frames: 
+<?php IncFunc::dateSelectNew();?>)<BR>
 <BR>
 
-<input type="button" style="color: #000000;background-color: #FFFFFF" value="Update Tables"
-	onclick="sendAndDraw();return false;"> <br />
+<input type="button" value="Update Tables" onclick="sendAndDraw();"> <br />
 <br />
 <br />
 </div><!-- pf-form -->
@@ -394,8 +347,7 @@ Start: <input type="text" id="rangeDemoStart" size="21" />
 <div id="table4" style="color: #000;"> </div>
 </div>
 
-<input type="button" style="float: left;clear: both;color: #000000;background-color: #FFFFFF;margin-bottom: 20px" value="Generate URL"
-	onclick="generateURL();return false;"> 
+<input type="button" value="Generate URL" style="float:left;clear:both" onclick="generateURL();"> 
 
 </div>
 
