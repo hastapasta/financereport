@@ -31,6 +31,7 @@ $enddate = $_GET['enddate'];
 <script>
 
 	<?php IncFunc::googleTableWorkaround(); ?>
+	<?php IncFunc::mobileCompatibility(); ?>
 
 
 	<?php IncFunc::jqueryTimeFrameNew();?>
