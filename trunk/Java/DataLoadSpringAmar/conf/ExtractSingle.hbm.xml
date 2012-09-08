@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="pikefin.hibernate.ExtractSingle" table="extract_singles" dynamic-update="true">
+		<id name="extractSingleId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		<property name="tableCount" column="table_count" type="integer"/>
+		<property name="rowCount" column="row_count" type="integer"/>
+		<property name="cellCount" column="cell_count" type="integer"/>
+		<property name="divCount" column="div_count" type="integer"/>
+		<property name="parsePostProcess" column="parse_post_process" type="boolean"/>
+		<property name="isCSVFormat" column="is_csv_format" type="boolean"/>
+		<property name="initialBefUniqueCode" column="initial_bef_unique_code" type="string"/>
+		<property name="beforeUniqueCode" column="before_unique_code" type="string"/>
+		<property name="afterUniqueCode" column="after_unique_code" type="string"/>
+		
+   </class>
+</hibernate-mapping>
