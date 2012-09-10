@@ -88,14 +88,15 @@ public class DBFunctions {
 	
 	}
 	
-	public void setSessionFactory(String placeholder) {
-		Configuration configuration = new Configuration();
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		//commented by Amar Deep Singh, since it was duplicating the session factory
+		/*Configuration configuration = new Configuration();
 	    configuration.configure();
 	    serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();        
 	    sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 	 
-	    
-
+	    */
+		this.sessionFactory=sessionFactory;
 		/*Session session = HibernateUtil.getSessionFactory()
                 .getCurrentSession();*/
 	}
