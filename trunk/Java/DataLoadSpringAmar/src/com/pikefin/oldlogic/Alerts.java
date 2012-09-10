@@ -7,10 +7,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 
+import com.pikefin.businessobjects.FactData;
 import com.pikefin.businessobjects.Task;
 
 import pikefin.log4jWrapper.Logs;
@@ -149,28 +152,40 @@ public class Alerts {
 			 * 
 			 * Moved this code outside of the loop to speed up processing.
 			 */
-			query = "select max(batch_id) from fact_data,batches where fact_data.batch_id=batches.id AND task_id=" + nCurTask;
+		/*	query = "select max(batch_id) from fact_data,batches where fact_data.batch_id=batches.id AND task_id=" + nCurTask;
 			//ResultSet rs7 = dg.dbf.db_run_query(query);
 			SqlRowSet rs7 = dg.dbf.dbSpringRunQuery(query);
 			
 			
 			rs7.next();
 			int nMaxBatch = rs7.getInt("max(batch_id)");
-			  
+			
 			String query3;
 			query3 = "select fact_data.* ";
 			query3 += "from fact_data, batches ";
 			query3 += " where fact_data.batch_id=batches.id ";
 			query3 += " and task_id=" + nCurTask;
 			query3 += " and batch_id=" + nMaxBatch;
+			*/
+			// modified by Amar on 10-Sep-2012 native equivalent of below query is as 
+			//select fact.* from fact_data fact,Batches batch where fact.batch_id=batch.id AND batch.task_id=6 AND batch.id=(select max(batch.id) from fact_data fact,Batches batch where fact.batch_id=batch.id AND batch.task_id=6);
+			
+			query = "select max(batch.batchId) from FactData fact,Batches batch where fact.batchId.batchId=batch.batchId AND batch.batchTask.taskId=" + nCurTask;
+			Integer nMaxBatch =(Integer) dg.dbf.dbHibernateRunQueryUnique(query);
+
+			
+			String query3="select fact.* from FactData fact,Batches batch where fact.batchId.batchId=batch.batchId AND batch.batchTask.taskId="+nCurTask +" AND batch.batch_id="+nMaxBatch;
+					
 			
 			  
 			//ResultSet rsCurFactData1 = dg.dbf.db_run_query(query3);
-			SqlRowSet rsCurFactData1 = dg.dbf.dbSpringRunQuery(query3);
+			//Commented by Amar to accepts HQL changes  
+			//SqlRowSet rsCurFactData1 = dg.dbf.dbSpringRunQuery(query3);
 			  
-			  
-			this.hmCurFactData = UtilityFunctions.convertRowSetToHashMap(rsCurFactData1,"entity_id","calyear");
-			  
+			
+		//	this.hmCurFactData = UtilityFunctions.convertRowSetToHashMap(rsCurFactData1,"entity_id","calyear");
+			List<FactData> factDataList = (List<FactData>)dg.dbf.dbHibernateRunQuery(query3);
+			this.hmCurFactData=this.convertFactDataListToHashMap(factDataList);
 			if (hmCurFactData == null)  {
                 UtilityFunctions.stdoutwriter.writeln("No fact_data entries found for task " + nCurTask + "and batch " + nMaxBatch + ". Alert processing terminated.",Logs.WARN,"A4.0");
                 return;
@@ -892,7 +907,54 @@ public class Alerts {
 	
 	
 	  
+	/**
+	 * This is the replacement of UtilityFunctions.convertRowSetToHashMap method to convert the FactData list into a map of type HashMap<TheKey,HashMap<String,String>>.
+	 * This iterate over the List<FactData> and create the HashMap out of that.
+	 * @param factDataList
+	 * @return HashMap<TheKey,HashMap<String,String>>
+	 * @throws DataAccessException
+	 * @throws PikefinException
+	 */
+	public  HashMap<TheKey,HashMap<String,String>> convertFactDataListToHashMap(List<FactData> factDataList) throws DataAccessException, PikefinException	{
+		
+		HashMap<TheKey,HashMap<String,String>> parentHash = new HashMap<TheKey,HashMap<String,String>>();
+	
+		for(FactData item:factDataList){
+			HashMap<String,String> childHash = new HashMap<String,String>();
+			childHash.put(item.getClass().getName()+"."+"dataGroup",item.getDataGroup()!=null?item.getDataGroup():"");
+			childHash.put(item.getClass().getName()+"."+"batchId",item.getBatchId()!=null?String.valueOf(item.getBatchId().getBatchId()):"");
+			childHash.put(item.getClass().getName()+"."+"calmonth",item.getCalmonth()!=null?String.valueOf(item.getCalmonth()):"");
+			childHash.put(item.getClass().getName()+"."+"calquarter",item.getCalquarter()!=null?String.valueOf(item.getCalquarter()):"");
+			childHash.put(item.getClass().getName()+"."+"calyear",item.getCalyear()!=null?String.valueOf(item.getCalyear()):"");
+			childHash.put(item.getClass().getName()+"."+"dateCollected",item.getDateCollected()!=null?String.valueOf(item.getDateCollected()):"");
+			childHash.put(item.getClass().getName()+"."+"day",item.getDay()!=null?String.valueOf(item.getDay()):"");
+			childHash.put(item.getClass().getName()+"."+"factDataId",item.getFactDataId()!=null?String.valueOf(item.getFactDataId()):"");
+			childHash.put(item.getClass().getName()+"."+"fiscalquarter",item.getFiscalquarter()!=null?String.valueOf(item.getFiscalquarter()):"");
+			childHash.put(item.getClass().getName()+"."+"fiscalyear",item.getFiscalyear()!=null?String.valueOf(item.getFiscalyear()):"");
+			childHash.put(item.getClass().getName()+"."+"metaSetId",item.getMetaSetId()!=null?String.valueOf(item.getMetaSetId()):"");
+			childHash.put(item.getClass().getName()+"."+"metricId",item.getMetricId()!=null?String.valueOf(item.getMetricId()):"");
+			childHash.put(item.getClass().getName()+"."+"scale",item.getScale()!=null?String.valueOf(item.getScale()):"");
+			childHash.put(item.getClass().getName()+"."+"value",item.getValue()!=null?String.valueOf(item.getValue()):"");
+			childHash.put(item.getClass().getName()+"."+"garbageCollect",item.getValue()!=null?String.valueOf(item.isGarbageCollect()):"");
+			childHash.put(item.getClass().getName()+"."+"manualCorrection",item.getValue()!=null?String.valueOf(item.isManualCorrection()):"");
+			childHash.put(item.getClass().getName()+"."+"raw",item.getValue()!=null?String.valueOf(item.isRaw()):"");
+			childHash.put(item.getClass().getName()+"."+"entityId",item.getValue()!=null?String.valueOf(item.getEntityId()):"");
 
+			String strHashKey1 = item.getValue()!=null?String.valueOf(item.getEntityId()):"";
+		
+			String	strHashKey2 = item.getCalyear()!=null?String.valueOf(item.getCalyear()):"";
+			if (strHashKey1 == null) {
+				UtilityFunctions.stdoutwriter.writeln("Problem converting ResultSet to HashMap - column for hash key not found",Logs.ERROR,"UF18.7");
+				throw new PikefinException("Custom SQL Exception - Unable to convert ResultSet to HashMap");
+			}
+			
+			TheKey tk = new TheKey(strHashKey1,strHashKey2);
+			parentHash.put(tk, childHash);	
+			
+		}
+				
+		return parentHash;
+	}
 }
 
 class TheKey {
@@ -943,4 +1005,7 @@ class TheKey {
 	/*private TheKey getOuterType() {
 		return this;
 	}*/
+	
+	
+	
 }
