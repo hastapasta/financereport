@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.pikefin.businessobjects.Task" table="tasks" dynamic-update="true">
+		<id name="taskId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		<property name="name" column="name" type="string"/>
+		<property name="useGroupForReading" column="use_group_for_reading" type="boolean"/>
+		<property name="delay" column="delay" type="integer"/>
+		<property name="description" column="description" type="string"/>
+		
+		<many-to-one name="metric" 
+			class="com.pikefin.businessobjects.Metric" column="metric_id" 
+			not-null="true" cascade="all" unique="true"/>
+		
+		<set name="jobs" table="jobs_tasks" cascade="all">
+			<key column="task_id" />
+			<many-to-many column="job_id"
+				class="com.pikefin.businessobjects.Job" />	
+		</set>
+		
+		<set name="entityGroups" table="entity_groups_tasks" cascade="all">
+			<key column="task_id" />
+			<many-to-many column="entity_group_id"
+				class="com.pikefin.businessobjects.EntityGroup" />	
+		</set>
+   </class>
+</hibernate-mapping>

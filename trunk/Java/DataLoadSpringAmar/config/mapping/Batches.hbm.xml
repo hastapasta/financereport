@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.pikefin.businessobjects.Batches" table="batches" dynamic-update="true">
+		<id name="batchId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		<property name="batchDateCollected" column="batch_date_collected" type="timestamp"/>
+		<property name="count" column="count" type="integer"/>
+		<property name="randomUnique" column="random_unique" type="string"/>
+		<property name="garbageCollect" column="garbage_collect" type="Boolean"/>
+		<many-to-one name="batchTask" class="com.pikefin.businessobjects.Task" column="task_id" 
+			not-null="true" cascade="all" />
+   </class>
+</hibernate-mapping>

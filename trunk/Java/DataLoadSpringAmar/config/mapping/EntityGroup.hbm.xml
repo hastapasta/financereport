@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.pikefin.businessobjects.EntityGroup" table="entity_groups" dynamic-update="true">
+		<id name="entityGroupId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+	
+		<set name="entities" table="entities_entity_groups" cascade="all">
+			<key column="entity_group_id" />
+			<many-to-many column="entity_id"
+				class="com.pikefin.businessobjects.Entity" />	
+		</set>
+   </class>
+</hibernate-mapping>

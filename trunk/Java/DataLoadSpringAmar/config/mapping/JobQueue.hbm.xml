@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.pikefin.businessobjects.JobQueue" table="job_queue" dynamic-update="true">
+		<id name="jobQueueId" column="id" type="integer">
+			<generator class="identity" />
+		</id>
+		<property name="startTime" column="start_time" type="string"/>
+		<property name="taskId" column="task_id" type="integer"/>
+		<property name="status" column="status" type="string"/>
+		<!--  example of specifying default in hbm.xml file -->
+		<property name="priority" type="integer">
+			<column name="priority" not-null="true" />
+		</property> 
+		<property name="queuedTime" column="queued_time" type="calendar"/>
+   </class>
+</hibernate-mapping>

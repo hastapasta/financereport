@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    
+    <class name="com.pikefin.businessobjects.FactData" table="fact_data" dynamic-update="true">
+        <id name="factDataId" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="value" type="big_decimal">
+            <column name="value" precision="10" scale="3" not-null="true" />
+        </property>
+        <property name="scale" type="java.lang.Integer">
+            <column name="scale" />
+        </property>
+        <property name="manualCorrection" type="boolean">
+            <column name="manual_correction" not-null="true" />
+        </property>
+        <property name="dateCollected" type="timestamp">
+            <column name="date_collected" length="19" not-null="true" />
+        </property>
+        
+        <property name="entityId" type="int">
+            <column name="entity_id" not-null="true" />
+        </property>
+        <property name="metricId" type="java.lang.Integer">
+            <column name="metric_id" />
+        </property>
+        <property name="dataGroup" type="string">
+            <column name="data_group" length="20" />
+        </property>
+        <property name="fiscalquarter" type="java.lang.Integer">
+            <column name="fiscalquarter" />
+        </property>
+        <property name="fiscalyear" type="java.lang.Integer">
+            <column name="fiscalyear" />
+        </property>
+        <property name="calquarter" type="java.lang.Integer">
+            <column name="calquarter" />
+        </property>
+        <property name="calyear" type="java.lang.Integer">
+            <column name="calyear" />
+        </property>
+        <property name="calmonth" type="java.lang.Integer">
+            <column name="calmonth" />
+        </property>
+        <property name="day" type="java.lang.Integer">
+            <column name="day" />
+        </property>
+        <many-to-one name="batchId" class="com.pikefin.businessobjects.Batches" column="batch_id"/>
+      
+        <property name="raw" type="boolean">
+            <column name="raw" not-null="true" />
+        </property>
+        <property name="garbageCollect" type="boolean">
+            <column name="garbage_collect" not-null="true" />
+        </property>
+        <property name="metaSetId" type="java.lang.Integer">
+            <column name="meta_set_id" />
+        </property>
+    </class>
+</hibernate-mapping>

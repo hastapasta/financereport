@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.pikefin.businessobjects.TimeEvent" table="time_events" dynamic-update="true">
+		<id name="timeEventId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		 <property name="name" column="name" type="string" />
+		 <property name="years" column="years" type="integer" />
+		 <property name="months" column="months" type="integer" />
+		 <property name="days" column="days" type="integer" />
+		 <property name="hours" column="hours" type="integer" />
+		 <property name="delay" column="delay" type="integer" />
+		 
+		 <property name="startDateTime" column="start_datetime" type="calendar" />
+		 <property name="lastDateTime" column="last_datetime" type="calendar" />
+		 <property name="nextDateTime" column="next_datetime" type="calendar" />
+		 
+   </class>
+</hibernate-mapping>
