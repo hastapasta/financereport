@@ -8,6 +8,36 @@
 		<id name="userId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>
-		<property name="username" column="username" type="string"/>
+		<property name="username" column="username" 
+		    type="string" not-null="true" unique="true"/>
+       <property name="created" type="timestamp">
+            <column name="created" length="19" />
+        </property>
+        <property name="modified" type="timestamp">
+            <column name="modified" length="19" />
+        </property>
+        <property name="accountEmail" type="string">
+            <column name="account_email" length="50" not-null="true" />
+        </property>
+        <property name="obsoleteMaxNotifications" type="int">
+            <column name="obsolete_max_notifications" not-null="true" />
+        </property>
+        <property name="suspended" type="boolean">
+            <column name="suspended" not-null="true" />
+        </property>
+        <property name="active" type="boolean">
+            <column name="active" not-null="true" />
+        </property>
+        <property name="paginationLimit" type="integer">
+            <column name="pagination_limit" not-null="true" />
+        </property>
+        <property name="obsoleteBulkEmail" type="boolean">
+            <column name="obsolete_bulk_email" not-null="true" />
+        </property> 
+        <many-to-one name="userGroup" class="com.pikefin.businessobjects.Groups" 
+            column="group_id">
+        </many-to-one>
    </class>
-</hibernate-mapping>
+   
+    
+  </hibernate-mapping>

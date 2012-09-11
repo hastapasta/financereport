@@ -16,7 +16,21 @@
 		<many-to-one name="metric" 
 			class="com.pikefin.businessobjects.Metric" column="metric_id" 
 			not-null="true" cascade="all" unique="true"/>
-		
+		   <property name="epsEstPriority" type="java.lang.Integer">
+            <column name="eps_est_priority" />
+        </property>
+        <property name="source" type="string">
+            <column name="source" length="50" />
+        </property>
+    
+        <property name="allowAlerts" type="boolean">
+            <column name="allow_alerts" not-null="true" />
+        </property>
+        <property name="delay" type="java.lang.Integer">
+            <column name="delay" not-null="true">
+                <comment>See comments of DataGrab.java re. this field</comment>
+            </column>
+        </property>
 		<set name="jobs" table="jobs_tasks" cascade="all">
 			<key column="task_id" />
 			<many-to-many column="job_id"
@@ -29,4 +43,11 @@
 				class="com.pikefin.businessobjects.EntityGroup" />	
 		</set>
    </class>
+   
+    
+    <class name="Tasks" table="tasks" catalog="findata">
+      
+ 
+     
+    </class>
 </hibernate-mapping>

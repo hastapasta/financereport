@@ -9,6 +9,26 @@
 			<generator class="identity"/>
 		</id>
 		<property name="address" column="address" type="string" />
-		<property name="type" column="type" type="integer" />
+		 <property name="type" type="int">
+            <column name="type" not-null="true">
+                <comment>1 - email, 2 - twitter, 3 - fb, 4 - g+</comment>
+            </column>
+        </property>
+          <property name="bulkEmail" type="java.lang.Boolean">
+            <column name="bulk_email" not-null="true" />
+        </property>
+        <property name="maxNotifications" type="integer">
+            <column name="max_notifications" not-null="true" />
+        </property>
+        <property name="tweetLimit" type="int">
+            <column name="tweet_limit" not-null="true">
+                <comment>&gt; 0:# per 15 min, 0:none,-1: unlimited (with delay)</comment>
+            </column>
+        </property>	
+    
+         <many-to-one name="securityAccountId"  class="com.pikefin.businessobjects.SecurityAccounts" column="security_account_id" 
+			not-null="true" cascade="all" />
+        <many-to-one name="userId" class="com.pikefin.businessobjects.User" column="user_id" 
+			not-null="true" cascade="all" />
    </class>
-</hibernate-mapping>
+ </hibernate-mapping>

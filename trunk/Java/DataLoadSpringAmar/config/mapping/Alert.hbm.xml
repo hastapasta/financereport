@@ -8,8 +8,14 @@
 		<id name="alertId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>
-		<property name="limitValue" column="limit_value" type="float" />
-		<!-- The unique=true property makes the many-to-one a one-to-one relationship -->
+		  <property name="type" type="int">
+            <column name="type" not-null="true" />
+        </property>
+        
+     <property name="limitValue" type="java.lang.Double">
+            <column name="limit_value"  />
+        </property>
+        <!-- The unique=true property makes the many-to-one a one-to-one relationship -->
 		<many-to-one name="alertEntity" 
 			class="com.pikefin.businessobjects.Entity" column="entity_id" 
 			not-null="true" cascade="all" unique="true"/>
@@ -18,18 +24,51 @@
 			not-null="true" cascade="all" unique="true"/>
 		<many-to-one name="alertUser" 
 			class="com.pikefin.businessobjects.User" column="user_id" 
-			not-null="true" cascade="all" unique="true"/>
+			not-null="true" cascade="all" />
 		<many-to-one name="alertTimeEvent" 
 			class="com.pikefin.businessobjects.TimeEvent" column="time_event_id" 
 			not-null="true" cascade="all" unique="true"/>
 		<many-to-one name="alertInitialFactData" 
-			class="com.pikefin.businessobjects.FactData" column="inital_fact_data_id" 
+			class="com.pikefin.businessobjects.FactData" column="initial_fact_data_id" 
+			not-null="true" cascade="all" unique="true"/>
+		<many-to-one name="alertCurrentFactData" 
+			class="com.pikefin.businessobjects.FactData" column="current_fact_data_id" 
 			not-null="true" cascade="all" unique="true"/>
 		<set name="alertTarget" table="alerts_alert_targets" cascade="all">
 			<key column="alert_id" />
 			<many-to-many column="alert_target_id"
 				class="com.pikefin.businessobjects.AlertTarget" />	
 		</set>
-		
-   </class>
+     
+        <property name="notificationCount" type="int">
+            <column name="notification_count" not-null="true" />
+        </property>
+        <property name="disabled" type="boolean">
+            <column name="disabled" not-null="true" />
+        </property>
+    	<many-to-one name="groupId" 
+			class="com.pikefin.businessobjects.Groups" column="group_id" 
+			not-null="true" cascade="all" />
+    
+        <property name="autoResetPeriod" type="boolean">
+            <column name="auto_reset_period" not-null="true" />
+        </property>
+        <property name="autoResetFired" type="boolean">
+            <column name="auto_reset_fired" not-null="true" />
+        </property>
+        <property name="fired" type="boolean">
+            <column name="fired" not-null="true" />
+        </property>
+        <property name="emailAlert" type="boolean">
+            <column name="email_alert" not-null="true" />
+        </property>
+        <property name="twitterAlert" type="boolean">
+            <column name="twitter_alert" not-null="true" />
+        </property>       
+        <property name="calyear" type="java.lang.Integer">
+            <column name="calyear" />
+        </property>
+    </class>
+    
+    
 </hibernate-mapping>
