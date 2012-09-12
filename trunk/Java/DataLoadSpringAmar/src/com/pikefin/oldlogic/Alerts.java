@@ -11,8 +11,6 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
-
 import com.pikefin.businessobjects.FactData;
 import com.pikefin.businessobjects.Task;
 
@@ -119,6 +117,7 @@ public class Alerts {
 			 * 
 			 * 
 			*/
+			//TODO this query need to be converted into HQL
 			query += " and (countries_entities.default_country=1 OR countries_entities.default_country is null)";
 			query += " order by time_events.id";
 			
@@ -282,17 +281,17 @@ public class Alerts {
 							 * 
 							 * 
 							 */
-							  
+						/*	  
 							String strQuery = "select fact_data.id from fact_data,batches ";
 							strQuery += "where fact_data.batch_id = batches.id ";
 							strQuery += " and task_id=" + nCurTask + " AND entity_id=" + nEntityId + " AND fact_data.date_collected>='" + formatter.format(calObservationPeriodBegin.getTime()) +"'";
 							if (strCalYear != null)
 								strQuery += " and calyear=" + strCalYear;
 							strQuery += " order by fact_data.date_collected asc";
-								  
+													
 							//ResultSet rsFactData = dg.dbf.db_run_query(strQuery);
 							SqlRowSet rsFactData = dg.dbf.dbSpringRunQuery(strQuery);
-							  
+							
 							if (!rsFactData.next()) {
 								//we should never get here, but you never know.
 								UtilityFunctions.stdoutwriter.writeln("No fact_data entry found to populate initial_fact_data_id for Alert id: " + nAlertId + ". Skipping Alert.",Logs.ERROR,"A10.3");
@@ -303,6 +302,35 @@ public class Alerts {
 							String query4 = "update alerts set ";
 							 
 							query4 += "initial_fact_data_id=" +rsFactData.getInt("fact_data.id") + ",";
+							query4 += "current_fact_data_id=" + hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + ", ";
+							query4 += "notification_count=0,";
+							query4 += "fired=0 ";
+							query4 += " where id=" + nAlertId;
+							  
+							//dg.dbf.db_update_query(query4);
+							dg.dbf.dbSpringUpdateQuery(query4);
+							*/
+
+							String strQuery = "select fact.factDataId from FactData fact ,Batches batch where fact.batchId.batchId=batch.batchId AND batch.batchTask.taskId=" + nCurTask+" AND fact.entityId="+nEntityId+" AND fact.dateCollected>='"+calObservationPeriodBegin.getTime()+"'";
+							if(strCalYear != null && strCalYear.trim().length()>0)
+								strQuery+=" AND fact.calyear="+strCalYear;
+							strQuery+=" order by fact.dateCollected asc";
+																
+							
+							List rsFactData = dg.dbf.dbHibernateRunQuery(strQuery);
+							
+							if (rsFactData==null || rsFactData.size()==0) {
+								//we should never get here, but you never know.
+								UtilityFunctions.stdoutwriter.writeln("No fact_data entry found to populate initial_fact_data_id for Alert id: " + nAlertId + ". Skipping Alert.",Logs.ERROR,"A10.3");
+								continue;
+									  
+							}
+							//getting the first fact id from entire list
+							Integer factId=(Integer) rsFactData.get(0); 
+							//TODO
+							String query4 = "update alerts set ";
+							 
+							query4 += "initial_fact_data_id=" +factId + ",";
 							query4 += "current_fact_data_id=" + hmCurFactData.get(new TheKey(nEntityId+"",strCalYear)).get("fact_data.id") + ", ";
 							query4 += "notification_count=0,";
 							query4 += "fired=0 ";

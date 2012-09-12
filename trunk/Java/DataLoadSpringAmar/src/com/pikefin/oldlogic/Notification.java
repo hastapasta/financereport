@@ -214,9 +214,9 @@ public class Notification extends Thread {
 						tmpHM.put("TimeEventName", te.getName());
 						tmpHM.put("Diff", la.getDiff()+"");
 						tmpHM.put("BeforeValue", bfd.getValue()+"");
-						tmpHM.put("BeforeDateCollected", bfd.getDateCollected().getTime().toString());
+						tmpHM.put("BeforeDateCollected", bfd.getDateCollected().toString());
 						tmpHM.put("AfterValue", afd.getValue()+"");
-						tmpHM.put("AfterDateCollected", afd.getDateCollected().getTime().toString());
+						tmpHM.put("AfterDateCollected", afd.getDateCollected().toString());
 						tmpHM.put("CakeEditAlertURL", UtilityFunctions.getEmailCakeUrl()
 								+ "alerts/edit?alert=" + a.getAlertId());
 						

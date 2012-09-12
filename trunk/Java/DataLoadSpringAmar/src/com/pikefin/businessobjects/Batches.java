@@ -15,7 +15,7 @@ public class Batches implements Serializable{
 	private Task batchTask;
 	private Integer count;
 	private Integer randomUnique;
-	private Boolean garbageCollect;
+	private Integer garbageCollect;
 	
 	
 	public Integer getBatchId() {
@@ -50,10 +50,10 @@ public class Batches implements Serializable{
 	public void setRandomUnique(Integer randomUnique) {
 		this.randomUnique = randomUnique;
 	}
-	public Boolean getGarbageCollect() {
+	public Integer getGarbageCollect() {
 		return garbageCollect;
 	}
-	public void setGarbageCollect(Boolean garbageCollect) {
+	public void setGarbageCollect(Integer garbageCollect) {
 		this.garbageCollect = garbageCollect;
 	}
 }
