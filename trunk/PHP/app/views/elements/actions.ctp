@@ -39,7 +39,6 @@
 	<li><?php echo $this->Html->link(__('Charts', true), array('controller' => 'users','action' => 'chart')); ?></li>
 	<li><?php echo $this->Html->link(__('Change Password', true), array('controller' => 'users', 'action' => 'change_password')); ?></li>	
 	<li><?php echo $this->Html->link(__('Log Out',true),array('controller' => 'users','action' => 'logout')); ?></li>
-	</li>
 	<?php endif; ?>
 </ul>
 </div>
