@@ -8,11 +8,11 @@
 		<id name="inputSourceId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>
-	
 		<property name="urlStatic" column="url_static" type="string"/>
 		<property name="urlDynamic" column="url_dynamic" type="string"/>
 		<property name="urlForm" column="url_form" type="string"/>
 		<property name="formStaticProperties" column="form_static_properties" type="string"/>
 		
    </class>
+   
 </hibernate-mapping>

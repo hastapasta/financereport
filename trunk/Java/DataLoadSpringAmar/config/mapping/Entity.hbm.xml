@@ -19,5 +19,38 @@
 			<many-to-many column="country_id"
 				class="com.pikefin.businessobjects.Country" />	
 		</set>
+		
+		   <property name="sharesOutstanding" type="java.lang.Double">
+            <column name="shares_outstanding" precision="20" scale="0" />
+        </property>
+       
+        <property name="lastReportedQuarter" type="java.lang.Integer">
+            <column name="last_reported_quarter" />
+        </property>
+        <property name="nextReportDate" type="date">
+            <column name="next_report_date" length="10" />
+        </property>
+        <property name="obsoleteGroups" type="string">
+            <column name="obsolete_groups" length="100" />
+        </property>
+        <property name="actualFiscalYearEnd" type="string">
+            <column name="actual_fiscal_year_end" length="8" />
+        </property>
+        <property name="fullName" type="string">
+            <column name="full_name" length="100" />
+        </property>
+        <property name="depricated" type="date">
+            <column name="depricated" length="10" />
+        </property>
+        <property name="obsoleteCountryId" type="java.lang.Integer">
+            <column name="obsolete_country_id" />
+        </property>
+        <property name="ticker2" type="string">
+            <column name="ticker2" length="10" />
+        </property>
+        <property name="hash" type="string">
+            <column name="hash" length="20" />
+        </property>
    </class>
+      
 </hibernate-mapping>

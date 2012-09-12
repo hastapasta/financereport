@@ -16,6 +16,6 @@
 		
 		<many-to-one name="extractTable" 
 			class="com.pikefin.businessobjects.ExtractTable" column="extract_table_id" 
-			not-null="true" cascade="all" unique="true"/>
+			not-null="true" cascade="all" />
    </class>
 </hibernate-mapping>

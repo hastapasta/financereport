@@ -33,5 +33,31 @@
 		<many-to-one name="inputSource" 
 			class="com.pikefin.businessobjects.InputSource" column="input_source" 
 			not-null="true" cascade="all" unique="true"/>
-   </class>
+     
+       
+        <property name="source" type="string">
+            <column name="source" length="20" />
+        </property>
+      
+        <property name="dataGroup" type="string">
+            <column name="data_group" length="25" />
+        </property>
+      
+        <property name="dataSetAlias" type="string">
+            <column name="data_set_alias" length="25" />
+        </property>
+       
+        <property name="obsoleteUrlDynamic" type="string">
+            <column name="obsolete_url_dynamic" length="200" />
+        </property>
+        <property name="obsoleteMultipleTables" type="string">
+            <column name="obsolete_multiple_tables" length="100" />
+        </property>
+     
+        <set name="tasks" table="jobs_tasks" cascade="all">
+			<key column="job_id" />
+			<many-to-many column="task_id"
+				class="com.pikefin.businessobjects.Task" />	
+		</set>
+    </class>
 </hibernate-mapping>

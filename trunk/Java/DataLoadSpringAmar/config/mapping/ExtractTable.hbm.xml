@@ -8,8 +8,7 @@
 		<id name="extractTableId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>
-		
-		<property name="description" column="description" type="string"/>
+		<property name="description" column="Description" type="string"/>
 		<property name="tableCount" column="table_count" type="string"/>
 		<property name="topCornerRow" column="top_corner_row" type="integer"/>
 		<property name="numberOfColumns" column="number_of_columns" type="integer"/>
@@ -25,6 +24,9 @@
             </key>
             <one-to-many class="com.pikefin.businessobjects.Column" />
         </set>
-		
-   </class>
+       <class name="ExtractTables" table="extract_tables" catalog="findata">
+       
+      <!-- mapping for fields column1, column2.. ,befCodeCol1,befCodeCol1... and aftCodeCol1,aftCodeCol2... are left and a relationship with table Column is created   -->
+        
+            </class>
 </hibernate-mapping>
