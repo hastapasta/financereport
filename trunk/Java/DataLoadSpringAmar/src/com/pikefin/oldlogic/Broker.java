@@ -196,7 +196,7 @@ class Broker extends Thread {
 				//while (rs2.next()) {
 					
 					//check if task is being excluded
-					if  (isTaskExcluded(s.getTaskId() + ""))
+					if  (isTaskExcluded(s.getTask().getTaskId() + ""))
 							continue;
 					
 					//check if job is already in queue, don't add it again if it is
@@ -204,7 +204,7 @@ class Broker extends Thread {
 					for (int i=0;i<listWaitingJobs.size();i++) {
 						//if (listWaitingJobs.get(i).equals(rs2.getString("data_set")))
 						//if (listWaitingJobs.get(i)[0].equals(rs2.getString("task_id")))
-						if (listWaitingJobs.get(i).task_id == s.getTaskId()) 
+						if (listWaitingJobs.get(i).task_id == s.getTask().getTaskId()) 
 							bInQ=true;
 										
 					}
@@ -218,8 +218,8 @@ class Broker extends Thread {
 						tmp[2] = rs2.getString("repeat_type_id");
 						tmp[3] = rs2.getString("priority");
 						tmp[4] = formatter.format(Calendar.getInstance().getTime());*/
-						Job j = new Job(s.getTaskId(),s.getScheduleId(),s.getRepeatTypeId(),
-								s.getPriority(),Calendar.getInstance(),s.isVerifyMode());
+						Job j = new Job(s.getTask().getTaskId(),s.getScheduleId(),s.getRepeatType().getRepeatTypeId(),
+								s.getPriority(),Calendar.getInstance(),s.getVerifyMode());
 						listWaitingJobs.add(j);
 					}
 				
