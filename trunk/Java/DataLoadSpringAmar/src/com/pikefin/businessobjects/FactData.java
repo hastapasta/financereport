@@ -1,6 +1,5 @@
 package com.pikefin.businessobjects;
 
-// Generated Jun 18, 2012 7:54:36 AM by Hibernate Tools 3.4.0.CR1
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -14,9 +13,8 @@ public class FactData implements java.io.Serializable {
      private Integer scale;
      private Boolean manualCorrection;
      private Date dateCollected;
-     //TODO need to be converted into relationship
-     private int entityId;
-     private Integer metricId;
+     private Entity entity;
+     private Metric metric;
      private String dataGroup;
      private Integer fiscalquarter;
      private Integer fiscalyear;
@@ -24,12 +22,11 @@ public class FactData implements java.io.Serializable {
      private Integer calyear;
      private Integer calmonth;
      private Integer day;
-     private Batches batchId;
+     private Batches batch;
      private Boolean raw;
      private Boolean garbageCollect;
-     private Integer metaSetId;
-     
-     public Integer getFactDataId() {
+     private MetaSets metaSet;
+	public Integer getFactDataId() {
 		return factDataId;
 	}
 	public void setFactDataId(Integer factDataId) {
@@ -47,7 +44,7 @@ public class FactData implements java.io.Serializable {
 	public void setScale(Integer scale) {
 		this.scale = scale;
 	}
-	public Boolean isManualCorrection() {
+	public Boolean getManualCorrection() {
 		return manualCorrection;
 	}
 	public void setManualCorrection(Boolean manualCorrection) {
@@ -59,17 +56,17 @@ public class FactData implements java.io.Serializable {
 	public void setDateCollected(Date dateCollected) {
 		this.dateCollected = dateCollected;
 	}
-	public int getEntityId() {
-		return entityId;
+	public Entity getEntity() {
+		return entity;
 	}
-	public void setEntityId(int entityId) {
-		this.entityId = entityId;
+	public void setEntity(Entity entity) {
+		this.entity = entity;
 	}
-	public Integer getMetricId() {
-		return metricId;
+	public Metric getMetric() {
+		return metric;
 	}
-	public void setMetricId(Integer metricId) {
-		this.metricId = metricId;
+	public void setMetric(Metric metric) {
+		this.metric = metric;
 	}
 	public String getDataGroup() {
 		return dataGroup;
@@ -113,30 +110,31 @@ public class FactData implements java.io.Serializable {
 	public void setDay(Integer day) {
 		this.day = day;
 	}
-	public Batches getBatchId() {
-		return batchId;
+	public Batches getBatch() {
+		return batch;
 	}
-	public void setBatchId(Batches batchId) {
-		this.batchId = batchId;
+	public void setBatch(Batches batch) {
+		this.batch = batch;
 	}
-	public Boolean isRaw() {
+	public Boolean getRaw() {
 		return raw;
 	}
 	public void setRaw(Boolean raw) {
 		this.raw = raw;
 	}
-	public Boolean isGarbageCollect() {
+	public Boolean getGarbageCollect() {
 		return garbageCollect;
 	}
 	public void setGarbageCollect(Boolean garbageCollect) {
 		this.garbageCollect = garbageCollect;
 	}
-	public Integer getMetaSetId() {
-		return metaSetId;
+	public MetaSets getMetaSet() {
+		return metaSet;
 	}
-	public void setMetaSetId(Integer metaSetId) {
-		this.metaSetId = metaSetId;
+	public void setMetaSet(MetaSets metaSet) {
+		this.metaSet = metaSet;
 	}
-	
+	     
+
 
 }
