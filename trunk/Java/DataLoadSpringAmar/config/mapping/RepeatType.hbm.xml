@@ -9,7 +9,31 @@
 			<generator class="identity"/>
 		</id>
 		<property name="type" column="type" type="string"/>
-		<property name="nextTrigger" column="next_trigger" type="calendar" />
+		<property name="nextTrigger" column="next_trigger" type="timestamp" />
 		<property name="multiplier" column="multiplier" type="integer" />
+           <property name="obsoleteGroup" type="java.lang.Integer">
+            <column name="obsolete_group">
+                <comment>Trying to remember why I created this field. Maybe to combine repeat types??</comment>
+            </column>
+        </property>
+        <property name="monthday" type="java.lang.Integer">
+            <column name="monthday" />
+        </property>
+        <property name="weekday" type="java.lang.Integer">
+            <column name="weekday" />
+        </property>
+        <property name="time" type="time">
+            <column name="time" length="8" not-null="true">
+                <comment>I think I can get rid of this column since we're keying off of start</comment>
+            </column>
+        </property>
+        <property name="start" type="timestamp">
+            <column name="start" length="19" not-null="true" />
+        </property>
+       
+        <property name="description" type="string">
+            <column name="description" length="100" not-null="true" />
+        </property>
    </class>
+  
 </hibernate-mapping>

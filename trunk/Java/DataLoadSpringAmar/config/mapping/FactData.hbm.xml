@@ -22,13 +22,14 @@
         <property name="dateCollected" type="timestamp">
             <column name="date_collected" length="19" not-null="true" />
         </property>
-        
-        <property name="entityId" type="int">
-            <column name="entity_id" not-null="true" />
-        </property>
-        <property name="metricId" type="java.lang.Integer">
-            <column name="metric_id" />
-        </property>
+        <many-to-one name="entity" 
+            class="com.pikefin.businessobjects.Entity" 
+            column="entity_id"></many-to-one>
+      
+         <many-to-one name="metric" 
+            class="com.pikefin.businessobjects.Metric" 
+            column="metric_id"></many-to-one>
+      
         <property name="dataGroup" type="string">
             <column name="data_group" length="20" />
         </property>
@@ -50,7 +51,8 @@
         <property name="day" type="java.lang.Integer">
             <column name="day" />
         </property>
-        <many-to-one name="batchId" class="com.pikefin.businessobjects.Batches" column="batch_id"/>
+        <many-to-one name="batch" class="com.pikefin.businessobjects.Batches" 
+            column="batch_id"/>
       
         <property name="raw" type="boolean">
             <column name="raw" not-null="true" />
@@ -58,8 +60,9 @@
         <property name="garbageCollect" type="boolean">
             <column name="garbage_collect" not-null="true" />
         </property>
-        <property name="metaSetId" type="java.lang.Integer">
-            <column name="meta_set_id" />
-        </property>
+        <many-to-one name="metaSet" 
+            class="com.pikefin.businessobjects.MetaSets" 
+            column="meta_set_id" unique="true"></many-to-one>
+        
     </class>
 </hibernate-mapping>

@@ -22,17 +22,17 @@
 		
 		<many-to-one name="extractKeyColhead" 
 			class="com.pikefin.businessobjects.ExtractTable" column="extract_key_colhead" 
-			not-null="true" cascade="all" unique="true"/>
+			not-null="true" cascade="all" />
 		<many-to-one name="extractKeyRowhead" 
 			class="com.pikefin.businessobjects.ExtractTable" column="extract_key_rowhead" 
-			not-null="true" cascade="all" unique="true"/>
+			not-null="true" cascade="all" />
 		<many-to-one name="extractKeyBody" 
 			class="com.pikefin.businessobjects.ExtractTable" column="extract_key" 
-			not-null="true" cascade="all" unique="true"/>
+			not-null="true" cascade="all" />
 			
 		<many-to-one name="inputSource" 
 			class="com.pikefin.businessobjects.InputSource" column="input_source" 
-			not-null="true" cascade="all" unique="true"/>
+			not-null="true" cascade="all" />
      
        
         <property name="source" type="string">

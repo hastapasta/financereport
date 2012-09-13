@@ -8,13 +8,27 @@
 		<id name="jobQueueId" column="id" type="integer">
 			<generator class="identity" />
 		</id>
-		<property name="startTime" column="start_time" type="string"/>
-		<property name="taskId" column="task_id" type="integer"/>
-		<property name="status" column="status" type="string"/>
-		<!--  example of specifying default in hbm.xml file -->
-		<property name="priority" type="integer">
-			<column name="priority" not-null="true" />
-		</property> 
-		<property name="queuedTime" column="queued_time" type="calendar"/>
+		   <property name="startTime" type="timestamp">
+            <column name="start_time" length="19" />
+        </property>
+       
+        <property name="status" type="string">
+            <column name="status" length="30" not-null="true" />
+        </property>
+        <property name="priority" type="int">
+            <column name="priority" not-null="true">
+                <comment>priority is irrelevant once status is RUNNABLE</comment>
+            </column>
+        </property>
+        <property name="queuedTime" type="timestamp">
+            <column name="queued_time" length="19" />
+        </property>
+               
+        <many-to-one name="task" 
+			class="com.pikefin.businessobjects.Task" column="task_id" 
+			not-null="true" cascade="all" />
+     
    </class>
+   
+   
 </hibernate-mapping>

@@ -14,10 +14,18 @@
 		 <property name="days" column="days" type="integer" />
 		 <property name="hours" column="hours" type="integer" />
 		 <property name="delay" column="delay" type="integer" />
-		 
-		 <property name="startDateTime" column="start_datetime" type="calendar" />
-		 <property name="lastDateTime" column="last_datetime" type="calendar" />
-		 <property name="nextDateTime" column="next_datetime" type="calendar" />
-		 
+		  <property name="description" type="string">
+            <column name="description" length="40" />
+        </property>
+		  <property name="startDatetime" type="timestamp">
+            <column name="start_datetime" length="19" not-null="true" />
+        </property>
+        <property name="lastDatetime" type="timestamp">
+            <column name="last_datetime" length="19" />
+        </property>
+        <property name="nextDatetime" type="timestamp">
+            <column name="next_datetime" length="19" />
+        </property>		 
    </class>
+ 
 </hibernate-mapping>
