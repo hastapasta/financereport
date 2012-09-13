@@ -13,10 +13,15 @@ Metric.hbm.xml				Done
 Entity.hbm.xml				Done
 Country.hbm.xml				Done
 EntityGroup.hbm.xml			Done
-JobQueue.hbm.xml			Pending
-Schedule.hbm.xml			Pending
-TimeEvent.hbm.xml			Pending
-FactData.hbm.xml			Pending
-LogTask.hbm.xml				Pending
-LogNotification.hbm.xml		Pending
-LogAlert.hbm.xml			Pending
+JobQueue.hbm.xml			Done
+Schedule.hbm.xml			Done
+TimeEvent.hbm.xml			Done
+FactData.hbm.xml			Done
+LogTask.hbm.xml				Pending		Have Question to ask
+LogNotification.hbm.xml		Pending		Have Question to ask
+LogAlert.hbm.xml			Done
+RepeatType.hbm.xml			Done
+Regions.hbm.xml				Done 
+PageCounters.hbm.xml		Done
+Splits.hbm.xml				Done
+MetaSets.hbm.xml			Done
