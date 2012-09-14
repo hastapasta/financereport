@@ -71,6 +71,16 @@ class Alert extends AppModel {
 	        	//'on' => 'create', // Limit validation to 'create' or 'update' operations
 	        	),
 	        	),
+	        'calyear'=> array(
+			'numeric' => array(
+				'rule' => array('numeric'),
+	        	//'message' => 'Number required.',
+	        	'allowEmpty' => true,
+	        	'required' => false
+	        	//'last' => false, // Stop validation after this rule
+	        	//'on' => 'create', // Limit validation to 'create' or 'update' operations
+	        	),
+	        	),
 	     	'time_event_id' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
@@ -117,6 +127,16 @@ class Alert extends AppModel {
 	        	//'message' => 'Your custom message here',
 	        	//'allowEmpty' => false,
 	        	//'required' => false,
+	        	//'last' => false, // Stop validation after this rule
+	        	//'on' => 'create', // Limit validation to 'create' or 'update' operations
+	        	),
+	        	),
+	    'type' => array(
+			'numeric' => array(
+				'rule' => array('numeric'),
+	        	'message' => 'Value required',
+	        	//'allowEmpty' => false,
+	        	'required' => true,
 	        	//'last' => false, // Stop validation after this rule
 	        	//'on' => 'create', // Limit validation to 'create' or 'update' operations
 	        	),
