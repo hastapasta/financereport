@@ -98,7 +98,7 @@
       query1 && query1.abort();
       query1 = new google.visualization.Query(dataSourceUrl + queryString1);
       query1.setTimeout(120);
-      var queryWrapper1 = new QueryWrapper(query1, tableChart1, options, container1);
+      var queryWrapper1 = new QueryWrapper(query1, tableChart1, options, container1,[],7);
       queryWrapper1.sendAndDraw();
 
       /*query2 && query2.abort();
