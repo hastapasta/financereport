@@ -1,7 +1,7 @@
 <?php
 //require_once 'init2.php';
 require_once '../../common/functions.php';
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 
 
@@ -10,7 +10,7 @@ include ("../../site/includes/sitecommon.php");
 <head>
 	<?php IncFunc::icon();?>
     <?php IncFunc::title();?>
-    <link rel="stylesheet" href="/PHP/site/includes/style.css" type="text/css" />
+    <?php IncFunc::linkStyleCSS();?>
   <?php //IncFunc::yuiDropDownJavaScript(); ?>
   <?php IncFunc::googleGadget(); ?>
   
@@ -84,9 +84,8 @@ include ("../../site/includes/sitecommon.php");
            	function(res)
            	{
 				//alert('here 2.05');
-                if(res.isError())
-                {
-				  // alert('here 2.06');
+                if(res.isError())  {
+				    alert('here 2.06');
                     alert(res.getDetailedMessage());
                 }
                 else
@@ -110,16 +109,20 @@ include ("../../site/includes/sitecommon.php");
 <body>
 <div id="jq-siteContain">
 
-<?php 
-	IncFunc::header2("charts"); 
-	IncFunc::yuiDropDownMenu();
 
+<?php 
+	IncFunc::header1("charts"); 
+?>
+<div id="pf-body">
+<?php 
+	IncFunc::apycomDropDownMenu();
 ?>
 
     <div id="chart-div" style="margin-top:20px"></div>
     
 	<!--  <input type="button" value="Display Chart" onclick="showState();return false;"> -->
  
+</div> <!--  pf-body -->
 </div> <!--  siteContain -->
 </body>
 </html>
