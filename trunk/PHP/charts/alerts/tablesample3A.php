@@ -1,6 +1,12 @@
 <?php
+
+/* This file is set up intentionally to not return any data on the first pass until a 
+ * user has had the chance to select the parameters.
+ */
+
+
 require_once '../../common/functions.php';
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
@@ -12,9 +18,10 @@ db_utility::db_connect();
 <!DOCTYPE html>
 <html>
 <head>
+<?php IncFunc::jQuery();?>
 	<?php IncFunc::icon();?>
 	<?php IncFunc::title();?>
-<link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
+<?php IncFunc::linkStyleCSS();?>
 <?php IncFunc::googleGadget()?>
 <script type="text/javascript">
     google.load('visualization', '1', {'packages' : ['table']});
@@ -65,9 +72,12 @@ db_utility::db_connect();
       }
 
 
-      Users: <BR>
+      
 
-     	 queryString1 = '?userid='+userid+'&taskid='+tasks.value+'&timeeventid='+timeeventid.value;
+     	queryString1 = '?userid='+userid+'&taskid='+tasks.value+'&timeeventid='+timeeventid.value;
+
+
+		if (window.console) {console.log(dataSourceUrl + queryString1)}
  
 
       //alert(dataSourceUrl + queryString1);
@@ -86,12 +96,11 @@ db_utility::db_connect();
 
 <body>
 <div id="jq-siteContain">
+<?php 
+	IncFunc::header2("charts"); 
+	IncFunc::apycomDropDownMenu();
 
-<div id="jq-header"><?php
-logo();
-primaryNav("charts");
-chartSecondaryNav();
-?></div>
+?>
 <!-- header --> <!-- <div id="jq-whosUsing"> --></div>
 <!--  siteContain -->
 <div id="jq-content" class="jq-clearfix">

@@ -2,7 +2,7 @@
 //require_once 'init2.php';
 
 require_once '../../common/functions.php';
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 
 
@@ -14,7 +14,7 @@ include ("../../site/includes/sitecommon.php");
 	<?php IncFunc::icon();?>
 	<?php IncFunc::title();?>
     
-    <link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
+    <?php IncFunc::linkStyleCSS();?>
     <?php //IncFunc::yuiDropDownJavaScript(); ?>
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript">
@@ -92,11 +92,11 @@ include ("../../site/includes/sitecommon.php");
 <div id="jq-siteContain">
 
 <?php 
-	IncFunc::header2("charts"); 
-	IncFunc::yuiDropDownMenu();
-
+	IncFunc::header1("charts"); 
+	IncFunc::apycomDropDownMenu();
+  
 ?>
-	<div id="pf-form" style="text-align:left;font-size:1.5em">
+	<div id="pf-form">
 	<form action="">
 
  	<select id="limitcount">
