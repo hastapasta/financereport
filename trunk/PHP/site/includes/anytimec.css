@@ -10,8 +10,8 @@ or send a letter to Creative Commons, 171 Second Street, Suite 300,
 San Francisco, California, 94105, USA.  For ported versions of the
 license, visit http://creativecommons.org/international/
 Any+Time is a trademark of Andrew M. Andrews III. */
-/* OFP: bumped the z-index from 1 up to 101 */
-.AnyTime-pkr * {z-index:1001;border:0;font: inherit;font-size: x-small;font-style:normal;font-weight:normal;list-style-type:none;margin:0;padding:0;white-space: nowrap}
+/* OFP: bumped the z-index from 1 up to 1001 */
+.AnyTime-pkr * {z-index:1001 !important;border:0;font: inherit;font-size: x-small;font-style:normal;font-weight:normal;list-style-type:none;margin:0;padding:0;white-space: nowrap}
 div.AnyTime-win {background-color:#F0F0F1;border:3px solid #C0C0C0;font:normal normal normal xx-small/normal sans-serif;padding-bottom:0.2em;-moz-border-radius:6px;-webkit-border-radius:6px}
 .AnyTime-pkr .AnyTime-cloak {background-color:#D7D7D7;opacity:0.7;filter:alpha(opacity=70)}
 .AnyTime-pkr .AnyTime-hdr {background-color:#D0D0D1;color:#606062;font-family:Arial,Helvetica,sans-serif;font-size:medium;font-weight:normal;height:1em;margin:0;padding:0 0 0.4em 0;text-align:center;-moz-border-radius:2px;-webkit-border-radius:2px}
