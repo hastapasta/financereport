@@ -121,9 +121,11 @@
 	
 	
 	<form controller="jobs" class="recordForm" id="JobActionProcessForm" method="post" action="/cakepftest/jobs/action_process" accept-charset="utf-8">
-	<input type="checkbox" name="data[Job][Job6]" type="checkbox" value="11168" id="JobJob19" />
+	<!--<input type="checkbox" name="data[Job][Job6]" type="checkbox" value="11168" id="JobJob19" />-->
+	<?php //echo $form->checkbox('Job', array('label'=>false, 'type'=>'checkbox', 'value'=>$job['Job']['id']));?>
+	<?php echo $this->Html->link('Edit Job', array('controller' => 'jobs', 'action' => 'edit',$job['Job']['id']),array('class'=>'job_editbutton')); ?>
 	</form>
-	<?php echo $this->Html->link('Edit Job', array('controller' => 'jobs', 'action' => 'edit#'),array('class'=>'editButton')); ?>
+	<?php //echo $this->Html->link('Edit Job', array('controller' => 'jobs', 'action' => 'edit',$job['Job']['id']),array('class'=>'editButton')); ?>
 	<script>
 		$(function() {
 		<?php echo "$( \"#edit".$job['Job']['id']."\" )" ?>

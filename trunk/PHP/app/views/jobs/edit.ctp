@@ -7,6 +7,7 @@
  		<legend><?php __('Edit Job');?></legend>
 	<?php
 		echo $this->Form->input('id');
+		echo $this->Form->input('Job.'.$i.'.id');
 		echo $this->Form->input('Job.'.$i.'.data_set');
 		echo $this->Form->input('Job.'.$i.'.extract_key');
 		echo $this->Form->input('Job.'.$i.'.extract_key_colhead');
