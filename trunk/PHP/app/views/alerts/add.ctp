@@ -73,7 +73,7 @@
         $( "#filtercountry" ).autocomplete({
 			source: function( request, response ) {
 				$.ajax({
-					url: php_root_path + "/site/includes/getCountry.php",
+					url: php_root_path + "/site/ajax/getCountry.php",
 					dataType: "json",
 					data: {
 						maxRows: 12,

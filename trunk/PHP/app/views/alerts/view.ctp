@@ -226,6 +226,26 @@
 	&nbsp;</dd>
 </dl>
 <BR>
+	<form controller="alerts" class="recordForm" id="AlertActionProcessForm" method="post" action="/cakepftest/alerts/action_process" accept-charset="utf-8">
+	
+	</form>
+	<?php echo $this->Html->link('Edit Alert', array('controller' => 'alerts', 'action' => 'edit#'),array('class'=>'editButton')); ?>
+	<script>
+		$(function() {
+		<?php echo "$( \"#edit\" )" ?>
+				.button()
+				.click(function() {
+					<?php //echo "tmp = $(\"#split".$this->data['Entity'][$i]['id']."\").attr(\"name\");"; ?>
+					//alert(tmp);
+					//window.location.href = "http://www.pikefin.com";
+					$('#actionValue').val('2'); 
+					$('.recordForm').submit(); 
+					
+					//$( "#dialog-form" ).dialog( "open" );
+				});
+		});
+	</script>
+	<br>
  	<STYLE>
 	.goog-custom-button-inner-box{
 	-moz-box-orient:vertical;

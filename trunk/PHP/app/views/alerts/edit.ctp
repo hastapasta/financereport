@@ -237,7 +237,7 @@
 			
 //			$tickers1 = $this->getVar('tickers1');
 //			echo $this->Form->input('Entity.'.$i.'.ticker',array('label'=>'Ticker','default'=>$tickers1[$this->data['Alert'][$i]['entity_id']]));
-			
+			echo $this->Form->input('Alert.'.$i.'.type',array('label'=>'Type','options' => $this->getVar('types')));
 			echo $this->Form->input('Alert.'.$i.'.user_id',array('label'=>'User Name','options' => $this->getVar('usernames')));
 			//echo $this->Form->input('user');
 			//echo $this->Form->input('names');

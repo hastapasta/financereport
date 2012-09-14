@@ -7,6 +7,7 @@
 												'action'=>'index','class'=>'filterForm'));
 		//echo $this->Form->hidden('action_value_search',array('id'=>'actionValueSearch','value'=>'3'));
 		$tickerdefault = "";
+		$fullnamedefault = "";
 		$taskdefault="";
 		$metricdefault="";
 		$timeeventdefault="";
@@ -22,9 +23,12 @@
 			
 			
 				//if (!empty($filtervalues['Alert'])){
+					
 					$tickerdefault = $filtervalues['Entity']['ticker'];
 					//$taskdefault = $filtervalues['Alert']['task_id'];
 					$metricdefault = $filtervalues['Alert']['metric_id'];
+					$fullnamedefault = $filtervalues['Entity']['full_name'];
+					
 					$timeeventdefault = $filtervalues['Alert']['time_event_id'];
 					$userdefault = $filtervalues['Alert']['user_id'];
 					if ($filtervalues['Alert']['filtersenabled']=='1'){
@@ -38,6 +42,7 @@
 					}
 					if($filtervalues['Alert']['filtersfired'] == '1')
 						$fired = true;
+					
 				//}
 		}
 	?>
@@ -64,6 +69,9 @@
 	
 	<tr>
 		<td><?php echo $this->Form->input('Entity.ticker',array('label'=>'Ticker:','type'=>'text','value'=>$tickerdefault)); ?></td>
+	</tr>
+	<tr>
+		<td><?php echo $this->Form->input('Entity.full_name',array('label'=>'Description:','type'=>'text','value'=>$fullnamedefault)); ?></td>
 	</tr>
 	
 	<tr>
@@ -113,6 +121,7 @@
 		<th><?php echo $this->Paginator->sort('Description','Entity.full_name');?></th>
 		<th><?php echo $this->Paginator->sort('Observation Period','TimeEvent.name');?></th>
 		<th><?php echo $this->Paginator->sort('limit_value');?></th>
+		<th><?php echo $this->Paginator->sort('Calendar Year','calyear');?></th>
 		<th><?php echo $this->Paginator->sort('notification_count');?></th>
 		<th><?php echo $this->Paginator->sort('disabled');?></th>
 		<th><?php echo $this->Paginator->sort('fired');?></th>
@@ -148,6 +157,7 @@
 		<td><?php echo $alert['Entity']['full_name']; ?>&nbsp;</td>
 		<td><?php echo $alert['TimeEvent']['name']; ?>&nbsp;</td>
 		<td><?php echo $alert['Alert']['limit_value']; ?>&nbsp;</td>
+		<td><?php echo $alert['Alert']['calyear']; ?>&nbsp;</td>
 		<td><?php echo $alert['Alert']['notification_count']; ?>&nbsp;</td>
 		<td><?php echo $alert['Alert']['disabled']; ?>&nbsp;</td>
 		<td><?php echo $alert['Alert']['fired'];?>&nbsp;</td>

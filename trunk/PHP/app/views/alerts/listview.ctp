@@ -1,4 +1,6 @@
 <div class="alerts view">
+<fieldset>
+ 		<legend><?php __('Alerts Created ('.sizeof($alerts).')'); ?></legend>
 <?php 
 	for($j = 0; $j < sizeof($alerts); $j++ ):
 	$alert = $alerts[$j];
@@ -31,6 +33,9 @@
 	&nbsp;</dd>
 	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Limit Value'); ?></dt>
 	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $alert['Alert']['limit_value']; ?>
+	&nbsp;</dd>
+	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Calendar Year'); ?></dt>
+	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $alert['Alert']['calyear']; ?>
 	&nbsp;</dd>
 	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Initial Value'); ?></dt>
 	<dd <?php if ($i++ % 2 == 0) echo $class;?>><?php echo $alert['InitialFactDatum']['value']; ?>
@@ -69,5 +74,6 @@
 
 <div style="width:100%; border-top:2px solid black;margin-bottom:15px;margin-top:15px;"></div>
 <?php endfor; ?>
+</fieldset>
 </div>
 
