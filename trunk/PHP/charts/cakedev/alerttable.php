@@ -1,6 +1,6 @@
 <?php
 require_once '../../common/functions.php';
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
@@ -33,10 +33,9 @@ else
 <head>
 <?php IncFunc::icon();?>
 <?php IncFunc::title();?>
-<link rel="stylesheet" href="../../site/includes/style.css"	type="text/css" />
-<?php IncFunc::yuiDropDownJavaScript(); ?>
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src="../../site/includes/querywrapper.js"></script>
+<?php IncFunc::linkStyleCSS();?>
+<?php //IncFunc::yuiDropDownJavaScript(); ?>
+<?php IncFunc::googleGadget()?>
 <script type="text/javascript">
     google.load('visualization', '1', {'packages' : ['table']});
     google.setOnLoadCallback(function() { sendAndDraw('') });
@@ -152,8 +151,8 @@ else
 <body>
 <div id="jq-siteContain" >
 <?php 
-	IncFunc::header1("charts"); 
-	IncFunc::yuiDropDownMenu();
+	IncFunc::header2("charts"); 
+	IncFunc::apycomDropDownMenu();
 
 ?>
 
@@ -163,7 +162,7 @@ else
 <br/>
 
 
-<div id="pf-form" style="text-align:left;font-size:1.5em;">
+<div id="pf-form">
 
 <BR>
 User: <BR>
