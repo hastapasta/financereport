@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Sep 9, 2012 11:12:55 PM by Hibernate Tools 3.4.0.CR1 -->
+
 <hibernate-mapping>
-    <class name="SecurityAccounts" table="security_accounts" catalog="findata">
+    <class name="SecurityAccounts" table="security_accounts">
         <id name="id" type="java.lang.Integer">
             <column name="id" />
             <generator class="identity" />

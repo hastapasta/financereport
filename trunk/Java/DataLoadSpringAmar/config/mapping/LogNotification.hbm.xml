@@ -9,9 +9,7 @@
 			<generator class="identity"/>
 		</id>
 		<property name="count" column="count" type="integer" />
-		<property name="processBegin" column="process_begin" type="calendar" />
-		<property name="processEnd" column="process_end" type="calendar" />
-		
- 
+		<property name="processBegin" column="process_begin" type="timestamp" />
+		<property name="processEnd" column="process_end" type="timestamp" />
    </class>
 </hibernate-mapping>

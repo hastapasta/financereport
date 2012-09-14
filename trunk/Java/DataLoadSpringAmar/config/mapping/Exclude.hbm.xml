@@ -2,18 +2,67 @@
 <!DOCTYPE hibernate-mapping PUBLIC 
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-
 <hibernate-mapping>
-    <class name="com.pikefin.businessobjects.Exclude" table="excludes" dynamic-update="true">
-		<id name="excludeId" column="id" type="integer">
-			<generator class="identity"/>
-		</id>
-		<property name="taskId" column="task_id" type="integer"/>
-		<property name="beginDay" column="begin_day" type="integer"/>
-		<property name="beginTime" column="begin_time" type="string"/>
-		<property name="endDay" column="end_day" type="integer"/>
-		<property name="endTime" column="end_time" type="string"/>
-		<property name="type" column="type" type="integer"/>
-		<property name="oneTimeDate" column="onetime_date" type="date"/>
-   </class>
+
+    <class
+        name="com.pikefin.businessobjects.Exclude"
+        dynamic-update="true"
+        table="excludes" >
+
+        <id
+            name="excludeId"
+            column="id"
+            type="integer" >
+
+            <generator class="identity" />
+        </id>
+
+        <many-to-one
+            name="task"
+            class="com.pikefin.businessobjects.Exclude"
+            column="task_id" >
+        </many-to-one>
+
+        <property
+            name="taskId"
+            column="task_id"
+            type="integer" />
+
+        <property
+            name="beginDay"
+            column="begin_day"
+            type="integer" />
+
+        <property
+            name="beginTime"
+            column="begin_time"
+            type="string" />
+
+        <property
+            name="endDay"
+            column="end_day"
+            type="integer" />
+
+        <property
+            name="endTime"
+            column="end_time"
+            type="string" />
+
+        <property
+            name="type"
+            column="type"
+            type="integer" />
+
+        <property
+            name="oneTimeDate"
+            column="onetime_date"
+            type="date" />
+
+        <many-to-one
+            name="obsoluteTimeEvent"
+            class="com.pikefin.businessobjects.Exclude"
+            column="obsolete_time_event_id" >
+        </many-to-one>
+    </class>
+
 </hibernate-mapping>

@@ -24,7 +24,6 @@
             </key>
             <one-to-many class="com.pikefin.businessobjects.Column" />
         </set>
-       <class name="ExtractTables" table="extract_tables" catalog="findata">
        
       <!-- mapping for fields column1, column2.. ,befCodeCol1,befCodeCol1... and aftCodeCol1,aftCodeCol2... are left and a relationship with table Column is created   -->
         
