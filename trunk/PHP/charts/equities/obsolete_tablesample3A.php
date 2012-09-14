@@ -1,6 +1,6 @@
 <?php
 require_once '../../common/functions.php';
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
@@ -14,10 +14,9 @@ db_utility::db_connect();
 <head>
 <?php IncFunc::icon();?>
 <?php IncFunc::title();?>
-<link rel="stylesheet" href="/PHP/site/includes/style.css" type="text/css" />
-  <?php IncFunc::yuiDropDownJavaScript(); ?>
-  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-  <script type="text/javascript" src="/PHP/charts/querywrapper.js"></script>
+<?php IncFunc::linkStyleCSS();?>
+  <?php //IncFunc::yuiDropDownJavaScript(); ?>
+  <?php IncFunc::googleGadget()?>
   <script type="text/javascript">
     google.load('visualization', '1', {'packages' : ['table']});
     google.setOnLoadCallback(function() { sendAndDraw('') });
@@ -40,6 +39,19 @@ db_utility::db_connect();
         chart1.style.display='none';
         chart1.style.display='block';
     }
+
+    function genericClickHandler(localTableChart,localQueryWrapper) {
+
+		var row = localTableChart.getSelection();
+		
+		//var test5 = queryWrapper2;
+
+		var dt = localQueryWrapper.currentDataTable;
+		var val = dt.getValue(row[0].row,8);
+		<?php //echo "window.location.href = \"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\";";?>
+		<?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\");";?>
+
+	}
     
 
 
@@ -75,7 +87,10 @@ db_utility::db_connect();
       query && query.abort();
       query = new google.visualization.Query(dataSourceUrl + queryString1);
       query.setTimeout(120);
-      var queryWrapper = new QueryWrapper(query, tableChart, {'size': 'large'}, container);
+      var queryWrapper = new QueryWrapper(query, tableChart, {'size': 'large'}, container,[8,9]);
+      google.visualization.events.addListener(tableChart, 'select', function(event){
+    	  genericClickHandler(tableChart,queryWrapper);
+      });
       queryWrapper.sendAndDraw();
     }
 
@@ -86,14 +101,14 @@ db_utility::db_connect();
 <div id="jq-siteContain">
 
 <?php 
-	IncFunc::header1("charts"); 
-	IncFunc::yuiDropDownMenu();
+	IncFunc::header2("charts"); 
+	IncFunc::apycomDropDownMenu();
 
 ?>
 
 <!-- <div id="jq-whosUsing"> -->
 
-<div id="pf-form" style="text-align:left;font-size:1.5em">
+<div id="pf-form">
 <form action="">
 
   <br/><br/>
