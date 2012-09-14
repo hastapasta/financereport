@@ -10,7 +10,7 @@ class JobsController extends AppController {
 	
 	function beforeFilter() {
 		parent::beforeFilter();
-		//$this->Auth->allow('*');
+		$this->Auth->allow('*');
 	}
 	
 	function view($id = null) {
@@ -28,21 +28,28 @@ class JobsController extends AppController {
 				$this->Session->setFlash(__('The job has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The job could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The job cound not be saved. Please see below for additional information.', true));
 			}
 		}
 	}
 
 	function edit($id = null) {
-		debug('here',true);
+		//debug($this->Session->read());exit;
+		if($id != null){
+			$conditions[] = $id;
+			$this->Session->write('Record',$conditions);
+		}
+		
 		$record = $this->Session->read('Record');
 		if (!empty($this->data)) {
+		
 			if ($this->Job->saveAll($this->data['Job'])) {
+				//debug($this->data['Job']);exit;	
 				$this->Session->setFlash(__('The Job has been saved', true),'default',array('class'=>'green_message'));
 				$this->Session->delete('Record');
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The Job could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The Job cound not be saved. Please see below for additional information.', true));
 			}
 		}
 		if (!empty($record)) {

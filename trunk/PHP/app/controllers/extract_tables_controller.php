@@ -23,7 +23,7 @@ class ExtractTablesController extends AppController {
 				$this->Session->setFlash(__('The extract table has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The extract table could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The extract table could not be saved. Please see below for additional information.', true));
 			}
 		}
 	}
@@ -36,7 +36,7 @@ class ExtractTablesController extends AppController {
 				$this->Session->delete('Record');
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The ExtractTable could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The ExtractTable cound not be saved. Please see below for additional information.', true));
 			}
 		}
 		if (!empty($record)) {

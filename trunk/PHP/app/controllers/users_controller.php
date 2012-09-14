@@ -47,7 +47,7 @@ class UsersController extends AppController {
 				$this->Session->setFlash(__('The user has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The user could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The user cound not be saved. Please see below for additional information.', true));
 			}
 		}
 		$groups = $this->User->Group->find('list');
@@ -99,7 +99,7 @@ class UsersController extends AppController {
 				$this->Session->delete('Record');
 				//$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The user could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The user cound not be saved. Please see below for additional information.', true));
 			}
 		}
 		if (!empty($record)) {
@@ -357,3 +357,4 @@ function registration() {
 
 }
 ?>
+

@@ -28,7 +28,7 @@ class RepeatTypesController extends AppController {
 				$this->Session->setFlash(__('The repeat type has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The repeat type could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The repeat type cound not be saved. Please see below for additional information.', true));
 			}
 		}
 	}
@@ -43,7 +43,7 @@ class RepeatTypesController extends AppController {
 				$this->Session->setFlash(__('The repeat type has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The repeat type could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The repeat type cound not be saved. Please see below for additional information.', true));
 			}
 		}
 		if (empty($this->data)) {

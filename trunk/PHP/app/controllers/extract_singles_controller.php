@@ -20,10 +20,10 @@ class ExtractSinglesController extends AppController {
 		if (!empty($this->data)) {
 			$this->ExtractSingle->create();
 			if ($this->ExtractSingle->save($this->data)) {
-				$this->Session->setFlash(__('The extract single has been saved', true));
+				$this->Session->setFlash(__('The extract single has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The extract single could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The extract single cound not be saved. Please see below for additional information.', true));
 			}
 		}
 	}
@@ -36,7 +36,7 @@ class ExtractSinglesController extends AppController {
 				$this->Session->delete('Record');
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The ExtractSingle could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The ExtractSingle cound not be saved. Please see below for additional information.', true));
 			}
 		}
 		if (!empty($record)) {
@@ -58,7 +58,7 @@ class ExtractSinglesController extends AppController {
 				$this->Session->setFlash(__('The extract single has been saved', true));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The extract single could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The extract single cound not be saved. Please see below for additional information.', true));
 			}
 		}
 		if (empty($this->data)) {

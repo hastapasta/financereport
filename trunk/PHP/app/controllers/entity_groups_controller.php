@@ -26,6 +26,13 @@ class EntityGroupsController extends AppController {
 		}
 		$this->set('entityGroup', $this->EntityGroup->read(null, $id));
 	}
+	
+	function recoverTree(){
+		$return = "";
+		$return = $this->EntityGroup->recover('parent');
+		debug($return,true);
+		
+	}
 
 	function add() {
 		if (!empty($this->data)) {
@@ -34,7 +41,7 @@ class EntityGroupsController extends AppController {
 				$this->Session->setFlash(__('The entity group has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The entity group could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The entity group cound not be saved. Please see below for additional information.', true));
 			}
 		}
 		$parents = $this->EntityGroup->find('list');
@@ -49,7 +56,7 @@ class EntityGroupsController extends AppController {
 				$this->Session->delete('Record');
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The entity group could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The entity group cound not be saved. Please see below for additional information.', true));
 			}
 		}
 		if (!empty($record)) {

@@ -28,7 +28,7 @@ class TasksController extends AppController {
 				$this->Session->setFlash(__('The task has been saved', true),'default',array('class'=>'green_message'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The task could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The task cound not be saved. Please see below for additional information.', true));
 			}
 		}
 		$metrics = $this->Task->Metric->find('list');
@@ -43,7 +43,7 @@ class TasksController extends AppController {
 				$this->Session->delete('Record');
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The Task could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The Task cound not be saved. Please see below for additional information.', true));
 			}
 		}
 		if (!empty($record)) {
