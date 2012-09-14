@@ -38,9 +38,9 @@
 			<td><?php echo $extractSingle['ExtractSingle']['Row_Count']; ?>&nbsp;</td>
 			<td><?php echo $extractSingle['ExtractSingle']['Cell_Count']; ?>&nbsp;</td>
 			<td><?php echo $extractSingle['ExtractSingle']['Div_Count']; ?>&nbsp;</td>
-			<td><?php echo $extractSingle['ExtractSingle']['Before_Unique_Code']; ?>&nbsp;</td>
-			<td><?php echo $extractSingle['ExtractSingle']['After_Unique_Code']; ?>&nbsp;</td>
-			<td><?php echo $extractSingle['ExtractSingle']['Initial_Bef_Unique_Code']; ?>&nbsp;</td>
+			<td><?php echo htmlspecialchars($extractSingle['ExtractSingle']['Before_Unique_Code']); ?>&nbsp;</td>
+			<td><?php echo htmlspecialchars($extractSingle['ExtractSingle']['After_Unique_Code']); ?>&nbsp;</td>
+			<td><?php echo htmlspecialchars($extractSingle['ExtractSingle']['Initial_Bef_Unique_Code']); ?>&nbsp;</td>
 			<td><?php echo $extractSingle['ExtractSingle']['is_csv_format']; ?>&nbsp;</td>
 			<td class="actions">
 				<?php 
