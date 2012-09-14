@@ -17,10 +17,65 @@ class AppController extends Controller {
         //$this->Auth->loginRedirect = array('controller' => 'schedules', 'action' => 'index');
 		$this->Auth->allowedActions = array('display');
 		
+		$this->_pageCounter();
+		
+		$this->_setPageSize();
+		
+		$userprops = $this->Auth->user();
+		
+		$this->set('user_props',$userprops);
+		
 	
 
 	
     }
+    
+	function _setPageSize(){
+    	$this->loadModel('User');
+    	$this->User->id = $this->Auth->user('id');
+    	$limit = $this->User->field('pagination_limit');
+    	$this->Session->write('Page.pagesize', $limit);
+    	
+    	$this->paginate = array('limit'=>$limit);
+    }
+    
+	function _pageCounter()
+	{
+		//debug("debug value",true);
+		$uri = $_SERVER['REQUEST_URI'];
+		
+		if (strpos($uri,'?')!=false)
+			$uri = substr($uri,0,strpos($uri,'?'));
+		
+		
+		$query1 = "select hits from page_counters where uri='".$uri."'";
+		
+		$result1 = mysql_query($query1) or die("Failed Query of " . $query1);
+		
+		$row1 = mysql_fetch_array($result1);
+		
+		//debug($row1);
+		
+		if ($row1==null)
+		{
+			$query2 = "insert into page_counters (uri,hits) values ('".$uri."',1)";
+		}
+		else 
+		{
+			$query2 = "update page_counters set hits=".($row1['hits']+1)." where uri='".$uri."'";
+		}
+		
+		mysql_query($query2) or die("Failed Query of " . $query2);
+		
+	}
+	
+	/*function urlToNamed() {
+        $urlArray = $this->params['url'];
+        unset($urlArray['url']);
+        if(!empty($urlArray)){
+            $this->redirect($urlArray, null, true);
+        }
+    }*/
 
 	/*
 	* Remove this from the production instance.
@@ -224,6 +279,7 @@ class AppController extends Controller {
 	*/
 	
 	function action_process(){
+		//debug($this->data);
 		$this->autoRender = false;
 		/*
 		 * code of 1 for delete
@@ -236,6 +292,7 @@ class AppController extends Controller {
 		 * code of 2 for edit
 		 */
 		if(2 == $this->data[$this->modelClass]['action_value']){
+			
 			unset($this->data[$this->modelClass]['action_value']);			
 			$ids = array();
 			//debug($record,true);
@@ -249,14 +306,14 @@ class AppController extends Controller {
 		/*
 		 *  code 3 for filter
 		 */
-		if(3 == $this->data[$this->modelClass]['action_value']){
+		if(3 == $this->data[$this->modelClass]['action_value_search']){
 	
-			unset($this->data[$this->modelClass]['action_value']);
-			//debug('in action_process', true);
+			unset($this->data[$this->modelClass]['action_value_search']);
+			debug('in action_process', true);
 			
 			$this->Session->write('FilterValues', $this->data);
 			
-			$this->redirect(array('action'=>'index'));
+			//$this->redirect(array('action'=>'index'));
 		}
 	}
 	function delete_multiple($id = null){
