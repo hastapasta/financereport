@@ -1,5 +1,5 @@
 <div class="users form">
-<?php echo $this->element('actions'); ?>
+<?php //echo $this->element('actions'); ?>
 <?php echo $this->Form->create('User');	 
 if ($this->getVar('administrator') == true)
 {

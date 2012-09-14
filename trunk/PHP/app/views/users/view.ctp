@@ -1,5 +1,6 @@
 <div class="users view">
-<?php echo $this->element('actions',array('title'=>'User')); ?>
+<?php //echo $this->element('actions',array('title'=>'User')); ?>
+<div style='clear:both'></div>
 <dl>
 <?php $i = 0; $class = ' class="altrow"';?>
 	<dt <?php if ($i % 2 == 0) echo $class;?>><?php __('Id'); ?></dt>

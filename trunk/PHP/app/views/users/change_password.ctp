@@ -1,5 +1,5 @@
-<div class="users form">
-<?php echo $this->element('actions'); ?>
+<div class="users none">
+<?php //echo $this->element('actions'); ?>
 <?php echo $this->Form->create('User',array('action'=>'change_password'));?>	 
 <fieldset>
 	<legend><?php __('Change Password'); ?></legend> 

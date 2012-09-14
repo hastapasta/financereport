@@ -1,7 +1,8 @@
-<div class="users index">
-<?php echo $this->element('actions',array('title'=>'Users')); ?>
+<div class="users none">
+<?php //echo $this->element('actions',array('title'=>'Users')); ?>
 <?php echo $form->create('User',array('controller'=>'users','action'=>'action_process','class'=>'recordForm')) ?>
 <?php echo $form->hidden('User.action_value',array('id'=>'actionValue')); ?>
+<?php echo $this->element('check_uncheck_control')?>
 <table cellpadding="0" cellspacing="0">
 	<tr>
 		<th><?php echo $this->Paginator->sort('id');?></th>
@@ -9,7 +10,7 @@
 		<th><?php echo $this->Paginator->sort('password');?></th>
 		<th><?php echo $this->Paginator->sort('email');?></th>
 		<th><?php echo $this->Paginator->sort('group_id');?></th>
-		<th class="actions"><?php __('Actions');?></th>
+		<th class="actions"><?php //__('Actions');?></th>
 		<th class="actions"><?php __('Edit/Delete');?></th>
 
 	</tr>
@@ -39,7 +40,8 @@
 	</tr>
 	<?php endforeach; ?>
 	<tr>
-		<td class="actions_button" colspan="9" style="text-align: right"><?php echo $html->link(__('Edit', true),'#',array('class'=>'editButton')); ?>
+		<?php echo $this->element('pagelimit')?>
+		<td class="actions_button" colspan="5" style="text-align: right"><?php echo $html->link(__('Edit', true),'#',array('class'=>'editButton')); ?>
 
 		<?php echo $html->link(__('Delete', true),'#', array('class'=>'deleteButton')); ?>
 		</td>
