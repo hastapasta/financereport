@@ -1,6 +1,6 @@
 <?php
 require_once '../../common/functions.php';
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 db_utility::db_connect();
 
@@ -14,9 +14,8 @@ db_utility::db_connect();
 <head>
 <?php IncFunc::icon();?>
 <?php IncFunc::title();?>
- <link rel="stylesheet" href="../../site/style.css" type="text/css" /> 
-  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-  <script type="text/javascript" src="../querywrapper.js"></script>
+ <?php IncFunc::linkStyleCSS();?>
+<?php IncFunc::googleGadget()?>
   <script type="text/javascript">
     google.load('visualization', '1', {'packages' : ['table']});
     google.setOnLoadCallback(function() { sendAndDraw('') });
