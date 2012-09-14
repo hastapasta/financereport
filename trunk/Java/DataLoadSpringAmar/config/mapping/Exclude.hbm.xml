@@ -20,13 +20,9 @@
         <many-to-one
             name="task"
             class="com.pikefin.businessobjects.Exclude"
-            column="task_id" >
+            column="task_id" insert="false" update="false">
         </many-to-one>
 
-        <property
-            name="taskId"
-            column="task_id"
-            type="integer" />
 
         <property
             name="beginDay"

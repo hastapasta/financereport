@@ -3,7 +3,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="SecurityAccounts" table="security_accounts">
+    <class name="com.pikefin.businessobjects.SecurityAccounts" table="security_accounts">
         <id name="id" type="java.lang.Integer">
             <column name="id" />
             <generator class="identity" />

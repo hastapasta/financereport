@@ -11,7 +11,7 @@
 		<property name="batchDateCollected" column="batch_date_collected" type="timestamp"/>
 		<property name="count" column="count" type="integer"/>
 		<property name="randomUnique" column="random_unique" type="string"/>
-		<property name="garbageCollect" column="garbage_collect" type="Integer"/>
+		<property name="garbageCollect" column="garbage_collect" type="java.lang.Integer"/>
 		<many-to-one name="batchTask" class="com.pikefin.businessobjects.Task" column="task_id" 
 			not-null="true" cascade="all" />
    </class>

@@ -14,7 +14,7 @@
 			class="com.pikefin.businessobjects.countryEntity" column="id" 
 			foreign-key="entity_id"
 			not-null="true" cascade="all" unique="true"/> -->
-		<set name="country" table="countries_entities" cascade="all">
+		<set name="countries" table="countries_entities" cascade="all">
 			<key column="entity_id" />
 			<many-to-many column="country_id"
 				class="com.pikefin.businessobjects.Country" />	
