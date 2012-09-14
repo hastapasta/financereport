@@ -18,7 +18,8 @@ include ("/var/www/html/PHP/site/includes/sitecommon.php");
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <?php echo $this->Html->charset(); ?>
@@ -26,11 +27,19 @@ include ("/var/www/html/PHP/site/includes/sitecommon.php");
 </title>
 <?php
 echo $this->Html->meta('icon');
-
-echo $this->Javascript->link(array('jquery 1.4.4.js','querywrapper'));
-echo $this->Javascript->link('http://www.google.com/jsapi');
-
 echo $this->Html->css('cake.generic');
+echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"".IncFunc::$PHP_ROOT_PATH."/site/includes/shared.css\" />";
+echo $this->Html->css('jquery-ui-1.8.12.custom.css');
+//echo $this->Javascript->link(array('jquery 1.4.4.js','querywrapper'));
+//echo $this->Javascript->link(array('jquery 1.4.4.js'));
+echo $this->Javascript->link(array('jquery-1.5.1.js'));
+echo $this->Javascript->link(array('jquery-ui-1.8.12.custom.min.js'));
+
+//echo $this->Javascript->link(array('jquery 1.4.4.js'));
+
+//echo $this->Javascript->link('http://www.google.com/jsapi');
+
+
 
 if(isset($jsIncludes))
 {     
@@ -46,6 +55,7 @@ echo $scripts_for_layout;
 <script type="text/javascript">
 		//this was the only way I could figure out how to pass JSP_ROOT_PATH into the view.
 		<?php echo " var jsp_root_path='".IncFunc::$JSP_ROOT_PATH."';\n"; ?>
+		<?php echo " var php_root_path='".IncFunc::$PHP_ROOT_PATH."';\n"; ?>
 		$(function(){
 			$('.deleteButton').click(function(){
 				$('#actionValue').val('1');
@@ -60,7 +70,7 @@ echo $scripts_for_layout;
 				//if(answer) $('.recordForm').submit();
 			});
 			$('.filterButton').click(function(){
-				alert('here 3');
+				//alert('here 3');
 				//$('#actionValue').val('3');
 				$tmp = document.getElementById('actionValue');
 				if ($tmp==0)
@@ -80,6 +90,7 @@ echo $scripts_for_layout;
 <div id="header">
 	<div id="jq-siteContain">
 	<?php IncFunc::header1("alerts"); ?>
+	<?php IncFunc::googleGadget(); ?>
 	<!--	<div id="logo">
 			<?php //echo $html->image('logo.jpg',array('url'=>array('controller'=>'alerts','action'=>'index'))); ?>
 		</div> -->
@@ -99,14 +110,24 @@ echo $scripts_for_layout;
 		</div>		-->
 	</div>
 </div>
+<div id='menus'>
+	
+	<?php
+	if( $this->params['action'] != 'login')
+	 echo $this->element('tabs', array('currentpage'=> $this->params['controller']))
+    ?>
+</div>
 <div id="content"><?php
 //display login/logout message
-echo $this->Session->flash('auth'); ?> <?php echo $this->Session->flash(); ?>
+echo $this->Session->flash('auth'); ?>
+
+ <?php echo $this->Session->flash(); ?>
+ <?php echo $this->Session->flash('email'); ?>
 
 <?php echo $content_for_layout; 
 
-$this->set('jsp_root_path',IncFunc::$JSP_ROOT_PATH);
-$this->set('test','value');
+//$this->set('jsp_root_path',IncFunc::$JSP_ROOT_PATH);
+//$this->set('test','value');
 
 
 ?></div>
