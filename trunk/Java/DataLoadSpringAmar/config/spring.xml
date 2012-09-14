@@ -64,6 +64,18 @@
     </bean>
     
     
+    
+    <!-- ########## Start of bean configurations related to  Dao Classes ##########-->
+  
+    <bean id="userDao" class="com.pikefin.dao.impl.UserDaoImpl">
+        <constructor-arg index="0" ref="sessionFactory"/>
+    </bean>
+    
+   
+    <!-- ###########	End of bean configurations related to Dao Classes		########## -->
+   
+   
+   
     <!-- Velocity engine Configuration -->
     <bean id="velocityEngine" class="org.apache.velocity.app.VelocityEngine" />
 
