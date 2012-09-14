@@ -1,5 +1,5 @@
 <div class="entities form">
-<?php echo $this->element('actions'); ?>
+<?php //echo $this->element('actions'); ?>
 <?php echo $this->Form->create('Entity');?>
 <fieldset><legend><?php __('Add Entity'); ?></legend> <?php
 echo $this->Form->input('ticker');
