@@ -1,14 +1,15 @@
-<div class="groups index">
-<?php echo $this->element('actions',array('title'=>'Groups')); ?>
+<div class="groups none">
+<?php //echo $this->element('actions',array('title'=>'Groups')); ?>
 <?php echo $form->create('Group',array('controller'=>'groups','action'=>'action_process','class'=>'recordForm')) ?>
 <?php echo $form->hidden('Group.action_value',array('id'=>'actionValue')); ?>
+<?php echo $this->element('check_uncheck_control')?>
 <table cellpadding="0" cellspacing="0">
 	<tr>
 		<th><?php echo $this->Paginator->sort('id');?></th>
 		<th><?php echo $this->Paginator->sort('name');?></th>
 		<th><?php echo $this->Paginator->sort('created');?></th>
 		<th><?php echo $this->Paginator->sort('modified');?></th>
-		<th class="actions"><?php __('Actions');?></th>
+		<th class="actions"><?php //__('Actions');?></th>
 		<th class="actions"><?php __('Edit/Delete');?></th>
 	</tr>
 	<?php
@@ -34,7 +35,8 @@
 	</tr>
 	<?php endforeach; ?>
 	<tr>
-		<td class="actions_button" colspan="6" style="text-align: right"><?php echo $html->link(__('Edit', true),'#',array('class'=>'editButton')); ?>
+		<?php echo $this->element('pagelimit')?>
+		<td class="actions_button" colspan="2" style="text-align: right"><?php echo $html->link(__('Edit', true),'#',array('class'=>'editButton')); ?>
 
 		<?php echo $html->link(__('Delete', true),'#', array('class'=>'deleteButton')); ?>
 		</td>

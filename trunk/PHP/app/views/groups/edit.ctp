@@ -1,5 +1,5 @@
 <div class="groups form">
-<?php echo $this->element('actions'); ?>
+<?php //echo $this->element('actions'); ?>
 <?php echo $this->Form->create('Group');
 for($i = 0; $i < sizeof($this->data['Group']); $i++){
 	?>
