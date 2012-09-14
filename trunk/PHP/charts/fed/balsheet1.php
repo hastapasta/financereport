@@ -1,6 +1,6 @@
 <?php
 
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 ?>
 
@@ -9,7 +9,7 @@ include ("../../site/includes/sitecommon.php");
 <head>
 <?php IncFunc::title();?>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" href="/PHP/site/includes/style.css" type="text/css" />
+<?php IncFunc::linkStyleCSS();?>
 </head>
 
 <body>

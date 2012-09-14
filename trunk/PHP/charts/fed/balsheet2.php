@@ -1,6 +1,6 @@
 <?php
 
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 ?>
 
@@ -9,7 +9,7 @@ include ("../../site/includes/sitecommon.php");
 <head>
 <?php IncFunc::title();?>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" href="/PHP/site/includes/style3.css" type="text/css" />
+<link rel="stylesheet" href="style3.css" type="text/css" />
 
 
 <!-- Combo-handled YUI CSS files: -->
@@ -18,7 +18,7 @@ include ("../../site/includes/sitecommon.php");
 <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.2r1/build/yuiloader-dom-event/yuiloader-dom-event.js&2.8.2r1/build/container/container_core-min.js&2.8.2r1/build/menu/menu-min.js&2.8.2r1/build/element/element-min.js&2.8.2r1/build/button/button-min.js"></script>
 
 
-<script type="text/javascript" src="../../site/includes/yuiDropDown.js"></script>
+
 
 <script type="text/javascript">
 
