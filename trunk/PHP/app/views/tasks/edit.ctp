@@ -1,15 +1,20 @@
-<div class="tasks form"><?php echo $this->Form->create('Task');?>
-<fieldset><legend><?php __('Edit Task'); ?></legend> <?php
-echo $this->Form->input('id');
-echo $this->Form->input('name');
-echo $this->Form->input('description');
-?></fieldset>
-<?php echo $this->Form->end(__('Submit', true));?></div>
-<div class="actions">
-<h3><?php __('Actions'); ?></h3>
-<ul>
-
-	<li><?php echo $this->Html->link(__('Delete', true), array('action' => 'delete', $this->Form->value('Task.id')), null, sprintf(__('Are you sure you want to delete # %s?', true), $this->Form->value('Task.id'))); ?></li>
-	<li><?php echo $this->Html->link(__('List Tasks', true), array('action' => 'index'));?></li>
-</ul>
+<div class="tasks form">
+<?php echo $this->Form->create('Task');?>
+	<?php for($i = 0; $i < sizeof($this->data['Task']); $i++){ ?>
+	<fieldset>
+ 		<legend><?php __('Edit Task'); ?></legend>
+ 	
+	<?php
+		echo $this->Form->input( "Task.$i.id");
+		echo $this->Form->input("Task.$i.name");
+		echo $this->Form->input("Task.$i.description");
+		echo $this->Form->input("Task.$i.use_group_for_reading");
+		echo $this->Form->input("Task.$i.eps_est_priority");
+		echo $this->Form->input("Task.$i.source");
+		echo $this->Form->input("Task.$i.metric_id");
+	?>
+	</fieldset>
+	<?php }?>
+	
+<?php echo $this->Form->end(__('Submit', true));?>
 </div>
