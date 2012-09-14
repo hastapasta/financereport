@@ -104,7 +104,7 @@ class schema_arrays
 
 function wl($the_string)
 {
-	$fi = fopen( 'logfile2.txt', 'a+');
+	$fi = fopen( '/var/www/html/PHP/phplogs/functions.php.log', 'a+');
 	$the_string = $the_string."\n";
 	fputs( $fi, $the_string, strlen($the_string) );
 	fclose( $fi );
@@ -165,7 +165,7 @@ the selinux configuration or disable selinux completely.*/
 		curl_setopt($ch, CURLOPT_POST      ,1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS    ,POSTVARS);
 		curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-	  curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
+	    curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
 
 				 
 		}
@@ -179,6 +179,7 @@ the selinux configuration or disable selinux completely.*/
 	  curl_close($ch);
 	  wl(strlen($data));
 	  echo "<BR>Length of data returned from url: ".strlen($data)."<BR>";
+	  //echo($data);
 	  return $data;
 	
 }
