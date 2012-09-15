@@ -16,6 +16,7 @@ public class User implements java.io.Serializable {
 	private Boolean active;
 	private Integer paginationLimit;
 	private Boolean obsoleteBulkEmail;
+	private String password;
 	
 	public User() {
 	}
@@ -110,6 +111,14 @@ public class User implements java.io.Serializable {
 
 	public void setObsoleteBulkEmail(Boolean obsoleteBulkEmail) {
 		this.obsoleteBulkEmail = obsoleteBulkEmail;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 }

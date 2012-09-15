@@ -2,6 +2,8 @@ package com.pikefin.dao;
 
 import java.util.List;
 
+import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Propagation;
@@ -24,10 +26,12 @@ public abstract class AbstractDao<T> {
 	 * @param businessEntity
 	 * @author Amar_Deep_Singh
 	 */
-	@Transactional(propagation=Propagation.MANDATORY)
-	public void save(T businessEntity){
+	
+	public T save(T businessEntity){
 		Session session=getSessionFactory().openSession();
 		session.save(businessEntity);
+		
+	return businessEntity;
 	}
 	
 	/**
@@ -35,10 +39,12 @@ public abstract class AbstractDao<T> {
 	 * @param businessEntity
 	 * @author Amar_Deep_Singh
 	 */
-	@Transactional(propagation=Propagation.MANDATORY)
-	public void update(T businessEntity){
+	
+	public T update(T businessEntity){
 		Session session=getSessionFactory().openSession();
 		session.update(businessEntity);
+		
+		return businessEntity;
 	}
 	
 	/**
@@ -46,10 +52,12 @@ public abstract class AbstractDao<T> {
 	 * @param businessEntity
 	 * @author Amar_Deep_Singh
 	 */
-	@Transactional(propagation=Propagation.MANDATORY)
-	public void delete(T businessEntity){
+	
+	public boolean delete(T businessEntity){
 		Session session=getSessionFactory().openSession();
 		session.delete(businessEntity);
+		
+		return true;
 	}
 	
 	/**
@@ -58,19 +66,22 @@ public abstract class AbstractDao<T> {
 	 * @return Business entity of type <T>
 	 * @author Amar_Deep_Singh
 	 */
-	@Transactional(propagation=Propagation.MANDATORY)
+	
 	public T find(String businessEntityId){
+		assert businessEntityId!=null;
 		Session session=getSessionFactory().openSession();
-		return (T)session.load(businessEntity, businessEntityId);
+		T entity=(T)session.load(businessEntity, businessEntityId.trim());
+		
+		return entity;
 	}
 	
 	/**
-	 * finds a business entity based on the primacy key 
+	 * finds a business entity based on the primacy key of type Integer
 	 * @param businessEntity
 	 * @return Business entity of type <T>
 	 * @author Amar_Deep_Singh
 	 */
-	@Transactional(propagation=Propagation.MANDATORY)
+	
 	public T find(Integer businessEntityId){
 		Session session=getSessionFactory().openSession();
 		return (T)session.load(businessEntity, businessEntityId);
@@ -82,11 +93,14 @@ public abstract class AbstractDao<T> {
 	 * @return List of Business entity of type <T>
 	 * @author Amar_Deep_Singh
 	 */
-	@Transactional(propagation=Propagation.MANDATORY)
+	
 	public List<T> findAll(){
 		Session session=getSessionFactory().openSession();
-		//return (T)session.load(businessEntity, businessEntityId);
-		return null;
+		Criteria query =session.createCriteria(getClass());
+		List<T> entitiesList=(List<T>)query.list();
+		
+	return entitiesList;
+			
 	}
 }
 
