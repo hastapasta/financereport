@@ -2,9 +2,25 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
-		
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		    http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/tx 
+        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+		<!-- Enabled for test only -->
+    	<context:component-scan base-package="com.pikefin.tests.dao" />
+    	
+	<context:component-scan base-package="com.pikefin.businessobjects" >
+	 </context:component-scan>
+	 <context:component-scan base-package="com.pikefin.dao" />
+	 <!-- Enabling transactions -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+     <bean name="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
 <!-- Property placeholer configurer. this bean helps in replacing the property values from an external property file -->
     <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" >
         <property name="locations" >
@@ -71,7 +87,9 @@
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
     
-   
+     <bean id="groupDao" class="com.pikefin.dao.impl.GroupDaoImpl">
+        <constructor-arg index="0" ref="sessionFactory"/>
+    </bean>
     <!-- ###########	End of bean configurations related to Dao Classes		########## -->
    
    

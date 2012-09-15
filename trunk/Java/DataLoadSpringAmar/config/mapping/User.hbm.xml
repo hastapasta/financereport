@@ -10,6 +10,9 @@
 		</id>
 		<property name="username" column="username" 
 		    type="string" not-null="true" unique="true"/>
+		<property name="password" type="string" not-null="true">
+            <column name="password" length="19" />
+        </property>
        <property name="created" type="timestamp">
             <column name="created" length="19" />
         </property>
@@ -35,7 +38,7 @@
             <column name="obsolete_bulk_email" not-null="true" />
         </property> 
         <many-to-one name="userGroup" class="com.pikefin.businessobjects.Groups" 
-            column="group_id">
+            column="group_id" insert="false" update="false" not-null="false">
         </many-to-one>
    </class>
    
