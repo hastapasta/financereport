@@ -162,7 +162,7 @@ $metricids = Array(1,1,11,11);
  * These values need to match the values in sitecommon:dateselect. Should define a commond set of
  * values, but blowing off for now.
  */
-$timeframes = Array("day","WTD","MTD","YTD");
+$timeframes = Array("CURRENT_DAY","CURRENT_WTD","CURRENT_MTD","CURRENT_YTD");
 
 
 
