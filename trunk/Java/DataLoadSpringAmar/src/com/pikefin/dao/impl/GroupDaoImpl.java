@@ -37,8 +37,9 @@ public class GroupDaoImpl extends AbstractDao<Groups> implements GroupDao {
 	@Transactional(propagation=Propagation.REQUIRED)
 	public Groups saveGroupInfo(Groups groupEntity) throws GenericException {
 		try{
-			groupEntity=super.save(groupEntity);
-			
+			Session session=sessionFactory.openSession();
+			//groupEntity=super.save(groupEntity);
+			session.save(groupEntity);
 		}catch (Exception e) {
 			throw new GenericException(ErrorCode.COULD_NOT_SAVE_GROUP_DATA,e.getMessage(),e.getCause());
 		}
@@ -55,8 +56,10 @@ public class GroupDaoImpl extends AbstractDao<Groups> implements GroupDao {
 	@Transactional(propagation=Propagation.REQUIRED)
 	public Groups updateGroupInfo(Groups groupEntity) throws GenericException {
 		try{
-			groupEntity=super.update(groupEntity);
-			
+		//	groupEntity=super.update(groupEntity);
+			Session session=sessionFactory.getCurrentSession();7
+			//groupEntity=super.save(groupEntity);
+			session.update(groupEntity);
 		}catch (HibernateException e) {
 			throw new GenericException(ErrorCode.COULD_NOT_UPDATE_GROUP_DATA,e.getMessage(),e.getCause());
 		}

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="config"/>
+	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="lib" path="C:/Amar/Development/Projects/Oliver/log4jWrapper.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bitlyj-2.0.0"/>
@@ -12,5 +14,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/spring_3.1.1"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/twitter4j2.2.5"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/velocity_1.7"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="class"/>
 </classpath>

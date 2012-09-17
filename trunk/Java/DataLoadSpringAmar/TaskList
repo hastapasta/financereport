@@ -5,7 +5,7 @@
 5.AlertTarget.hbm			Done
 6.Batches.hbm				Done
 7.Task.hbm.xml				Done.
-Job.hbm.xml					Done
+8.Job.hbm.xml				Done
 ExtractTable.hbm.xml		Done
 Column.hbm.xml				Done
 InputSource.hbm.xml			Done
@@ -17,11 +17,14 @@ JobQueue.hbm.xml			Done
 Schedule.hbm.xml			Done
 TimeEvent.hbm.xml			Done
 FactData.hbm.xml			Done
-LogTask.hbm.xml				Pending		Have Question to ask
-LogNotification.hbm.xml		Pending		Have Question to ask
+LogTask.hbm.xml				Done		
+LogNotification.hbm.xml		Done		
 LogAlert.hbm.xml			Done
 RepeatType.hbm.xml			Done
 Regions.hbm.xml				Done 
 PageCounters.hbm.xml		Done
 Splits.hbm.xml				Done
 MetaSets.hbm.xml			Done
+ExtractSingle.hbm.xml		Done
+EntityAlias.hbm.xml			Done
+Exclude.hbm.xml				Done
