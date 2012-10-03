@@ -22,6 +22,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.json.*;
+
 import org.xml.sax.HandlerBase;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -33,6 +35,16 @@ import org.xml.sax.Attributes;
  * OFP 12/13/2010: Since the data_group field was removed from the fact_table (because it can be referenced in
  * the jobs table through the data_set), it was removed from all processing functions that were inserting it
  * into the fact_table.
+ * 
+ * 
+ * NOTES on Stage1 and Stage2 URL fields in DataGrab: 
+ * Stage 2 url is for group processing where the ${ticker} field
+ * has to be updated for each group member. This happens in defaultURLProcessing().
+ * 
+ * Stage 1 url (initially) contains the url string as it was read from the database.
+ * 
+ * Don't populate the Stage 2 url in a preprocessing function. It will get overwritten in defaultURLProcessing().
+ * 
  * 
  */
 
@@ -463,8 +475,64 @@ public void postProcessYahooSharePrice() throws SQLException
 
 public void postProcessCNBCCDSJson() throws SQLException {
 	
-	String strData = this.propTableData.get(0)[0];
-	System.out.println("");
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	String[] rowdata;
+	
+	
+	try {
+		JSONObject jsonTop = new JSONObject(this.propTableData.get(0)[0]);
+		
+		propTableData.remove(0);
+		propTableData.add(tmpArray);
+		JSONObject jObject = jsonTop.getJSONObject("QuickQuoteResult");
+		//JSONObject jObject2 = jObject.getJSONObject("QuickQuote");
+		JSONArray jArray = jObject.getJSONArray("QuickQuote");
+		
+		for (int i=0;i<jArray.length();i++) {
+			
+			rowdata = new String[tmpArray.length];
+			
+			jObject = jArray.getJSONObject(i);
+			
+			String strSymbol = (String)jObject.get("symbol");
+			
+			rowdata[0] = (String)jObject.get("last");
+			
+			String query = "select * from entity_aliases where ticker_alias='" + strSymbol + "'";
+			
+			String strEntityIndex;
+			
+			try {
+				ResultSet rs = dbf.db_run_query(query);
+				rs.next();
+				strEntityIndex = rs.getInt("entity_id") + "";		
+			}
+			catch (SQLException sqle) {
+				UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker alias: " + strSymbol + ",row skipped",Logs.WARN,"PF652.34");
+				continue;
+			}
+			
+			rowdata[2] = strEntityIndex;
+			
+			/* Before I was using the collection date/time, and will continue to do so for now
+			 * At some point may switch over to using the provided last trade date/time.
+			 */
+			//String str3 = (String)jObject.get("last_time");
+			rowdata[1] = "NOW()";
+			
+			//System.out.println(jObject.toString());
+			
+			propTableData.add(rowdata);
+			
+			
+		}
+		
+		//System.out.println(jArray.toString());
+	}
+	catch (JSONException jsone) {
+		UtilityFunctions.stdoutwriter.writeln("Issue parsing JSON data, task aborted.",Logs.ERROR,"PF1001.11");
+		UtilityFunctions.stdoutwriter.writeln(jsone);
+	}
 	
 }
 
@@ -1414,6 +1482,30 @@ public void postProcessOneTimeYahooIndex()
 	
 }
 
+public void postProcessInputDataTest() {
+	
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	String[] rowheaders = propTableData.get(1);
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	String[] newrow = null;
+	
+	
+	for (int row=2;row<propTableData.size();row++) {
+		newrow = new String[tmpArray.length];
+		
+		newrow[0] = "";
+		newrow[1] = "";
+		newrow[2] = "";
+		
+	}
+	
+	
+	newTableData.add(0, tmpArray);
+	propTableData = newTableData;
+	
+	
+}
+
 public void postProcessBloombergGovtBonds() {
 	/* OFP 2/6/2012
 	 * This was originally set up to extract price but price tells you nothing when new
@@ -2055,6 +2147,79 @@ public void postProcessTreasuryDirect() throws SQLException
 	
 }
 
+public boolean preJobProcessDataInputTest() throws SQLException {
+	
+	String strQuery = "select * from input_test_controls ";
+	strQuery += " where task_id=" + dg.nCurTask;
+	
+	try	{
+		ResultSet rs = dbf.db_run_query(strQuery);
+		rs.next();
+		dg.strStage1URL = dg.strStage1URL.replace("${seqnumber}", rs.getInt("sequence")+"");
+		dg.strStage1URL = dg.strStage1URL.replace("${dataset}", rs.getInt("data_set") + "");
+
+	}
+	catch (SQLException sqle)	{
+		UtilityFunctions.stdoutwriter.writeln("SQL Problem with preProcessDataInputTest",Logs.ERROR,"PF42.5");
+		return(false);
+	}
+	
+	return(true);
+
+	
+}
+
+public void postJobProcessDataInputTest() throws SQLException {
+	
+	String[] newrow;
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	String[] tmpArray = {"entity_id","date_collected","value"};
+	
+	
+	newrow = new String[tmpArray.length];
+	
+	String[] colheaders = propTableData.get(0);
+	String[] rowheaders = propTableData.get(1);
+	String[] data = propTableData.get(2);
+	
+	
+	try {
+		
+		String query = " select * from entities where ticker='"+colheaders[0] + "'";
+		ResultSet rs = dbf.db_run_query(query);
+		rs.next();
+		newrow[0] = rs.getInt("id") +"";
+
+	}
+	catch (SQLException sqle)	{
+		UtilityFunctions.stdoutwriter.writeln("SQL Problem with entity id lookup",Logs.ERROR,"PF42.5");
+		return;
+	}
+	
+	newrow[1] = "'" + rowheaders[0] + "'";
+	newrow[2] = data[0];
+	
+	newTableData.add(newrow);
+	
+	
+	String strQuery = "update input_test_controls set sequence=sequence+1 ";
+	strQuery += " where task_id=" + dg.nCurTask;
+	
+	try	{
+		dbf.db_update_query(strQuery);
+
+	}
+	catch (SQLException sqle)	{
+		UtilityFunctions.stdoutwriter.writeln("SQL Problem with postProcessDataInputTest",Logs.ERROR,"PF42.5");
+	}
+	
+	newTableData.add(0, tmpArray);
+
+	propTableData = newTableData;
+
+	
+}
+
 public void preJobProcessTableXrateorg() throws SQLException
 {
 	//clean out all fact_data items that aren't linked to in the notify table
@@ -2515,7 +2680,7 @@ public boolean preProcessImfGdp() {
 	int nMaxEndYear = 2016;
 	int nMinBeginYear = 2004;
 	
-	int nTempCurrent = 2011;
+	int nTempCurrent = 2012;
 	
 	//dg.strStage1URL = dg.strStage1URL.replace("${dynamic8}", cal.get(Calendar.YEAR)+"");
 	dg.strStage1URL = dg.strStage1URL.replace("${dynamic8}", nTempCurrent +"");
@@ -3251,6 +3416,10 @@ public void postProcessGasolineEurope() {
 		  
 		  newrow[0] = bdPrice.toString();
 	  }
+	  catch (NumberFormatException nfe) {
+		  UtilityFunctions.stdoutwriter.writeln("Number format exception for gas price for country " + strCountry + ",row skipped",Logs.WARN,"PF208.36");
+		  continue;
+	  }
 	  catch (SQLException sqle) {
 		  UtilityFunctions.stdoutwriter.writeln("Problem converting to gallons and dollars for currency cross: USD" + tokens[2] + ",row skipped",Logs.WARN,"PF200.25");
 		  continue;	
@@ -3791,6 +3960,100 @@ public void postProcessMWatchEPSEstTable() throws SQLException,SkipLoadException
 		Matcher matcher = pattern.matcher(dg.returned_content);
 		
 		return(matcher.find());
+		
+	}
+	
+	public boolean preNDCDataInputTest() {
+		String strRegex = "(?i)(End of Data)";
+		UtilityFunctions.stdoutwriter.writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF47");
+		
+		Pattern pattern = Pattern.compile(strRegex);
+		
+		Matcher matcher = pattern.matcher(dg.returned_content);
+		
+		return(matcher.find());
+		
+	}
+
+	public void postProcessDataInputTest2() throws SQLException {
+		
+		//String[] newrow;
+		ArrayList<String[]> newTableData = new ArrayList<String[]>();
+		String[] tmpArray = {"entity_id","date_collected","value"};
+		
+		
+		
+		
+		//String[] colheaders = propTableData.get(0);
+		propTableData.remove(0);
+		//String[] rowheaders = propTableData.get(1);
+		//String[] data = propTableData.get(1);
+		
+		for (String[] row : propTableData) {
+		
+			String[] newrow = new String[tmpArray.length];
+			/*try {
+				
+				String query = "";// select * from entities where ticker='"+colheaders[0] + "'";
+				ResultSet rs = dbf.db_run_query(query);
+				rs.next();
+				newrow[0] = rs.getInt("id") +"";
+		
+			}
+			catch (SQLException sqle)	{
+				UtilityFunctions.stdoutwriter.writeln("SQL Problem with entity id lookup",Logs.ERROR,"PF42.5");
+				return;
+			}*/
+			
+			newrow[0] = row[1];
+			newrow[1] = "'" + row[0] + "'";
+			//newrow[1] = "'" + rowheaders[0] + "'";
+			newrow[2] = row[2];
+			
+			newTableData.add(newrow);
+			
+			
+			
+		}
+		
+		String strQuery = "update input_test_controls set sequence=sequence+1 ";
+		strQuery += " where task_id=" + dg.nCurTask;
+		
+		try	{
+			dbf.db_update_query(strQuery);
+	
+		}
+		catch (SQLException sqle)	{
+			UtilityFunctions.stdoutwriter.writeln("SQL Problem with postProcessDataInputTest",Logs.ERROR,"PF42.5");
+		}
+		
+		newTableData.add(0, tmpArray);
+	
+		propTableData = newTableData;
+	
+		
+	}
+
+	public boolean preJobProcessDataInputTest2() throws SQLException {
+		
+		String strQuery = "select * from input_test_controls ";
+		strQuery += " where task_id=" + dg.nCurTask;
+		
+		try	{
+			ResultSet rs = dbf.db_run_query(strQuery);
+			rs.next();
+			dg.strStage1URL = dg.strStage1URL.replace("${seqnumber}", rs.getInt("sequence")+"");
+			dg.strStage1URL = dg.strStage1URL.replace("${dataset}", rs.getInt("data_set") + "");
+			dg.strStage1URL = dg.strStage1URL.replace("${startbatchid}", rs.getInt("start_batch_id") + "");
+	
+		}
+		catch (SQLException sqle)	{
+			UtilityFunctions.stdoutwriter.writeln("SQL Problem with preProcessDataInputTest",Logs.ERROR,"PF42.5");
+			return(false);
+		}
+		
+		return(true);
+	
 		
 	}
 	
