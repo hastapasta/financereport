@@ -1,17 +1,16 @@
 package com.pikefin.dao.impl;
 
 import java.util.List;
-
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.pikefin.ErrorCode;
 import com.pikefin.businessobjects.Groups;
-import com.pikefin.businessobjects.User;
 import com.pikefin.dao.AbstractDao;
 import com.pikefin.dao.inter.GroupDao;
 import com.pikefin.exceptions.GenericException;
@@ -20,13 +19,18 @@ import com.pikefin.exceptions.GenericException;
  * @author Amar_Deep_Singh
  *
  */
+@Component
 public class GroupDaoImpl extends AbstractDao<Groups> implements GroupDao {
-
+	@Autowired
 	private SessionFactory sessionFactory;
 	public GroupDaoImpl(SessionFactory sessionFactory) {
 		 super(Groups.class);
 	     this.sessionFactory=sessionFactory;
 	}
+	
+	public GroupDaoImpl() {
+		 super(Groups.class);
+	    }
 	@Override
 	/**
 	 * Saves the Group information into the database
@@ -34,16 +38,16 @@ public class GroupDaoImpl extends AbstractDao<Groups> implements GroupDao {
 	 * @param takes the new instance of the Group entity
 	 * @returns returns the persisted Group instance
 	 */
-	@Transactional(propagation=Propagation.REQUIRED)
+	@Transactional(propagation=Propagation.REQUIRED,rollbackFor={GenericException.class,ArithmeticException.class})
 	public Groups saveGroupInfo(Groups groupEntity) throws GenericException {
+		Session session;
 		try{
-			Session session=sessionFactory.openSession();
-			//groupEntity=super.save(groupEntity);
-			session.save(groupEntity);
-		}catch (Exception e) {
+			 session=sessionFactory.openSession();
+			 groupEntity=super.save(groupEntity);
+		}catch (HibernateException e) {
 			throw new GenericException(ErrorCode.COULD_NOT_SAVE_GROUP_DATA,e.getMessage(),e.getCause());
 		}
-		return groupEntity;
+			return groupEntity;
 	}
 
 	@Override
@@ -56,10 +60,8 @@ public class GroupDaoImpl extends AbstractDao<Groups> implements GroupDao {
 	@Transactional(propagation=Propagation.REQUIRED)
 	public Groups updateGroupInfo(Groups groupEntity) throws GenericException {
 		try{
-		//	groupEntity=super.update(groupEntity);
-			Session session=sessionFactory.getCurrentSession();7
-			//groupEntity=super.save(groupEntity);
-			session.update(groupEntity);
+			Session session=sessionFactory.openSession();
+			super.update(groupEntity);
 		}catch (HibernateException e) {
 			throw new GenericException(ErrorCode.COULD_NOT_UPDATE_GROUP_DATA,e.getMessage(),e.getCause());
 		}
@@ -76,11 +78,14 @@ public class GroupDaoImpl extends AbstractDao<Groups> implements GroupDao {
 	 */
 	@Transactional(propagation=Propagation.REQUIRED)
 	public Boolean deleteGroupInfo(Groups groupEntity) throws GenericException {
+		boolean result;
 		try{
-			return super.delete(groupEntity);
-		}catch (Exception e) {
-			throw new GenericException(ErrorCode.COULD_NOT_DELETE_GROUP_INFORMATION,e.getMessage(),e.getCause());
+			Session session=sessionFactory.openSession();
+			result= super.delete(groupEntity);
+		   }catch (Exception e) {
+			   throw new GenericException(ErrorCode.COULD_NOT_DELETE_GROUP_INFORMATION,e.getMessage(),e.getCause());
 		}
+			return result;
 	}
 
 	@Override
@@ -93,14 +98,17 @@ public class GroupDaoImpl extends AbstractDao<Groups> implements GroupDao {
 	 */
 	@Transactional(propagation=Propagation.REQUIRED)
 	public Boolean deleteGroupInfoById(Integer groupId) throws GenericException {
-		Groups groupEntity=loadGroupInfo(groupId);
+		Groups groupEntity=null;
+		boolean result;
 		try{
-			super.delete(groupEntity);
+			Session session=sessionFactory.openSession();
+			groupEntity=loadGroupInfo(groupId);
+			result=super.delete(groupEntity);
 			
 		}catch (Exception e) {
-		throw new GenericException(ErrorCode.COULD_NOT_DELETE_GROUP_INFORMATION,e.getMessage(),e.getCause());
+				throw new GenericException(ErrorCode.COULD_NOT_DELETE_GROUP_INFORMATION,e.getMessage(),e.getCause());
 		}
-		return false;
+		return result;
 	}
 
 	@Override
@@ -115,11 +123,12 @@ public class GroupDaoImpl extends AbstractDao<Groups> implements GroupDao {
 	public Groups loadGroupInfo(Integer groupId) throws GenericException {
 		Groups groupEntity;
 		try{
+			Session session=sessionFactory.openSession();
 			groupEntity=super.find(groupId);
 		}catch (Exception e) {
 			throw new GenericException(ErrorCode.COULD_NOT_LOAD_GROUP_DATA_WITH_ID,e.getMessage(),e.getCause());
 		}
-		return groupEntity;
+			return groupEntity;
 	}
 
 	@Override
@@ -138,15 +147,19 @@ public class GroupDaoImpl extends AbstractDao<Groups> implements GroupDao {
 			groups=(List<Groups>)criteria.list();
 			
 		}catch (HibernateException e) {
-			throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
 		}catch (Exception e) {
-			throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
 		}
 		return groups;
 	}
 	@Override
 	public SessionFactory getSessionFactory() {
 		return this.sessionFactory;
+	}
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
 	}
 
 }

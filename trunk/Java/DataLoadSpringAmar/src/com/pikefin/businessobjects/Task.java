@@ -17,7 +17,6 @@ public class Task implements java.io.Serializable {
 	private Set<EntityGroup> entityGroups = new HashSet<EntityGroup>(0);
     private Integer epsEstPriority;
     private String source;
-    
     private boolean allowAlerts;
    
     public Integer getTaskId() {
@@ -115,6 +114,24 @@ public class Task implements java.io.Serializable {
 
 	public Set<EntityGroup> getEntityGroups() {
 		return entityGroups;
+	}
+
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Task other = (Task) obj;
+		if (taskId == null) {
+			if (other.taskId != null)
+				return false;
+		} else if (!taskId.equals(other.taskId))
+			return false;
+		return true;
 	}
 
 }

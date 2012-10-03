@@ -38,7 +38,7 @@
             <column name="obsolete_bulk_email" not-null="true" />
         </property> 
         <many-to-one name="userGroup" class="com.pikefin.businessobjects.Groups" 
-            column="group_id" insert="false" update="false" not-null="false">
+            column="group_id"  not-null="false">
         </many-to-one>
    </class>
    

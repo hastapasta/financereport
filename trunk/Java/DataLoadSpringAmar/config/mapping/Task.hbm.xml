@@ -5,7 +5,7 @@
 
 <hibernate-mapping>
     <class name="com.pikefin.businessobjects.Task" table="tasks" dynamic-update="true">
-		<id name="taskId" column="id" type="integer">
+		<id name="taskId" column="id" type="java.lang.Integer">
 			<generator class="identity"/>
 		</id>
 		<property name="name" column="name" type="string"/>

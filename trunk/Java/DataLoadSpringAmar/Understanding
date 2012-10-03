@@ -1,0 +1,30 @@
+1.Data Load is creating the instance of the Broker class and starting the Broker thread.
+2. starts the notification thread
+3. Broker method creates array arrayRunningJobs of type DataGrab with  size  of max allowed thread. and an ArrayList object listWaitingJobs of type  Job 
+4.if Broker thread is not paused then it starts an infinite while loop, which first call the updateTimeEvents() method
+5. updateTimeEvents load all TimeEvent objects from db and updates the instances with NextDateTime updates and persist into database
+** At point 5 we need to improve the performance, since we may end up with memory here if the list of TimeEvent is really large.  We may use batch concept here.
+
+6. getTriggeredJobs method is called by the Broker thread
+7. getTriggeredJobs loads the list of all RepeatType's and check for getNextTrigger based on conditions and load all Schedules for Repeat Type.
+ All loaded scheduled iterated and checks whether the task associated with schedule is excluded or not ? 
+ if not excluded then a new Job object is created based on schedule and associated task and added to the listWaitingJobs ArrayList object if already not there. 
+ The Schedule is set to repeat Type none for all those have it of type,"RUNONCE". The repeat type are update in the last to update the NextTrigger.
+
+ *** one check can be ommited by loading only the RepeatTypes those qualify to run.
+ *** one improvement can be done by only loading the Schedules those are not excluded (need to think that how to do that in HQL)
+ *** The mechanism for updating the Scheduled  to NONE repeat type can be improved
+ *** instead of loading the Repeat types again to update the next Trigger time, it can be done in the already loaded list and that can be updated into database , it will save the time of loading repeat type again and again.
+ 
+ 8. Broker thread  calls the executeJobs() method.
+ 9. executeJobs method counts the available free slots  for which job is not running and initiate a new job by calling initiateJob() method, which sorts the jobs in descending order based on priority after that we checked that if task is allready not running and no higher priority thread is waiting,
+ then create a DataGrab object and start its thread and remove the job from waiting job list.
+ 
+ 10. writeJobQueueIntoDB method is called by the Broker thread.
+ 11. writeJobQueueIntoDB() method first deletes the all JobQueue objects  then iterate over the arrayRunningJobs array and create JOB Queue object and store it into db. in next step it iterate over the listWaitingJobs Array list and create JOBQueue objects and persist into database.
+ ** It would be better if first create all the JobQueue objects and then send for persist instead of creating and persisting in the same loop. That will be faster
+ 
+ 12. cleanTerminatedJobs() is called by the broker thread after the sleep time. This method iterate over the arrayRunningJobs array and check if thread is terminated then its call the  updateJobStats() method to change the job status and removes the particular job from array. 
+ 
+ 13. updateJobStats() method calls adds the new entry to database in log_tasks table from the dataGrab object.
+ 14. checkMessageCount() method checks if the current day of the year is greater then the thread start day, then it reset the thread start date with new calender value and reset nMailMessageCount to 0 otherwise leave as it is.

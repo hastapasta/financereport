@@ -67,4 +67,13 @@ public class Column implements java.io.Serializable {
 		this.extractTable = extractTable;
 	}
 
+	@Override
+	public boolean equals(Object obj){
+		
+		if(obj!=null && obj instanceof Column ){
+			Column a=(Column)obj;
+			return a.columnId.equals(this.columnId);
+		}else
+			return false;
+	}
 }

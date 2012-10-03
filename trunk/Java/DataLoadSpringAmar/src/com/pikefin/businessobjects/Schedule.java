@@ -15,6 +15,7 @@ public class Schedule implements java.io.Serializable {
 	private Date obsoleteLastRun;
 	private Boolean obsoleteRunOnce;
 	private Boolean configureNotification;
+	
 	public Integer getScheduleId() {
 		return scheduleId;
 	}

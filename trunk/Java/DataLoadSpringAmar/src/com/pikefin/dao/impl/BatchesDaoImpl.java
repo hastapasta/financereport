@@ -6,11 +6,14 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.pikefin.ErrorCode;
 import com.pikefin.businessobjects.Batches;
+import com.pikefin.businessobjects.Country;
 import com.pikefin.businessobjects.Groups;
 import com.pikefin.dao.AbstractDao;
 import com.pikefin.dao.inter.BatchesDao;
@@ -20,12 +23,18 @@ import com.pikefin.exceptions.GenericException;
  * @author Amar_Deep_Singh
  *
  */
+@Component
 public class BatchesDaoImpl extends AbstractDao<Batches> implements BatchesDao {
+	@Autowired
 	private SessionFactory sessionFactory;
 	public BatchesDaoImpl(SessionFactory sessionFactory){
 		super(Batches.class);
 		this.sessionFactory=sessionFactory;
 	}
+	
+	public BatchesDaoImpl() {
+		 super(Batches.class);
+	    }
 	@Override
 	/**
 	 * Saves the Batches information into the database
@@ -36,10 +45,11 @@ public class BatchesDaoImpl extends AbstractDao<Batches> implements BatchesDao {
 	@Transactional(propagation=Propagation.REQUIRED)
 	public Batches saveBatchesInfo(Batches batchesEntity)
 			throws GenericException {
+		Session session;
 		try{
+			session=sessionFactory.openSession();
 			batchesEntity=super.save(batchesEntity);
-			
-		}catch (Exception e) {
+			}catch (Exception e) {
 			throw new GenericException(ErrorCode.COULD_NOT_SAVE_BATCHES_DATA,e.getMessage(),e.getCause());
 		}
 		return batchesEntity;

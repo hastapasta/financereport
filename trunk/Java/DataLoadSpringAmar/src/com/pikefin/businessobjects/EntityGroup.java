@@ -15,7 +15,7 @@ public class EntityGroup implements java.io.Serializable {
     private Integer parentId;
     private Integer lft;
     private Integer rght;
-	private Set<Entity> entities = new HashSet(0);
+	private Set<Entity> entities = new HashSet<Entity>(0);
 
 	
 	public Integer getEntityGroupId() {

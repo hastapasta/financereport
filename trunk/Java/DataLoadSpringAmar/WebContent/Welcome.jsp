@@ -13,5 +13,6 @@
   
 
 Welcome to Financial Report application
+<a href="./save" > Save new Group</a>
 </body>
 </html>

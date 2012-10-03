@@ -4,7 +4,7 @@
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="com.pikefin.businessobjects.Batches" table="batches" dynamic-update="true">
+    <class name="com.pikefin.businessobjects.Batches" table="batches">
 		<id name="batchId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>
@@ -12,7 +12,7 @@
 		<property name="count" column="count" type="integer"/>
 		<property name="randomUnique" column="random_unique" type="string"/>
 		<property name="garbageCollect" column="garbage_collect" type="java.lang.Integer"/>
-		<many-to-one name="batchTask" class="com.pikefin.businessobjects.Task" column="task_id" 
-			not-null="true" cascade="all" />
+		<many-to-one name="batchTask" class="com.pikefin.businessobjects.Task" column="task_id" cascade="none"
+			not-null="true"  />
    </class>
 </hibernate-mapping>

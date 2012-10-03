@@ -5,7 +5,7 @@
 
 <hibernate-mapping>
     <class name="com.pikefin.businessobjects.Alert" table="alerts" dynamic-update="true">
-		<id name="alertId" column="id" type="integer">
+		<id name="alertId" column="id" type="java.lang.Integer">
 			<generator class="identity"/>
 		</id>
 		  <property name="type" type="int">

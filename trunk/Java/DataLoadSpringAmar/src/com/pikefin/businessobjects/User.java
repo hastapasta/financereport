@@ -12,10 +12,10 @@ public class User implements java.io.Serializable {
 	private Date modified;
 	private String accountEmail;
 	private Integer obsoleteMaxNotifications;
-	private Boolean suspended;
-	private Boolean active;
+	private Boolean suspended=false;
+	private Boolean active=true;
 	private Integer paginationLimit;
-	private Boolean obsoleteBulkEmail;
+	private Boolean obsoleteBulkEmail=true;
 	private String password;
 	
 	public User() {
