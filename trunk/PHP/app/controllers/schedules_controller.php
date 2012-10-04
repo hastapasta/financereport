@@ -295,6 +295,7 @@ class SchedulesController extends AppController {
 	
 	function turnoff(){
 		$this->Schedule->query('update schedules set repeat_type_id = 10');
+		$this->Session->setFlash(__('Set all schedules to DO NOT EXECUTE repeat type', true),'default',array('class'=>'green_message'));
 		$this->redirect($this->referer());
 	}
 
@@ -374,7 +375,7 @@ class SchedulesController extends AppController {
 	public function set_default_schedules() {
 		$this->Schedule->query("TRUNCATE TABLE schedules");
 		$this->Schedule->query("INSERT INTO schedules SELECT * FROM default_schedules");
-		$this->Session->setFlash(__('Schedule Table Truncate and Add Default Schedules', true));
+		$this->Session->setFlash(__('Set all schedules to default configuration', true),'default',array('class'=>'green_message'));
 		$this->redirect(array('action' => 'index'));
 	}
 }
