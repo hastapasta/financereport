@@ -73,6 +73,10 @@ class User extends AppModel {
 			return array('Group' => array('id' => $groupId));
 		}
 	}
+	
+	function bindNode($user) {
+		return array('model' => 'Group', 'foreign_key' => $user['User']['group_id']);
+    }
 
 
 }

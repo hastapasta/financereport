@@ -5,8 +5,15 @@
 <td style="width:10%;">
 <table class="searchTable" cellspacing="0">
 	<?php 
-		echo $this->Form->create('Schedule',array('controller'=>'schedules','name' => 'SearchForm',
-												'action'=>'index','class'=>'filterForm'));
+		echo $this->Form->create(
+			'Schedule',
+			array(
+				'controller'=>'schedules',
+				'name' => 'SearchForm',
+				'action'=>'index',
+				'class'=>'filterForm'
+			)
+		);
 		$obsolete_data_set= "";
 		$repeat_type_id="";
 		$checkboxdefault=false;
@@ -38,7 +45,9 @@
 		}
 	?>
 	<tr>
-		<td><?php echo $this->Form->input('obsolete_data_set',array('label'=>'Task Name:','type'=>'text','value'=>$obsolete_data_set)); ?></td>
+		<td>
+			<?php echo $this->Form->input('obsolete_data_set',array('label'=>'Task Name:','type'=>'text','value'=>$obsolete_data_set)); ?>
+		</td>
 	</tr>
 	<tr>
 		<td>
@@ -83,7 +92,7 @@
 	<?php
 	$i = 0;
 	$j = 0;
-	//debug($schedules,true);exit;
+	//debug($schedules);exit;
 	foreach ($schedules as $schedule):
 	$class = null;
 	if ($i++ % 2 == 0) {

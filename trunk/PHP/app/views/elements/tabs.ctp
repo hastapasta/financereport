@@ -117,6 +117,7 @@
 				echo $this->Html->link(__('List', true), array('controller'=>'schedules','action' => 'index'));
 				echo $this->Html->link(__('Add', true), array('controller'=>'schedules','action' => 'add'));
 				echo $this->Html->link("Turn Off All Schedules", array('action'=>'turnoff'));
+				echo $this->Html->link(__('Set Default Configration', true), array('controller' => 'schedules', 'action' => 'set_default_schedules'));
 				break;				
 			case 5:
 				echo $this->Html->link(__('List', true), array('controller'=>'entities','action' => 'index'));

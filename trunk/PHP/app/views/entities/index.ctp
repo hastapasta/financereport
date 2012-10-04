@@ -4,7 +4,7 @@
 	$userprops = $this->getVar('user_props');
 ?>
 <script type='text/javascript'>
-	$(function(){
+	/*$(function(){
 		$( "#CountryName" ).autocomplete({	
 			source: function( request, response ) {
 				$.ajax({
@@ -43,7 +43,7 @@
 		  theForm.ticker.value = encodeURI(theForm.ticker.value);
 				
 		return true;
-	}
+	}*/
 </script>
 
 <table>
@@ -65,8 +65,8 @@
 			$tickerdefault = $filtervalues['Entity']['ticker'];
 			//print_r($tickerdefault);
 			//$taskdefault = $filtervalues['Alert']['task_id'];
-			$fullnamedefault = $filtervalues['Entity']['Description'];
-			$countrynamedefault = $filtervalues['Country']['name'];
+			$fullnamedefault = $filtervalues['Entity']['full_name'];
+			$countrynamedefault = $filtervalues['Country']['id'];
 			if (!empty($countrynamedefault))
 				$countryiddefault = $filtervalues['Country']['id'];
 			$enable = $filtervalues['Entity']['enable'];
@@ -91,7 +91,7 @@
 		
 		<table class="searchTable" cellspacing="0">
 		<?php echo $this->Form->create('Entity', array('controller'=>'entities', 'name' => 'SearchForm','action'=>'index', 'type'=>'POST','class'=>'filterForm')); ?>
-		 <tr>
+			<tr>
 				<td>
 				<?php 
 					
@@ -104,10 +104,9 @@
 				<td>
 				<?php 
 					//$name = (isset($this->data['Entity']['full_name'])) ? $this->data['Entity']['full_name'] : "";
-					echo $this->Form->input('Description', array("value"=>$fullnamedefault));
+					echo $this->Form->input('full_name', array("value"=>$fullnamedefault));
 				?>	
 				</td>
-							
 			</tr>
 			<tr>
 				<td>
@@ -118,14 +117,20 @@
 					//var_dump($entities);
 					//var_dump($countries);
 					//var_dump($this);
-					echo $this->Form->input('Country.name',array('label'=>'Country:','options' => $this->getVar('countries'),'selected'=>$countrynamedefault,'empty'=>'All'));
+					echo $this->Form->input('Country.id',array('label'=>'Country:','options' => $this->getVar('countries'),'selected'=>$countrynamedefault,'empty'=>'All'));
 					//echo $this->Form->hidden('Country.id',array('label'=>'Country:','options' => $this->getVar('countries'),'selected'=>$countrynamedefault,'empty'=>'All'));
 					//echo $this->Form->input('Country.name', array("value"=>$countrynamedefault));
 					//debug($countrynamedefault);exit;
-					echo $this->Form->hidden('Country.id', array("value"=>$countrynamedefault));
+					//echo $this->Form->hidden('Country.id', array("value"=>$countrynamedefault));
 				?>	
 				</td>
-							
+			</tr>
+			<tr>
+				<td>
+					<?php
+						echo $this->Form->input('EntityGroup.id',array('label'=>'Entity Group:','options' => $this->getVar('entity_groups'),'empty'=>'All'));
+					?>
+				</td>
 			</tr>
 		
 			<tr><td><br></td></tr>
@@ -226,5 +231,3 @@
 	</td>
 </tr>
 </table>
-
-
