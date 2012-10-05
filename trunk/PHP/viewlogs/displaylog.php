@@ -94,7 +94,7 @@ for ($i=0;$i<sizeof($extensions);$i++) {
 			if (!empty($notdisplay))
 				if (strpos($data,$notdisplay,0))
 					continue;
-			echo $data;
+			echo htmlspecialchars($data,ENT_QUOTES);
 			echo "\n";
 		
 		} 
@@ -112,7 +112,7 @@ for ($i=0;$i<sizeof($extensions);$i++) {
 			if (!empty($notdisplay))
 				if (strpos($data,$notdisplay,0))
 					continue;
-			echo $data;
+			echo htmlspecialchars($data,ENT_QUOTES);
 			echo "\n";
 	
 		} 
