@@ -2,6 +2,13 @@ package com.pikefin;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.pikefin.exceptions.CustomRegexException;
+import com.pikefin.exceptions.TagNotFoundException;
+
+import pikefin.log4jWrapper.Logs;
 
 public class PikefinUtil{
 
@@ -13,4 +20,90 @@ public class PikefinUtil{
 		}
 		return arrayToClear;
 	}
+	
+	public static int regexSeekLoop(String regex, int nCount, int nCurOffset, String strHayStack)
+			throws TagNotFoundException {
+				
+				
+				Pattern pattern = Pattern.compile(regex);
+				
+				Matcher matcher = pattern.matcher(strHayStack);
+				
+				for (int i = 0; i < nCount; i++) {
+				
+					if (matcher.find(nCurOffset) == false)
+					// Did not find regex
+					{
+						/* Let whoever catches this decide what to write to the logs. */
+						// ApplicationSetting.getInstance().getStdoutwriter().writeln("Regex search exceeded.",Logs.ERROR,"DG2");
+						throw new TagNotFoundException();
+					}
+				
+					nCurOffset = matcher.start() + 1;
+				
+					ApplicationSetting.getInstance().getStdoutwriter().writeln("regex iteration " + i
+							+ ", offset: " + nCurOffset, Logs.STATUS2, "UF3");
+				
+				}
+				return (nCurOffset);
+			}
+	
+	public static String regexSnipValue(String strBeforeUniqueCode,
+			String strAfterUniqueCode, int nCurOffset,String strHayStack)
+			throws CustomRegexException {
+
+		Pattern pattern;
+		String strDataValue = "";
+		int nBeginOffset;
+		Matcher matcher;
+
+		if ((strBeforeUniqueCode != null)
+				&& (strBeforeUniqueCode.isEmpty() != true)) {
+			String strBeforeUniqueCodeRegex = "(" + strBeforeUniqueCode + ")";
+			ApplicationSetting.getInstance().getStdoutwriter().writeln(strBeforeUniqueCodeRegex,
+					Logs.STATUS2, "UF4");
+
+			pattern = Pattern.compile(strBeforeUniqueCodeRegex);
+			ApplicationSetting.getInstance().getStdoutwriter().writeln(
+					"after strbeforeuniquecoderegex compile", Logs.STATUS2,
+					"UF5");
+			matcher = pattern.matcher(strHayStack);
+			ApplicationSetting.getInstance().getStdoutwriter().writeln(
+					"Current offset before final data extraction: "
+							+ nCurOffset, Logs.STATUS2, "UF6");
+			matcher.find(nCurOffset);
+			nBeginOffset = matcher.end();
+		} else
+			nBeginOffset = nCurOffset;
+
+		ApplicationSetting.getInstance().getStdoutwriter().writeln("begin offset: " + nBeginOffset,
+				Logs.STATUS2, "UF7");
+
+		String strAfterUniqueCodeRegex = "(" + strAfterUniqueCode + ")";
+		pattern = Pattern.compile(strAfterUniqueCodeRegex);
+		ApplicationSetting.getInstance().getStdoutwriter().writeln(
+				"after strAfterUniqueCodeRegex compile", Logs.STATUS2, "UF8");
+		matcher = pattern.matcher(strHayStack);
+		matcher.find(nBeginOffset);
+		int nEndOffset = matcher.start();
+		ApplicationSetting.getInstance().getStdoutwriter().writeln("end offset: " + nEndOffset,
+				Logs.STATUS2, "UF9");
+
+		if (nEndOffset <= nBeginOffset) {
+			/*
+			 * If we get here, skip processing this table cell but continue
+			 * processing the rest of the table.
+			 */
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("EndOffset is < BeginOffset",
+					Logs.STATUS2, "UF10");
+			throw new CustomRegexException();
+		}
+		strDataValue = strHayStack.substring(nBeginOffset, nEndOffset);
+		ApplicationSetting.getInstance().getStdoutwriter().writeln(
+				"Raw Data Value: " + strDataValue, Logs.STATUS2, "UF11");
+		return (strDataValue);
+
+	}
+
+			
 }

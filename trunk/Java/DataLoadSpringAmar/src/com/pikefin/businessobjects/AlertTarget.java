@@ -1,5 +1,8 @@
 package com.pikefin.businessobjects;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 
 public class AlertTarget implements java.io.Serializable {
@@ -12,6 +15,7 @@ public class AlertTarget implements java.io.Serializable {
     private Boolean bulkEmail;
     private Integer maxNotifications;
     private Integer tweetLimit;
+    private Set<Alert> alerts=new HashSet<Alert>();
 
 	public AlertTarget() {
 	}
@@ -100,6 +104,18 @@ public class AlertTarget implements java.io.Serializable {
 
 	public void setTweetLimit(Integer tweetLimit) {
 		this.tweetLimit = tweetLimit;
+	}
+
+
+
+	public Set<Alert> getAlerts() {
+		return alerts;
+	}
+
+
+
+	public void setAlerts(Set<Alert> alerts) {
+		this.alerts = alerts;
 	}
 
 }

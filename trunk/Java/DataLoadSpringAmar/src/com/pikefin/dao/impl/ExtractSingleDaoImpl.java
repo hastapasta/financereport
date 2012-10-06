@@ -3,14 +3,20 @@ package com.pikefin.dao.impl;
 import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
+import org.hibernate.criterion.Subqueries;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import com.pikefin.ErrorCode;
 import com.pikefin.businessobjects.ExtractSingle;
+import com.pikefin.businessobjects.Job;
 import com.pikefin.dao.AbstractDao;
 import com.pikefin.dao.inter.ExtractSingleDao;
 import com.pikefin.exceptions.GenericException;
@@ -157,7 +163,27 @@ public class ExtractSingleDaoImpl extends AbstractDao<ExtractSingle> implements 
 		}
 		return columns;
 	}
-	
+	/**
+	 * Gets the ExtractSingle object based on data set value 
+	 * @return
+	 * @throws GenericException
+	 */
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public ExtractSingle loadExtractSinglesByDataSet(String dataSet) throws GenericException {
+		
+		ExtractSingle extract=null;
+		try{
+			Session session=sessionFactory.openSession();
+			Query query=session.createQuery("select c from ExtractSingle c, Job j where c.extractSingleId=j.extractKeyBody.extractSingleId and j.dataSet='"+dataSet+"'");
+			extract= (ExtractSingle)query.uniqueResult();
+		}catch (HibernateException e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_EXTRACT_SINGLE_BY_DATA_SET,e.getMessage() , e.getCause());
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_EXTRACT_SINGLE_BY_DATA_SET,e.getMessage() , e.getCause());
+		}
+		return extract;
+	}
 	@Override
 	public SessionFactory getSessionFactory() {
 		return this.sessionFactory;
@@ -166,5 +192,7 @@ public class ExtractSingleDaoImpl extends AbstractDao<ExtractSingle> implements 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+
+	
 
 }

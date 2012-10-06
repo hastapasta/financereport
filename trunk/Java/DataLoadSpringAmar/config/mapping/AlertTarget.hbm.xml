@@ -30,5 +30,11 @@
 			not-null="true" cascade="all" />
         <many-to-one name="userId" class="com.pikefin.businessobjects.User" column="user_id" 
 			not-null="true" cascade="all" />
+        
+        <set name="alerts" table="alerts_alert_targets"  inverse="true">
+			<key column="alert_target_id"  />
+			<many-to-many column="alert_id"
+				class="com.pikefin.businessobjects.Alert" />	
+		</set>
    </class>
  </hibernate-mapping>

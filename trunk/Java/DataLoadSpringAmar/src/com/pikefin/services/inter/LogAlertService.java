@@ -6,6 +6,8 @@ import com.pikefin.businessobjects.LogAlert;
 import com.pikefin.exceptions.GenericException;
 
 public interface LogAlertService {
-	public List<LogAlert> loadAllLogAlertsForNotification() throws GenericException;
-
+	public List<Object> loadAllLogAlertsForNotification() throws GenericException;
+	public List<LogAlert> updateLogAlertInBulk(
+			List<LogAlert> logAlertEntitiesList) throws GenericException;
+	
 }

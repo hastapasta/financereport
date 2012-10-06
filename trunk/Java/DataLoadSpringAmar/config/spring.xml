@@ -85,8 +85,9 @@
 <!-- END of transaction mangement -->
     
     <!-- ########## Start of bean configurations related to  Dao Classes ##########-->
+  <bean id="applicationSetting" class="com.pikefin.ApplicationSetting" factory-method="getInstance"></bean>
+  <bean id="velocityEngine" class="org.apache.velocity.app.VelocityEngine" />
   
-      
     <!-- ###########	End of bean configurations related to Dao Classes		########## -->
    
    

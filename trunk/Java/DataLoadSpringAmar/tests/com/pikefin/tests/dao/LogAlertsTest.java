@@ -1,9 +1,5 @@
 package com.pikefin.tests.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Query;
@@ -15,12 +11,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.pikefin.businessobjects.LogAlert;
+import com.pikefin.dao.inter.LogAlertDao;
+
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:spring.xml"})
 public class LogAlertsTest {
 	@Autowired
 	private SessionFactory sessionFactory;
+	@Autowired
+	private LogAlertDao logAlertDao;
 	@Test
 	public void  testLogAlert() throws Exception{
 		String query1 = " from LogAlert la";
@@ -38,6 +39,14 @@ public class LogAlertsTest {
 		Session session=sessionFactory.openSession();
 		Query query=session.createQuery(query1);
 		List<Object> lst=query.list();
+for(Object obj:lst){
+		System.out.println(obj);
+}
+	} 
+	@Test
+	public void  testLogAlert2() throws Exception{
+		
+		List<Object> lst=logAlertDao.loadAllLogAlertsForNotification();
 for(Object obj:lst){
 		System.out.println(obj);
 }

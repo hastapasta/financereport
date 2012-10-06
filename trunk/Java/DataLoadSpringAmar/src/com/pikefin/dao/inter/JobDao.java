@@ -12,4 +12,6 @@ public interface JobDao {
 	public Boolean deleteJobInfoById(Integer jobId ) throws GenericException;
 	public Job loadJobInfo(Integer jobId) throws GenericException;
 	public List<Job> loadAllJobs() throws GenericException;
+	public Job getJobByDataSet(String dataSet) throws GenericException;
+
 }

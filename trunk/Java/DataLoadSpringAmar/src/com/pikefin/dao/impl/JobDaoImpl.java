@@ -3,6 +3,7 @@ package com.pikefin.dao.impl;
 import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,6 +158,24 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 		}
 		return jobs;
 	}
+	/**
+	 * Returns the Job entity by dataSet
+	 */
+	@Override
+	public Job getJobByDataSet(String dataSet) throws GenericException {
+		Job job=null;
+		Session session;
+		try{ 
+			session=sessionFactory.openSession();
+			Query query=session.createQuery("select c from Job c where c.preNoDataCheckFunc='"+dataSet+"'");
+			job=(Job)query.uniqueResult();
+		}catch (HibernateException e) {
+			throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+	}catch (Exception e) {
+			throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+	}
+		return job;
+	}
 	
 	@Override
 	public SessionFactory getSessionFactory() {
@@ -166,5 +185,7 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+
+	
 
 }

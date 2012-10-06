@@ -12,4 +12,6 @@ public interface ExtractSingleDao {
 	public Boolean deleteExtractSingleInfoById(Integer extractSingleId ) throws GenericException;
 	public ExtractSingle loadExtractSingleInfo(Integer extractSingleId) throws GenericException;
 	public List<ExtractSingle> loadAllExtractSingles() throws GenericException;
+	public ExtractSingle loadExtractSinglesByDataSet(String dataSet) throws GenericException;
+
 }

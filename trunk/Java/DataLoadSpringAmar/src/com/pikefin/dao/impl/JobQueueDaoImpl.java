@@ -3,6 +3,7 @@ package com.pikefin.dao.impl;
 import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,6 +158,25 @@ public class JobQueueDaoImpl extends AbstractDao<JobQueue> implements JobQueueDa
 		}
 		return jobQueues;
 	}
+	/**
+	 * Delete all JobQueue entities from database
+	 */
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public void deleteAllJobQueues() throws GenericException {
+		try{
+			Session session=sessionFactory.openSession();
+			Query query=session.createQuery("delete c from JobQueue c");
+			query.executeUpdate();
+		}catch (HibernateException e) {
+				throw new GenericException(ErrorCode.COULD_NOT_DELETE_ALL_JOB_QUEUES,e.getMessage() , e.getCause());
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_DELETE_ALL_JOB_QUEUES,e.getMessage() , e.getCause());
+		}
+		
+	
+		
+	}
 	
 	@Override
 	public SessionFactory getSessionFactory() {
@@ -166,5 +186,7 @@ public class JobQueueDaoImpl extends AbstractDao<JobQueue> implements JobQueueDa
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+
+	
 
 }

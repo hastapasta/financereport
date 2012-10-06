@@ -13,17 +13,18 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
-import pikefin.Broker;
-import pikefin.DataGrab;
-import pikefin.UtilityFunctions;
+
+import com.pikefin.services.DataLoadService;
 import pikefin.log4jWrapper.Logs;
-
-
+import com.pikefin.ApplicationSetting;
 import com.pikefin.PikefinUtil;
 import com.pikefin.RepeatTypeEnum;
+import com.pikefin.businessobjects.JobQueue;
 import com.pikefin.businessobjects.RepeatType;
 import com.pikefin.businessobjects.Schedule;
+import com.pikefin.businessobjects.Task;
 import com.pikefin.exceptions.GenericException;
+import com.pikefin.services.inter.JobQueueService;
 import com.pikefin.services.inter.RepeatTypeService;
 import com.pikefin.services.inter.ScheduleService;
 import com.pikefin.services.inter.TaskService;
@@ -42,10 +43,11 @@ public class BrokerExecuter extends Thread {
 	private TaskService taskService;
 	@Autowired
 	private RepeatTypeService repeatService;
-	private boolean loadHistoricalData = false;
-	private boolean debugMode = false;
-	private int threadSleepInteval;
-	private int maxAllowedThreads;
+	@Autowired
+	private NotificationExecuter notification;
+	@Autowired
+	private JobQueueService jobQueueService;
+	
 	private int threadMinimumPriority;
 	private int nMailMessageCount;
 	private boolean brokerThreadPaused = false;
@@ -58,7 +60,7 @@ public class BrokerExecuter extends Thread {
 	//  Notification notification;
 	
 	 public BrokerExecuter(){
-		 runningJobsArray=new DataGrabExecuter[this.maxAllowedThreads];
+		 runningJobsArray=new DataGrabExecuter[ApplicationSetting.getInstance().getMaxAllowedThreads()];
 		 waitingJobList = new ArrayList<QueuedJob>();
 	 }
 	
@@ -73,13 +75,14 @@ public class BrokerExecuter extends Thread {
 		 threadStartDate.set(Calendar.SECOND, 0);
 		 threadStartDate.set(Calendar.MILLISECOND, 0);
 		 
-		 //this.notification.start();
+		 this.notification.start();
 		 if (!isBrokerThreadPaused()) {
-				if (!isLoadHistoricalData() ){
+				if (!ApplicationSetting.getInstance().isLoadHistoricalData()){
 					//starting the infinite loop
 					while(true) {    
 						try{
 						timeEventService.updateTimeEventsForBroker();
+						this.getTriggeredJobs();
 						
 						}catch (GenericException e) {
 							logger.error(e.getErrorCode()+"\n "+e.getErrorMessage()+"\n"+e.getErrorDescription());
@@ -127,6 +130,60 @@ public class BrokerExecuter extends Thread {
 			logger.debug("Error in retrieving Triggered Job"+genException.getErrorCode()+" "+genException.getErrorDescription());
 		}
 	}
+	
+	
+	  public void writeJobQueueIntoDB() {
+		  try{
+			  
+		  jobQueueService.deleteAllJobQueues();
+		  for (int i=0;i<runningJobsArray.length;i++) {
+			  if (runningJobsArray[i] != null) {
+				  JobQueue jq = new JobQueue(); 
+				  
+				  jq.setTask(runningJobsArray[i].getCurrentTask());
+				  Thread t = (Thread)runningJobsArray[i];
+				  
+				  jq.setStatus(runningJobsArray[i].getState().toString());
+				  jq.setStartTime(runningJobsArray[i].calJobProcessingStart.getTime());
+				  //jq.setPriority(runningJobsArray[i].nPriority);
+				  
+				  dbf.dbHibernateSaveQuery(jq);
+				  
+				  
+				  /*query = "insert into job_queue (task_id,status,start_time) values (";
+				  query += runningJobsArray[i].nCurTask + ",'";
+				  query += runningJobsArray[i].getState().toString() + "','";
+				  query += formatter.format(runningJobsArray[i].calJobProcessingStart.getTime()) + "')";*/
+				  // dbf.db_update_query(query);
+				  //dbf.dbSpringUpdateQuery(query);
+				  UtilityFunctions.stdoutwriter.writeln("Status of thread " + runningJobsArray[i].getName() + ": " + 
+						  runningJobsArray[i].getState().toString(),Logs.THREAD,"DL2");
+			  }
+		  }
+		  for (int k=0;k<waitingJobList.size();k++) {
+			  JobQueue jq = new JobQueue();
+			  
+			  jq.setTaskId(waitingJobList.get(k).task_id);
+			  jq.setStatus("QUEUED");
+			  jq.setQueuedTime(waitingJobList.get(k).queued_time);
+			  jq.setPriority(waitingJobList.get(k).priority);
+			  
+			  dbf.dbHibernateSaveQuery(jq);
+			  
+			  
+			  
+			  
+			  /*query = "insert into job_queue (task_id,status,queued_time,priority) values (" + waitingJobList.get(k).task_id + 
+			  ",'QUEUED','" + waitingJobList.get(k).queued_time + "'," + waitingJobList.get(k).priority + ")";*/
+			  //dbf.db_update_query(query);
+			  //dbf.dbSpringUpdateQuery(query);
+		  }
+		  }catch (GenericException e) {
+			  logger.error("Problem while writing queue into db-"+e.getErrorCode()+" "+e.getErrorMessage()+" "+e.getErrorDescription());
+
+		}
+	  }
+
 	/**
 	 * 
 	 */
@@ -149,133 +206,54 @@ public class BrokerExecuter extends Thread {
 				  
 		  }	
 	}
-	
-	 public DataGrab initiateJob(int nPriority) throws DataAccessException  {
-		  //String strDataSet;
-		  String strTask;
-		  DataGrab dg;
-		  //Calendar cal;
-		  
-		 //Sorting the  
+	/**
+	 * Check if the Queued job is already not running then it initiates the job and remove it from waiting job list
+	 * @param nPriority
+	 * @return
+	 * @throws DataAccessException
+	 */
+	 public DataGrabExecuter initiateJob(int nPriority) throws DataAccessException  {
+		 
+		  Task task;
+		  DataGrabExecuter dg;
+		  //Sorting the  Queued Jobs
 		 Collections.sort(waitingJobList);
-			  
-			  /*
-			   * Loop through the list of waiting jobs and only execute one that isn't already running
-			   * 
-			   * NOTE: the non concurrency rule is based off of task not schedule!!!
-			   * Ultimately I think I want to base it off of schedule (this would be less restrictive.)
-			   */
-			  boolean bAlreadyRunning;
-			  for (int i=0;i<listWaitingJobs.size();i++) {
-				  
-
-				  bAlreadyRunning = false;
-				  strTask = listWaitingJobs.get(i).task_id + "";
-				  for (int j=0;j<arrayRunningJobs.length;j++) {
-					  if (arrayRunningJobs[j] != null)  {
-						  if (arrayRunningJobs[j].nCurTask == listWaitingJobs.get(i).task_id) {
-							  UtilityFunctions.stdoutwriter.writeln("Task in waiting queue already running so won't get moved to run queue (task id: " + arrayRunningJobs[j].nCurTask, Logs.STATUS1, "DL3.99");
-							  bAlreadyRunning=true;
+		 boolean isAlreadyRunning;
+			  for (int i=0;i<waitingJobList.size();i++) {
+				  isAlreadyRunning = false;
+				  task = waitingJobList.get(i).getTask();
+				  for (int j=0;j<runningJobsArray.length;j++) {
+					  if (runningJobsArray[j] != null)  {
+						  if (runningJobsArray[j].getCurrentTask().getTaskId() == task.getTaskId()) {
+							  logger.info("Task in waiting queue already running so won't get moved to run queue (task id: " + runningJobsArray[j].getCurrentTask().getTaskId());
+							  isAlreadyRunning=true;
 							  break;
 						  }
 					  }
 				  }
 				  
-				  if (bAlreadyRunning==false) {
-					  
-					  if (listWaitingJobs.get(i).priority < nPriority) {
-						  UtilityFunctions.stdoutwriter.writeln("Not initiating schedule because one thread is reserved for minimum priority of " + nPriority + ". Task: " + listWaitingJobs.get(i).task_id + ", Priority: " + listWaitingJobs.get(i).priority, Logs.STATUS1, "DL4.36");
+				  if (isAlreadyRunning==false) {
+					  if (waitingJobList.get(i).getPriority() < nPriority) {
+						  logger.info("Not initiating schedule because one thread is reserved for minimum priority of " + nPriority + ". Task: " + waitingJobList.get(i).getTask().getTaskId() + ", Priority: " + waitingJobList.get(i).getPriority());
 						  return null;
 					  }
-					  
-					 /*
-					  * OFP 3/12/2011 - Bug here that was resulting in the same TaskId being executed concurrently. If there
-					  * was more than 1 job in the waiting queue but the first TaskId in the waiting queue was already running, it
-					  * would still be initiated because we were always taking the first job at the head of the waiting queue, instead
-					  * of the one just checked (index i).
-					  */
-
-					  strTask = listWaitingJobs.get(i).task_id + "";
-					 // DBFunctions tmpdbf = new DBFunctions((String)props.get("dbhost"),(String)props.get("dbport"),(String)props.get("database"),(String)props.get("dbuser"),(String)props.get("dbpass"));
-					  
-					  /*
-					   * OFP 3/16/2011 - Fixing a bug where different task_ids were using the same batch # (big no-no). Before, each individual thread would call
-					   * dbf.getBatchNumber(). Now the batch number is maintained in the parent thread to avoid duplication.
-					   * 
-					   */
-					
-					  dg = new DataGrab(Broker.dbf,strTask,0,listWaitingJobs.get(i).id + "",listWaitingJobs.get(i).repeat_type_id +"",listWaitingJobs.get(i).verify_mode,listWaitingJobs.get(i).priority);
-					  
-				
-					  //dg = new DataGrab(strTask,0,listWaitingJobs.get(i).id,listWaitingJobs.get(i).repeat_type_id,listWaitingJobs.get(i).verify_mode);
-
-					  /*
-					   * OFP 3/12/2011 - move the writeKeepAlive function call here because we were running into instances were the DataLoad thread was running
-					   * fine but the DataGrab threads were locked up and no new DataGrab threads were being initiated.
-					   */
-
+					  dg = new DataGrabExecuter(task,0,waitingJobList.get(i).getSchedule(),waitingJobList.get(i).getRepeatType(),waitingJobList.get(i).isVerifyMode(),waitingJobList.get(i).getPriority());
 					  dg.start();
-					  //threadPool.execute(dg);
-					  
-					  UtilityFunctions.stdoutwriter.writeln("Initiated DataGrab thread " + dg.getName(),Logs.THREAD,"DL4");
-					  
-					  
-					 //listWaitingJobs.remove(0);
-					 listWaitingJobs.remove(i);
-					 
-					 /*
-					  * OFP - We're going to keep it simple by only initiating one job per call of this function. This get a little
-					  * funky since we are looping through a list and we are modifying the list (remove(i)) in the loop.
-					  */
-					 
-					  
-					 return(dg);
-					  
-					  
+					  logger.info("Initiated DataGrab thread " + dg.getName());
+					 waitingJobList.remove(i);
+					 return dg;
+				  
 				  }
 			  
 			  }
-			  
-			  /*
-			   * If we get here then all jobs in waiting queue are already running and we'll
-			   * return null which keeps the spot open.
-			   */
+				
 			  return null;
-		  
-		  
+	  
 	  }
 	  
-	public boolean isLoadHistoricalData() {
-		return loadHistoricalData;
-	}
+	
 
-	public void setLoadHistoricalData(boolean loadHistoricalData) {
-		this.loadHistoricalData = loadHistoricalData;
-	}
-
-	public boolean isDebugMode() {
-		return debugMode;
-	}
-
-	public void setDebugMode(boolean debugMode) {
-		this.debugMode = debugMode;
-	}
-
-	public int getThreadSleepInteval() {
-		return threadSleepInteval;
-	}
-
-	public void setThreadSleepInteval(int threadSleepInteval) {
-		this.threadSleepInteval = threadSleepInteval;
-	}
-
-	public int getMaxAllowedThreads() {
-		return maxAllowedThreads;
-	}
-
-	public void setMaxAllowedThreads(int maxAllowedThreads) {
-		this.maxAllowedThreads = maxAllowedThreads;
-	}
+	
 
 	public boolean isBrokerThreadPaused() {
 		return brokerThreadPaused;

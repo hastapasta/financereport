@@ -12,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.pikefin.Constants;
 import com.pikefin.ErrorCode;
+import com.pikefin.businessobjects.AlertTarget;
 import com.pikefin.businessobjects.LogAlert;
 import com.pikefin.dao.AbstractDao;
 import com.pikefin.dao.inter.LogAlertDao;
@@ -162,16 +165,31 @@ public class LogAlertDaoImpl extends AbstractDao<LogAlert> implements LogAlertDa
 	}
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public List<LogAlert> loadAllLogAlertsForNotification()
+	public List<Object> loadAllLogAlertsForNotification()
 			throws GenericException {
-		List<LogAlert> logAlerts=null;
+		List<Object> logAlerts=null;
 		try{
 			Session session=sessionFactory.openSession();
-			Query query= session.createQuery("select c from LogAlert c where c.emailSent=true and c.logAlertAlert.alertTarget.alertTargetId");
-			Criteria criteria=session.createCriteria(LogAlert.class);
-			criteria.add(Restrictions.eq("emailSent", false));
-		//	Criterion criterionJoin=Restrictions.
-			logAlerts=(List<LogAlert>)criteria.list();
+			String query1 = " from LogAlert la " ;
+			query1 += " inner join la.logAlertAlert a ";
+			query1 += " inner join a.alertTarget at ";
+			query1 += " inner join a.alertEntity e ";
+			query1 += " inner join a.alertTimeEvent te";
+			query1 += " inner join la.beforeFactData bfd ";
+			query1 += " inner join la.afterFactData afd ";
+			//query1 += " inner join AlertTarget at ";
+			query1 += " where la.emailSent=0 ";
+			//query1 += " and alerts.email_alert=1 ";
+			query1 += " and at.type=1 ";
+			query1 += " order by at.alertTargetId asc";
+			
+	/*Below query can be used as a replacement for current query 
+	 *
+	String subQuery1="select a.id from Alert a  inner join a.alertTarget  at where at.type=1";
+	String subQuery2="select la from LogAlert la where la.emailSent=false and la.logAlertAlert.id in ("+subQuery1+") order by la.logAlertAlert.id";
+		*/
+			Query query=session.createQuery(query1);
+			logAlerts=query.list();
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
 		}catch (Exception e) {
@@ -179,7 +197,12 @@ public class LogAlertDaoImpl extends AbstractDao<LogAlert> implements LogAlertDa
 		}
 		return logAlerts;
 	}
-	
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public List<LogAlert> updateLogAlertInBulk(
+			List<LogAlert> logAlertEntitiesList) throws GenericException {
+			return super.batchUpdate(logAlertEntitiesList, Constants.BATCH_SIZE);
+	}
 	@Override
 	public SessionFactory getSessionFactory() {
 		return this.sessionFactory;
@@ -188,6 +211,9 @@ public class LogAlertDaoImpl extends AbstractDao<LogAlert> implements LogAlertDa
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+
+
+	
 
 	
 
