@@ -159,6 +159,7 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 		return entities;
 	}
 	
+	
 	@Override
 	public SessionFactory getSessionFactory() {
 		return this.sessionFactory;

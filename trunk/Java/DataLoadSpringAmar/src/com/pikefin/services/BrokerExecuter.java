@@ -1,21 +1,16 @@
 package com.pikefin.services;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
-
-import com.pikefin.services.DataLoadService;
 import pikefin.log4jWrapper.Logs;
+
 import com.pikefin.ApplicationSetting;
 import com.pikefin.PikefinUtil;
 import com.pikefin.RepeatTypeEnum;
@@ -142,41 +137,23 @@ public class BrokerExecuter extends Thread {
 				  
 				  jq.setTask(runningJobsArray[i].getCurrentTask());
 				  Thread t = (Thread)runningJobsArray[i];
-				  
 				  jq.setStatus(runningJobsArray[i].getState().toString());
 				  jq.setStartTime(runningJobsArray[i].calJobProcessingStart.getTime());
-				  //jq.setPriority(runningJobsArray[i].nPriority);
-				  
-				  dbf.dbHibernateSaveQuery(jq);
-				  
-				  
-				  /*query = "insert into job_queue (task_id,status,start_time) values (";
-				  query += runningJobsArray[i].nCurTask + ",'";
-				  query += runningJobsArray[i].getState().toString() + "','";
-				  query += formatter.format(runningJobsArray[i].calJobProcessingStart.getTime()) + "')";*/
-				  // dbf.db_update_query(query);
-				  //dbf.dbSpringUpdateQuery(query);
-				  UtilityFunctions.stdoutwriter.writeln("Status of thread " + runningJobsArray[i].getName() + ": " + 
+				  jq= jobQueueService.saveJobQueueInfo(jq);
+				 
+				  ApplicationSetting.getInstance().getStdoutwriter().writeln("Status of thread " + runningJobsArray[i].getName() + ": " + 
 						  runningJobsArray[i].getState().toString(),Logs.THREAD,"DL2");
 			  }
 		  }
 		  for (int k=0;k<waitingJobList.size();k++) {
 			  JobQueue jq = new JobQueue();
 			  
-			  jq.setTaskId(waitingJobList.get(k).task_id);
+			  jq.setTask(waitingJobList.get(k).getTask());
 			  jq.setStatus("QUEUED");
-			  jq.setQueuedTime(waitingJobList.get(k).queued_time);
-			  jq.setPriority(waitingJobList.get(k).priority);
+			  jq.setQueuedTime(waitingJobList.get(k).getQueuedInTime().getTime());
+			  jq.setPriority(waitingJobList.get(k).getPriority());
+			  jq= jobQueueService.saveJobQueueInfo(jq);
 			  
-			  dbf.dbHibernateSaveQuery(jq);
-			  
-			  
-			  
-			  
-			  /*query = "insert into job_queue (task_id,status,queued_time,priority) values (" + waitingJobList.get(k).task_id + 
-			  ",'QUEUED','" + waitingJobList.get(k).queued_time + "'," + waitingJobList.get(k).priority + ")";*/
-			  //dbf.db_update_query(query);
-			  //dbf.dbSpringUpdateQuery(query);
 		  }
 		  }catch (GenericException e) {
 			  logger.error("Problem while writing queue into db-"+e.getErrorCode()+" "+e.getErrorMessage()+" "+e.getErrorDescription());

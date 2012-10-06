@@ -51,6 +51,12 @@
         <property name="hash" type="string">
             <column name="hash" length="20" />
         </property>
+        
+        <set name="entityGroups" table="entities_entity_groups" cascade="all">
+			<key column="entity_id" />
+			<many-to-many column="entity_group_id"
+				class="com.pikefin.businessobjects.EntityGroup" />	
+		</set>
    </class>
       
 </hibernate-mapping>

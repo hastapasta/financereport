@@ -38,8 +38,7 @@ public class ApplicationSetting {
 	@Value(value="${app.max_threads}")
 	private int maxAllowedThreads;
 	
-	@Autowired
-	private MainWrapper stdoutwriter;
+	private MainWrapper stdoutwriter=new MainWrapper();
 	
 	
 	public static ApplicationSetting getInstance(){

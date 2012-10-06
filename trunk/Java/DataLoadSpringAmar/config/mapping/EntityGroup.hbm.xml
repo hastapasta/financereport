@@ -28,7 +28,7 @@
         <property name="rght" type="java.lang.Integer">
             <column name="rght" />
         </property>
-		<set name="entities" table="entities_entity_groups" cascade="all">
+		<set name="entities" table="entities_entity_groups" cascade="all" inverse="true">
 			<key column="entity_group_id" />
 			<many-to-many column="entity_id"
 				class="com.pikefin.businessobjects.Entity" />	

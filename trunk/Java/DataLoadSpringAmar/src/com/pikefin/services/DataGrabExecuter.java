@@ -54,6 +54,7 @@ import com.pikefin.exceptions.PrematureEndOfDataException;
 import com.pikefin.exceptions.SkipLoadException;
 import com.pikefin.exceptions.TagNotFoundException;
 import com.pikefin.services.inter.BatcheService;
+import com.pikefin.services.inter.EntityService;
 import com.pikefin.services.inter.ExtractSingleService;
 import com.pikefin.services.inter.JobService;
 import com.pikefin.services.HistoricalDataLoad;
@@ -70,6 +71,8 @@ public class DataGrabExecuter extends Thread {
 	private JobService jobService;
 	@Autowired
 	private ExtractSingleService extractSingleService;
+	@Autowired
+	private EntityService entityService;
 	String returned_content;
 	String strCurDataSet;
 	Job currentJob;
@@ -106,8 +109,7 @@ public class DataGrabExecuter extends Thread {
 	int nCurrentEntityId;
 	String strCurrentTicker;
 
-	DBFunctions dbf;
-	//UtilityFunctions uf;
+	
 	ProcessingFunctions pf;
 	
 	
@@ -417,7 +419,6 @@ public class DataGrabExecuter extends Thread {
 					"DG54");
 		}
 		ApplicationSetting.getInstance().getStdoutwriter().wrapperNDCPop();
-		//dbf.closeConnection();
 
 	}
 
@@ -427,7 +428,7 @@ public class DataGrabExecuter extends Thread {
 
 
 	public String getValue(String local_data_set)
-			throws IllegalStateException, TagNotFoundException, DataAccessException,
+			throws IllegalStateException, TagNotFoundException, GenericException,
 			CustomRegexException {
 		String strDataValue = "";
 		ExtractSingle es =extractSingleService.loadExtractSinglesByDataSet(local_data_set) ;
@@ -526,7 +527,7 @@ public class DataGrabExecuter extends Thread {
 	}
 
 	private ArrayList<String[]> getTableWithHeaders(String strTableSet)
-			throws DataAccessException, TagNotFoundException,
+			throws GenericException, TagNotFoundException,
 			PrematureEndOfDataException {
 		Job j = jobService.getJobByDataSet(strTableSet);
 		EnhancedTable enhance=new EnhancedTable(this, strTableSet, Constants.EnhancedTableSection.ENHANCED_TABLE_BODY_SECTION, j);
@@ -912,38 +913,13 @@ public class DataGrabExecuter extends Thread {
 				query += " where entities_entity_groups.entity_group_id="
 						+ nGroupId;
 				query += " AND entities_entity_groups.entity_id=entities.id ";*/
+			List<Entity> entitiesList=	entityService.loadAllEntitiesForGroupId(nGroupId);
 				
-				query = " from EntityGroup eg ";
-				query += " join eg.entity e ";
-				query += " where eg.groupId=" + nGroupId;
-				
-				List<Object[]> l = dbf.dbHibernateRunQuery(query);
-				
-
-				//rs = dbf.db_run_query(query);
-				//rs = dbf.dbSpringRunQuery(query);
-				
-
-				// String strCurTicker="";
-				// String fullUrl;
 				String strDataValue = "";
-				//int count = 0;
-
-				/* Loop through the list of group items, e.g. stock tickers */
-				for (Object[] objArray3 : l) {
-					Entity e = (Entity)objArray3[1];
-				//while (rs.next()) {
+				for (Entity entity : entitiesList) {
 					try {
-						/*
-						 * Have to maintain original ticker and current ticker
-						 * since some websites use a different format for
-						 * certain tickers, i.e BRK/A vs BRK-A.
-						 * "Original Ticker" is the format that is stored in the
-						 * entity table. "Current Ticker" gets modified to the
-						 * format that the website uses.
-						 */
-						this.strOriginalTicker = this.strCurrentTicker = e.getTicker();
-						this.nCurrentEntityId = e.getEntityId();
+						this.strOriginalTicker = this.strCurrentTicker = entity.getTicker();
+						this.nCurrentEntityId = entity.getEntityId();
 
 						ApplicationSetting.getInstance().getStdoutwriter().writeln(
 								"Processing ticker: " + this.strCurrentTicker,
@@ -954,43 +930,11 @@ public class DataGrabExecuter extends Thread {
 							if (strCurrentTicker
 									.compareTo(strStaticTickerLimit) != 0)
 								continue;
-							/*else {
-								int o = 0;
-								o++;
-							}*/
-
-						/*
-						 * Group table extraction.
-						 */
 						if (bTableExtraction == true) {
 							try {
-
-								/*
-								 * query =
-								 * "update extract_tables set url_dynamic='" +
-								 * strCurrentTicker + "' where Data_Set='" +
-								 * strCurDataSet + "'";
-								 * dbf.db_update_query(query);
-								 */
-
-								// pf.preProcessingTable(strCurDataSet,strCurrentTicker);
 								pf.preProcessing(currentJob,
 										strCurrentTicker);
-
-								/*
-								 * query = "update jobs set url_dynamic='" +
-								 * strCurrentTicker + "' where Data_Set='" +
-								 * strCurDataSet + "'";
-								 * dbf.db_update_query(query);
-								 */
-
 								getUrl(strCurDataSet);
-
-								/* perform no data check here */
-								/*
-								 * Should change this to throw a no data
-								 * exception
-								 */
 								if (pf.preNoDataCheck(strCurDataSet) == true) {
 									ApplicationSetting.getInstance().getStdoutwriter()
 											.writeln(
@@ -1000,22 +944,9 @@ public class DataGrabExecuter extends Thread {
 								}
 
 								ArrayList<String[]> tabledata = getTableWithHeaders(strCurDataSet);
-
-								// ArrayList<String[]> tabledata2 =
-								// pf.postProcessingTable(tabledata,
-								// strCurDataSet);
 								ArrayList<String[]> tabledata2 = pf
 										.postProcessing(tabledata,
 												currentJob);
-
-								//ResultSet rs2 = dbf
-								//		.db_run_query("select custom_insert from jobs where data_set='"
-								//				+ strCurDataSet + "'");
-								
-								//SqlRowSet rs2 = dbf.dbSpringRunQuery("select custom_insert from jobs where data_set='"
-								//				+ strCurDataSet + "'");
-								
-								//rs2.next();
 								if (currentJob.isCustomInsert() == false)
 									dbf.importTableIntoDB(tabledata2,
 											this.strFactTable, this.batchId,
@@ -1111,16 +1042,6 @@ public class DataGrabExecuter extends Thread {
 								ArrayList<String[]> tabledata2 = pf
 										.postProcessing(tabledata,
 												currentJob);
-
-								//ResultSet rs2 = dbf
-								//		.db_run_query("select custom_insert from jobs where data_set='"
-								//				+ strCurDataSet + "'");
-								//SqlRowSet rs2 = dbf.dbSpringRunQuery("select custom_insert from jobs where data_set='"
-								//				+ strCurDataSet + "'");
-								
-								
-								
-								//rs2.next();
 								if (currentJob.isCustomInsert() == false)
 									dbf.importTableIntoDB(tabledata2,
 											this.strFactTable, this.batchId,
@@ -1161,27 +1082,6 @@ public class DataGrabExecuter extends Thread {
 								
 							}
 
-							// Some of this can be sped up by not running these
-							// read queries on every ticker iteration.
-
-							// if the insert is not handled here it should have
-							// already been handled in the postProcessing
-							// function.
-
-							/*
-							 * if (rs2.getBoolean("custom_insert")!=true) {
-							 * query =
-							 * "INSERT INTO fact_data_stage (data_set,value,adj_quarter,ticker,date_collected,batch) VALUES ('"
-							 * + strCurDataSet + "','" + strDataValue + "','" +
-							 * Integer.toString(nAdjQuarter) + "','" +
-							 * strCurTicker + "',NOW()," +
-							 * Integer.toString(uf.getBatchNumber()) + ")";
-							 * uf.db_update_query(query);
-							 * 
-							 * }
-							 */
-
-							// uf.db_update_query(query);
 						}
 
 					} catch (DataAccessException sqle) {
@@ -1195,7 +1095,7 @@ public class DataGrabExecuter extends Thread {
 						ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
 					}
 
-					//count++;
+					
 					/*
 					 * This delay is being used as a pause between each group
 					 * member of a group extraction. Can't remember why this was
@@ -1207,12 +1107,9 @@ public class DataGrabExecuter extends Thread {
 			}
 
 			pf.postJobProcessing(currentJob);
-			// calEnd = Calendar.getInstance();
 			ApplicationSetting.getInstance().getStdoutwriter().writeln("====> FINISHED JOB:"
 					+ strCurDataSet, Logs.STATUS1, "DG1.55");
-			// ApplicationSetting.getInstance().getStdoutwriter().writeln("DATA SET END TIME: " +
-			// calEnd.getTime().toString(),Logs.STATUS1,"DG54");
-			// }
+			
 
 		} 
 		catch (InvocationTargetException ite) {
@@ -1230,20 +1127,7 @@ public class DataGrabExecuter extends Thread {
 	}
 	
 	public void customPDFURL(String strDataSet) throws DataAccessException,IOException {
-		//HttpResponse response;
-		//HttpGet httpget;
-		//HttpClient httpclient = new DefaultHttpClient();
-		
-		
-		//String query = "select * from jobs where data_set='" + strDataSet + "'";
-
-		//ResultSet rs2 = dbf.db_run_query(query);
-		//SqlRowSet rs2 = dbf.dbSpringRunQuery(query);
-		
-		//rs2.next();
-		
 		String strURL = currentJob.getUrlStatic();
-		
 		URL url = new URL(strURL);
 		PDDocument pd2 = PDDocument.load(url, true);
 		
