@@ -12,6 +12,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.TimeZone;
+
+import pikefin.UtilityFunctions;
 import pikefin.log4jWrapper.Logs;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -56,8 +58,8 @@ import com.pikefin.exceptions.TagNotFoundException;
 import com.pikefin.services.inter.BatcheService;
 import com.pikefin.services.inter.EntityService;
 import com.pikefin.services.inter.ExtractSingleService;
+import com.pikefin.services.inter.FactDataService;
 import com.pikefin.services.inter.JobService;
-import com.pikefin.services.HistoricalDataLoad;
 import java.util.Arrays;
 import java.lang.reflect.InvocationTargetException;
 
@@ -73,13 +75,16 @@ public class DataGrabExecuter extends Thread {
 	private ExtractSingleService extractSingleService;
 	@Autowired
 	private EntityService entityService;
+	@Autowired
+	private FactDataService factDataService;
 	String returned_content;
 	String strCurDataSet;
-	Job currentJob;
+	private Job currentJob;
 	private Task currentTask;
 	private Schedule schedule;
 	private RepeatType repeatType;
 	private int currentTaskId;
+	private Batches currentBatche;
 	int nCount;
 	
 	String strStage1URL;
@@ -136,8 +141,10 @@ public class DataGrabExecuter extends Thread {
 	  			// No Support for verify mode
 	  			batchesEntity=batchService.saveBatchesInfo(batchesEntity);
 	  			this.batchId =batchesEntity.getBatchId();
+	  			currentBatche=batchesEntity;
 	  		}
 	  		else{
+	  			currentBatche=batchService.loadBatchesInfo(batchId);
 	  			this.batchId = batchId;
 	  		}
 	  			  	
@@ -145,7 +152,8 @@ public class DataGrabExecuter extends Thread {
 	
 	  	}
 	  	catch (GenericException sqle) {
-	  		log.error("Problem retreiving list of jobs. Aborting task."+sqle);
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem retreiving list of jobs. Aborting task.",Logs.ERROR,"DG12.5");
+			ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
 			return;
 	  	}
 		  	
@@ -153,7 +161,7 @@ public class DataGrabExecuter extends Thread {
 	  	calJobProcessingStart = Calendar.getInstance();
   }
 	
-	public Calendar getTaskMetric(TaskMetricsEnum tm) throws CustomGenericException {
+	public Calendar getTaskMetric(TaskMetricsEnum tm) throws GenericException {
 	
 	
 		switch (tm) {
@@ -161,14 +169,14 @@ public class DataGrabExecuter extends Thread {
 			if (calJobProcessingStart != null)
 				return(calJobProcessingStart);
 			else
-				throw new CustomGenericException();
+				throw new GenericException();
 			//break;
 			
 		case JOB_END:
 			if (calJobProcessingEnd != null)
 				return(calJobProcessingEnd);
 			else
-				throw new CustomGenericException();
+				throw new GenericException();
 			//break;
 		case ALERT_START:
 			/*
@@ -178,7 +186,7 @@ public class DataGrabExecuter extends Thread {
 				if (calAlertProcessingStart != null)
 					return(calAlertProcessingStart);
 				else 
-					throw new CustomGenericException();
+					throw new GenericException();
 			}
 			else
 				return(null);
@@ -188,7 +196,7 @@ public class DataGrabExecuter extends Thread {
 				if (calAlertProcessingEnd != null)
 					return(calAlertProcessingEnd);
 				else
-					throw new CustomGenericException();
+					throw new GenericException();
 			}
 			else 
 				return(null);
@@ -216,7 +224,7 @@ public class DataGrabExecuter extends Thread {
 			//break;
 			
 		default:
-			throw new CustomGenericException();
+			throw new GenericException();
 			//break;
 
 		}
@@ -315,28 +323,6 @@ public class DataGrabExecuter extends Thread {
 			throw new CustomGenericException();
 	}
 	
-	/*
-	 * OFP 2/12/2012 - These thread related helper methods were intended to provide the ability
-	 * to terminate a thread with some kind of cleanup but that cleanup/terminate feature 
-	 * is not being used (and no plans to implement it further).
-	 */
-
-	/*public void startThread() {
-		bContinue = true;
-		this.start();
-	}*/
-
-	/*public void stopThread() {
-		bContinue = false;
-	}
-
-	public boolean getWillTerminate() {
-		return (!bContinue);
-	}*/
-	
-	/*
-	 * end thread related helper methods.
-	 */
 	
 	
 
@@ -365,8 +351,9 @@ public class DataGrabExecuter extends Thread {
 
 		ApplicationSetting.getInstance().getStdoutwriter().writeln("INITIATING THREAD",
 				Logs.STATUS1, "DG1");
-		if (ApplicationSetting.getInstance().isLoadHistoricalData()== true)
+		/*if (ApplicationSetting.getInstance().isLoadHistoricalData()== true)
 			ApplicationSetting.getInstance().getStdoutwriter().wrapperNDCPush(HistoricalDataLoad.calCurrent.getTime().toString());
+	*/	
 		HashSet<Job> tmpJobs = (HashSet<Job>)currentTask.getJobs();
 		for (Job j : tmpJobs) {
 			currentJob = j;
@@ -555,6 +542,7 @@ public class DataGrabExecuter extends Thread {
 	}
 
 	
+	@SuppressWarnings("deprecation")
 	private void defaultURLProcessing(String strDataSet) throws DataAccessException,
 			MalformedURLException, IOException, IllegalAccessException,
 			InvocationTargetException, NoSuchMethodException {
@@ -814,9 +802,10 @@ public class DataGrabExecuter extends Thread {
 						ArrayList<String[]> tabledata = getTableWithHeaders(strCurDataSet);
 						ArrayList<String[]> tabledata2 = pf.postProcessing(
 								tabledata, currentJob);
-						if (currentJob.isCustomInsert() == false)
-							dbf.importTableIntoDB(tabledata2, this.strFactTable,
-									this.batchId, this.currentTaskId, nMetricId);
+						if (currentJob.isCustomInsert() == false){
+							factDataService.importFactDataInBatch(tabledata2, currentBatche, currentTask.getMetric());
+						}
+							
 
 					} catch (MalformedURLException mue) {
 						ApplicationSetting.getInstance().getStdoutwriter().writeln(
@@ -875,32 +864,13 @@ public class DataGrabExecuter extends Thread {
 					ArrayList<String[]> tabledata = new ArrayList<String[]>();
 
 					String[] tmp = { strDataValue };
-
-					/*
-					 * Create a table even for single values since we now use
-					 * importTableIntoDB for everything.
-					 */
 					tabledata.add(tmp);
 
 					ArrayList<String[]> tabledata2 = pf.postProcessing(
 							tabledata, currentJob);
-
-					//ResultSet rs2 = dbf
-					//		.db_run_query("select custom_insert from jobs where data_set='"
-					//				+ strCurDataSet + "'");
-					
-					//SqlRowSet rs2 = dbf.dbSpringRunQuery("select custom_insert from jobs where data_set='"
-					//				+ strCurDataSet + "'");
-					
-					//rs2.next();
+		
 					if (currentJob.isCustomInsert() != true) {
-						/*
-						 * Import directly into fact_data now.
-						 */
-						dbf.importTableIntoDB(tabledata2, this.strFactTable,
-								this.batchId, this.currentTaskId, nMetricId);
-					
-
+							factDataService.importFactDataInBatch(tabledata2, currentBatche, currentTask.getMetric());
 					}
 
 				}
@@ -947,12 +917,10 @@ public class DataGrabExecuter extends Thread {
 								ArrayList<String[]> tabledata2 = pf
 										.postProcessing(tabledata,
 												currentJob);
-								if (currentJob.isCustomInsert() == false)
-									dbf.importTableIntoDB(tabledata2,
-											this.strFactTable, this.batchId,
-											this.currentTaskId, nMetricId);
-
-					
+								if (currentJob.isCustomInsert() == false){
+									factDataService.importFactDataInBatch(tabledata2, currentBatche, currentTask.getMetric());
+								}
+														
 							} catch (SkipLoadException sle) {
 								// This is not an error but is thrown by the
 								// processing function to indicate that the load
@@ -1042,11 +1010,10 @@ public class DataGrabExecuter extends Thread {
 								ArrayList<String[]> tabledata2 = pf
 										.postProcessing(tabledata,
 												currentJob);
-								if (currentJob.isCustomInsert() == false)
-									dbf.importTableIntoDB(tabledata2,
-											this.strFactTable, this.batchId,
-											this.currentTaskId, nMetricId);
-
+								if (currentJob.isCustomInsert() == false){
+									factDataService.importFactDataInBatch(tabledata2, currentBatche, currentTask.getMetric());
+								}
+									
 							} catch (MalformedURLException mue) {
 								ApplicationSetting.getInstance().getStdoutwriter().writeln(
 										"Badly formed url, skipping ticker",
@@ -1415,6 +1382,19 @@ public class DataGrabExecuter extends Thread {
 		return repeatType;
 	}
 
+	public Job getCurrentJob() {
+		return currentJob;
+	}
+
+	public Batches getCurrentBatche() {
+		return currentBatche;
+	}
+
+	public boolean isVerifyMode() {
+		return verifyMode;
+	}
+
+	
 	
 
 }

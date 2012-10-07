@@ -32,4 +32,11 @@ public class EntityServiceImpl implements EntityService{
 		return null;
 	}
 
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public Entity loadEntityInfo(Integer entityId) throws GenericException {
+		
+		return entityDao.loadEntityInfo(entityId);
+	}
+
 }

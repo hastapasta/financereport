@@ -4,22 +4,24 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
-import pikefin.log4jWrapper.Logs;
 
+import pikefin.log4jWrapper.Logs;
 import com.pikefin.ApplicationSetting;
 import com.pikefin.PikefinUtil;
 import com.pikefin.RepeatTypeEnum;
+import com.pikefin.TaskMetricsEnum;
 import com.pikefin.businessobjects.JobQueue;
+import com.pikefin.businessobjects.LogTask;
 import com.pikefin.businessobjects.RepeatType;
 import com.pikefin.businessobjects.Schedule;
 import com.pikefin.businessobjects.Task;
 import com.pikefin.exceptions.GenericException;
 import com.pikefin.services.inter.JobQueueService;
+import com.pikefin.services.inter.LogTaskService;
 import com.pikefin.services.inter.RepeatTypeService;
 import com.pikefin.services.inter.ScheduleService;
 import com.pikefin.services.inter.TaskService;
@@ -42,6 +44,8 @@ public class BrokerExecuter extends Thread {
 	private NotificationExecuter notification;
 	@Autowired
 	private JobQueueService jobQueueService;
+	@Autowired
+	private LogTaskService logTaskService;;
 	
 	private int threadMinimumPriority;
 	private int nMailMessageCount;
@@ -69,8 +73,21 @@ public class BrokerExecuter extends Thread {
 		 threadStartDate.set(Calendar.MINUTE, 0);
 		 threadStartDate.set(Calendar.SECOND, 0);
 		 threadStartDate.set(Calendar.MILLISECOND, 0);
-		 
+			if (ApplicationSetting.getInstance().isDebugMode())
+				ApplicationSetting.getInstance().getStdoutwriter().writeln("RUNNING IN DEBUG MODE",Logs.STATUS1,"DL18.5");
+			else
+				ApplicationSetting.getInstance().getStdoutwriter().writeln("RUNNING IN LIVE (NON DEBUG) MODE",Logs.STATUS1,"DL19.5");
+			if (ApplicationSetting.getInstance().isLoadHistoricalData()==true)
+				ApplicationSetting.getInstance().getStdoutwriter().writeln("LOADING HISTORICAL DATA",Logs.STATUS1,"DL20");
+			else
+				ApplicationSetting.getInstance().getStdoutwriter().writeln("NOT LOADING HISTORICAL DATA",Logs.STATUS1,"DL21");
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("MAXIMUM # OF DATAGRAB THREADS: " + ApplicationSetting.getInstance().getMaxAllowedThreads(),Logs.STATUS1,"DL19");
+			
+				
+			
+			 
 		 this.notification.start();
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Started Notification Thread",Logs.STATUS1,"DL2.727");
 		 if (!isBrokerThreadPaused()) {
 				if (!ApplicationSetting.getInstance().isLoadHistoricalData()){
 					//starting the infinite loop
@@ -78,16 +95,31 @@ public class BrokerExecuter extends Thread {
 						try{
 						timeEventService.updateTimeEventsForBroker();
 						this.getTriggeredJobs();
-						
+						this.executeJobs();
+						this.writeJobQueueIntoDB();
+						sleep(ApplicationSetting.getInstance().getThreadSleepInteval()*1000);
+						cleanTerminatedJobs();
+						checkMessageCount();
 						}catch (GenericException e) {
-							logger.error(e.getErrorCode()+"\n "+e.getErrorMessage()+"\n"+e.getErrorDescription());
+							ApplicationSetting.getInstance().getStdoutwriter().writeln(e.getErrorCode()+"\n "+e.getErrorMessage()+"\n"+e.getErrorDescription(),Logs.ERROR,"DL10");
+							ApplicationSetting.getInstance().getStdoutwriter().writeln(e);
+
+						}catch(InterruptedException ie) {
+							//NDC.pop();
+							break;
+							
+						}
+						catch (Exception e) {
+							e.printStackTrace();
 						}
 					}
 				}
 		 }
 	}
 
-	
+	/**
+	 * Loads the jobs for trigger and adds to the waiting job queue
+	 */
 	public void getTriggeredJobs(){
 		RepeatType repeatTypeNone;
 		Calendar currentTime=Calendar.getInstance();
@@ -156,7 +188,8 @@ public class BrokerExecuter extends Thread {
 			  
 		  }
 		  }catch (GenericException e) {
-			  logger.error("Problem while writing queue into db-"+e.getErrorCode()+" "+e.getErrorMessage()+" "+e.getErrorDescription());
+			  ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem while writing queue into db-"+e.getErrorCode()+" "+e.getErrorMessage()+" "+e.getErrorDescription(),Logs.ERROR,"DL10");
+			  ApplicationSetting.getInstance().getStdoutwriter().writeln(e);
 
 		}
 	  }
@@ -202,6 +235,8 @@ public class BrokerExecuter extends Thread {
 				  for (int j=0;j<runningJobsArray.length;j++) {
 					  if (runningJobsArray[j] != null)  {
 						  if (runningJobsArray[j].getCurrentTask().getTaskId() == task.getTaskId()) {
+							  ApplicationSetting.getInstance().getStdoutwriter().writeln("Task in waiting queue already running so won't get moved to run queue (task id: " + runningJobsArray[j].getCurrentTask().getTaskId(), Logs.STATUS1, "DL3.99");
+
 							  logger.info("Task in waiting queue already running so won't get moved to run queue (task id: " + runningJobsArray[j].getCurrentTask().getTaskId());
 							  isAlreadyRunning=true;
 							  break;
@@ -211,13 +246,13 @@ public class BrokerExecuter extends Thread {
 				  
 				  if (isAlreadyRunning==false) {
 					  if (waitingJobList.get(i).getPriority() < nPriority) {
-						  logger.info("Not initiating schedule because one thread is reserved for minimum priority of " + nPriority + ". Task: " + waitingJobList.get(i).getTask().getTaskId() + ", Priority: " + waitingJobList.get(i).getPriority());
+						  ApplicationSetting.getInstance().getStdoutwriter().writeln("Not initiating schedule because one thread is reserved for minimum priority of " + nPriority + ". Task: " + waitingJobList.get(i).getTask().getTaskId() + ", Priority: " + waitingJobList.get(i).getPriority(), Logs.STATUS1, "DL4.36");
 						  return null;
 					  }
 					  dg = new DataGrabExecuter(task,0,waitingJobList.get(i).getSchedule(),waitingJobList.get(i).getRepeatType(),waitingJobList.get(i).isVerifyMode(),waitingJobList.get(i).getPriority());
 					  dg.start();
-					  logger.info("Initiated DataGrab thread " + dg.getName());
-					 waitingJobList.remove(i);
+					  ApplicationSetting.getInstance().getStdoutwriter().writeln("Initiated DataGrab thread " + dg.getName(),Logs.THREAD,"DL4");
+					  waitingJobList.remove(i);
 					 return dg;
 				  
 				  }
@@ -230,8 +265,72 @@ public class BrokerExecuter extends Thread {
 	  
 	
 
-	
+	 public void cleanTerminatedJobs() throws DataAccessException  {
+		 
+		   for (int i=0;i<runningJobsArray.length;i++) {
+			  if (runningJobsArray[i] != null) {
+				  if (Thread.State.TERMINATED==runningJobsArray[i].getState()) {
+					 
+					  updateJobStats(runningJobsArray[i]);
+					  ApplicationSetting.getInstance().getStdoutwriter().writeln("Cleaning up thread " + runningJobsArray[i].getName(),Logs.THREAD,"DL3");
+					  runningJobsArray[i] = null;
+					  
+				  }
+			  }
+		  }
+	  }
 
+	 public void updateJobStats(DataGrabExecuter dg) {
+		    if (ApplicationSetting.getInstance().isLoadHistoricalData()!= true) { 
+
+			  try {
+				  LogTask logTask = new LogTask();
+				  logTask.setTask(dg.getCurrentTask());
+				  logTask.setBatch(dg.getCurrentBatche());
+				  logTask.setRepeatType(dg.getRepeatType());
+				  logTask.setSchedule(dg.getSchedule());
+				  logTask.setVerifyMode(dg.isVerifyMode());
+				  Calendar jobProcessStart=dg.getTaskMetric(TaskMetricsEnum.JOB_START);
+				  logTask.setJobProcessStart(jobProcessStart!=null?jobProcessStart.getTime():null);
+				  Calendar jobProcessEnd=dg.getTaskMetric(TaskMetricsEnum.JOB_END);
+				  logTask.setJobProcessEnd(jobProcessEnd!=null?jobProcessEnd.getTime():null);
+				  Calendar alertProcessStart=dg.getTaskMetric(TaskMetricsEnum.ALERT_START);
+				  logTask.setAlertProcessStart(alertProcessStart!=null?alertProcessStart.getTime():null);
+				  Calendar alertProcessEnd=dg.getTaskMetric(TaskMetricsEnum.ALERT_END);
+				  logTask.setAlertProcessEnd(alertProcessEnd!=null?alertProcessEnd.getTime():null);
+				  Calendar stage1Start=dg.getTaskMetric(TaskMetricsEnum.STAGE1_START);
+				  logTask.setStage1Start(stage1Start!=null?stage1Start.getTime():null);
+				  Calendar stage1End=dg.getTaskMetric(TaskMetricsEnum.STAGE1_END);
+				  logTask.setStage1End(stage1End!=null?stage1End.getTime():null);
+				  Calendar stage2Start=dg.getTaskMetric(TaskMetricsEnum.STAGE2_START);
+				  logTask.setStage1Start(stage2Start!=null?stage2Start.getTime():null);
+				  Calendar stage2End=dg.getTaskMetric(TaskMetricsEnum.STAGE2_END);
+				  logTask.setStage1End(stage2End!=null?stage2End.getTime():null);
+				  logTask= logTaskService.saveLogTaskInfo(logTask);
+						
+			  }
+			  
+		
+			  catch (GenericException e) {
+				  ApplicationSetting.getInstance().getStdoutwriter().writeln("Error in updating Log Task data-"+e.getErrorCode()+" "+e.getErrorMessage()+" "+e.getErrorDescription(),Logs.ERROR,"DL2.57");
+				  ApplicationSetting.getInstance().getStdoutwriter().writeln(e);
+			  }
+			 
+		  }
+
+		  
+	  }
+	 
+	 public void checkMessageCount() {
+		  Calendar calCurrent = Calendar.getInstance();
+		  
+		  if (calCurrent.get(Calendar.DAY_OF_YEAR) > threadStartDate.get(Calendar.DAY_OF_YEAR)) {
+			  this.nMailMessageCount = 0;
+			  threadStartDate = calCurrent;
+		  }
+		  
+		  
+	  }
 	public boolean isBrokerThreadPaused() {
 		return brokerThreadPaused;
 	}
