@@ -10,7 +10,7 @@
             <column name="id" />
             <generator class="identity" />
         </id>
-        <property name="value" type="big_decimal">
+        <property name="value" type="java.lang.Double">
             <column name="value" precision="10" scale="3" not-null="true" />
         </property>
         <property name="scale" type="java.lang.Integer">
