@@ -29,4 +29,37 @@ public interface Constants {
 		public static final String ENHANCED_TABLE_ROW_HEAD_SECTION="rowhead";
 
 	}
+	
+	interface Ticker{
+		public static final String TICKER_BF_B="BF-B";
+		public static final String TICKER_BRK_A="BRK-A";
+		public static final String TICKER_BF_BY_B="BF/B";
+		public static final String TICKER_BRK_BY_A="BRK/A";
+		public static final String ENHANCED_TABLE_COL_HEAD_SECTION="colhead";
+		public static final String ENHANCED_TABLE_ROW_HEAD_SECTION="rowhead";
+
+	}
+	
+	interface FactDataColumn{
+		public static final String FACT_DATA_COLUMN_VALUE="value";
+		public static final String FACT_DATA_COLUMN_SCALE="scale";
+		public static final String FACT_DATA_COLUMN_MANUAL_CORRECTION="manual_correction";
+		public static final String FACT_DATA_COLUMN_DATE_COLLECTED="date_collected";
+		public static final String FACT_DATA_COLUMN_ID="id";
+		public static final String FACT_DATA_COLUMN_ENTITY_ID="entity_id";
+		public static final String FACT_DATA_COLUMN_METRIC_ID="metric_id";
+		public static final String FACT_DATA_COLUMN_DATA_GROUP="data_group";
+		public static final String FACT_DATA_COLUMN_FISCAL_QUARTER="fiscalquarter";
+		public static final String FACT_DATA_COLUMN_FISCAL_YEAR="fiscalyear";
+		public static final String FACT_DATA_COLUMN_CAL_QUARTER="calquarter";
+		public static final String FACT_DATA_COLUMN_CAL_YEAR="calyear";
+		public static final String FACT_DATA_COLUMN_CAL_MONTH="calmonth";
+		public static final String FACT_DATA_COLUMN_DAY="day";
+		public static final String FACT_DATA_COLUMN_BATCH_ID="batch_id";
+		public static final String FACT_DATA_COLUMN_RAW="raw";
+		public static final String FACT_DATA_COLUMN_GARBAGE_COLLECT="garbage_collect";
+		public static final String FACT_DATA_COLUMN_META_SET_ID="meta_set_id";
+
+
+	}
 }
