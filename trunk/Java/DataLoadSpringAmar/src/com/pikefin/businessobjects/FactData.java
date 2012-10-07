@@ -4,12 +4,12 @@ package com.pikefin.businessobjects;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
-
+import java.lang.Double;
 
 public class FactData implements java.io.Serializable {
 
 	 private Integer factDataId;
-     private BigDecimal value;
+     private Double value;
      private Integer scale;
      private Boolean manualCorrection;
      private Date dateCollected;
@@ -32,10 +32,10 @@ public class FactData implements java.io.Serializable {
 	public void setFactDataId(Integer factDataId) {
 		this.factDataId = factDataId;
 	}
-	public BigDecimal getValue() {
+	public Double getValue() {
 		return value;
 	}
-	public void setValue(BigDecimal value) {
+	public void setValue(Double value) {
 		this.value = value;
 	}
 	public Integer getScale() {
