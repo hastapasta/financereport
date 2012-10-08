@@ -2,7 +2,7 @@
 $q=$_GET["q"];
 $metricid=$_GET["m"];
 
-$con = mysql_connect("127.0.0.1:3306", "root", "madmax1.") or die(mysql_error());
+$con = mysql_connect("pikefin3:3306", "root", "F47685D2") or die(mysql_error());
 mysql_select_db("findata") or die(mysql_error());
 if (!$con)
   {
