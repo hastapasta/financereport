@@ -3,12 +3,13 @@ package com.pikefin.services.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.pikefin.businessobjects.Batches;
 import com.pikefin.dao.inter.BatchesDao;
 import com.pikefin.exceptions.GenericException;
 import com.pikefin.services.inter.BatcheService;
-
+@Service
 public class BatcheServiceImpl implements BatcheService{
 	@Autowired
 	private BatchesDao batchDao;
