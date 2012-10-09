@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.pikefin.ApplicationSetting;
 import com.pikefin.Constants;
 import com.pikefin.businessobjects.Alert;
@@ -19,7 +21,7 @@ import com.pikefin.businessobjects.TimeEvent;
 import com.pikefin.exceptions.GenericException;
 import com.pikefin.services.inter.EmailService;
 import com.pikefin.services.inter.LogAlertService;
-
+@Service
 public class NotificationExecuter extends Thread {
 	Logger log=Logger.getLogger(NotificationExecuter.class);
 	@Autowired
