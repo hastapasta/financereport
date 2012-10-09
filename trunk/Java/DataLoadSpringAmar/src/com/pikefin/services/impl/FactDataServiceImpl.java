@@ -2,6 +2,8 @@ package com.pikefin.services.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import pikefin.log4jWrapper.Logs;
 import com.pikefin.ApplicationSetting;
 import com.pikefin.Constants;
@@ -17,7 +19,7 @@ import com.pikefin.exceptions.GenericException;
 import com.pikefin.services.inter.EntityService;
 import com.pikefin.services.inter.FactDataService;
 import com.pikefin.services.inter.MetaSetService;
-
+@Service
 public class FactDataServiceImpl implements FactDataService{
 
 	@Autowired
