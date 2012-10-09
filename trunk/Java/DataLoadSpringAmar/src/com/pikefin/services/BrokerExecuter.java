@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
 
 
 import pikefin.log4jWrapper.Logs;
@@ -28,7 +29,7 @@ import com.pikefin.services.inter.TaskService;
 import com.pikefin.services.inter.TimeEventService;
 
 
-
+@Service
 public class BrokerExecuter extends Thread {
 	Logger logger = Logger.getLogger(BrokerExecuter.class);
 	
@@ -82,11 +83,9 @@ public class BrokerExecuter extends Thread {
 			else
 				ApplicationSetting.getInstance().getStdoutwriter().writeln("NOT LOADING HISTORICAL DATA",Logs.STATUS1,"DL21");
 			ApplicationSetting.getInstance().getStdoutwriter().writeln("MAXIMUM # OF DATAGRAB THREADS: " + ApplicationSetting.getInstance().getMaxAllowedThreads(),Logs.STATUS1,"DL19");
-			
-				
-			
-			 
-		 this.notification.start();
+	//TODO commented notification thread for now		
+	 
+	//	 this.notification.start();
 			ApplicationSetting.getInstance().getStdoutwriter().writeln("Started Notification Thread",Logs.STATUS1,"DL2.727");
 		 if (!isBrokerThreadPaused()) {
 				if (!ApplicationSetting.getInstance().isLoadHistoricalData()){
