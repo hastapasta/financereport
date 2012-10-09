@@ -1,40 +1,43 @@
 package com.pikefin.services;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.lang.reflect.Method;
-import java.net.*;
-import java.io.*;
-import java.util.regex.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.TimeZone;
-
-import pikefin.UtilityFunctions;
-import pikefin.log4jWrapper.Logs;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.*;
-import org.apache.http.HttpResponse;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.*;
-import org.apache.http.impl.client.*;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFText2HTML;
 import org.apache.pdfbox.util.PDFTextStripper;
-import org.hibernate.Criteria;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Property;
-import org.hibernate.criterion.Subqueries;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+
+import pikefin.log4jWrapper.Logs;
+
 import com.pikefin.ApplicationSetting;
 import com.pikefin.Constants;
 import com.pikefin.PikefinUtil;
@@ -51,7 +54,6 @@ import com.pikefin.exceptions.CustomEmptyStringException;
 import com.pikefin.exceptions.CustomGenericException;
 import com.pikefin.exceptions.CustomRegexException;
 import com.pikefin.exceptions.GenericException;
-import com.pikefin.exceptions.PikefinException;
 import com.pikefin.exceptions.PrematureEndOfDataException;
 import com.pikefin.exceptions.SkipLoadException;
 import com.pikefin.exceptions.TagNotFoundException;
@@ -60,8 +62,6 @@ import com.pikefin.services.inter.EntityService;
 import com.pikefin.services.inter.ExtractSingleService;
 import com.pikefin.services.inter.FactDataService;
 import com.pikefin.services.inter.JobService;
-import java.util.Arrays;
-import java.lang.reflect.InvocationTargetException;
 
 
 
@@ -114,7 +114,7 @@ public class DataGrabExecuter extends Thread {
 	int nCurrentEntityId;
 	String strCurrentTicker;
 
-	
+	@Autowired
 	ProcessingFunctions pf;
 	
 	
@@ -384,7 +384,8 @@ public class DataGrabExecuter extends Thread {
 							+ calAlertProcessingStart.getTime().toString(),
 					Logs.STATUS1, "DG38.25");
 
-			Alerts al = new Alerts();
+			/*Alerts al = new Alerts();
+			//TODO need to remove comments and start using Alerts
 			try {
 				al.checkAlerts(this);
 			} catch (DataAccessException sqle) {
@@ -399,7 +400,7 @@ public class DataGrabExecuter extends Thread {
 						"Problem processing alerts.", Logs.ERROR, "DG11.558");
 				ApplicationSetting.getInstance().getStdoutwriter().writeln(pe);
 				
-			}
+			}*/
 			calAlertProcessingEnd = Calendar.getInstance();
 			ApplicationSetting.getInstance().getStdoutwriter().writeln("ALERT PROCESSING END TIME: "
 					+ calAlertProcessingEnd.getTime().toString(), Logs.STATUS1,
