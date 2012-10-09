@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.pikefin.Constants;
 import com.pikefin.ErrorCode;
@@ -11,9 +12,9 @@ import com.pikefin.PikefinUtil;
 import com.pikefin.businessobjects.Exclude;
 import com.pikefin.dao.inter.ExcludeDao;
 import com.pikefin.exceptions.GenericException;
-import com.pikefin.services.ExcludedService;
+import com.pikefin.services.inter.ExcludedService;
 
-
+@Service
 public class ExcludeServiceimpl implements ExcludedService {
 	Logger log = Logger.getLogger(ExcludeServiceimpl.class);
      @Autowired
