@@ -1,12 +1,23 @@
 package com.pikefin.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
- 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Service;
+
+@Service
 public class DataLoadService {
-	@Autowired
-	private BrokerExecuter brokerExecuter;
+	
+	//private static BrokerExecuter brokerExecuter;
 	public DataLoadService() {
-		brokerExecuter.start();
+		
 	}
 
+	public static void main(String args[]){
+		System.out.println("######## Starting the Application Context");
+		ApplicationContext context=new ClassPathXmlApplicationContext("classpath:spring.xml");
+		BrokerExecuter brokerExecuter=context.getBean(BrokerExecuter.class);
+				brokerExecuter.start();
+	}
+	
+	
 }
