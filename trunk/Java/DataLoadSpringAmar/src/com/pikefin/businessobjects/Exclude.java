@@ -16,12 +16,7 @@ public class Exclude implements java.io.Serializable {
 	private Integer type;
 	private Date oneTimeDate;
 	private TimeEvent obsoluteTimeEvent;
-	public Integer getExcludeId() {
-		return excludeId;
-	}
-	public void setExcludeId(Integer excludeId) {
-		this.excludeId = excludeId;
-	}
+	
 	public Task getTask() {
 		return task;
 	}
@@ -69,6 +64,12 @@ public class Exclude implements java.io.Serializable {
 	}
 	public void setObsoluteTimeEvent(TimeEvent obsoluteTimeEvent) {
 		this.obsoluteTimeEvent = obsoluteTimeEvent;
+	}
+	public Integer getExcludeId() {
+		return excludeId;
+	}
+	public void setExcludeId(Integer excludeId) {
+		this.excludeId = excludeId;
 	}
 
 	
