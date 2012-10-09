@@ -186,7 +186,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 		try{
 			Session session=sessionFactory.openSession();
 			Criteria criteria=session.createCriteria(RepeatType.class);
-			criteria.add(Restrictions.eq("type", repeatType));
+			criteria.add(Restrictions.eq("type", repeatType.toString()));
 			repeatTypes=(List<RepeatType>)criteria.list();
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
@@ -199,6 +199,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 	@Transactional
 	public List<RepeatType> updateRepeatTypeBatch(List<RepeatType> batchEntities)
 			throws GenericException {
+		Session session=sessionFactory.openSession();
 			return super.batchUpdate(batchEntities, Constants.BATCH_SIZE);
 	}
 	@Override

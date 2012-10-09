@@ -162,6 +162,7 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 	 * Returns the Job entity by dataSet
 	 */
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public Job getJobByDataSet(String dataSet) throws GenericException {
 		Job job=null;
 		Session session;

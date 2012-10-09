@@ -1,13 +1,12 @@
 package com.pikefin.dao.impl;
 
 import java.util.List;
+
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.pikefin.Constants;
 import com.pikefin.ErrorCode;
-import com.pikefin.businessobjects.AlertTarget;
 import com.pikefin.businessobjects.LogAlert;
 import com.pikefin.dao.AbstractDao;
 import com.pikefin.dao.inter.LogAlertDao;
@@ -201,7 +199,16 @@ public class LogAlertDaoImpl extends AbstractDao<LogAlert> implements LogAlertDa
 	@Transactional(propagation=Propagation.REQUIRED)
 	public List<LogAlert> updateLogAlertInBulk(
 			List<LogAlert> logAlertEntitiesList) throws GenericException {
-			return super.batchUpdate(logAlertEntitiesList, Constants.BATCH_SIZE);
+		List<LogAlert> logAlerts=null;
+		try{
+			Session session=getSessionFactory().openSession();
+			logAlerts= super.batchUpdate(logAlertEntitiesList, Constants.BATCH_SIZE);
+			}catch (HibernateException e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+		}
+		return logAlerts;
 	}
 	@Override
 	public SessionFactory getSessionFactory() {

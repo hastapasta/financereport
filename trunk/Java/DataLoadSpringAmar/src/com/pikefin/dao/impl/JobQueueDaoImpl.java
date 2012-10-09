@@ -166,8 +166,8 @@ public class JobQueueDaoImpl extends AbstractDao<JobQueue> implements JobQueueDa
 	public void deleteAllJobQueues() throws GenericException {
 		try{
 			Session session=sessionFactory.openSession();
-			Query query=session.createQuery("delete c from JobQueue c");
-			query.executeUpdate();
+			Query query=session.createQuery("delete from JobQueue c");
+		int i=	query.executeUpdate();
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_DELETE_ALL_JOB_QUEUES,e.getMessage() , e.getCause());
 		}catch (Exception e) {

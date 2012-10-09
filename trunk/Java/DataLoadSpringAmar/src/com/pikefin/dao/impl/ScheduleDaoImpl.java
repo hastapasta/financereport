@@ -166,6 +166,7 @@ public class ScheduleDaoImpl extends AbstractDao<Schedule> implements ScheduleDa
 	}
 	
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public List<Schedule> loadAllSchedulesForBrokerExecuter()
 			throws GenericException {
 		List<Schedule> schedules=null;
@@ -190,6 +191,7 @@ public class ScheduleDaoImpl extends AbstractDao<Schedule> implements ScheduleDa
 	@Transactional(propagation=Propagation.REQUIRED)
 	public List<Schedule> updateSchedulesBatch(List<Schedule> schedules)
 			throws GenericException {
+		Session session=sessionFactory.openSession();
 			return super.batchUpdate(schedules, Constants.BATCH_SIZE);
 	}
 	
