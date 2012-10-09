@@ -3,12 +3,13 @@ package com.pikefin.services.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.pikefin.businessobjects.Schedule;
 import com.pikefin.dao.inter.ScheduleDao;
 import com.pikefin.exceptions.GenericException;
 import com.pikefin.services.inter.ScheduleService;
-
+@Service
 public class ScheduleServiceImpl implements ScheduleService{
 
 	@Autowired

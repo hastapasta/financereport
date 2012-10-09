@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +14,7 @@ import com.pikefin.businessobjects.TimeEvent;
 import com.pikefin.dao.inter.TimeEventDao;
 import com.pikefin.exceptions.GenericException;
 import com.pikefin.services.inter.TimeEventService;
-
+@Service
 public class TimeEventserviceImpl implements TimeEventService{
 	Logger log=Logger.getLogger(TimeEventserviceImpl.class);
 	@Autowired
@@ -74,4 +75,6 @@ public class TimeEventserviceImpl implements TimeEventService{
 		updateTimeEventsForNextCall(loadAllTimeEvents());
 	}
 
+	
+	
 }
