@@ -163,6 +163,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 	}
 	
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public List<RepeatType> loadAllActiveRepeatTypes() throws GenericException {
 		
 		List<RepeatType> repeatTypes=null;
@@ -180,6 +181,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 	}
 
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public List<RepeatType> loadRepeatTypesByType(RepeatTypeEnum repeatType)
 			throws GenericException {
 		List<RepeatType> repeatTypes=null;
@@ -196,7 +198,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 		return repeatTypes;
 	}
 	@Override
-	@Transactional
+	@Transactional(propagation=Propagation.REQUIRED)
 	public List<RepeatType> updateRepeatTypeBatch(List<RepeatType> batchEntities)
 			throws GenericException {
 		Session session=sessionFactory.openSession();

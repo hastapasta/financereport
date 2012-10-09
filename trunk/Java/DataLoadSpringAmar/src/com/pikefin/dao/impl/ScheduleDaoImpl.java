@@ -191,8 +191,16 @@ public class ScheduleDaoImpl extends AbstractDao<Schedule> implements ScheduleDa
 	@Transactional(propagation=Propagation.REQUIRED)
 	public List<Schedule> updateSchedulesBatch(List<Schedule> schedules)
 			throws GenericException {
-		Session session=sessionFactory.openSession();
-			return super.batchUpdate(schedules, Constants.BATCH_SIZE);
+		List<Schedule> schedulesUpdated=null;
+			try{
+				Session session=sessionFactory.openSession();
+				schedulesUpdated=super.batchUpdate(schedules, Constants.BATCH_SIZE);
+			}catch (HibernateException e) {
+					throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+			}catch (Exception e) {
+					throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+			}
+			return schedulesUpdated;
 	}
 	
 	@Override
