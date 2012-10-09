@@ -3,6 +3,7 @@ package com.pikefin.dao.impl;
 import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
@@ -180,10 +181,11 @@ public class ExcludeDaoImpl extends AbstractDao<Exclude> implements ExcludeDao {
 			Criterion taskICriteriad=Restrictions.eq("task", taskId);
 			criteria=criteria.createCriteria("task").add(taskICriteriad);
 			excludes=(List<Exclude>)criteria.list();*/
-			Criteria criteria=session.createCriteria(Exclude.class).createCriteria("task").add(Restrictions.eq("taskId", taskId));
+		//	Criteria criteria=session.createCriteria(Exclude.class).createCriteria("task").add(Restrictions.eq("taskId", taskId));
 		//	Criterion taskICriteriad=Restrictions.eq("task", taskId);
 		//	criteria=criteria.createCriteria("task").add(taskICriteriad);
-			excludes=(List<Exclude>)criteria.list();
+			Query query=session.createQuery("select c from Exclude c where c.task.taskId="+taskId);
+			excludes=(List<Exclude>)query.list();
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
 		}catch (Exception e) {
