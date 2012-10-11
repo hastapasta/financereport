@@ -42,7 +42,7 @@ public class ColumnDaoImpl extends AbstractDao<Column> implements ColumnDao {
 	public Column saveColumnInfo(Column columnEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			columnEntity=super.save(columnEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class ColumnDaoImpl extends AbstractDao<Column> implements ColumnDao {
 	public Column updateColumnInfo(Column columnEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(columnEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_COLUMN_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class ColumnDaoImpl extends AbstractDao<Column> implements ColumnDao {
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(columnEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_COLUMN_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class ColumnDaoImpl extends AbstractDao<Column> implements ColumnDao {
 		Column columnEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			columnEntity=loadColumnInfo(columnId);
 			result=super.delete(columnEntity);
 			
@@ -128,7 +128,7 @@ public class ColumnDaoImpl extends AbstractDao<Column> implements ColumnDao {
 	public Column loadColumnInfo(Integer columnId) throws GenericException {
 		Column columnEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			columnEntity=super.find(columnId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_COLUMN_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class ColumnDaoImpl extends AbstractDao<Column> implements ColumnDao {
 	public List<Column> loadAllColumns() throws GenericException {
 		List<Column> columns=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(Column.class);
 			columns=(List<Column>)criteria.list();
 		}catch (HibernateException e) {
@@ -165,6 +165,17 @@ public class ColumnDaoImpl extends AbstractDao<Column> implements ColumnDao {
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
+
+		}
+		return session;
 	}
 
 }

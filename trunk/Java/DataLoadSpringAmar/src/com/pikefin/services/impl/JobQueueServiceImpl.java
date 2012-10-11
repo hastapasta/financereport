@@ -19,6 +19,7 @@ public class JobQueueServiceImpl implements JobQueueService {
 		jobQueueDao.deleteAllJobQueues();
 	}
 	@Override
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public JobQueue saveJobQueueInfo(JobQueue jobQueueEntity)
 			throws GenericException {
 		return jobQueueDao.saveJobQueueInfo(jobQueueEntity);

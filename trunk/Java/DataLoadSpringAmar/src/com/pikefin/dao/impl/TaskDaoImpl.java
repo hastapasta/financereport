@@ -43,7 +43,7 @@ public class TaskDaoImpl extends AbstractDao<Task> implements TaskDao {
 	public Task saveTaskInfo(Task taskEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			taskEntity=super.save(taskEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class TaskDaoImpl extends AbstractDao<Task> implements TaskDao {
 	public Task updateTaskInfo(Task taskEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			taskEntity=super.update(taskEntity);
 		}catch (HibernateException e) {
 			throw new GenericException(ErrorCode.COULD_NOT_UPDATE_GROUP_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class TaskDaoImpl extends AbstractDao<Task> implements TaskDao {
 		boolean result;
 		Session session;
 		try{
-			 session=sessionFactory.openSession();
+			 session=getOpenSession();
 			 result= super.delete(taskEntity);
 		
 		}catch (Exception e) {
@@ -107,7 +107,7 @@ public class TaskDaoImpl extends AbstractDao<Task> implements TaskDao {
 		boolean result;
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			taskEntity=loadTaskInfo(taskId);
 			result=super.delete(taskEntity);
 		}catch (Exception e) {
@@ -129,7 +129,7 @@ public class TaskDaoImpl extends AbstractDao<Task> implements TaskDao {
 		Task taskEntity;
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			taskEntity=super.find(taskId);
 		}catch (Exception e) {
 			throw new GenericException(ErrorCode.COULD_NOT_LOAD_GROUP_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -149,7 +149,7 @@ public class TaskDaoImpl extends AbstractDao<Task> implements TaskDao {
 		List<Task> tasks=null;
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			Criteria criteria=session.createCriteria(Task.class);
 			tasks=(List<Task>)criteria.list();
 		}catch (HibernateException e) {
@@ -167,5 +167,15 @@ public class TaskDaoImpl extends AbstractDao<Task> implements TaskDao {
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 }

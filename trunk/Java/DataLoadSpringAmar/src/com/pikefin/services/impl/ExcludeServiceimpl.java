@@ -5,6 +5,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.pikefin.Constants;
 import com.pikefin.ErrorCode;
@@ -20,6 +22,7 @@ public class ExcludeServiceimpl implements ExcludedService {
      @Autowired
      private ExcludeDao excludeDao;
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public boolean isTaskExcluded(List<Exclude> excludeList)
 			throws GenericException {
 		try {
@@ -56,7 +59,7 @@ public class ExcludeServiceimpl implements ExcludedService {
 						return true;
 					}
 
-				} else if (exclude.getType() == 2) {
+				} else if (Constants.ExcludeType.EXCLUDE_TYPE_TWO.equals(exclude.getType())) {
 					if (exclude.getOneTimeDate() == null) {
 						log.debug("Error with " + exclude.getTask().getTaskId()
 								+ " excludes id " + exclude.getExcludeId()
@@ -89,6 +92,7 @@ public class ExcludeServiceimpl implements ExcludedService {
 			}
 
 		} catch (Exception e) {
+			System.out.println("############################################");
 			throw new GenericException(ErrorCode.COULD_NOT_GET_EXCLUDED_TASK,
 					e.getMessage(), e.getCause());
 		}
@@ -96,6 +100,7 @@ public class ExcludeServiceimpl implements ExcludedService {
 	}
 
 	@Override
+//	@Transactional(propagation=Propagation.REQUIRED)
 	public List<Exclude> loadAllExcludesByTaskId(Integer taskId)
 			throws GenericException {
 		return excludeDao.loadAllExcludesByTaskId(taskId);

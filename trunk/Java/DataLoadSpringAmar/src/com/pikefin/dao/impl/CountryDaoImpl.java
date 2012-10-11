@@ -42,7 +42,7 @@ public class CountryDaoImpl extends AbstractDao<Country> implements CountryDao {
 	public Country saveCountryInfo(Country countryEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			countryEntity=super.save(countryEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class CountryDaoImpl extends AbstractDao<Country> implements CountryDao {
 	public Country updateCountryInfo(Country countryEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(countryEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_COUNTRY_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class CountryDaoImpl extends AbstractDao<Country> implements CountryDao {
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(countryEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_COUNTRY_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class CountryDaoImpl extends AbstractDao<Country> implements CountryDao {
 		Country countryEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			countryEntity=loadCountryInfo(groupId);
 			result=super.delete(countryEntity);
 			
@@ -128,7 +128,7 @@ public class CountryDaoImpl extends AbstractDao<Country> implements CountryDao {
 	public Country loadCountryInfo(Integer groupId) throws GenericException {
 		Country countryEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			countryEntity=super.find(groupId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_COUNTRY_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class CountryDaoImpl extends AbstractDao<Country> implements CountryDao {
 	public List<Country> loadAllCountries() throws GenericException {
 		List<Country> groups=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(Country.class);
 			groups=(List<Country>)criteria.list();
 			
@@ -166,6 +166,17 @@ public class CountryDaoImpl extends AbstractDao<Country> implements CountryDao {
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
+
+		}
+		return session;
 	}
 
 }

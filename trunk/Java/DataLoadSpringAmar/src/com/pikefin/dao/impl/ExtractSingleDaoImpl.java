@@ -48,7 +48,7 @@ public class ExtractSingleDaoImpl extends AbstractDao<ExtractSingle> implements 
 	public ExtractSingle saveExtractSingleInfo(ExtractSingle extractSingleEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			extractSingleEntity=super.save(extractSingleEntity);
 		
 		}catch (HibernateException e) {
@@ -69,7 +69,7 @@ public class ExtractSingleDaoImpl extends AbstractDao<ExtractSingle> implements 
 	public ExtractSingle updateExtractSingleInfo(ExtractSingle extractSingleEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(extractSingleEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_EXTRACT_SINGLE_DATA,e.getMessage(),e.getCause());
@@ -90,7 +90,7 @@ public class ExtractSingleDaoImpl extends AbstractDao<ExtractSingle> implements 
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(extractSingleEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_EXTRACT_SINGLE_INFORMATION,e.getMessage(),e.getCause());
@@ -112,7 +112,7 @@ public class ExtractSingleDaoImpl extends AbstractDao<ExtractSingle> implements 
 		ExtractSingle extractSingleEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			extractSingleEntity=loadExtractSingleInfo(extractSingleId);
 			result=super.delete(extractSingleEntity);
 			
@@ -134,7 +134,7 @@ public class ExtractSingleDaoImpl extends AbstractDao<ExtractSingle> implements 
 	public ExtractSingle loadExtractSingleInfo(Integer extractSingleId) throws GenericException {
 		ExtractSingle extractSingleEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			extractSingleEntity=super.find(extractSingleId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_EXTRACT_SINGLE_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -153,7 +153,7 @@ public class ExtractSingleDaoImpl extends AbstractDao<ExtractSingle> implements 
 	public List<ExtractSingle> loadAllExtractSingles() throws GenericException {
 		List<ExtractSingle> columns=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(ExtractSingle.class);
 			columns=(List<ExtractSingle>)criteria.list();
 		}catch (HibernateException e) {
@@ -174,7 +174,7 @@ public class ExtractSingleDaoImpl extends AbstractDao<ExtractSingle> implements 
 		
 		ExtractSingle extract=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Query query=session.createQuery("select c from ExtractSingle c, Job j where c.extractSingleId=j.extractKeyBody.extractSingleId and j.dataSet='"+dataSet+"'");
 			extract= (ExtractSingle)query.uniqueResult();
 		}catch (HibernateException e) {
@@ -193,6 +193,17 @@ public class ExtractSingleDaoImpl extends AbstractDao<ExtractSingle> implements 
 		this.sessionFactory = sessionFactory;
 	}
 
-	
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
+
+		}
+		return session;
+	}
+
 
 }

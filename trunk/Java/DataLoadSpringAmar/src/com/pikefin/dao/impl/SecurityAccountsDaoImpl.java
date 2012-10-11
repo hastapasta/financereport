@@ -42,7 +42,7 @@ public class SecurityAccountsDaoImpl extends AbstractDao<SecurityAccounts> imple
 	public SecurityAccounts saveSecurityAccountsInfo(SecurityAccounts securityAccountEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			securityAccountEntity=super.save(securityAccountEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class SecurityAccountsDaoImpl extends AbstractDao<SecurityAccounts> imple
 	public SecurityAccounts updateSecurityAccountsInfo(SecurityAccounts securityAccountEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(securityAccountEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_SECURITY_ACCOUNT_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class SecurityAccountsDaoImpl extends AbstractDao<SecurityAccounts> imple
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(securityAccountEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_SECURITY_ACCOUNT_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class SecurityAccountsDaoImpl extends AbstractDao<SecurityAccounts> imple
 		SecurityAccounts securityAccountEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			securityAccountEntity=loadSecurityAccountsInfo(securityAccountId);
 			result=super.delete(securityAccountEntity);
 			
@@ -128,7 +128,7 @@ public class SecurityAccountsDaoImpl extends AbstractDao<SecurityAccounts> imple
 	public SecurityAccounts loadSecurityAccountsInfo(Integer securityAccountId) throws GenericException {
 		SecurityAccounts securityAccountEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			securityAccountEntity=super.find(securityAccountId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_SECURITY_ACCOUNT_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class SecurityAccountsDaoImpl extends AbstractDao<SecurityAccounts> imple
 	public List<SecurityAccounts> loadAllSecurityAccounts() throws GenericException {
 		List<SecurityAccounts> securityAccounts=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(SecurityAccounts.class);
 			securityAccounts=(List<SecurityAccounts>)criteria.list();
 		}catch (HibernateException e) {
@@ -166,5 +166,15 @@ public class SecurityAccountsDaoImpl extends AbstractDao<SecurityAccounts> imple
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 }

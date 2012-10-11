@@ -42,7 +42,7 @@ public class InputSourceDaoImpl extends AbstractDao<InputSource> implements Inpu
 	public InputSource saveInputSourceInfo(InputSource inputSourceEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			inputSourceEntity=super.save(inputSourceEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class InputSourceDaoImpl extends AbstractDao<InputSource> implements Inpu
 	public InputSource updateInputSourceInfo(InputSource inputSourceEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(inputSourceEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_INPUT_SOURCE_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class InputSourceDaoImpl extends AbstractDao<InputSource> implements Inpu
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(inputSourceEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_INPUT_SOURCE_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class InputSourceDaoImpl extends AbstractDao<InputSource> implements Inpu
 		InputSource inputSourceEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			inputSourceEntity=loadInputSourceInfo(inputSourceId);
 			result=super.delete(inputSourceEntity);
 			
@@ -128,7 +128,7 @@ public class InputSourceDaoImpl extends AbstractDao<InputSource> implements Inpu
 	public InputSource loadInputSourceInfo(Integer inputSourceId) throws GenericException {
 		InputSource inputSourceEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			inputSourceEntity=super.find(inputSourceId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_INPUT_SOURCE_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class InputSourceDaoImpl extends AbstractDao<InputSource> implements Inpu
 	public List<InputSource> loadAllInputSources() throws GenericException {
 		List<InputSource> inputSources=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(InputSource.class);
 			inputSources=(List<InputSource>)criteria.list();
 		}catch (HibernateException e) {
@@ -166,5 +166,15 @@ public class InputSourceDaoImpl extends AbstractDao<InputSource> implements Inpu
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 }

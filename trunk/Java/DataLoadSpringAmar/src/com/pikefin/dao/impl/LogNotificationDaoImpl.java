@@ -42,7 +42,7 @@ public class LogNotificationDaoImpl extends AbstractDao<LogNotification> impleme
 	public LogNotification saveLogNotificationInfo(LogNotification logNotificationEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			logNotificationEntity=super.save(logNotificationEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class LogNotificationDaoImpl extends AbstractDao<LogNotification> impleme
 	public LogNotification updateLogNotificationInfo(LogNotification logNotificationEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(logNotificationEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_LOG_NOTIFICATION_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class LogNotificationDaoImpl extends AbstractDao<LogNotification> impleme
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(logNotificationEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_LOG_NOTIFICATION_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class LogNotificationDaoImpl extends AbstractDao<LogNotification> impleme
 		LogNotification logNotificationEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			logNotificationEntity=loadLogNotificationInfo(logNotificationId);
 			result=super.delete(logNotificationEntity);
 			
@@ -128,7 +128,7 @@ public class LogNotificationDaoImpl extends AbstractDao<LogNotification> impleme
 	public LogNotification loadLogNotificationInfo(Integer logNotificationId) throws GenericException {
 		LogNotification logNotificationEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			logNotificationEntity=super.find(logNotificationId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_LOG_NOTIFICATION_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class LogNotificationDaoImpl extends AbstractDao<LogNotification> impleme
 	public List<LogNotification> loadAllLogNotifications() throws GenericException {
 		List<LogNotification> logNotifications=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(LogNotification.class);
 			logNotifications=(List<LogNotification>)criteria.list();
 		}catch (HibernateException e) {
@@ -166,5 +166,15 @@ public class LogNotificationDaoImpl extends AbstractDao<LogNotification> impleme
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 }

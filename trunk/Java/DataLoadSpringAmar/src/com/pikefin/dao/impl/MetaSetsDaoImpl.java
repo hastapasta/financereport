@@ -42,7 +42,7 @@ public class MetaSetsDaoImpl extends AbstractDao<MetaSets> implements MetaSetsDa
 	public MetaSets saveMetaSetsInfo(MetaSets metaSetsEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			metaSetsEntity=super.save(metaSetsEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class MetaSetsDaoImpl extends AbstractDao<MetaSets> implements MetaSetsDa
 	public MetaSets updateMetaSetsInfo(MetaSets metaSetsEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(metaSetsEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_META_SETS_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class MetaSetsDaoImpl extends AbstractDao<MetaSets> implements MetaSetsDa
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(metaSetsEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_META_SETS_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class MetaSetsDaoImpl extends AbstractDao<MetaSets> implements MetaSetsDa
 		MetaSets metaSetsEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			metaSetsEntity=loadMetaSetsInfo(metaSetsId);
 			result=super.delete(metaSetsEntity);
 			
@@ -128,7 +128,7 @@ public class MetaSetsDaoImpl extends AbstractDao<MetaSets> implements MetaSetsDa
 	public MetaSets loadMetaSetsInfo(Integer metaSetsId) throws GenericException {
 		MetaSets metaSetsEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			metaSetsEntity=super.find(metaSetsId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_META_SETS_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class MetaSetsDaoImpl extends AbstractDao<MetaSets> implements MetaSetsDa
 	public List<MetaSets> loadAllMetaSets() throws GenericException {
 		List<MetaSets> metaSets=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(MetaSets.class);
 			metaSets=(List<MetaSets>)criteria.list();
 		}catch (HibernateException e) {
@@ -166,5 +166,15 @@ public class MetaSetsDaoImpl extends AbstractDao<MetaSets> implements MetaSetsDa
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 }

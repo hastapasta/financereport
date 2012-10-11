@@ -42,7 +42,7 @@ public class PageCountersDaoImpl extends AbstractDao<PageCounters> implements Pa
 	public PageCounters savePageCountersInfo(PageCounters pageCountersEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			pageCountersEntity=super.save(pageCountersEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class PageCountersDaoImpl extends AbstractDao<PageCounters> implements Pa
 	public PageCounters updatePageCountersInfo(PageCounters pageCountersEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(pageCountersEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_PAGE_COUNTER_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class PageCountersDaoImpl extends AbstractDao<PageCounters> implements Pa
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(pageCountersEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_PAGE_COUNTER_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class PageCountersDaoImpl extends AbstractDao<PageCounters> implements Pa
 		PageCounters pageCountersEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			pageCountersEntity=loadPageCountersInfo(pageCountersId);
 			result=super.delete(pageCountersEntity);
 			
@@ -128,7 +128,7 @@ public class PageCountersDaoImpl extends AbstractDao<PageCounters> implements Pa
 	public PageCounters loadPageCountersInfo(Integer pageCountersId) throws GenericException {
 		PageCounters pageCountersEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			pageCountersEntity=super.find(pageCountersId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_PAGE_COUNTER_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class PageCountersDaoImpl extends AbstractDao<PageCounters> implements Pa
 	public List<PageCounters> loadAllPageCounters() throws GenericException {
 		List<PageCounters> pageCounters=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(PageCounters.class);
 			pageCounters=(List<PageCounters>)criteria.list();
 		}catch (HibernateException e) {
@@ -166,5 +166,15 @@ public class PageCountersDaoImpl extends AbstractDao<PageCounters> implements Pa
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 }

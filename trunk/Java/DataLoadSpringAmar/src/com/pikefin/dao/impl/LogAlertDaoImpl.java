@@ -46,7 +46,7 @@ public class LogAlertDaoImpl extends AbstractDao<LogAlert> implements LogAlertDa
 	public LogAlert saveLogAlertInfo(LogAlert logAlertEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			logAlertEntity=super.save(logAlertEntity);
 		
 		}catch (HibernateException e) {
@@ -67,7 +67,7 @@ public class LogAlertDaoImpl extends AbstractDao<LogAlert> implements LogAlertDa
 	public LogAlert updateLogAlertInfo(LogAlert logAlertEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(logAlertEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_LOG_ALERT_DATA,e.getMessage(),e.getCause());
@@ -88,7 +88,7 @@ public class LogAlertDaoImpl extends AbstractDao<LogAlert> implements LogAlertDa
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(logAlertEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_LOG_ALERT_INFORMATION,e.getMessage(),e.getCause());
@@ -110,7 +110,7 @@ public class LogAlertDaoImpl extends AbstractDao<LogAlert> implements LogAlertDa
 		LogAlert logAlertEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			logAlertEntity=loadLogAlertInfo(logAlertId);
 			result=super.delete(logAlertEntity);
 			
@@ -132,7 +132,7 @@ public class LogAlertDaoImpl extends AbstractDao<LogAlert> implements LogAlertDa
 	public LogAlert loadLogAlertInfo(Integer logAlertId) throws GenericException {
 		LogAlert logAlertEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			logAlertEntity=super.find(logAlertId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_LOG_ALERT_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -151,7 +151,7 @@ public class LogAlertDaoImpl extends AbstractDao<LogAlert> implements LogAlertDa
 	public List<LogAlert> loadAllLogAlerts() throws GenericException {
 		List<LogAlert> logAlerts=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(LogAlert.class);
 			logAlerts=(List<LogAlert>)criteria.list();
 		}catch (HibernateException e) {
@@ -167,7 +167,7 @@ public class LogAlertDaoImpl extends AbstractDao<LogAlert> implements LogAlertDa
 			throws GenericException {
 		List<Object> logAlerts=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			String query1 = " from LogAlert la " ;
 			query1 += " inner join la.logAlertAlert a ";
 			query1 += " inner join a.alertTarget at ";
@@ -218,7 +218,17 @@ public class LogAlertDaoImpl extends AbstractDao<LogAlert> implements LogAlertDa
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 
 	
 

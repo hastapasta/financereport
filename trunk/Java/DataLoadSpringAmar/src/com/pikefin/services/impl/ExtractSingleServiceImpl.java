@@ -1,6 +1,8 @@
 package com.pikefin.services.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.pikefin.businessobjects.ExtractSingle;
 import com.pikefin.dao.inter.ExtractSingleDao;
@@ -11,10 +13,10 @@ public class ExtractSingleServiceImpl implements ExtractSingleService {
 
 	private ExtractSingleDao extractDao;
 	@Override
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public ExtractSingle loadExtractSinglesByDataSet(String dataSet)
 			throws GenericException {
-		
-		return extractDao.loadExtractSinglesByDataSet(dataSet);
+			return extractDao.loadExtractSinglesByDataSet(dataSet);
 	}
 
 }

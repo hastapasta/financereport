@@ -42,7 +42,7 @@ public class EntityGroupDaoImpl extends AbstractDao<EntityGroup> implements Enti
 	public EntityGroup saveEntityGroupInfo(EntityGroup entityGroupEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			entityGroupEntity=super.save(entityGroupEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class EntityGroupDaoImpl extends AbstractDao<EntityGroup> implements Enti
 	public EntityGroup updateEntityGroupInfo(EntityGroup entityGroupEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(entityGroupEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_ENTITY_GROUP_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class EntityGroupDaoImpl extends AbstractDao<EntityGroup> implements Enti
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(entityGroupEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_ENTITY_GROUP_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class EntityGroupDaoImpl extends AbstractDao<EntityGroup> implements Enti
 		EntityGroup entityGroupEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			entityGroupEntity=loadEntityGroupInfo(groupId);
 			result=super.delete(entityGroupEntity);
 			
@@ -128,7 +128,7 @@ public class EntityGroupDaoImpl extends AbstractDao<EntityGroup> implements Enti
 	public EntityGroup loadEntityGroupInfo(Integer groupId) throws GenericException {
 		EntityGroup entityGroupEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			entityGroupEntity=super.find(groupId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_GROUP_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class EntityGroupDaoImpl extends AbstractDao<EntityGroup> implements Enti
 	public List<EntityGroup> loadAllEntityGroups() throws GenericException {
 		List<EntityGroup> groups=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(EntityGroup.class);
 			groups=(List<EntityGroup>)criteria.list();
 			
@@ -166,6 +166,17 @@ public class EntityGroupDaoImpl extends AbstractDao<EntityGroup> implements Enti
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
+
+		}
+		return session;
 	}
 
 }

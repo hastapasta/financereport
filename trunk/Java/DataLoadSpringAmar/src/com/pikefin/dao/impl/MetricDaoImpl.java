@@ -42,7 +42,7 @@ public class MetricDaoImpl extends AbstractDao<Metric> implements MetricDao {
 	public Metric saveMetricInfo(Metric metricEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			metricEntity=super.save(metricEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class MetricDaoImpl extends AbstractDao<Metric> implements MetricDao {
 	public Metric updateMetricInfo(Metric metricEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(metricEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_METRIC_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class MetricDaoImpl extends AbstractDao<Metric> implements MetricDao {
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(metricEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_METRIC_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class MetricDaoImpl extends AbstractDao<Metric> implements MetricDao {
 		Metric metricEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			metricEntity=loadMetricInfo(groupId);
 			result=super.delete(metricEntity);
 			
@@ -128,7 +128,7 @@ public class MetricDaoImpl extends AbstractDao<Metric> implements MetricDao {
 	public Metric loadMetricInfo(Integer groupId) throws GenericException {
 		Metric metricEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			metricEntity=super.find(groupId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_METRIC_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class MetricDaoImpl extends AbstractDao<Metric> implements MetricDao {
 	public List<Metric> loadAllMetrics() throws GenericException {
 		List<Metric> columns=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(Metric.class);
 			columns=(List<Metric>)criteria.list();
 		}catch (HibernateException e) {
@@ -166,5 +166,15 @@ public class MetricDaoImpl extends AbstractDao<Metric> implements MetricDao {
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 }

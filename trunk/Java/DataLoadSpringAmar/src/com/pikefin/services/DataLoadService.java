@@ -10,6 +10,7 @@ public class DataLoadService {
 	//private static BrokerExecuter brokerExecuter;
 	public DataLoadService() {
 		
+		
 	}
 
 	public static void main(String args[]){

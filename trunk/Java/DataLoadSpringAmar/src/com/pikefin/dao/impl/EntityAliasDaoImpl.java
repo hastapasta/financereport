@@ -42,7 +42,7 @@ public class EntityAliasDaoImpl extends AbstractDao<EntityAlias> implements Enti
 	public EntityAlias saveEntityAliasInfo(EntityAlias entityAliasEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			entityAliasEntity=super.save(entityAliasEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class EntityAliasDaoImpl extends AbstractDao<EntityAlias> implements Enti
 	public EntityAlias updateEntityAliasInfo(EntityAlias entityAliasEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(entityAliasEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_ENTITY_ALIAS_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class EntityAliasDaoImpl extends AbstractDao<EntityAlias> implements Enti
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(entityAliasEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_ENTITY_ALIAS_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class EntityAliasDaoImpl extends AbstractDao<EntityAlias> implements Enti
 		EntityAlias entityAliasEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			entityAliasEntity=loadEntityAliasInfo(entityAliasId);
 			result=super.delete(entityAliasEntity);
 			
@@ -128,7 +128,7 @@ public class EntityAliasDaoImpl extends AbstractDao<EntityAlias> implements Enti
 	public EntityAlias loadEntityAliasInfo(Integer entityAliasId) throws GenericException {
 		EntityAlias entityAliasEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			entityAliasEntity=super.find(entityAliasId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class EntityAliasDaoImpl extends AbstractDao<EntityAlias> implements Enti
 	public List<EntityAlias> loadAllEntityAlias() throws GenericException {
 		List<EntityAlias> columns=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(EntityAlias.class);
 			columns=(List<EntityAlias>)criteria.list();
 		}catch (HibernateException e) {
@@ -165,6 +165,17 @@ public class EntityAliasDaoImpl extends AbstractDao<EntityAlias> implements Enti
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
+
+		}
+		return session;
 	}
 
 }

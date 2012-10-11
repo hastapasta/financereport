@@ -65,12 +65,14 @@ public class TimeEventserviceImpl implements TimeEventService{
 	}
 	
 	@Override
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public List<TimeEvent>  loadAllTimeEvents() throws GenericException{
 		log.debug("**TimeEventserviceImpl.loadAllTimeEvents method start loading all timeEvents");
 			return timeEventDao.loadAllTimeEvents();
 	}
 
 	@Override
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public void updateTimeEventsForBroker() throws GenericException {
 		updateTimeEventsForNextCall(loadAllTimeEvents());
 	}

@@ -43,7 +43,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	public User saveUserInfo(User userEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			userEntity=super.save(userEntity);
 		
 		}catch (HibernateException e) {
@@ -64,7 +64,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	public User updateUserInfo(User userEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(userEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_USER_DATA,e.getMessage(),e.getCause());
@@ -85,7 +85,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(userEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_USER_INFORMATION,e.getMessage(),e.getCause());
@@ -107,7 +107,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		User userEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			userEntity=loadUserInfo(userId);
 			result=super.delete(userEntity);
 			
@@ -129,7 +129,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	public User loadUserInfo(Integer userId) throws GenericException {
 		User userEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			userEntity=super.find(userId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_USER_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -148,7 +148,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	public List<User> loadAllUsers() throws GenericException {
 		List<User> users=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(User.class);
 			users=(List<User>)criteria.list();
 			
@@ -170,11 +170,12 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	}
 
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public User loadUserInfoByUserName(String userName) throws GenericException {
 		Session session;
 		User user=null;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			Criteria criteria=session.createCriteria(User.class);
 			criteria.add(Restrictions.eq("username", userName.trim()));
 			user=(User)criteria.uniqueResult();
@@ -192,12 +193,13 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	}
 
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public List<User> loadAllUsersByAccountEmail(String accountEmail)
 			throws GenericException {
 		Session session;
 		List<User> users=null;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			Criteria criteria=session.createCriteria(User.class);
 			criteria.add(Restrictions.eq("accountEmail", accountEmail.trim()));
 			users=(List<User>)criteria.list();
@@ -208,7 +210,17 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		
 		return users;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 	
 
 }

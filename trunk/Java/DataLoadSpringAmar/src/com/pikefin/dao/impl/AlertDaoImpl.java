@@ -134,7 +134,7 @@ public class AlertDaoImpl extends AbstractDao<Alert> implements AlertDao {
 		public List<Alert> loadAllAlerts() throws GenericException {
 			List<Alert> alert=null;
 			try{
-				Session session=sessionFactory.openSession();
+				Session session=getOpenSession();
 				Criteria criteria=session.createCriteria(Alert.class);
 				alert=(List<Alert>)criteria.list();
 				
@@ -149,7 +149,16 @@ public class AlertDaoImpl extends AbstractDao<Alert> implements AlertDao {
 		public SessionFactory getSessionFactory() {
 			return this.sessionFactory;
 		}
+		@Override
+		public Session getOpenSession(){
+			Session session;
+			if(sessionFactory.getCurrentSession()!=null){
+				session=sessionFactory.getCurrentSession();
+			}else{
+				session=sessionFactory.openSession();
 
-
+			}
+			return session;
+		}
 
 }

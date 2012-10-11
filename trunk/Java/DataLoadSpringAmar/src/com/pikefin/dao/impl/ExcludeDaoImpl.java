@@ -45,7 +45,7 @@ public class ExcludeDaoImpl extends AbstractDao<Exclude> implements ExcludeDao {
 	public Exclude saveExcludeInfo(Exclude excludeEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			excludeEntity=super.save(excludeEntity);
 		
 		}catch (HibernateException e) {
@@ -66,7 +66,7 @@ public class ExcludeDaoImpl extends AbstractDao<Exclude> implements ExcludeDao {
 	public Exclude updateExcludeInfo(Exclude excludeEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(excludeEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_EXCLUDE_DATA,e.getMessage(),e.getCause());
@@ -87,7 +87,7 @@ public class ExcludeDaoImpl extends AbstractDao<Exclude> implements ExcludeDao {
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(excludeEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_EXCLUDE_INFORMATION,e.getMessage(),e.getCause());
@@ -109,7 +109,7 @@ public class ExcludeDaoImpl extends AbstractDao<Exclude> implements ExcludeDao {
 		Exclude excludeEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			excludeEntity=loadExcludeInfo(groupId);
 			result=super.delete(excludeEntity);
 			
@@ -131,7 +131,7 @@ public class ExcludeDaoImpl extends AbstractDao<Exclude> implements ExcludeDao {
 	public Exclude loadExcludeInfo(Integer groupId) throws GenericException {
 		Exclude excludeEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			excludeEntity=super.find(groupId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_EXCLUDE_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -150,7 +150,7 @@ public class ExcludeDaoImpl extends AbstractDao<Exclude> implements ExcludeDao {
 	public List<Exclude> loadAllExcludes() throws GenericException {
 		List<Exclude> excludes=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(Exclude.class);
 			excludes=(List<Exclude>)criteria.list();
 			
@@ -172,11 +172,12 @@ public class ExcludeDaoImpl extends AbstractDao<Exclude> implements ExcludeDao {
 	}
 
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
 	public List<Exclude> loadAllExcludesByTaskId(Integer taskId)
 			throws GenericException {
 		List<Exclude> excludes=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			/*Criteria criteria=session.createCriteria(Exclude.class);
 			Criterion taskICriteriad=Restrictions.eq("task", taskId);
 			criteria=criteria.createCriteria("task").add(taskICriteriad);
@@ -185,6 +186,7 @@ public class ExcludeDaoImpl extends AbstractDao<Exclude> implements ExcludeDao {
 		//	Criterion taskICriteriad=Restrictions.eq("task", taskId);
 		//	criteria=criteria.createCriteria("task").add(taskICriteriad);
 			Query query=session.createQuery("select c from Exclude c where c.task.taskId="+taskId);
+			System.out.println("Loading for Task Id=*********"+taskId); 
 			excludes=(List<Exclude>)query.list();
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
@@ -192,6 +194,17 @@ public class ExcludeDaoImpl extends AbstractDao<Exclude> implements ExcludeDao {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
 		}
 		return excludes;
+	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
+
+		}
+		return session;
 	}
 
 }

@@ -42,7 +42,7 @@ public class AlertTargetDaoImpl extends AbstractDao<AlertTarget> implements Aler
 	public AlertTarget saveAlertTargetInfo(AlertTarget alertTargetEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			alertTargetEntity=super.save(alertTargetEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class AlertTargetDaoImpl extends AbstractDao<AlertTarget> implements Aler
 	public AlertTarget updateAlertTargetInfo(AlertTarget alertTargetEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(alertTargetEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_ALERT_TARGET_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class AlertTargetDaoImpl extends AbstractDao<AlertTarget> implements Aler
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(alertTargetEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_ALERT_TARGET_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class AlertTargetDaoImpl extends AbstractDao<AlertTarget> implements Aler
 		AlertTarget alertTargetEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			alertTargetEntity=loadAlertTargetInfo(groupId);
 			result=super.delete(alertTargetEntity);
 			
@@ -128,7 +128,7 @@ public class AlertTargetDaoImpl extends AbstractDao<AlertTarget> implements Aler
 	public AlertTarget loadAlertTargetInfo(Integer groupId) throws GenericException {
 		AlertTarget alertTargetEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			alertTargetEntity=super.find(groupId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_ALERT_TARGET_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class AlertTargetDaoImpl extends AbstractDao<AlertTarget> implements Aler
 	public List<AlertTarget> loadAllAlertTargets() throws GenericException {
 		List<AlertTarget> columns=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(AlertTarget.class);
 			columns=(List<AlertTarget>)criteria.list();
 		}catch (HibernateException e) {
@@ -165,6 +165,18 @@ public class AlertTargetDaoImpl extends AbstractDao<AlertTarget> implements Aler
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
+
+		}
+		return session;
 	}
 
 }

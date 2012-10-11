@@ -42,7 +42,7 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 	public Entity saveEntityInfo(Entity entityEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			entityEntity=super.save(entityEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 	public Entity updateEntityInfo(Entity entityEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(entityEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_ENTITY_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(entityEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_ENTITY_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 		Entity entityEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			entityEntity=loadEntityInfo(groupId);
 			result=super.delete(entityEntity);
 			
@@ -128,7 +128,7 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 	public Entity loadEntityInfo(Integer groupId) throws GenericException {
 		Entity entityEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			entityEntity=super.find(groupId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 	public List<Entity> loadAllEntities() throws GenericException {
 		List<Entity> entities=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(Entity.class);
 			entities=(List<Entity>)criteria.list();
 			
@@ -167,6 +167,17 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
+
+		}
+		return session;
 	}
 
 }

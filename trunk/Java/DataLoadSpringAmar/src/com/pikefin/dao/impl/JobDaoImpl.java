@@ -43,7 +43,7 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 	public Job saveJobInfo(Job jobEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			jobEntity=super.save(jobEntity);
 		
 		}catch (HibernateException e) {
@@ -64,7 +64,7 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 	public Job updateJobInfo(Job jobEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(jobEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_JOB_DATA,e.getMessage(),e.getCause());
@@ -85,7 +85,7 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(jobEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_JOB_INFORMATION,e.getMessage(),e.getCause());
@@ -107,7 +107,7 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 		Job jobEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			jobEntity=loadJobInfo(jobId);
 			result=super.delete(jobEntity);
 			
@@ -129,7 +129,7 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 	public Job loadJobInfo(Integer jobId) throws GenericException {
 		Job jobEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			jobEntity=super.find(jobId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_JOB_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -148,7 +148,7 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 	public List<Job> loadAllJobs() throws GenericException {
 		List<Job> jobs=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(Job.class);
 			jobs=(List<Job>)criteria.list();
 		}catch (HibernateException e) {
@@ -167,7 +167,7 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 		Job job=null;
 		Session session;
 		try{ 
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			Query query=session.createQuery("select c from Job c where c.preNoDataCheckFunc='"+dataSet+"'");
 			job=(Job)query.uniqueResult();
 		}catch (HibernateException e) {
@@ -187,6 +187,16 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 		this.sessionFactory = sessionFactory;
 	}
 
-	
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
+
+		}
+		return session;
+	}
 
 }

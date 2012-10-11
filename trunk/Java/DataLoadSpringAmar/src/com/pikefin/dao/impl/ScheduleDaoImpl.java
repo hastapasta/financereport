@@ -49,7 +49,7 @@ public class ScheduleDaoImpl extends AbstractDao<Schedule> implements ScheduleDa
 	public Schedule saveScheduleInfo(Schedule scheduleEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			scheduleEntity=super.save(scheduleEntity);
 		
 		}catch (HibernateException e) {
@@ -70,7 +70,7 @@ public class ScheduleDaoImpl extends AbstractDao<Schedule> implements ScheduleDa
 	public Schedule updateScheduleInfo(Schedule scheduleEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(scheduleEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_SCHEDULE_DATA,e.getMessage(),e.getCause());
@@ -91,7 +91,7 @@ public class ScheduleDaoImpl extends AbstractDao<Schedule> implements ScheduleDa
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(scheduleEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_SCHEDULE_INFORMATION,e.getMessage(),e.getCause());
@@ -113,7 +113,7 @@ public class ScheduleDaoImpl extends AbstractDao<Schedule> implements ScheduleDa
 		Schedule scheduleEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			scheduleEntity=loadScheduleInfo(scheduleId);
 			result=super.delete(scheduleEntity);
 			
@@ -135,7 +135,7 @@ public class ScheduleDaoImpl extends AbstractDao<Schedule> implements ScheduleDa
 	public Schedule loadScheduleInfo(Integer scheduleId) throws GenericException {
 		Schedule scheduleEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			scheduleEntity=super.find(scheduleId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_SCHEDULE_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -154,7 +154,7 @@ public class ScheduleDaoImpl extends AbstractDao<Schedule> implements ScheduleDa
 	public List<Schedule> loadAllSchedules() throws GenericException {
 		List<Schedule> schedules=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(Schedule.class);
 			schedules=(List<Schedule>)criteria.list();
 		}catch (HibernateException e) {
@@ -172,7 +172,7 @@ public class ScheduleDaoImpl extends AbstractDao<Schedule> implements ScheduleDa
 		List<Schedule> schedules=null;
 		try{
 			Calendar currentTime = Calendar.getInstance();
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(Schedule.class);
 			Criterion  repeatTypeRunOnceCriteria=Restrictions.eq("type", RepeatTypeEnum.RUNONCE.toString());
 			Criterion  repeatTypeRunEveryCriteria=Restrictions.eq("type", RepeatTypeEnum.RUNEVERY.toString());
@@ -193,7 +193,7 @@ public class ScheduleDaoImpl extends AbstractDao<Schedule> implements ScheduleDa
 			throws GenericException {
 		List<Schedule> schedulesUpdated=null;
 			try{
-				Session session=sessionFactory.openSession();
+				Session session=getOpenSession();
 				schedulesUpdated=super.batchUpdate(schedules, Constants.BATCH_SIZE);
 			}catch (HibernateException e) {
 					throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
@@ -212,5 +212,15 @@ public class ScheduleDaoImpl extends AbstractDao<Schedule> implements ScheduleDa
 		this.sessionFactory = sessionFactory;
 	}
 
-	
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
+
+		}
+		return session;
+	}
 }

@@ -42,7 +42,7 @@ public class LogTweetsDaoImpl extends AbstractDao<LogTweets> implements LogTweet
 	public LogTweets saveLogTweetsInfo(LogTweets columnEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			columnEntity=super.save(columnEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class LogTweetsDaoImpl extends AbstractDao<LogTweets> implements LogTweet
 	public LogTweets updateLogTweetsInfo(LogTweets columnEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(columnEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_LOG_TWEETS_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class LogTweetsDaoImpl extends AbstractDao<LogTweets> implements LogTweet
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(columnEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_LOG_TWEETS_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class LogTweetsDaoImpl extends AbstractDao<LogTweets> implements LogTweet
 		LogTweets columnEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			columnEntity=loadLogTweetsInfo(logTweetId);
 			result=super.delete(columnEntity);
 			
@@ -128,7 +128,7 @@ public class LogTweetsDaoImpl extends AbstractDao<LogTweets> implements LogTweet
 	public LogTweets loadLogTweetsInfo(Integer logTweetId) throws GenericException {
 		LogTweets columnEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			columnEntity=super.find(logTweetId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_LOG_TWEETS_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class LogTweetsDaoImpl extends AbstractDao<LogTweets> implements LogTweet
 	public List<LogTweets> loadAllLogTweets() throws GenericException {
 		List<LogTweets> logTweets=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(LogTweets.class);
 			logTweets=(List<LogTweets>)criteria.list();
 		}catch (HibernateException e) {
@@ -166,5 +166,15 @@ public class LogTweetsDaoImpl extends AbstractDao<LogTweets> implements LogTweet
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 }

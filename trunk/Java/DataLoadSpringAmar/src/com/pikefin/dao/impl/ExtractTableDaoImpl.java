@@ -42,7 +42,7 @@ public class ExtractTableDaoImpl extends AbstractDao<ExtractTable> implements Ex
 	public ExtractTable saveExtractTableInfo(ExtractTable extractTableEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			extractTableEntity=super.save(extractTableEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class ExtractTableDaoImpl extends AbstractDao<ExtractTable> implements Ex
 	public ExtractTable updateExtractTableInfo(ExtractTable extractTableEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(extractTableEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_EXTRACT_TABLE_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class ExtractTableDaoImpl extends AbstractDao<ExtractTable> implements Ex
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(extractTableEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_EXTRACT_TABLE_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class ExtractTableDaoImpl extends AbstractDao<ExtractTable> implements Ex
 		ExtractTable extractTableEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			extractTableEntity=loadExtractTableInfo(extractTableId);
 			result=super.delete(extractTableEntity);
 			
@@ -128,7 +128,7 @@ public class ExtractTableDaoImpl extends AbstractDao<ExtractTable> implements Ex
 	public ExtractTable loadExtractTableInfo(Integer extractTableId) throws GenericException {
 		ExtractTable extractTableEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			extractTableEntity=super.find(extractTableId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_EXTRACT_TABLE_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class ExtractTableDaoImpl extends AbstractDao<ExtractTable> implements Ex
 	public List<ExtractTable> loadAllExtractTables() throws GenericException {
 		List<ExtractTable> columns=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(ExtractTable.class);
 			columns=(List<ExtractTable>)criteria.list();
 		}catch (HibernateException e) {
@@ -166,5 +166,15 @@ public class ExtractTableDaoImpl extends AbstractDao<ExtractTable> implements Ex
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 }

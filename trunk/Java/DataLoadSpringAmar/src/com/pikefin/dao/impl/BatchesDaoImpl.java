@@ -47,7 +47,7 @@ public class BatchesDaoImpl extends AbstractDao<Batches> implements BatchesDao {
 			throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			batchesEntity=super.save(batchesEntity);
 			}catch (Exception e) {
 			throw new GenericException(ErrorCode.COULD_NOT_SAVE_BATCHES_DATA,e.getMessage(),e.getCause());
@@ -66,6 +66,7 @@ public class BatchesDaoImpl extends AbstractDao<Batches> implements BatchesDao {
 	public Batches updateBatchesInfo(Batches batchesEntity)
 			throws GenericException {
 		try{
+			Session session=getOpenSession();
 			batchesEntity=super.update(batchesEntity);
 			
 		}catch (Exception e) {
@@ -86,6 +87,7 @@ public class BatchesDaoImpl extends AbstractDao<Batches> implements BatchesDao {
 	public Boolean deleteBatchesInfo(Batches batchesEntity)
 			throws GenericException {
 		try{
+			Session session=getOpenSession();
 			return super.delete(batchesEntity);
 		}catch (Exception e) {
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_BATCHES_INFORMATION,e.getMessage(),e.getCause());
@@ -105,6 +107,7 @@ public class BatchesDaoImpl extends AbstractDao<Batches> implements BatchesDao {
 			throws GenericException {
 		Batches groupEntity=loadBatchesInfo(batchesId);
 		try{
+			Session session=getOpenSession();
 			super.delete(groupEntity);
 			
 		}catch (Exception e) {
@@ -125,6 +128,7 @@ public class BatchesDaoImpl extends AbstractDao<Batches> implements BatchesDao {
 	public Batches loadBatchesInfo(Integer batchesId) throws GenericException {
 		Batches batchesEntity;
 		try{
+			Session session=getOpenSession();
 			batchesEntity=super.find(batchesId);
 		}catch (Exception e) {
 			throw new GenericException(ErrorCode.COULD_NOT_LOAD_BATCHES_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -143,7 +147,7 @@ public class BatchesDaoImpl extends AbstractDao<Batches> implements BatchesDao {
 	public List<Batches> loadAllBatchess() throws GenericException {
 		List<Batches> batches=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(Batches.class);
 			batches=(List<Batches>)criteria.list();
 			
@@ -157,6 +161,17 @@ public class BatchesDaoImpl extends AbstractDao<Batches> implements BatchesDao {
 	@Override
 	public SessionFactory getSessionFactory() {
 		return this.sessionFactory;
+	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
+
+		}
+		return session;
 	}
 
 }

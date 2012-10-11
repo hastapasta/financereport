@@ -22,7 +22,7 @@ public abstract class AbstractDao<T> {
 	}
 	/// will be set by the extending entity
 	public abstract  SessionFactory getSessionFactory();
-	
+	public abstract Session getOpenSession();
 	/**
 	 * Saves the business object to database
 	 * @param businessEntity

@@ -43,7 +43,7 @@ public class JobQueueDaoImpl extends AbstractDao<JobQueue> implements JobQueueDa
 	public JobQueue saveJobQueueInfo(JobQueue jobQueueEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			jobQueueEntity=super.save(jobQueueEntity);
 		
 		}catch (HibernateException e) {
@@ -64,7 +64,7 @@ public class JobQueueDaoImpl extends AbstractDao<JobQueue> implements JobQueueDa
 	public JobQueue updateJobQueueInfo(JobQueue jobQueueEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(jobQueueEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_JOB_QUEUE_DATA,e.getMessage(),e.getCause());
@@ -85,7 +85,7 @@ public class JobQueueDaoImpl extends AbstractDao<JobQueue> implements JobQueueDa
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(jobQueueEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_JOB_QUEUE_INFORMATION,e.getMessage(),e.getCause());
@@ -107,7 +107,7 @@ public class JobQueueDaoImpl extends AbstractDao<JobQueue> implements JobQueueDa
 		JobQueue jobQueueEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			jobQueueEntity=loadJobQueueInfo(jobQueueId);
 			result=super.delete(jobQueueEntity);
 			
@@ -129,7 +129,7 @@ public class JobQueueDaoImpl extends AbstractDao<JobQueue> implements JobQueueDa
 	public JobQueue loadJobQueueInfo(Integer jobQueueId) throws GenericException {
 		JobQueue jobQueueEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			jobQueueEntity=super.find(jobQueueId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_JOB_QUEUE_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -148,7 +148,7 @@ public class JobQueueDaoImpl extends AbstractDao<JobQueue> implements JobQueueDa
 	public List<JobQueue> loadAllJobQueues() throws GenericException {
 		List<JobQueue> jobQueues=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(JobQueue.class);
 			jobQueues=(List<JobQueue>)criteria.list();
 		}catch (HibernateException e) {
@@ -165,9 +165,20 @@ public class JobQueueDaoImpl extends AbstractDao<JobQueue> implements JobQueueDa
 	@Transactional(propagation=Propagation.REQUIRED)
 	public void deleteAllJobQueues() throws GenericException {
 		try{
-			Session session=sessionFactory.openSession();
-			Query query=session.createQuery("delete from JobQueue c");
-		int i=	query.executeUpdate();
+			Session session=getOpenSession();
+			//Criteria criteria=session.createCriteria(JobQueue.class);
+		//	Query q=session.createQuery("delete from JobQueue");
+			Query q=session.createSQLQuery("delete from job_queue");
+
+			//session.
+			q.executeUpdate();
+			/*List<JobQueue> jobList=(List<JobQueue>)criteria.list();
+			for(JobQueue job:jobList){
+				session.delete(job);
+			}*/
+			
+		//	Query query=session.createQuery("delete from JobQueue c");
+		//	int i=	query.executeUpdate();
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_DELETE_ALL_JOB_QUEUES,e.getMessage() , e.getCause());
 		}catch (Exception e) {
@@ -187,6 +198,15 @@ public class JobQueueDaoImpl extends AbstractDao<JobQueue> implements JobQueueDa
 		this.sessionFactory = sessionFactory;
 	}
 
-	
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
+
+		}
+		return session;
+	}
 
 }

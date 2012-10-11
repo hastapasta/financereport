@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import pikefin.log4jWrapper.Logs;
 import com.pikefin.ApplicationSetting;
@@ -48,6 +50,7 @@ public class FactDataServiceImpl implements FactDataService{
 	private Integer FACT_DATA_GARBAGE_COLLECT_INDEX=-1;
 	private Integer FACT_DATA_META_SET_ID_INDEX=-1;
 	@Override
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public void importFactDataInBatch(ArrayList<String[]> tabledata,
 			Batches currentBatch, Metric metric)
 			throws GenericException {

@@ -19,7 +19,7 @@ public class RepeatTypeServiceImpl implements RepeatTypeService{
 	@Autowired
 	private RepeatTypeDao repeatDao;
 	@Override
-	@Transactional
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public RepeatType loadRepeatTypeNone() throws GenericException {
 		List<RepeatType> noneRepeatList=repeatDao.loadRepeatTypesByType(RepeatTypeEnum.NONE);
 		if(noneRepeatList!=null && noneRepeatList.size()>0)
@@ -28,7 +28,7 @@ public class RepeatTypeServiceImpl implements RepeatTypeService{
 		throw new GenericException(ErrorCode.COULD_NOT_FIND_REPEAT_TYPE_NONE,"",null);
 	}
 	@Override
-	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	@Transactional(propagation=Propagation.REQUIRED)
 	public void updateRepeatTypesForNextTrigger(Calendar cal)
 			throws GenericException {
 

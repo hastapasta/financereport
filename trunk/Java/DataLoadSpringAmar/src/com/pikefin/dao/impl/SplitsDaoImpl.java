@@ -42,7 +42,7 @@ public class SplitsDaoImpl extends AbstractDao<Splits> implements SplitsDao {
 	public Splits saveSplitsInfo(Splits splitEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			splitEntity=super.save(splitEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class SplitsDaoImpl extends AbstractDao<Splits> implements SplitsDao {
 	public Splits updateSplitsInfo(Splits splitEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(splitEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_SPLITS_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class SplitsDaoImpl extends AbstractDao<Splits> implements SplitsDao {
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(splitEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_SPLITS_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class SplitsDaoImpl extends AbstractDao<Splits> implements SplitsDao {
 		Splits splitEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			splitEntity=loadSplitsInfo(splitsId);
 			result=super.delete(splitEntity);
 			
@@ -128,7 +128,7 @@ public class SplitsDaoImpl extends AbstractDao<Splits> implements SplitsDao {
 	public Splits loadSplitsInfo(Integer splitsId) throws GenericException {
 		Splits splitEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			splitEntity=super.find(splitsId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_SPLITS_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class SplitsDaoImpl extends AbstractDao<Splits> implements SplitsDao {
 	public List<Splits> loadAllSplits() throws GenericException {
 		List<Splits> splits=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(Splits.class);
 			splits=(List<Splits>)criteria.list();
 		}catch (HibernateException e) {
@@ -166,5 +166,15 @@ public class SplitsDaoImpl extends AbstractDao<Splits> implements SplitsDao {
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 }

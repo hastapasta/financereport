@@ -42,7 +42,7 @@ public class LogTaskDaoImpl extends AbstractDao<LogTask> implements LogTaskDao {
 	public LogTask saveLogTaskInfo(LogTask logTaskEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			logTaskEntity=super.save(logTaskEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class LogTaskDaoImpl extends AbstractDao<LogTask> implements LogTaskDao {
 	public LogTask updateLogTaskInfo(LogTask logTaskEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(logTaskEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_LOG_TASK_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class LogTaskDaoImpl extends AbstractDao<LogTask> implements LogTaskDao {
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(logTaskEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_LOG_TASK_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class LogTaskDaoImpl extends AbstractDao<LogTask> implements LogTaskDao {
 		LogTask logTaskEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			logTaskEntity=loadLogTaskInfo(logTaskId);
 			result=super.delete(logTaskEntity);
 			
@@ -128,7 +128,7 @@ public class LogTaskDaoImpl extends AbstractDao<LogTask> implements LogTaskDao {
 	public LogTask loadLogTaskInfo(Integer logTaskId) throws GenericException {
 		LogTask logTaskEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			logTaskEntity=super.find(logTaskId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_LOG_TASK_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class LogTaskDaoImpl extends AbstractDao<LogTask> implements LogTaskDao {
 	public List<LogTask> loadAllLogTasks() throws GenericException {
 		List<LogTask> logTasks=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(LogTask.class);
 			logTasks=(List<LogTask>)criteria.list();
 		}catch (HibernateException e) {
@@ -166,5 +166,15 @@ public class LogTaskDaoImpl extends AbstractDao<LogTask> implements LogTaskDao {
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 }

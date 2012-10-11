@@ -42,7 +42,7 @@ public class TimeEventDaoImpl extends AbstractDao<TimeEvent> implements TimeEven
 	public TimeEvent saveTimeEventInfo(TimeEvent timeEventEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			timeEventEntity=super.save(timeEventEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class TimeEventDaoImpl extends AbstractDao<TimeEvent> implements TimeEven
 	public TimeEvent updateTimeEventInfo(TimeEvent timeEventEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(timeEventEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_TIME_EVENT_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class TimeEventDaoImpl extends AbstractDao<TimeEvent> implements TimeEven
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(timeEventEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_TIME_EVENT_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class TimeEventDaoImpl extends AbstractDao<TimeEvent> implements TimeEven
 		TimeEvent timeEventEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			timeEventEntity=loadTimeEventInfo(groupId);
 			result=super.delete(timeEventEntity);
 			
@@ -128,7 +128,7 @@ public class TimeEventDaoImpl extends AbstractDao<TimeEvent> implements TimeEven
 	public TimeEvent loadTimeEventInfo(Integer groupId) throws GenericException {
 		TimeEvent timeEventEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			timeEventEntity=super.find(groupId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_TIME_EVENT_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class TimeEventDaoImpl extends AbstractDao<TimeEvent> implements TimeEven
 	public List<TimeEvent> loadAllTimeEvents() throws GenericException {
 		List<TimeEvent> timeEvents=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(TimeEvent.class);
 			timeEvents=(List<TimeEvent>)criteria.list();
 			
@@ -174,7 +174,7 @@ public class TimeEventDaoImpl extends AbstractDao<TimeEvent> implements TimeEven
 			throws GenericException {
 		
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			entitiesList=super.batchUpdate(entitiesList, 20);
 			
 		}catch (HibernateException e) {
@@ -184,5 +184,15 @@ public class TimeEventDaoImpl extends AbstractDao<TimeEvent> implements TimeEven
 		}
 		return entitiesList;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 }

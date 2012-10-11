@@ -85,7 +85,7 @@ public class BrokerExecuter extends Thread {
 			ApplicationSetting.getInstance().getStdoutwriter().writeln("MAXIMUM # OF DATAGRAB THREADS: " + ApplicationSetting.getInstance().getMaxAllowedThreads(),Logs.STATUS1,"DL19");
 	//TODO commented notification thread for now		
 	 
-	//	 this.notification.start();
+		 this.notification.start();
 			ApplicationSetting.getInstance().getStdoutwriter().writeln("Started Notification Thread",Logs.STATUS1,"DL2.727");
 		 if (!isBrokerThreadPaused()) {
 				if (!ApplicationSetting.getInstance().isLoadHistoricalData()){
@@ -152,6 +152,7 @@ public class BrokerExecuter extends Thread {
 		}
 		scheduleService.updateSchedulesBatch(schedulesToModifyRepeatType);
 		repeatService.updateRepeatTypesForNextTrigger(currentTime);
+		
 		}catch (GenericException genException) {
 			logger.debug("Error in retrieving Triggered Job"+genException.getErrorCode()+" "+genException.getErrorDescription());
 		}

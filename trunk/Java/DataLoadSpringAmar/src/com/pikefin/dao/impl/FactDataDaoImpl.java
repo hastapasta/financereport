@@ -42,7 +42,7 @@ public class FactDataDaoImpl extends AbstractDao<FactData> implements FactDataDa
 	public FactData saveFactDataInfo(FactData factDataEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			factDataEntity=super.save(factDataEntity);
 		
 		}catch (HibernateException e) {
@@ -63,7 +63,7 @@ public class FactDataDaoImpl extends AbstractDao<FactData> implements FactDataDa
 	public FactData updateFactDataInfo(FactData factDataEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(factDataEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_FACT_DATA_DATA,e.getMessage(),e.getCause());
@@ -84,7 +84,7 @@ public class FactDataDaoImpl extends AbstractDao<FactData> implements FactDataDa
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(factDataEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_FACT_DATA_INFORMATION,e.getMessage(),e.getCause());
@@ -106,7 +106,7 @@ public class FactDataDaoImpl extends AbstractDao<FactData> implements FactDataDa
 		FactData factDataEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			factDataEntity=loadFactDataInfo(groupId);
 			result=super.delete(factDataEntity);
 			
@@ -128,7 +128,7 @@ public class FactDataDaoImpl extends AbstractDao<FactData> implements FactDataDa
 	public FactData loadFactDataInfo(Integer groupId) throws GenericException {
 		FactData factDataEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			factDataEntity=super.find(groupId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_FACT_DATA_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -147,7 +147,7 @@ public class FactDataDaoImpl extends AbstractDao<FactData> implements FactDataDa
 	public List<FactData> loadAllFactDatas() throws GenericException {
 		List<FactData> columns=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(FactData.class);
 			columns=(List<FactData>)criteria.list();
 		}catch (HibernateException e) {
@@ -166,5 +166,15 @@ public class FactDataDaoImpl extends AbstractDao<FactData> implements FactDataDa
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 }

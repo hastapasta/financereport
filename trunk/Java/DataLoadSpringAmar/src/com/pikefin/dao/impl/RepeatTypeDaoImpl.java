@@ -46,7 +46,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 	public RepeatType saveRepeatTypeInfo(RepeatType repeatTypeEntity) throws GenericException {
 		Session session;
 		try{
-			session=sessionFactory.openSession();
+			session=getOpenSession();
 			repeatTypeEntity=super.save(repeatTypeEntity);
 		
 		}catch (HibernateException e) {
@@ -67,7 +67,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 	public RepeatType updateRepeatTypeInfo(RepeatType repeatTypeEntity) throws GenericException {
 	
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			super.update(repeatTypeEntity);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_UPDATE_REPEAT_TYPE_DATA,e.getMessage(),e.getCause());
@@ -88,7 +88,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 		
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 		 result= super.delete(repeatTypeEntity);
 		}catch (Exception e) {		
 			throw new GenericException(ErrorCode.COULD_NOT_DELETE_REPEAT_TYPE_INFORMATION,e.getMessage(),e.getCause());
@@ -110,7 +110,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 		RepeatType repeatTypeEntity=null;
 		boolean result;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			repeatTypeEntity=loadRepeatTypeInfo(repeatTypeId);
 			result=super.delete(repeatTypeEntity);
 			
@@ -132,7 +132,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 	public RepeatType loadRepeatTypeInfo(Integer repeatTypeId) throws GenericException {
 		RepeatType repeatTypeEntity;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			repeatTypeEntity=super.find(repeatTypeId);
 		}catch (Exception e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REPEAT_TYPE_DATA_WITH_ID,e.getMessage(),e.getCause());
@@ -151,7 +151,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 	public List<RepeatType> loadAllRepeatTypes() throws GenericException {
 		List<RepeatType> repeatTypes=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(RepeatType.class);
 			repeatTypes=(List<RepeatType>)criteria.list();
 		}catch (HibernateException e) {
@@ -168,7 +168,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 		
 		List<RepeatType> repeatTypes=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(RepeatType.class);
 			criteria.add(Restrictions.ne("type", RepeatTypeEnum.NONE));
 			repeatTypes=(List<RepeatType>)criteria.list();
@@ -186,7 +186,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 			throws GenericException {
 		List<RepeatType> repeatTypes=null;
 		try{
-			Session session=sessionFactory.openSession();
+			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(RepeatType.class);
 			criteria.add(Restrictions.eq("type", repeatType.toString()));
 			repeatTypes=(List<RepeatType>)criteria.list();
@@ -201,7 +201,7 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 	@Transactional(propagation=Propagation.REQUIRED)
 	public List<RepeatType> updateRepeatTypeBatch(List<RepeatType> batchEntities)
 			throws GenericException {
-		Session session=sessionFactory.openSession();
+		Session session=getOpenSession();
 			return super.batchUpdate(batchEntities, Constants.BATCH_SIZE);
 	}
 	@Override
@@ -214,7 +214,17 @@ public class RepeatTypeDaoImpl extends AbstractDao<RepeatType> implements Repeat
 	}
 
 	
+	@Override
+	public Session getOpenSession(){
+		Session session;
+		if(sessionFactory.getCurrentSession()!=null){
+			session=sessionFactory.getCurrentSession();
+		}else{
+			session=sessionFactory.openSession();
 
+		}
+		return session;
+	}
 	
 
 }

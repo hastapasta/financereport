@@ -1,6 +1,8 @@
 package com.pikefin.services.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.pikefin.businessobjects.Job;
 import com.pikefin.dao.inter.JobDao;
@@ -11,6 +13,7 @@ public class JobServiceImpl implements JobService{
 
 	private JobDao jobDao;
 	@Override
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public Job getJobByDataSet(String dataSet) throws GenericException {
 		
 		return jobDao.getJobByDataSet(dataSet);
