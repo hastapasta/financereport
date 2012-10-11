@@ -4,7 +4,7 @@
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="com.pikefin.businessobjects.Entity" table="entities" dynamic-update="true">
+    <class name="com.pikefin.businessobjects.Entity" table="entities" >
 		<id name="entityId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>
@@ -14,7 +14,7 @@
 			class="com.pikefin.businessobjects.countryEntity" column="id" 
 			foreign-key="entity_id"
 			not-null="true" cascade="all" unique="true"/> -->
-		<set name="countries" table="countries_entities" cascade="all">
+		<set name="countries" table="countries_entities" cascade="save-update">
 			<key column="entity_id" />
 			<many-to-many column="country_id"
 				class="com.pikefin.businessobjects.Country" />	
@@ -52,7 +52,7 @@
             <column name="hash" length="20" />
         </property>
         
-        <set name="entityGroups" table="entities_entity_groups" cascade="all">
+        <set name="entityGroups" table="entities_entity_groups" cascade="save-update">
 			<key column="entity_id" />
 			<many-to-many column="entity_group_id"
 				class="com.pikefin.businessobjects.EntityGroup" />	

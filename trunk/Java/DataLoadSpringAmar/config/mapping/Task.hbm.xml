@@ -4,7 +4,7 @@
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="com.pikefin.businessobjects.Task" table="tasks" dynamic-update="true">
+    <class name="com.pikefin.businessobjects.Task" table="tasks">
 		<id name="taskId" column="id" type="java.lang.Integer">
 			<generator class="identity"/>
 		</id>
@@ -15,7 +15,7 @@
 		
 		<many-to-one name="metric" 
 			class="com.pikefin.businessobjects.Metric" column="metric_id" 
-			not-null="true" cascade="all" />
+			not-null="true"  />
 		   <property name="epsEstPriority" type="java.lang.Integer">
             <column name="eps_est_priority" />
         </property>
@@ -27,13 +27,13 @@
             <column name="allow_alerts" not-null="true" />
         </property>
        
-		<set name="jobs" table="jobs_tasks" cascade="all">
+		<set name="jobs" table="jobs_tasks" cascade="save-update">
 			<key column="task_id" />
 			<many-to-many column="job_id"
 				class="com.pikefin.businessobjects.Job" />	
 		</set>
 		
-		<set name="entityGroups" table="entity_groups_tasks" cascade="all">
+		<set name="entityGroups" table="entity_groups_tasks" >
 			<key column="task_id" />
 			<many-to-many column="entity_group_id"
 				class="com.pikefin.businessobjects.EntityGroup" />	

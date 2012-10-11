@@ -4,7 +4,7 @@
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="com.pikefin.businessobjects.User" table="users" dynamic-update="true">
+    <class name="com.pikefin.businessobjects.User" table="users" >
 		<id name="userId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>

@@ -4,7 +4,7 @@
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="com.pikefin.businessobjects.LogTweets" table="log_tweets" dynamic-update="true">
+    <class name="com.pikefin.businessobjects.LogTweets" table="log_tweets" >
 		<id name="logTweetId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>

@@ -4,7 +4,7 @@
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="com.pikefin.businessobjects.TimeEvent" table="time_events" dynamic-update="true">
+    <class name="com.pikefin.businessobjects.TimeEvent" table="time_events" >
 		<id name="timeEventId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>

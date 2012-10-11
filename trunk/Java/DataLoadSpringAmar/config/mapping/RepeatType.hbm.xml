@@ -4,7 +4,7 @@
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="com.pikefin.businessobjects.RepeatType" table="repeat_types" dynamic-update="true">
+    <class name="com.pikefin.businessobjects.RepeatType" table="repeat_types" >
 		<id name="repeatTypeId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>

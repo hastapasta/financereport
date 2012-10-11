@@ -6,7 +6,7 @@
 
     <class
         name="com.pikefin.businessobjects.Exclude"
-        dynamic-update="true"
+        
         table="excludes" >
 
         <id
@@ -19,7 +19,7 @@
 
         <many-to-one
             name="task"
-            class="com.pikefin.businessobjects.Exclude"
+            class="com.pikefin.businessobjects.Task"
             column="task_id" insert="false" update="false">
         </many-to-one>
 
@@ -56,7 +56,7 @@
 
         <many-to-one
             name="obsoluteTimeEvent"
-            class="com.pikefin.businessobjects.Exclude"
+            class="com.pikefin.businessobjects.TimeEvent"
             column="obsolete_time_event_id" >
         </many-to-one>
     </class>

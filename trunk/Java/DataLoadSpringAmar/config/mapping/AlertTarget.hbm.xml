@@ -4,7 +4,7 @@
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="com.pikefin.businessobjects.AlertTarget" table="alert_targets" dynamic-update="true">
+    <class name="com.pikefin.businessobjects.AlertTarget" table="alert_targets" >
 		<id name="alertTargetId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>

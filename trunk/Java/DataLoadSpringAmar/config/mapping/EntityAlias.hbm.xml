@@ -4,7 +4,7 @@
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="com.pikefin.businessobjects.EntityAlias" table="entity_aliases" dynamic-update="true">
+    <class name="com.pikefin.businessobjects.EntityAlias" table="entity_aliases" >
 		<id name="entityAliasId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>

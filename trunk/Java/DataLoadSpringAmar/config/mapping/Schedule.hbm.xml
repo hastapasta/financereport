@@ -4,7 +4,7 @@
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="com.pikefin.businessobjects.Schedule" table="schedules" dynamic-update="true">
+    <class name="com.pikefin.businessobjects.Schedule" table="schedules" >
 		<id name="scheduleId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>
@@ -14,10 +14,10 @@
 		<property name="verifyMode" column="verify_mode" type="boolean"/>
 		<many-to-one name="task" 
 			class="com.pikefin.businessobjects.Task" column="task_id" 
-			not-null="true" cascade="all" />
+			not-null="true" cascade="save-update"  lazy="false" />
 		<many-to-one name="repeatType" 
 			class="com.pikefin.businessobjects.RepeatType" column="repeat_type_id" 
-			not-null="true" cascade="all" />
+			not-null="true" cascade="save-update"  />
         
         <property name="obsoleteDataSet" type="string">
             <column name="obsolete_data_set" length="45" not-null="true" />

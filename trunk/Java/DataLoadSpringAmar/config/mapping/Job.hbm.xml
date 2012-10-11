@@ -4,7 +4,7 @@
 	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="com.pikefin.businessobjects.Job" table="jobs" dynamic-update="true">
+    <class name="com.pikefin.businessobjects.Job" table="jobs" >
 		<id name="jobId" column="id" type="integer">
 			<generator class="identity"/>
 		</id>
@@ -22,17 +22,17 @@
 		
 		<many-to-one name="extractKeyColhead" 
 			class="com.pikefin.businessobjects.ExtractTable" column="extract_key_colhead" 
-			not-null="true" cascade="all" />
+			not-null="true" cascade="save-update" />
 		<many-to-one name="extractKeyRowhead" 
 			class="com.pikefin.businessobjects.ExtractTable" column="extract_key_rowhead" 
-			not-null="true" cascade="all" />
+			not-null="true" cascade="save-update" />
 		<many-to-one name="extractKeyBody" 
 			class="com.pikefin.businessobjects.ExtractTable" column="extract_key" 
-			not-null="true" cascade="all" />
+			not-null="true" cascade="save-update" />
 			
 		<many-to-one name="inputSource" 
 			class="com.pikefin.businessobjects.InputSource" column="input_source" 
-			not-null="true" cascade="all" />
+			not-null="true" cascade="save-update" />
      
        
         <property name="source" type="string">
@@ -54,7 +54,7 @@
             <column name="obsolete_multiple_tables" length="100" />
         </property>
      
-        <set name="tasks" table="jobs_tasks" cascade="all">
+        <set name="tasks" table="jobs_tasks" cascade="save-update">
 			<key column="job_id" />
 			<many-to-many column="task_id"
 				class="com.pikefin.businessobjects.Task" />	
