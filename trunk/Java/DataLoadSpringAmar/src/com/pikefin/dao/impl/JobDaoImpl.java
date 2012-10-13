@@ -168,7 +168,7 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 		Session session;
 		try{ 
 			session=getOpenSession();
-			Query query=session.createQuery("select c from Job c where c.preNoDataCheckFunc='"+dataSet+"'");
+			Query query=session.createQuery("select c from Job c where c.dataSet='"+dataSet+"'");
 			job=(Job)query.uniqueResult();
 		}catch (HibernateException e) {
 			throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
