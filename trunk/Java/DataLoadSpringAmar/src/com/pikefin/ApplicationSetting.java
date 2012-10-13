@@ -1,7 +1,10 @@
 package com.pikefin;
 
+import java.util.Random;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 
 import pikefin.log4jWrapper.MainWrapper;
 
@@ -37,10 +40,14 @@ public class ApplicationSetting {
 	private int threadSleepInteval;
 	@Value(value="${app.max_threads}")
 	private int maxAllowedThreads;
-	
+	@Autowired
+	private ApplicationContext applicationContext;
 	private MainWrapper stdoutwriter=new MainWrapper();
-	
-	
+	private Random rand=new Random(Integer.MAX_VALUE);
+
+	public  Integer getUniqueRandom(){
+		return rand.nextInt();
+	}
 	public static ApplicationSetting getInstance(){
 		if(instance==null){
 			instance=new ApplicationSetting();
@@ -106,5 +113,13 @@ public class ApplicationSetting {
 
 	public void setStdoutwriter(MainWrapper stdoutwriter) {
 		this.stdoutwriter = stdoutwriter;
+	}
+
+	public ApplicationContext getApplicationContext() {
+		return applicationContext;
+	}
+
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 } 

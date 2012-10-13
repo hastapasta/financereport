@@ -62,4 +62,15 @@ public interface Constants {
 
 
 	}
+	
+	interface HttpSetting{
+		public static final String PARAM_USER_AGENT="http.protocol.user-agent";
+		public static final String PARAM_COKKIE_DATE_PATTERN="http.protocol.cookie-datepatterns";
+		public static final String COKKIE_DATE_PATTERN_1="EEE, dd MMM-yyyy-HH:mm:ss z";
+		public static final String COKKIE_DATE_PATTERN_2="EEE, dd MMM yyyy HH:mm:ss z";
+
+		public static final String BROWSER_MOZILA="Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)";
+		
+		
+	}
 }
