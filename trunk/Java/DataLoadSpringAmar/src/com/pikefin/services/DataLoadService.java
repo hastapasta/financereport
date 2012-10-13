@@ -4,6 +4,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.pikefin.ApplicationSetting;
+
 @Service
 public class DataLoadService {
 	
@@ -17,7 +19,9 @@ public class DataLoadService {
 		System.out.println("######## Starting the Application Context");
 		ApplicationContext context=new ClassPathXmlApplicationContext("classpath:spring.xml");
 		BrokerExecuter brokerExecuter=context.getBean(BrokerExecuter.class);
+		//ApplicationSetting.getInstance().setStdoutwriter(stdoutwriter)
 				brokerExecuter.start();
+			
 	}
 	
 	

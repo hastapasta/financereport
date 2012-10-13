@@ -60,14 +60,15 @@ public class BrokerExecuter extends Thread {
 	//  Notification notification;
 	
 	 public BrokerExecuter(){
-		 runningJobsArray=new DataGrabExecuter[ApplicationSetting.getInstance().getMaxAllowedThreads()];
-		 waitingJobList = new ArrayList<QueuedJob>();
+		
 	 }
 	
 	@Override
 	public void run(){
 		//Refreshing the waiting job list and runningJobsArray, to clear old objects
-		 waitingJobList.clear();
+		 runningJobsArray=new DataGrabExecuter[ApplicationSetting.getInstance().getMaxAllowedThreads()];
+		 waitingJobList = new ArrayList<QueuedJob>();
+		waitingJobList.clear();
 		 PikefinUtil.clearArray(runningJobsArray);
 		 threadStartDate=Calendar.getInstance();
 		 threadStartDate.set(Calendar.HOUR_OF_DAY, 0);
@@ -236,7 +237,6 @@ public class BrokerExecuter extends Thread {
 					  if (runningJobsArray[j] != null)  {
 						  if (runningJobsArray[j].getCurrentTask().getTaskId() == task.getTaskId()) {
 							  ApplicationSetting.getInstance().getStdoutwriter().writeln("Task in waiting queue already running so won't get moved to run queue (task id: " + runningJobsArray[j].getCurrentTask().getTaskId(), Logs.STATUS1, "DL3.99");
-
 							  logger.info("Task in waiting queue already running so won't get moved to run queue (task id: " + runningJobsArray[j].getCurrentTask().getTaskId());
 							  isAlreadyRunning=true;
 							  break;
@@ -253,6 +253,7 @@ public class BrokerExecuter extends Thread {
 					  dg.start();
 					  ApplicationSetting.getInstance().getStdoutwriter().writeln("Initiated DataGrab thread " + dg.getName(),Logs.THREAD,"DL4");
 					  waitingJobList.remove(i);
+					  
 					 return dg;
 				  
 				  }

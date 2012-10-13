@@ -16,6 +16,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,6 +58,7 @@ import com.pikefin.exceptions.GenericException;
 import com.pikefin.exceptions.PrematureEndOfDataException;
 import com.pikefin.exceptions.SkipLoadException;
 import com.pikefin.exceptions.TagNotFoundException;
+import com.pikefin.services.impl.BatcheServiceImpl;
 import com.pikefin.services.inter.BatcheService;
 import com.pikefin.services.inter.EntityService;
 import com.pikefin.services.inter.ExtractSingleService;
@@ -67,16 +69,16 @@ import com.pikefin.services.inter.JobService;
 
 public class DataGrabExecuter extends Thread {
 	Logger log=Logger.getLogger(DataGrabExecuter.class);
-	@Autowired
-	private BatcheService batchService;
-	@Autowired
-	private JobService jobService;
-	@Autowired
-	private ExtractSingleService extractSingleService;
-	@Autowired
-	private EntityService entityService;
-	@Autowired
-	private FactDataService factDataService;
+	//@Autowired
+	private BatcheService batchService=ApplicationSetting.getInstance().getApplicationContext().getBean(BatcheService.class);
+	//@Autowired
+	private JobService jobService=ApplicationSetting.getInstance().getApplicationContext().getBean(JobService.class);
+	//@Autowired
+	private ExtractSingleService extractSingleService=ApplicationSetting.getInstance().getApplicationContext().getBean(ExtractSingleService.class);
+	//@Autowired
+	private EntityService entityService=ApplicationSetting.getInstance().getApplicationContext().getBean(EntityService.class);
+//	@Autowired
+	private FactDataService factDataService=ApplicationSetting.getInstance().getApplicationContext().getBean(FactDataService.class);
 	String returned_content;
 	String strCurDataSet;
 	private Job currentJob;
@@ -114,14 +116,15 @@ public class DataGrabExecuter extends Thread {
 	int nCurrentEntityId;
 	String strCurrentTicker;
 
-	@Autowired
+	//@Autowired
 	ProcessingFunctions pf;
 	
 	
 	
 
 	public DataGrabExecuter(Task task, int batchId, Schedule schedule, RepeatType repeatType, boolean verifyMode, int priority) {
-	  	this.priority = priority;
+		pf=new ProcessingFunctions(this);
+		this.priority = priority;
 	  	this.currentTaskId = task.getTaskId();
 	  	this.schedule = schedule;
 	  	this.repeatType = repeatType;
@@ -138,6 +141,7 @@ public class DataGrabExecuter extends Thread {
 	  			Batches batchesEntity=new Batches();
 	  			batchesEntity.setBatchDateCollected(new Date());
 	  			batchesEntity.setBatchTask(task);
+	  			batchesEntity.setRandomUnique(ApplicationSetting.getInstance().getUniqueRandom());
 	  			// No Support for verify mode
 	  			batchesEntity=batchService.saveBatchesInfo(batchesEntity);
 	  			this.batchId =batchesEntity.getBatchId();
@@ -354,7 +358,7 @@ public class DataGrabExecuter extends Thread {
 		/*if (ApplicationSetting.getInstance().isLoadHistoricalData()== true)
 			ApplicationSetting.getInstance().getStdoutwriter().wrapperNDCPush(HistoricalDataLoad.calCurrent.getTime().toString());
 	*/	
-		HashSet<Job> tmpJobs = (HashSet<Job>)currentTask.getJobs();
+		Set<Job> tmpJobs = currentTask.getJobs();
 		for (Job j : tmpJobs) {
 			currentJob = j;
 			grabDataSet();
@@ -518,6 +522,7 @@ public class DataGrabExecuter extends Thread {
 			throws GenericException, TagNotFoundException,
 			PrematureEndOfDataException {
 		Job j = jobService.getJobByDataSet(strTableSet);
+		//TODO 
 		EnhancedTable enhance=new EnhancedTable(this, strTableSet, Constants.EnhancedTableSection.ENHANCED_TABLE_BODY_SECTION, j);
 		ArrayList<String[]> tabledatabody = enhance.enhancedGetTable();
 
@@ -548,49 +553,21 @@ public class DataGrabExecuter extends Thread {
 			MalformedURLException, IOException, IllegalAccessException,
 			InvocationTargetException, NoSuchMethodException {
 
-		//String query;
-
-		//query = "select * from jobs where data_set='" + strDataSet + "'";
-
-		//ResultSet rs2 = dbf.db_run_query(query);
-		//SqlRowSet rs2 = dbf.dbSpringRunQuery(query);
-		//rs2.next();
 		calJobProcessingStage1Start = Calendar.getInstance();
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpResponse response;
 
 		if (currentJob.getInputSource() == null) {
-		//if ((rs2.getInt("input_source") != 0)) {
-			//query = "select * from input_source where id="
-			//		+ rs2.getInt("input_source");
-			//ResultSet rs3 = dbf.db_run_query(query);
-			//SqlRowSet rs3 = dbf.dbSpringRunQuery(query);
-			//rs3.next();
-			String strStProperties = currentJob.getInputSource().getFormStaticProperties();
+			//TODO Commenting the below code because it will trough the Null pointer exception since inputSource is allready null and we can't get the getFormStaticProperties from null
+			/*String strStProperties = currentJob.getInputSource().getFormStaticProperties();
 			String[] listItems = strStProperties.split(":");
-			//String[] listItems2;
-			//String data = "";
 			for (int i = 0; i < listItems.length; i++) {
-				//listItems2 = listItems[i].split("=");
-				/*if (i != 0) {
-					data += "&";
-				}*/
-
-				// check to see if there is an equal sign or a value on the
-				// right side of the equality
-				/*if (listItems2.length == 1)
-					data += URLEncoder.encode(listItems2[0], "UTF-8") + "=";
-				else
-					data += URLEncoder.encode(listItems2[0], "UTF-8") + "="
-							+ URLEncoder.encode(listItems2[1], "UTF-8");*/
-
-			}
+			}*/
 
 			ApplicationSetting.getInstance().getStdoutwriter().writeln(
 					"Retrieving URL Form: " + currentJob.getInputSource().getUrlForm(),
 					Logs.STATUS2, "DG24.5");
 
-			//data = "series_id=LNS14000000&survey=ln&format=&html_tables=&delimiter=&catalog=&print_line_length=&lines_per_page=&row_stub_key=&year=&date=&net_change_start=&net_change_end=&percent_change_start=&percent_change_end=";
 			HttpPost httppost = new HttpPost(
 					"http://data.bls.gov/cgi-bin/surveymost");
 
@@ -598,25 +575,20 @@ public class DataGrabExecuter extends Thread {
 			 * Emulate a browser.
 			 */
 
-			httppost.getParams().setParameter("http.protocol.user-agent",
-					"Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
+			httppost.getParams().setParameter(Constants.HttpSetting.PARAM_USER_AGENT,
+					Constants.HttpSetting.BROWSER_MOZILA);
 
 			/*
 			 * The following line fixes an issue where a non-fatal error is
 			 * displayed about an invalid cookie data format.
 			 */
-			httppost.getParams().setParameter(
-					"http.protocol.cookie-datepatterns",
-					Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z",
-							"EEE, dd MMM yyyy HH:mm:ss z"));
+			httppost.getParams().setParameter(Constants.HttpSetting.PARAM_COKKIE_DATE_PATTERN,
+					Arrays.asList(Constants.HttpSetting.COKKIE_DATE_PATTERN_1,Constants.HttpSetting.COKKIE_DATE_PATTERN_2));
 
 			List<NameValuePair> nvps = new ArrayList<NameValuePair>();
 			nvps.add(new BasicNameValuePair("series_id", "LNS14000000"));
 			nvps.add(new BasicNameValuePair("survey", "ln"));
-
-			
 			httppost.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
-
 			response = httpclient.execute(httppost);
 
 		} else {
@@ -777,10 +749,7 @@ public class DataGrabExecuter extends Thread {
 
 		try {
 
-			String query = " from Task t ";
-			query += " join t.entityGroup eg ";
-			query += " join t.metric m ";
-			query += " where t.taskId=" + currentTaskId;
+			
 			int nMetricId = currentTask.getMetric().getMetricId();
 			int nGroupId = ((EntityGroup)currentTask.getEntityGroups().iterator().next()).getEntityGroupId();
 			int nDelay = currentTask.getDelay();

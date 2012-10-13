@@ -48,10 +48,10 @@ public class EmailServiceImpl implements EmailService {
 			email.setFrom(ApplicationSetting.getInstance().getEmailFromAddress());
 			email.addTo(emailAddress);
 			email.setSubject(emailAddress);
-	
+			email.setSSL(true);
 			email.setTextMsg("Pikefin Alert");
 			email.setHtmlMsg(emailMessage);
-			email.setTLS(true);
+		//	email.setTLS(true);
 	
 			email.setDebug(false);
 			
@@ -60,7 +60,7 @@ public class EmailServiceImpl implements EmailService {
 		}
 		catch (EmailException ee) {
 			log.error("Problem sending html email."+ee);
-	  				
+	  		System.out.println("#####################"+ee.getMessage());		
 		}
 
 				

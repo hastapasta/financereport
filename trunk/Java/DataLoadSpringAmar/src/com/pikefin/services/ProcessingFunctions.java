@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+
 import pikefin.log4jWrapper.Logs;
 import com.pikefin.ApplicationSetting;
 import com.pikefin.businessobjects.Job;
@@ -12,9 +14,10 @@ import com.pikefin.exceptions.CustomEmptyStringException;
 import com.pikefin.exceptions.SkipLoadException;
 import com.pikefin.services.inter.JobService;
 
+//@Service
 public class ProcessingFunctions {
-	@Autowired
-	private JobService jobService;
+	//@Autowired
+	private JobService jobService=ApplicationSetting.getInstance().getApplicationContext().getBean(JobService.class);
 	String strDataValue;
 
 	/*RIght now this is only set during the preProcessing function */
