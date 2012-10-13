@@ -2,6 +2,7 @@ package com.pikefin.businessobjects;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Random;
 /**
  * Batches class related to batches table in database
  * @author Amar_Deep_Singh
@@ -15,7 +16,8 @@ public class Batches implements Serializable{
 	private Task batchTask;
 	private Integer count;
 	private Integer randomUnique;
-	private Integer garbageCollect;
+	private Integer garbageCollect=0;
+	
 	
 	
 	public Integer getBatchId() {
