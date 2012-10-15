@@ -2,6 +2,7 @@ package com.pikefin.services;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
@@ -59,11 +60,11 @@ public class EnhancedTable {
 				throw new TagNotFoundException();
 		}
 		
-		int nFixedDataRows = currentExtractTable.getRowsOfData();
-		int nRowInterval = currentExtractTable.getRowInterval();
+		Integer nFixedDataRows = currentExtractTable.getRowsOfData()!=null?currentExtractTable.getRowsOfData():0;
+		Integer nRowInterval = currentExtractTable.getRowInterval();
 		strEndDataMarker = currentExtractTable.getEndDataMarker();
 		this.bColTHTags = true;
-		if (currentExtractTable.getColumnThTags() != true)
+		if (!Boolean.valueOf(true).equals(currentExtractTable.getColumnThTags()))
 			this.bColTHTags = false;
 		
 		// seek to the top corner of the table
@@ -168,7 +169,7 @@ public class EnhancedTable {
 		rowdata = new String[nNumOfColumns];
 		int nRowOffset=0;
 		
-		HashSet<Column> columns = (HashSet<Column>)currentExtractTable.getColumns();
+		Set<Column> columns = (Set<Column>)currentExtractTable.getColumns();
 		
 		String strBeforeUniqueCodeRegex, strAfterUniqueCodeRegex, strDataValue;
 		

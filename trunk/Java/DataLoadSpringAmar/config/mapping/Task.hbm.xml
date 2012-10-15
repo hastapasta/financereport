@@ -15,7 +15,7 @@
 		
 		<many-to-one name="metric" 
 			class="com.pikefin.businessobjects.Metric" column="metric_id" 
-			not-null="true"  />
+			not-null="true" lazy="false" not-found="ignore"/>
 		   <property name="epsEstPriority" type="java.lang.Integer">
             <column name="eps_est_priority" />
         </property>
@@ -27,13 +27,13 @@
             <column name="allow_alerts" not-null="true" />
         </property>
        
-		<set name="jobs" table="jobs_tasks" cascade="save-update">
+		<set name="jobs" table="jobs_tasks" cascade="none" lazy="false">
 			<key column="task_id" />
 			<many-to-many column="job_id"
 				class="com.pikefin.businessobjects.Job" />	
 		</set>
 		
-		<set name="entityGroups" table="entity_groups_tasks" >
+		<set name="entityGroups" table="entity_groups_tasks" lazy="false">
 			<key column="task_id" />
 			<many-to-many column="entity_group_id"
 				class="com.pikefin.businessobjects.EntityGroup" />	

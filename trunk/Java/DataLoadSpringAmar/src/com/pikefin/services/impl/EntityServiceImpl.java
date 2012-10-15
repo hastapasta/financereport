@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.pikefin.ErrorCode;
 import com.pikefin.businessobjects.Entity;
 import com.pikefin.businessobjects.EntityGroup;
 import com.pikefin.dao.inter.EntityDao;
@@ -37,6 +39,16 @@ public class EntityServiceImpl implements EntityService{
 	public Entity loadEntityInfo(Integer entityId) throws GenericException {
 		
 		return entityDao.loadEntityInfo(entityId);
+	}
+
+	@Override
+	public Entity loadEntityInfoByTicker(String ticker) throws GenericException {
+		List<Entity> entities=entityDao.loadEntitiesByTicker(ticker);
+		if(entities!=null && entities.size()>0)
+			return entities.get(0);
+		else
+		throw new GenericException(ErrorCode.COULD_NOT_FIND_ENTITY_FOR_GIVEN_TICKER,"",null);
+		
 	}
 
 }

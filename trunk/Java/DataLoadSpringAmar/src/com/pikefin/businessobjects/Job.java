@@ -19,6 +19,7 @@ public class Job implements java.io.Serializable {
 	private ExtractTable extractKeyColhead;
 	private ExtractTable extractKeyRowhead;
 	private ExtractTable extractKeyBody;
+	private ExtractSingle extractKeySingle; 
 	private InputSource inputSource;
     private String source;
 	private String dataGroup;
@@ -194,6 +195,14 @@ public class Job implements java.io.Serializable {
 
 	public void setTasks(Set<Task> tasks) {
 		this.tasks = tasks;
+	}
+
+	public ExtractSingle getExtractKeySingle() {
+		return extractKeySingle;
+	}
+
+	public void setExtractKeySingle(ExtractSingle extractKeySingle) {
+		this.extractKeySingle = extractKeySingle;
 	}
 
 }

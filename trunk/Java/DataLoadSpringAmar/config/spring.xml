@@ -79,7 +79,7 @@
 <property name="dataSource" ref="dataSource"></property>
 <property name="rollbackOnCommitFailure" value="true"></property>
 <property name="nestedTransactionAllowed" value="true"></property>
-<property name="failEarlyOnGlobalRollbackOnly" value="true"></property>
+<!-- <property name="failEarlyOnGlobalRollbackOnly" value="true"></property> -->
 </bean>
 <tx:annotation-driven/>
 <!-- END of transaction mangement -->
@@ -91,7 +91,7 @@
     <!-- ###########	End of bean configurations related to Dao Classes		########## -->
    
    
+   <!-- Enabling Aspect J  AOP -->
    
-   
-
+<aop:aspectj-autoproxy/>
 </beans>

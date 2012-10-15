@@ -124,7 +124,7 @@ public class FactDataServiceImpl implements FactDataService{
 							Date date=null;
 							try{
 							 date=PikefinUtil.formatter.parse(row[FACT_DATA_DATE_COLLECTED_INDEX]);
-									 fact.setDateCollected(date);
+									 fact.setDateCollected(date!=null?date:new Date());
 							}catch (Exception e) {
 								fact.setDateCollected(new Date());
 							}

@@ -5,6 +5,7 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -178,6 +179,25 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 
 		}
 		return session;
+	}
+
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public List<Entity> loadEntitiesByTicker(String ticker)
+			throws GenericException {
+		List<Entity> entities=null;
+		try{
+			Session session=getOpenSession();
+			Criteria criteria=session.createCriteria(Entity.class);
+			criteria.add(Restrictions.eq("ticker", ticker));
+			entities=(List<Entity>)criteria.list();
+			
+		}catch (HibernateException e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+		}
+		return entities;
 	}
 
 }

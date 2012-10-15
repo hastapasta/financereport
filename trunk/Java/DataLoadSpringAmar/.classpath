@@ -15,5 +15,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/velocity_1.7"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/hibernate_4.1.3_lib"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/aspectJ"/>
 	<classpathentry kind="output" path="class"/>
 </classpath>

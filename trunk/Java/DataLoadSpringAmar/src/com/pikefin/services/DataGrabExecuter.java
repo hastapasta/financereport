@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -34,7 +35,6 @@ import org.apache.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFText2HTML;
 import org.apache.pdfbox.util.PDFTextStripper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
 import pikefin.log4jWrapper.Logs;
@@ -58,7 +58,6 @@ import com.pikefin.exceptions.GenericException;
 import com.pikefin.exceptions.PrematureEndOfDataException;
 import com.pikefin.exceptions.SkipLoadException;
 import com.pikefin.exceptions.TagNotFoundException;
-import com.pikefin.services.impl.BatcheServiceImpl;
 import com.pikefin.services.inter.BatcheService;
 import com.pikefin.services.inter.EntityService;
 import com.pikefin.services.inter.ExtractSingleService;
@@ -562,11 +561,11 @@ public class DataGrabExecuter extends Thread {
 			/*String strStProperties = currentJob.getInputSource().getFormStaticProperties();
 			String[] listItems = strStProperties.split(":");
 			for (int i = 0; i < listItems.length; i++) {
-			}*/
+			}
 
 			ApplicationSetting.getInstance().getStdoutwriter().writeln(
 					"Retrieving URL Form: " + currentJob.getInputSource().getUrlForm(),
-					Logs.STATUS2, "DG24.5");
+					Logs.STATUS2, "DG24.5");*/
 
 			HttpPost httppost = new HttpPost(
 					"http://data.bls.gov/cgi-bin/surveymost");

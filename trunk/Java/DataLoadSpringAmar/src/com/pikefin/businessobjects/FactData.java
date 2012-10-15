@@ -11,7 +11,7 @@ public class FactData implements java.io.Serializable {
 	 private Integer factDataId;
      private Double value;
      private Integer scale;
-     private Boolean manualCorrection;
+     private Boolean manualCorrection=false;
      private Date dateCollected;
      private Entity entity;
      private Metric metric;
@@ -23,8 +23,8 @@ public class FactData implements java.io.Serializable {
      private Integer calmonth;
      private Integer day;
      private Batches batch;
-     private Boolean raw;
-     private Boolean garbageCollect;
+     private Boolean raw=true;
+     private Boolean garbageCollect=false;
      private MetaSets metaSet;
 	public Integer getFactDataId() {
 		return factDataId;

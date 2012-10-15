@@ -8,5 +8,6 @@ import com.pikefin.exceptions.GenericException;
 public interface EntityService {
 	public List<Entity> loadAllEntitiesForGroupId(Integer entitygroupId) throws GenericException;
 	public Entity loadEntityInfo(Integer entityId) throws GenericException;
+	public Entity loadEntityInfoByTicker(String ticker) throws GenericException;
 
 }

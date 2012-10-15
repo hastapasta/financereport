@@ -12,4 +12,6 @@ public interface EntityDao {
 	public Boolean deleteEntityInfoById(Integer entityId ) throws GenericException;
 	public Entity loadEntityInfo(Integer entityId) throws GenericException;
 	public List<Entity> loadAllEntities() throws GenericException;
+	public List<Entity> loadEntitiesByTicker(String ticker) throws GenericException;
+
 }

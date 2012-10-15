@@ -21,7 +21,7 @@
 		<many-to-one name="repeatType" class="com.pikefin.businessobjects.RepeatType" 
 		    column="repeat_type_id" unique="true"></many-to-one>
 	<many-to-one name="schedule" class="com.pikefin.businessobjects.Schedule" 
-		    column="schedule" unique="true"></many-to-one>
+		    column="schedule_id" unique="true"></many-to-one>
 	
 		<property name="stage1Start" column="stage1_start" type="calendar" />
 		<property name="stage1End" column="stage1_end" type="calendar" />
