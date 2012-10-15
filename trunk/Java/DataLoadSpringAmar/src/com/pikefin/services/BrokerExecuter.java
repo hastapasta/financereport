@@ -304,9 +304,9 @@ public class BrokerExecuter extends Thread {
 				  Calendar stage1End=dg.getTaskMetric(TaskMetricsEnum.STAGE1_END);
 				  logTask.setStage1End(stage1End!=null?stage1End.getTime():null);
 				  Calendar stage2Start=dg.getTaskMetric(TaskMetricsEnum.STAGE2_START);
-				  logTask.setStage1Start(stage2Start!=null?stage2Start.getTime():null);
+				  logTask.setStage2Start(stage2Start!=null?stage2Start.getTime():null);
 				  Calendar stage2End=dg.getTaskMetric(TaskMetricsEnum.STAGE2_END);
-				  logTask.setStage1End(stage2End!=null?stage2End.getTime():null);
+				  logTask.setStage2End(stage2End!=null?stage2End.getTime():null);
 				  logTask= logTaskService.saveLogTaskInfo(logTask);
 						
 			  }
