@@ -18,6 +18,7 @@ require_once '../../common/functions.php';
 	  <script language="Javascript" type="text/javascript"> 
 		 <?php IncFunc::mobileCompatibility(); ?>
 		 $(document).ready(function() {
+			
 			 $("#tabs").tabs();
 			 window.addEventListener("focus", function(event) { 
 				 var sel = window.getSelection ? window.getSelection() : document.selection;
@@ -120,6 +121,8 @@ require_once '../../common/functions.php';
 				  window.tObjects[currentindex].queryWrapper.sendAndDraw();
 			   }
 			}
+			$('#tabs').show();
+			$('.onLoad').hide();
 		 }
 	  </script>
 	  <?php IncFunc::googleAnalytics();?>
@@ -129,6 +132,15 @@ require_once '../../common/functions.php';
 	  .google-visualization-table-table {
 	  	width: 400px;
 	  	height: 220px;
+	  }
+	  #tabs{
+		display:none;
+	  }
+	  .onLoad{
+		background:url("../../site/images/spinner3-bluey.gif") no-repeat scroll 0 0 #C9C9C9;
+		height:1157px;
+		width:460px;
+		float:left;
 	  }
 	  </style>
    </head>
@@ -144,6 +156,7 @@ require_once '../../common/functions.php';
 			<div id="rightcol_index2">
 			   <div class="rightcol_index2_font">
 				  <div class="heading_index2">Market Snapshots</div>
+				  <div class="onLoad"></div>
 				 <div id="tabs">
 	<ul>
 		<li><a href="#tabs-1">Past 24 Hours</a></li>

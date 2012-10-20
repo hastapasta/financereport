@@ -12,7 +12,17 @@ This file is for styles that are shared between cake and non-cake php files.
 	left: 20%;
 	margin-left: -50px;
 }
-
+/* oct,20,1012 for resizing window */
+@media all and (max-width: 1000px) and (min-width: 20px) {
+	#pf-body {
+		width: 1000px;
+		position: relative;
+		/*margin: 0 auto;*/
+		/* OFP 8/19/2012 - Adjust the value below to adjust the amount of left margin spacing.*/
+		left:0%;
+		margin-left:0px;
+	}
+}
 #pf-custom-body {
 	width: 1200px;
 	position: relative;
