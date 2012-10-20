@@ -37,4 +37,3 @@ class ChartsController extends AppController {
 
 }
 ?>
-

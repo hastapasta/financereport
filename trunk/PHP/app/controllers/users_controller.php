@@ -353,8 +353,4 @@ function registration() {
 		echo "all done";
 		exit;
 	}*/
-
-
 }
-?>
-

@@ -10,7 +10,7 @@ class EntitiesController extends AppController {
 	}
 
 	function index() {
-		//$this->urlToNamed();
+		//	$this->urlToNamed();
 		$this->Entity->recursive = 1;
 		//$conditions = array();
 		//debug($this->passedArgs);
@@ -93,9 +93,10 @@ $this->Recipe->find('all', array(
 							'conditions' => array('EntitiesEntityGroup.entity_group_id' => $group_id)
 						)
 					);
-					
+					$conditions['Entity.id'] = $entity_ids;
 				}
-				$conditions['Entity.id'] = $entity_ids;
+				//debug($entity_ids);
+				
 				
 			}	
 			
