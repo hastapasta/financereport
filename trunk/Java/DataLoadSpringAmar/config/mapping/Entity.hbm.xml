@@ -14,12 +14,13 @@
 			class="com.pikefin.businessobjects.countryEntity" column="id" 
 			foreign-key="entity_id"
 			not-null="true" cascade="all" unique="true"/> -->
-		<set name="countries" table="countries_entities" cascade="save-update">
+		<list name="countries" table="countries_entities" cascade="none" lazy="false">
 			<key column="entity_id" />
-			<many-to-many column="country_id"
+			<list-index column="id"></list-index>
+ 			<many-to-many column="country_id"
 				class="com.pikefin.businessobjects.Country" />	
-		</set>
-		
+		</list>
+	
 		   <property name="sharesOutstanding" type="java.lang.Double">
             <column name="shares_outstanding" precision="20" scale="0" />
         </property>

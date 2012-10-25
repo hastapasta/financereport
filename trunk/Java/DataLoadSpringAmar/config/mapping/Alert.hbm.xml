@@ -18,23 +18,23 @@
         <!-- The unique=true property makes the many-to-one a one-to-one relationship -->
 		<many-to-one name="alertEntity" 
 			class="com.pikefin.businessobjects.Entity" column="entity_id" 
-			not-null="true" cascade="all" unique="true"/>
+			not-null="true" cascade="all" unique="true" lazy="false"/>
 		<many-to-one name="alertTask" 
 			class="com.pikefin.businessobjects.Task" column="task_id" 
-			not-null="true" cascade="all" unique="true"/>
+			not-null="true" cascade="all" unique="true" lazy="false"/>
 		<many-to-one name="alertUser" 
 			class="com.pikefin.businessobjects.User" column="user_id" 
 			not-null="true" cascade="all" />
 		<many-to-one name="alertTimeEvent" 
 			class="com.pikefin.businessobjects.TimeEvent" column="time_event_id" 
-			not-null="true" cascade="all" unique="true"/>
+			not-null="true" cascade="all" unique="true" lazy="false"/>
 		<many-to-one name="alertInitialFactData" 
 			class="com.pikefin.businessobjects.FactData" column="initial_fact_data_id" 
-			not-null="true" cascade="all" unique="true"/>
+			not-null="true" cascade="all" unique="true" lazy="false"/>
 		<many-to-one name="alertCurrentFactData" 
 			class="com.pikefin.businessobjects.FactData" column="current_fact_data_id" 
-			not-null="true" cascade="all" unique="true"/>
-		<set name="alertTarget" table="alerts_alert_targets" cascade="all">
+			not-null="true" cascade="all" unique="true" lazy="false"/>
+		<set name="alertTarget" table="alerts_alert_targets" cascade="all" >
 			<key column="alert_id" />
 			<many-to-many column="alert_target_id"
 				class="com.pikefin.businessobjects.AlertTarget" />	
