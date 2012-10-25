@@ -3,6 +3,7 @@ package com.pikefin.dao.inter;
 import java.util.List;
 
 import com.pikefin.businessobjects.Alert;
+import com.pikefin.businessobjects.Task;
 import com.pikefin.exceptions.GenericException;
 /**
  * AlertDao contains the methods related to all Alert operations
@@ -17,5 +18,7 @@ public interface AlertDao {
 	public Boolean deleteAlertInfoById(Integer alertId ) throws GenericException;
 	public Alert loadAlertInfo(Integer alertId) throws GenericException;
 	public List<Alert> loadAllAlerts() throws GenericException;
+	public List<Alert> loadAllAlertsByTask(Task currentTask) throws GenericException;
+
 
 }

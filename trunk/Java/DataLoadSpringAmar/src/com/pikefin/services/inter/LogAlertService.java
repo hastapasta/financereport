@@ -9,5 +9,7 @@ public interface LogAlertService {
 	public List<Object> loadAllLogAlertsForNotification() throws GenericException;
 	public List<LogAlert> updateLogAlertInBulk(
 			List<LogAlert> logAlertEntitiesList) throws GenericException;
+	public LogAlert saveLogAlertInfo(LogAlert logAlertEntity) throws GenericException;
+
 	
 }

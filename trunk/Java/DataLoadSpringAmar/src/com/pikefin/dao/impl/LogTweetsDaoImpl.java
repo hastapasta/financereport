@@ -3,6 +3,7 @@ package com.pikefin.dao.impl;
 import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -176,5 +177,21 @@ public class LogTweetsDaoImpl extends AbstractDao<LogTweets> implements LogTweet
 
 		}
 		return session;
+	}
+
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public Integer getTweetCounts(Integer userId) throws GenericException {
+		Integer count=0;
+		try{
+			Session session=getOpenSession();
+			Query query=session.createQuery("select count(c) from LogTweets c,Alert a where c.alert.alertId=a.alertId and  c.alert.alertUser.userId="+userId +" and (MINUTE(c.dateTime)/15)=(MINUTE(CURRENT_TIMESTAMP())/15)");
+			count=(Integer)query.uniqueResult();
+		}catch (HibernateException e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_LOG_TWEETS_COUNT,e.getMessage() , e.getCause());
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_LOG_TWEETS_COUNT,e.getMessage() , e.getCause());
+		}
+		return count;
 	}
 }

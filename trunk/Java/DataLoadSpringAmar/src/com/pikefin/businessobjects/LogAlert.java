@@ -17,7 +17,7 @@ public class LogAlert implements java.io.Serializable {
     private Date dateTimeFired;
     private String obsoleteFrequency;
     private Double limitValue;
-    private Double obsoleteLimitAdjustment;
+    private Double obsoleteLimitAdjustment=new Double(0);
     private Double diff;
     
 	public Integer getLogAlertId() {

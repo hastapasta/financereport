@@ -1,6 +1,8 @@
 package com.pikefin.services.impl;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -10,6 +12,7 @@ import pikefin.log4jWrapper.Logs;
 import com.pikefin.ApplicationSetting;
 import com.pikefin.Constants;
 import com.pikefin.PikefinUtil;
+import com.pikefin.businessobjects.Alert;
 import com.pikefin.businessobjects.Batches;
 import com.pikefin.businessobjects.Entity;
 import com.pikefin.businessobjects.FactData;
@@ -177,6 +180,21 @@ public class FactDataServiceImpl implements FactDataService{
 		
 			ApplicationSetting.getInstance().getStdoutwriter().writeln(count + " records inserted in db.",Logs.STATUS2,"DBF10");
 		}
+	@Override
+	public List<FactData> loadFactDataByTaskForMaxBatch(Task taskDetail)
+			throws GenericException {
+		return factDataDao.loadFactDataByTaskForMaxBatch(taskDetail);
+	}
+	@Override
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	public FactData loadFactDataForAlerts(Alert alertDetails, Task currentTask)
+			throws GenericException {
+		List<FactData> factList=factDataDao.loadFactDataForAlerts(alertDetails, currentTask);
+		if(factList!=null && factList.size()!=0){
+			return factList.get(0);
+		}
+		return null;
+	}
 		
 	
 }

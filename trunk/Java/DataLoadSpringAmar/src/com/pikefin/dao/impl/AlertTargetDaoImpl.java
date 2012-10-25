@@ -3,6 +3,7 @@ package com.pikefin.dao.impl;
 import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import com.pikefin.ErrorCode;
+import com.pikefin.businessobjects.Alert;
 import com.pikefin.businessobjects.AlertTarget;
 import com.pikefin.dao.AbstractDao;
 import com.pikefin.dao.inter.AlertTargetDao;
 import com.pikefin.exceptions.GenericException;
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 /**
  * Have methods related to AlertTarget operations
  * @author Amar_Deep_Singh
@@ -157,7 +160,30 @@ public class AlertTargetDaoImpl extends AbstractDao<AlertTarget> implements Aler
 		}
 		return columns;
 	}
-	
+	/**
+	 * Loads all the AlertTargets based on supplied Alert
+	 * @author Amar_Deep_Singh
+	 * @throws GenericException
+	 * @return  List<AlertTarget>
+	 */
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public List<AlertTarget> loadAllTargets(Alert alert)
+			throws GenericException {
+		List<AlertTarget> alertTargets=null;
+		try{
+			Session session=getOpenSession();
+			String queryString="Select at from AlertTarget at inner join at.alerts a where a.alertId="+alert.getAlertId();
+			Query query=session.createQuery(queryString);
+			alertTargets=(List<AlertTarget>)query.list();
+		}catch (HibernateException e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+		}
+		return alertTargets;
+		
+	}
 	@Override
 	public SessionFactory getSessionFactory() {
 		return this.sessionFactory;
@@ -178,5 +204,7 @@ public class AlertTargetDaoImpl extends AbstractDao<AlertTarget> implements Aler
 		}
 		return session;
 	}
+
+	
 
 }

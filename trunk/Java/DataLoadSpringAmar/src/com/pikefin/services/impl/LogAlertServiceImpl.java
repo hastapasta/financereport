@@ -27,5 +27,10 @@ private LogAlertDao logAlertDao;
 			List<LogAlert> logAlertEntitiesList) throws GenericException {
 		return logAlertDao.updateLogAlertInBulk(logAlertEntitiesList);
 	}
+	@Override
+	public LogAlert saveLogAlertInfo(LogAlert logAlertEntity)
+			throws GenericException {
+		return logAlertDao.saveLogAlertInfo(logAlertEntity);
+	}
 
 }

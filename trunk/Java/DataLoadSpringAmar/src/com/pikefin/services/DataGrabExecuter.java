@@ -58,6 +58,7 @@ import com.pikefin.exceptions.GenericException;
 import com.pikefin.exceptions.PrematureEndOfDataException;
 import com.pikefin.exceptions.SkipLoadException;
 import com.pikefin.exceptions.TagNotFoundException;
+import com.pikefin.services.inter.AlertService;
 import com.pikefin.services.inter.BatcheService;
 import com.pikefin.services.inter.EntityService;
 import com.pikefin.services.inter.ExtractSingleService;
@@ -78,6 +79,8 @@ public class DataGrabExecuter extends Thread {
 	private EntityService entityService=ApplicationSetting.getInstance().getApplicationContext().getBean(EntityService.class);
 //	@Autowired
 	private FactDataService factDataService=ApplicationSetting.getInstance().getApplicationContext().getBean(FactDataService.class);
+//	@Autowired
+	private AlertService alertService=ApplicationSetting.getInstance().getApplicationContext().getBean(AlertService.class);
 	String returned_content;
 	String strCurDataSet;
 	private Job currentJob;
@@ -387,23 +390,15 @@ public class DataGrabExecuter extends Thread {
 							+ calAlertProcessingStart.getTime().toString(),
 					Logs.STATUS1, "DG38.25");
 
-			/*Alerts al = new Alerts();
 			//TODO need to remove comments and start using Alerts
 			try {
-				al.checkAlerts(this);
-			} catch (DataAccessException sqle) {
-				ApplicationSetting.getInstance().getStdoutwriter().writeln(
-						"Problem processing alerts.", Logs.ERROR, "DG11.52");
-				ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
-				// dbf.closeConnection();
-				// return;
-
-			} catch (PikefinException pe) {
+				alertService.checkAlerts(this);
+			} catch (GenericException pe) {
 				ApplicationSetting.getInstance().getStdoutwriter().writeln(
 						"Problem processing alerts.", Logs.ERROR, "DG11.558");
 				ApplicationSetting.getInstance().getStdoutwriter().writeln(pe);
 				
-			}*/
+			}
 			calAlertProcessingEnd = Calendar.getInstance();
 			ApplicationSetting.getInstance().getStdoutwriter().writeln("ALERT PROCESSING END TIME: "
 					+ calAlertProcessingEnd.getTime().toString(), Logs.STATUS1,

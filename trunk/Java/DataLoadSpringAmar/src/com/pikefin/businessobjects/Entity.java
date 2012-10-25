@@ -2,8 +2,10 @@ package com.pikefin.businessobjects;
 
 // Generated Jun 18, 2012 7:54:36 AM by Hibernate Tools 3.4.0.CR1
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Entity implements java.io.Serializable {
@@ -21,7 +23,7 @@ public class Entity implements java.io.Serializable {
 	private Integer obsoleteCountryId;
 	private String ticker2;
 	private String hash;
-	private Set<Country> countries = new HashSet<Country>(0);
+	private List<Country> countries = new ArrayList<Country>(0);
 	private Set<EntityGroup> entityGroups = new HashSet<EntityGroup>(0);
 
 	public Entity() {
@@ -131,11 +133,11 @@ public class Entity implements java.io.Serializable {
 		this.hash = hash;
 	}
 
-	public Set<Country> getCountries() {
+	public List<Country> getCountries() {
 		return countries;
 	}
 
-	public void setCountries(Set<Country> countries) {
+	public void setCountries(List<Country> countries) {
 		this.countries = countries;
 	}
 

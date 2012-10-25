@@ -3,6 +3,7 @@ package com.pikefin.dao.impl;
 import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import com.pikefin.ErrorCode;
+import com.pikefin.businessobjects.Alert;
 import com.pikefin.businessobjects.FactData;
+import com.pikefin.businessobjects.Task;
 import com.pikefin.dao.AbstractDao;
 import com.pikefin.dao.inter.FactDataDao;
 import com.pikefin.exceptions.GenericException;
@@ -159,6 +162,50 @@ public class FactDataDaoImpl extends AbstractDao<FactData> implements FactDataDa
 	}
 	
 	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public List<FactData> loadFactDataByTaskForMaxBatch(Task currentTask)
+			throws GenericException {
+		List<FactData> factDataList=null;
+		try{
+			Session session=getOpenSession();
+			Query query=session.createQuery("select max(ba.batchId) from FactData fd,Batches ba where fd.batch.batchId=ba.batchId and ba.batchTask.taskId="+currentTask.getTaskId());
+			Integer maxId=(Integer)query.uniqueResult();
+			Query query2=session.createQuery("select f from FactData f where f.batch.batchId="+maxId);
+			factDataList=(List<FactData>)query2.list();
+		}catch (HibernateException e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_FACT_DATA_LIST_BY_TASK_ID_USING_MAX_BATCH,e.getMessage() , e.getCause());
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_FACT_DATA_LIST_BY_TASK_ID_USING_MAX_BATCH,e.getMessage() , e.getCause());
+		}
+		return factDataList;
+	}
+	
+
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public List<FactData> loadFactDataForAlerts(Alert tempAlert,Task currentTask)
+			throws GenericException {
+		List<FactData> factDataList=null;
+		try{
+			Session session=getOpenSession();
+			String queryString="Select f from FactData f,Batches b where f.batch.batchId=b.batchId and b.batchTask.taskId="+currentTask.getTaskId()+" " +
+					"and f.entity.entityId="+tempAlert.getAlertEntity().getEntityId()+" and f.dateCollected >='"+tempAlert.getAlertTimeEvent().getLastDatetime()+"'";
+	
+			if (tempAlert.getCalyear() != null){
+				queryString += " and f.calyear=" + tempAlert.getCalyear();
+			}
+			queryString += " order by f.dateCollected asc";
+			
+			Query query=session.createQuery(queryString);
+			factDataList=(List<FactData>)query.list();
+		}catch (HibernateException e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_FACT_DATA_LIST_BY_TASK_ID_USING_ALERT,e.getMessage() , e.getCause());
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_FACT_DATA_LIST_BY_TASK_ID_USING_ALERT,e.getMessage() , e.getCause());
+		}
+		return factDataList;
+	}
+	@Override
 	public SessionFactory getSessionFactory() {
 		return this.sessionFactory;
 	}
@@ -177,4 +224,7 @@ public class FactDataDaoImpl extends AbstractDao<FactData> implements FactDataDa
 		}
 		return session;
 	}
+
+
+	
 }

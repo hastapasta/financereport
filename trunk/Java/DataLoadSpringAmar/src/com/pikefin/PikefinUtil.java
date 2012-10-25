@@ -1,5 +1,8 @@
 package com.pikefin;
 
+import static com.rosaloves.bitlyj.Bitly.as;
+import static com.rosaloves.bitlyj.Bitly.shorten;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
@@ -7,6 +10,7 @@ import java.util.regex.Pattern;
 
 import com.pikefin.exceptions.CustomRegexException;
 import com.pikefin.exceptions.TagNotFoundException;
+import com.rosaloves.bitlyj.Url;
 
 import pikefin.log4jWrapper.Logs;
 
@@ -105,5 +109,21 @@ public class PikefinUtil{
 
 	}
 
-			
+public static String shortenURL(String strInputURL)	{
+		
+		try	{
+			Url url = as("pikefin", "R_f08326b12abd18288243b65ef2c71c40").call(shorten(strInputURL));
+			return(url.getShortUrl());
+		}
+		catch (Exception ex) {
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Failed to shorten url: " + strInputURL,Logs.ERROR,"UF51.5");
+			ApplicationSetting.getInstance().getStdoutwriter().writeln(ex);
+		}
+		
+		return("");
+
+		
+		
+		
+	}  	
 }

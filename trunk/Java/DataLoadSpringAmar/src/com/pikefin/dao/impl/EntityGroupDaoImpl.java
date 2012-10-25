@@ -3,6 +3,7 @@ package com.pikefin.dao.impl;
 import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import com.pikefin.ErrorCode;
+import com.pikefin.businessobjects.Alert;
+import com.pikefin.businessobjects.Entity;
 import com.pikefin.businessobjects.EntityGroup;
 import com.pikefin.dao.AbstractDao;
 import com.pikefin.dao.inter.EntityGroupDao;
@@ -177,6 +180,24 @@ public class EntityGroupDaoImpl extends AbstractDao<EntityGroup> implements Enti
 
 		}
 		return session;
+	}
+
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public List<EntityGroup> loadEntityGroupsByEntity(Entity entity)
+			throws GenericException {
+		List<EntityGroup> groups=null;
+		try{
+			Session session=getOpenSession();
+			Query query=session.createQuery("select eg from EntityGroup eg inner join eg.entities e where e.entityId="+entity.getEntityId()+" and eg.entityGroupId in(1,3,4,5,1008)");
+			groups=(List<EntityGroup>)query.list();
+			
+		}catch (HibernateException e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
+		}
+		return groups;
 	}
 
 }
