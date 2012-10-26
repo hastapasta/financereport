@@ -20,7 +20,10 @@ $enddate = $_GET['enddate'];
   #rangeDemoStart, #rangeDemoFinish {
     background-image:url("../../site/includes/images/calendar.png");
     background-position:right center;
-    background-repeat:no-repeat; }
+    background-repeat:no-repeat; 
+	font-size: 13.33px;
+    width: 155px;
+}
 </style>
 
 
