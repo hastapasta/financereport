@@ -58,7 +58,6 @@ echo $scripts_for_layout;
 		//this was the only way I could figure out how to pass JSP_ROOT_PATH into the view.
 		<?php echo " var jsp_root_path='".Environment::getJSPPath(true)."';\n"; ?>
 		<?php echo " var php_site_path='".Environment::getPHPSitePath(false)."';\n"; ?>
-		<?php echo " var php_ajaxsample_path='".Environment::getPHPAjaxsamplePath(false)."';\n"; ?>
 		<?php echo " var php_charts_path='".Environment::getPHPChartsPath(false)."';\n"; ?>
 		<?php echo " var php_common_path='".Environment::getPHPCommonPath(false)."';\n"; ?>
 		$(function(){

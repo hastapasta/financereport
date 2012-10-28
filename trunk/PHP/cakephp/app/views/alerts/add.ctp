@@ -234,9 +234,7 @@
           	var currentTime = new Date()
         	var users = document.getElementById("users");
         
-        	//xmlhttp.open("POST","http://localhost/PHP/ajaxsample/cakeajax.php?q="+str+"&timestamp="+currentTime,true);
-       
-        	xmlhttp.open("POST",php_ajaxsample_path + "/ajaxsample/cakeajax4.php?q=1002" + "&m=" + metricid + "&c=" + encodeURIComponent(countryname),true);
+        	xmlhttp.open("POST",php_site_path + "/site/ajax/cakeajax4.php?q=1002" + "&m=" + metricid + "&c=" + encodeURIComponent(countryname),true);
 
         	xmlhttp.send();
 
