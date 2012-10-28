@@ -17,13 +17,13 @@
         function sendAndDraw() {
 
             var chart = document.getElementById('chart-div');
-            chart.innerHTML="<img src=\"" + php_root_path + "/site/images/spinner3-bluey.gif\" />";
+            chart.innerHTML="<img src=\"" + php_site_path + "/site/images/spinner3-bluey.gif\" />";
 
             var chart2 = document.getElementById('barchart-div');
-            chart2.innerHTML="<img src=\"" + php_root_path + "/site/images/spinner3-bluey.gif\" />";
+            chart2.innerHTML="<img src=\"" + php_site_path + "/site/images/spinner3-bluey.gif\" />";
 
             var chart3 = document.getElementById('table-div');
-            chart3.innerHTML="<img src=\"" + php_root_path + "/site/images/spinner3-bluey.gif\" />";
+            chart3.innerHTML="<img src=\"" + php_site_path + "/site/images/spinner3-bluey.gif\" />";
 
 
             var options = {};

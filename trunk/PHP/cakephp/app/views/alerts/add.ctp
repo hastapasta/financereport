@@ -73,7 +73,7 @@
         $( "#filtercountry" ).autocomplete({
 			source: function( request, response ) {
 				$.ajax({
-					url: php_root_path + "/site/ajax/getCountry.php",
+					url: php_site_path + "/site/ajax/getCountry.php",
 					dataType: "json",
 					data: {
 						maxRows: 12,
@@ -236,7 +236,7 @@
         
         	//xmlhttp.open("POST","http://localhost/PHP/ajaxsample/cakeajax.php?q="+str+"&timestamp="+currentTime,true);
        
-        	xmlhttp.open("POST",php_root_path + "/ajaxsample/cakeajax4.php?q=1002" + "&m=" + metricid + "&c=" + encodeURIComponent(countryname),true);
+        	xmlhttp.open("POST",php_ajaxsample_path + "/ajaxsample/cakeajax4.php?q=1002" + "&m=" + metricid + "&c=" + encodeURIComponent(countryname),true);
 
         	xmlhttp.send();
 

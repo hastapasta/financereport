@@ -129,7 +129,7 @@
         	var users = document.getElementById("users");
 
           	// Get Data Through Ajax Request
-          	xmlhttp.open("POST",php_root_path + "/ajaxsample/cakeajax4.php?q=1002" ,true);
+          	xmlhttp.open("POST",php_ajaxsample_path + "/ajaxsample/cakeajax4.php?q=1002" ,true);
         	xmlhttp.send();
 	}
 
