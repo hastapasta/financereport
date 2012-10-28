@@ -47,7 +47,7 @@
 
     		 localTableChart.setSelection("");
 
-    	    window.open(php_root_path + "/charts/allassets/linechart.php?a=" + val + "&title=\"All Assets Indivdual Line Charts\"");
+    	    window.open(php_charts_path + "/charts/allassets/linechart.php?a=" + val + "&title=\"All Assets Indivdual Line Charts\"");
     	   
 
     	}
@@ -86,7 +86,7 @@
 
 
               //container.innerHTML="<img src=\"/PHP/site/images/spinner3-bluey.gif\" />";
-              container2.innerHTML="<img src=\"" + php_root_path + "/site/images/spinner3-bluey.gif\" />";
+              container2.innerHTML="<img src=\"" + php_site_path + "/site/images/spinner3-bluey.gif\" />";
             
               
               //var chart1 = new google.visualization.ColumnChart(container);
@@ -143,7 +143,7 @@
             //alert(dataSourceUrl);
 
 
-            container.innerHTML="<img src=\"" + php_root_path + "/site/images/spinner3-bluey.gif\" />";
+            container.innerHTML="<img src=\"" + php_site_path + "/site/images/spinner3-bluey.gif\" />";
            // container2.innerHTML="<img src=\"/PHP/site/images/spinner3-bluey.gif\" />";
           
             

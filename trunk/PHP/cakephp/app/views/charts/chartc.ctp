@@ -20,7 +20,7 @@
 	  }
 
       var chart = document.getElementById('chart-div');
-      chart.innerHTML="<img src=\"" + php_root_path + "/site/images/spinner3-black.gif\" />";
+      chart.innerHTML="<img src=\"" + php_site_path + "/site/images/spinner3-black.gif\" />";
 
       /*var chart2 = document.getElementById('orgchart2');
       chart2.innerHTML="<img src=\"../../site/images/spinner3-black.gif\" />";*/
@@ -87,7 +87,7 @@
       
       var container1 = document.getElementById('chart-div');
       
-      container1.innerHTML="<img src=\"" + php_root_path + "/site/images/spinner3-bluey.gif\" />";
+      container1.innerHTML="<img src=\"" + php_site_path + "/site/images/spinner3-bluey.gif\" />";
       //var container2 = document.getElementById('orgchart2');
      
       

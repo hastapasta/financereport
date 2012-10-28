@@ -41,7 +41,7 @@ if (sizeof($this->params['pass']) > 0)
         	 var container1 = document.getElementById('chart1-div');
    
 
-             container1.innerHTML="<img src=\"" + php_root_path + "/site/images/spinner3-bluey.gif\" />";
+             container1.innerHTML="<img src=\"" + php_site_path + "/site/images/spinner3-bluey.gif\" />";
  
 
       	
@@ -298,9 +298,9 @@ if (sizeof($this->params['pass']) > 0)
       //var container2 = document.getElementById('chart2-div');
       //var container3 = document.getElementById('chart3-div');
       
-      container1.innerHTML="<img src=\"" + php_root_path + "/site/images/spinner3-bluey.gif\" />";
-      //container2.innerHTML="<img src=\"" + php_root_path + "/site/images/spinner3-bluey.gif\" />";
-      //container3.innerHTML="<img src=\"" + php_root_path + "/site/images/spinner3-bluey.gif\" />";
+      container1.innerHTML="<img src=\"" + php_site_path + "/site/images/spinner3-bluey.gif\" />";
+      //container2.innerHTML="<img src=\"" + php_site_path + "/site/images/spinner3-bluey.gif\" />";
+      //container3.innerHTML="<img src=\"" + php_site_path + "/site/images/spinner3-bluey.gif\" />";
       //var container2 = document.getElementById('orgchart2');
      
       
