@@ -1,5 +1,7 @@
 <?php
-include ("/var/www/html/PHP/site/includes/sitecommon.php");
+//env.php is included in sitecommon.php
+//require_once ("/var/www/html/site/includes/env.php");
+require_once ("/var/www/html/site/includes/sitecommon.php");
 /**
  *
  * PHP versions 4 and 5
@@ -28,7 +30,7 @@ include ("/var/www/html/PHP/site/includes/sitecommon.php");
 <?php
 echo $this->Html->meta('icon');
 echo $this->Html->css('cake.generic');
-echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"".IncFunc::$PHP_ROOT_PATH."/site/includes/shared.css\" />";
+echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"".Environment::getPHPSitePath(false)."/site/includes/shared.css\" />";
 echo $this->Html->css('jquery-ui-1.8.12.custom.css');
 //echo $this->Javascript->link(array('jquery 1.4.4.js','querywrapper'));
 //echo $this->Javascript->link(array('jquery 1.4.4.js'));
@@ -54,8 +56,11 @@ echo $scripts_for_layout;
 ?>
 <script type="text/javascript">
 		//this was the only way I could figure out how to pass JSP_ROOT_PATH into the view.
-		<?php echo " var jsp_root_path='".IncFunc::$JSP_ROOT_PATH."';\n"; ?>
-		<?php echo " var php_root_path='".IncFunc::$PHP_ROOT_PATH."';\n"; ?>
+		<?php echo " var jsp_root_path='".Environment::getJSPPath(true)."';\n"; ?>
+		<?php echo " var php_site_path='".Environment::getPHPSitePath(false)."';\n"; ?>
+		<?php echo " var php_ajaxsample_path='".Environment::getPHPAjaxsamplePath(false)."';\n"; ?>
+		<?php echo " var php_charts_path='".Environment::getPHPChartsPath(false)."';\n"; ?>
+		<?php echo " var php_common_path='".Environment::getPHPCommonPath(false)."';\n"; ?>
 		$(function(){
 			$('.deleteButton').click(function(){
 				$('#actionValue').val('1');
@@ -126,7 +131,7 @@ echo $this->Session->flash('auth'); ?>
 
 <?php echo $content_for_layout; 
 
-//$this->set('jsp_root_path',IncFunc::$JSP_ROOT_PATH);
+//$this->set('jsp_root_path',Environment::getJSPPath(true));
 //$this->set('test','value');
 
 
