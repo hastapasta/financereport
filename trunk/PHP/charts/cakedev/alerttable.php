@@ -42,7 +42,7 @@ else
     var firstpass = true;
 
     <?php 
-            echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."/mysqldatasource14.jsp';";
+            echo "var dataSourceUrl = '".Environment::getJSPPath(true)."/mysqldatasource14.jsp';";
             ?>
         // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
            

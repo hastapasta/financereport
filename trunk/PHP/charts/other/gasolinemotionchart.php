@@ -88,7 +88,7 @@ require_once '../../common/functions.php';
             //var query = new google.visualization.Query('http://localhost:8080/JSPDataSource/mysqldatasource7.jsp?taskid=22');
             
           	<?php 
-          	echo "var datasourceurl='".IncFunc::$JSP_ROOT_PATH."/mysqldatasource7_2.jsp';";
+          	echo "var datasourceurl='".Environment::getJSPPath(true)."/mysqldatasource7_2.jsp';";
           	//echo "var datasourceurl='".IncFunc::$PHP_ROOT_PATH."/json/gdpmotion.html';";
           	?>
 

@@ -122,7 +122,7 @@ $enddate = $_GET['enddate'];
     <?php 
     //added cache buster url parameter for ie.
     
-            echo "var dataSourceUrl = '".Environment::$JSP_ROOT_PATH."mysqldatasource2eh2.jsp?randNum=' + new Date().getTime();";
+            echo "var dataSourceUrl = '".Environment::getJSPPath(true)."mysqldatasource2eh2.jsp?randNum=' + new Date().getTime();";
             
      ?>
         // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';

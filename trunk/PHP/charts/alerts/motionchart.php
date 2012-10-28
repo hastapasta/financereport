@@ -43,7 +43,7 @@ require_once ("../../site/includes/sitecommon.php");
            
             //var query = new google.visualization.Query('http://localhost:8080/JSPDataSource/mysqldatasource7.jsp?taskid=22');
             
-            <?php echo "var query = new google.visualization.Query('".IncFunc::$JSP_ROOT_PATH."/mysqldatasource8.jsp?userid=16');"; ?>
+            <?php echo "var query = new google.visualization.Query('".Environment::getJSPPath(true)."/mysqldatasource8.jsp?userid=16');"; ?>
   
             
             query.setQuery(str);

@@ -144,8 +144,8 @@ if (isset($_GET['group']))
 
 
 
-        	//var queryPath = '<?php echo IncFunc::$JSP_ROOT_PATH;?>mysqldatasource1.jsp?begindate=2011-01-01&metricid=1';
-        	var queryPath = '<?php echo IncFunc::$JSP_ROOT_PATH;?>mysqldatasource15.jsp?begindate=2011-01-01&alertid=0&metricid=1';
+        	//var queryPath = '<?php echo Environment::getJSPPath(true);?>mysqldatasource1.jsp?begindate=2011-01-01&metricid=1';
+        	var queryPath = '<?php echo Environment::getJSPPath(true);?>mysqldatasource15.jsp?begindate=2011-01-01&alertid=0&metricid=1';
 
 			if(id != undefined){
 				queryPath += '&entityid=' + escape(id); 

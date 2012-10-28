@@ -452,8 +452,8 @@ if (isset($_GET['group']))
         	*/
 			<?php 
 			//echo "alert(\"".$begindate."\");\n";
-			echo "var queryPath = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource15multiplecountry.jsp";
-			//echo "var queryPath = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource15multiplecountryv2.jsp";
+			echo "var queryPath = '".Environment::getJSPPath(true)."mysqldatasource15multiplecountry.jsp";
+			//echo "var queryPath = '".Environment::getJSPPath(true)."mysqldatasource15multiplecountryv2.jsp";
 			echo "?begindate='+(Date.parse('".$begindate."')).getTime()+'";
 			if (!empty($enddate))
 				echo "&enddate='+(Date.parse('".$enddate."')).getTime()+'";

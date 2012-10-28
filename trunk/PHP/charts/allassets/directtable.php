@@ -274,7 +274,7 @@ if (isset($_GET['metricid']))
     var firstpass = true;
 
     <?php 
-            echo "var dataSourceUrl = '".Environment::$JSP_ROOT_PATH."mysqldatasource2eh2.jsp';";
+            echo "var dataSourceUrl = '".Environment::getJSPPath(true)."mysqldatasource2eh2.jsp';";
             ?>
         // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
            

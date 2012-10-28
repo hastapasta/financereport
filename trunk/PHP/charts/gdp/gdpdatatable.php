@@ -231,7 +231,7 @@ if (strcasecmp('ppp', $gdptype)==0) {
     	if ($cache == true)
     		$dataSourceUrl = IncFunc::$PHP_ROOT_PATH."/json/gdpmotion.html";
     	else {
-    		$dataSourceUrl = IncFunc::$JSP_ROOT_PATH."/mysqldatasource7.jsp?metricids=".$metricids;
+    		$dataSourceUrl = Environment::getJSPPath(true)."/mysqldatasource7.jsp?metricids=".$metricids;
     		if ($abs == true)
     			$dataSourceUrl.="&abs=true";
     	}
@@ -241,7 +241,7 @@ if (strcasecmp('ppp', $gdptype)==0) {
     	/*if ($cache==true) 
             echo "var dataSourceUrl='".IncFunc::$PHP_ROOT_PATH."/json/gdpmotion.html';";
         else {
-        	echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."/mysqldatasource7.jsp?metricids=".$metricids."';";
+        	echo "var dataSourceUrl = '".Environment::getJSPPath(true)."/mysqldatasource7.jsp?metricids=".$metricids."';";
         }*/
         
         

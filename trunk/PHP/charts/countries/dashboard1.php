@@ -80,11 +80,11 @@ $row = mysql_fetch_array($result);
 
 
     <?php 
-            //echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource2.jsp';";
+            //echo "var dataSourceUrl = '".Environment::getJSPPath(true)."mysqldatasource2.jsp';";
             
-            echo "var dataSourceUrl1 ='".IncFunc::$JSP_ROOT_PATH."/mysqldatasource11.jsp';"; 
+            echo "var dataSourceUrl1 ='".Environment::getJSPPath(true)."/mysqldatasource11.jsp';"; 
             
-            echo "var dataSourceUrl2 ='".IncFunc::$JSP_ROOT_PATH."/mysqldatasource12.jsp';";
+            echo "var dataSourceUrl2 ='".Environment::getJSPPath(true)."/mysqldatasource12.jsp';";
             ?>
         // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
            

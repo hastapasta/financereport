@@ -544,10 +544,10 @@ if (strpos($enddate,"-") == true)
                 tickers_no_spaces = tickers_no_spaces.substr(0,tickers_no_spaces.length-1);
 
             if ((tickers_no_spaces.split(',')).length > 1) {
-                <?php echo "queryPath = '".Environment::$JSP_ROOT_PATH."mysqldatasource15multiple.jsp';";?>
+                <?php echo "queryPath = '".Environment::getJSPPath(true)."mysqldatasource15multiple.jsp';";?>
             }
             else {
-            	<?php echo "queryPath = '".Environment::$JSP_ROOT_PATH."mysqldatasource15single.jsp';"; ?>
+            	<?php echo "queryPath = '".Environment::getJSPPath(true)."mysqldatasource15single.jsp';"; ?>
             }
 
         	/*

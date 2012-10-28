@@ -49,7 +49,7 @@ require_once ("../../site/includes/sitecommon.php");
          
  			
            
-            <?php echo "var query = new google.visualization.Query('".IncFunc::$JSP_ROOT_PATH."/mysqldatasource9.jsp?userid=16');"; ?>
+            <?php echo "var query = new google.visualization.Query('".Environment::getJSPPath(true)."/mysqldatasource9.jsp?userid=16');"; ?>
             
             //alert('here 2');
             

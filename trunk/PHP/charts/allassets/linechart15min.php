@@ -272,13 +272,13 @@ if (isset($_GET['group']))
         	*/
 			<?php 
 			if (sizeof($entities) > 1) {
-				echo "var queryPath = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource15multiple.jsp?begindate=".$begindate;
+				echo "var queryPath = '".Environment::getJSPPath(true)."mysqldatasource15multiple.jsp?begindate=".$begindate;
 				if (!empty($enddate))
 					echo "&enddate=".$enddate;
 				echo "&alertid=0&metricid=0';\n";
 			}
 			else {
-				echo "var queryPath = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource15.jsp?granularity=minute&begindate=".$begindate;
+				echo "var queryPath = '".Environment::getJSPPath(true)."mysqldatasource15.jsp?granularity=minute&begindate=".$begindate;
 				if (!empty($enddate))
 					echo "&enddate=".$enddate;
 					echo "&alertid=0&metricid=".$metricid."';\n";

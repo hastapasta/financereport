@@ -158,9 +158,9 @@ if (empty($ticker) && !empty($entityid)) {
           <?php 
                  
                   
-          echo "var dataSourceUrl1 ='".IncFunc::$JSP_ROOT_PATH."/mysqldatasource11.jsp';"; 
+          echo "var dataSourceUrl1 ='".Environment::getJSPPath(true)."/mysqldatasource11.jsp';"; 
                   
-          echo "var dataSourceUrl2 ='".IncFunc::$JSP_ROOT_PATH."/mysqldatasource12.jsp';";
+          echo "var dataSourceUrl2 ='".Environment::getJSPPath(true)."/mysqldatasource12.jsp';";
           ?>
 
 

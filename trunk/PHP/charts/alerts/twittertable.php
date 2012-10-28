@@ -30,7 +30,7 @@ db_utility::db_connect();
     var firstpass = true;
 
     <?php 
-            echo "var dataSourceUrl = '".IncFunc::$JSP_ROOT_PATH."mysqldatasource17.jsp';";
+            echo "var dataSourceUrl = '".Environment::getJSPPath(true)."mysqldatasource17.jsp';";
             ?>
         // var dataSourceUrl = 'http://www.pikefin.com/phpdev/gadgetsamples/echodatasource2.php';
            
