@@ -2,7 +2,7 @@
 //require_once 'init2.php';
 
 require_once '../../common/functions.php';
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 /*
  This script does entity id and full name lookup for ticker arguments.

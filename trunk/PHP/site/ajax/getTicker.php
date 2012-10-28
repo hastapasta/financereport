@@ -2,7 +2,7 @@
 //require_once 'init2.php';
 
 require_once '../../common/functions.php';
-include ("../../site/includes/sitecommon.php");
+require_once ("../../site/includes/sitecommon.php");
 
 /*
  * This returns all of the tickers based off of entity group and a 'term'. 
