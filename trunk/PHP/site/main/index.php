@@ -10,7 +10,7 @@ require_once '../../common/functions.php';
 	  <?php IncFunc::googleGadget(); ?>
 	  <?php IncFunc::icon();?>
 	  <?php IncFunc::title();?>
-	  <script type="text/javascript" src="/PHP/site/includes/pftable.js" ></script>
+	  <script type="text/javascript" src="<?php echo Environment::getPHPSitePath(false);?>/site/includes/pftable.js" ></script>
 	  
 	  <?php //IncFunc::iquery(); ?>
 	  <script src="http://widgets.twimg.com/j/2/widget.js" type="text/javascript"></script>
@@ -55,7 +55,7 @@ require_once '../../common/functions.php';
 		 google.setOnLoadCallback(function() { sendAndDraw('') });
 		 var firstpass = true;
 		 <?php 
-			echo "var dataSourceRoot = '".IncFunc::$PHP_ROOT_PATH."/json/';\n";
+			echo "var dataSourceRoot = '".Environment::getPHPJSONPath(false)."/jsonhtml/';\n";
 		 ?>
 		 var query1;
 		 var query2;
@@ -73,7 +73,7 @@ require_once '../../common/functions.php';
 			 var dt = localQueryWrapper.currentDataTable;
 			 var val = dt.getValue(row[0].row,8);
 			 <?php //echo "window.location.href = \"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val + \"&title=All Assets Indivdual Line Charts\";";?>
-			 <?php echo "window.open(\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/linechart.php?e=\" + val);";?>
+			 <?php echo "window.open(\"".Environment::getPHPChartsPath(false)."/charts/allassets/linechart.php?e=\" + val);";?>
 		 }
 		 function sendAndDraw() { 
 			var taskid='1';
@@ -182,7 +182,7 @@ $timeframes = Array("CURRENT_DAY","CURRENT_WTD","CURRENT_MTD","CURRENT_YTD");
 for($i=0;$i<sizeof($tabs);$i++) {
 	echo "<div id=\"tabs-".$tabs[$i]."\">\n";
 	for($j=0;$j<sizeof($tables);$j++) {
-		$anchor = "<a style=\"font-size:1.0em;\" target=\"_new\" href=\"".IncFunc::$PHP_ROOT_PATH."/charts/allassets/directtable.php";
+		$anchor = "<a style=\"font-size:1.0em;\" target=\"_new\" href=\"".Environment::getPHPChartsPath(false)."/charts/allassets/directtable.php";
 		$anchor.="?entitygroupid=".$entitygroups[$j];
 		$anchor.="&metricid=".$metricids[$j];
 		$anchor.="&timeframe=".$timeframes[$i];
