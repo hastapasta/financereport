@@ -68,7 +68,7 @@ public class AlertServiceImpl implements AlertService{
 	
 	private BigDecimal dChange;
 	@Override
-	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	//@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public void checkAlerts(DataGrabExecuter dataGrab) throws GenericException {
 		  
 				
@@ -251,12 +251,14 @@ public class AlertServiceImpl implements AlertService{
 									 */
 										  
 									String strTweet="";
-									if (tempAlert.getAlertId() == 1) {
+									if (tempAlert.getType()== 1) {
 										/*
 										 * dChange gets used for inserting into log_alerts so using temp
 										 * variable for tweet format modifications.
 										 */
-										BigDecimal bdTemp = dChange.multiply(new BigDecimal(100)).setScale(2);
+										BigDecimal bdTemp = dChange.multiply(new BigDecimal(100));
+										//.setScale(2);
+										//TODO un comment scaling
 										strTweet = bdTemp.toString() + "% ";
 										strTweet += tempAlert.getAlertTimeEvent().getName();
 										  
@@ -345,7 +347,7 @@ public class AlertServiceImpl implements AlertService{
 										
 								
 									int nTweetLimit = tempTarget.getTweetLimit();
-									int nTweetCount = 0;
+									Long nTweetCount = new Long(0);
 								
 									if (nTweetLimit >= 0) {
 										
@@ -367,7 +369,7 @@ public class AlertServiceImpl implements AlertService{
 										/*
 										 * Debug mode is handled inside the tweet function
 										 */
-	
+										if(tempTarget.getUserId() !=null  && tempTarget.getSecurityAccountId()!=null){
 										strErrorMsg = notificationService.tweet(strTweet,tempTarget.getUserId().getUsername(),tempTarget.getUserId().getPassword(),tempTarget.getSecurityAccountId().getAuth1(),tempTarget.getSecurityAccountId().getAuth2(),tempTarget.getSecurityAccountId().getAuth3(),tempTarget.getSecurityAccountId().getAuth4());
 										try {
 											/*
@@ -381,8 +383,10 @@ public class AlertServiceImpl implements AlertService{
 										catch (InterruptedException ie) {
 											
 										}
-									}  
-									
+									}else{
+										strErrorMsg="Sweet not sent because user information is not avilable";
+									}
+									}
 									  
 									try {
 										LogTweets logTweets=new LogTweets();
@@ -457,12 +461,12 @@ public class AlertServiceImpl implements AlertService{
 									  
 						}
 				 }
-				Set<Entry<Integer, Alert>> entrySet=alertsToUpdate.entrySet();
+				 Set<Entry<Integer, Alert>> entrySet=alertsToUpdate.entrySet();
 				Iterator i=entrySet.iterator();
 				while(i.hasNext()){
 				Entry<Integer, Alert> e=(Entry<Integer, Alert>)	i.next();
 				Alert alert=(Alert)e.getValue();
-				alertDao.saveAlertInfo(alert);
+				alertDao.updateAlertInfo(alert);
 				}
 			} 
 		  

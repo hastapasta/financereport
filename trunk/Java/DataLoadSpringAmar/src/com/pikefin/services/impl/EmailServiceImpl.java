@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import pikefin.log4jWrapper.Logs;
+
 import com.pikefin.ApplicationSetting;
 import com.pikefin.exceptions.GenericException;
 import com.pikefin.services.inter.EmailService;
@@ -60,9 +62,9 @@ public class EmailServiceImpl implements EmailService {
 		}
 		catch (EmailException ee) {
 			log.error("Problem sending html email."+ee);
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem sending html email."+ee, Logs.ERROR, "ERROR SENDING EMAIL");
 	  		System.out.println("#####################"+ee.getMessage());		
 		}
-
 				
 	}
 

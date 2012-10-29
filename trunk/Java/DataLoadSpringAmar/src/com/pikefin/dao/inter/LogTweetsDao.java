@@ -12,6 +12,6 @@ public interface LogTweetsDao {
 	public Boolean deleteLogTweetsInfoById(Integer logTweetId ) throws GenericException;
 	public LogTweets loadLogTweetsInfo(Integer logTweetId) throws GenericException;
 	public List<LogTweets> loadAllLogTweets() throws GenericException;
-	public Integer getTweetCounts(Integer UserId) throws GenericException;
+	public Long getTweetCounts(Integer UserId) throws GenericException;
 
 }

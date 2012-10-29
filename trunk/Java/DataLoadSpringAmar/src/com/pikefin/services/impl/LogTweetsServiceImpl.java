@@ -1,5 +1,6 @@
 package com.pikefin.services.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pikefin.businessobjects.LogTweets;
@@ -9,7 +10,7 @@ import com.pikefin.services.inter.LogTweetsService;
 
 @Service
 public class LogTweetsServiceImpl implements LogTweetsService{
-
+	@Autowired
 	private LogTweetsDao logTweetDao;
 	@Override
 	public LogTweets saveLogTweetsInfo(LogTweets logTweetsEntity)
@@ -17,7 +18,7 @@ public class LogTweetsServiceImpl implements LogTweetsService{
 		return logTweetDao.saveLogTweetsInfo(logTweetsEntity);
 	}
 	@Override
-	public Integer getTweetCounts(Integer userId) throws GenericException {
+	public Long getTweetCounts(Integer userId) throws GenericException {
 		return logTweetDao.getTweetCounts(userId);
 	}
 

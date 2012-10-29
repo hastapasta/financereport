@@ -28,6 +28,7 @@ private LogAlertDao logAlertDao;
 		return logAlertDao.updateLogAlertInBulk(logAlertEntitiesList);
 	}
 	@Override
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public LogAlert saveLogAlertInfo(LogAlert logAlertEntity)
 			throws GenericException {
 		return logAlertDao.saveLogAlertInfo(logAlertEntity);

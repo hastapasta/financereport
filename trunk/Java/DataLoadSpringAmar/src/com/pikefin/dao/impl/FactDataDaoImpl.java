@@ -195,8 +195,8 @@ public class FactDataDaoImpl extends AbstractDao<FactData> implements FactDataDa
 				queryString += " and f.calyear=" + tempAlert.getCalyear();
 			}
 			queryString += " order by f.dateCollected asc";
-			
 			Query query=session.createQuery(queryString);
+			query.setMaxResults(1);
 			factDataList=(List<FactData>)query.list();
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_FACT_DATA_LIST_BY_TASK_ID_USING_ALERT,e.getMessage() , e.getCause());

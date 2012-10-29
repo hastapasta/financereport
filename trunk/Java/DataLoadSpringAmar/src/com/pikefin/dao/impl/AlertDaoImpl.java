@@ -198,11 +198,27 @@ public class AlertDaoImpl extends AbstractDao<Alert> implements AlertDao {
 			query += " where alerts.task_id=" + currentTask.getTaskId();
 			query += " and (countries_entities.default_country=1 OR countries_entities.default_country is null)";
 			query += " order by time_events.id";*/
+			/*String queryString="select a.id from Alert a " +
+					"LEFT JOIN Task t ON a.alertTask.taskId=t.taskId " +
+					"LEFT JOIN Entity e ON a.alertEntity.entityId=e.entityId " +
+					"LEFT JOIN User u ON a.alertUser.userId=u.userId " +
+					"LEFT JOIN FactData f ON (a.alertInitialFactData.factDataId=f.factDataId and (((a.calyear is null) and (f.calyear is null)) or (a.calyear=f.calyear))) " +
+					"LEFT JOIN TimeEvent te ON a.alertTimeEvent.timeEventId=te.timeEventId" +
+					"where a.task_id=" +currentTask.getTaskId()+
+					" order by  a.alertTimeEvent.timeEventId";*/
+			String queryString="select a from Alert as a " +
+					"LEFT JOIN a.alertTask as t " +
+					"LEFT JOIN a.alertEntity as e " +
+					"LEFT JOIN a.alertUser as u " +
+					"LEFT JOIN a.alertInitialFactData as f " +
+					"LEFT JOIN a.alertTimeEvent as te " +
+					"where  a.alertTask.taskId=" +currentTask.getTaskId()+
+					" and (((a.calyear is null) and (f.calyear is null)) or (a.calyear=f.calyear)) order by  a.alertTimeEvent.timeEventId";
+//LEFT JOIN e.countries ON ce.entity_id=e.id
+//LEFT JOIN countries c ON c.id=ce.country_id
 			List<Alert> alerts=null;
 			try{
-				String queryString="select a from Alert a,Country c where a.alertTask.taskId="+currentTask.getTaskId()+" and (((a.calyear is null) and (a.alertInitialFactData.calyear is null)) or (a.calyear=a.alertInitialFactData.calyear))  " +
-						"order by a.alertTimeEvent.timeEventId";
-				/*String queryString="select a from Alert a,Country c where a.alertTask.taskId="+currentTask.getTaskId()+" and a.calyear=a.alertInitialFactData.calyear  " +
+				/*String queryString="select a from Alert a,Country c where a.alertTask.taskId="+currentTask.getTaskId()+" and (((a.calyear is null) and (a.alertInitialFactData.calyear is null)) or (a.calyear=a.alertInitialFactData.calyear))  " +
 						"order by a.alertTimeEvent.timeEventId";*/
 				Session session=getOpenSession();
 				Query query=session.createQuery(queryString);

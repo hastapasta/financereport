@@ -39,7 +39,7 @@ public class PikefinUtil{
 					// Did not find regex
 					{
 						/* Let whoever catches this decide what to write to the logs. */
-						// ApplicationSetting.getInstance().getStdoutwriter().writeln("Regex search exceeded.",Logs.ERROR,"DG2");
+						ApplicationSetting.getInstance().getStdoutwriter().writeln("Regex search exceeded.",Logs.ERROR,"DG2");
 						throw new TagNotFoundException();
 					}
 				

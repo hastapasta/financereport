@@ -36,7 +36,7 @@ public class NotificationServiceImpl implements NotificationService{
 		template.merge(vc,writer);
 		return writer.toString();
 	}
-
+@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public String tweet(String strTweet,String userName, String password, String authentication1, String authentication2, String authentication3, String authentication4) throws GenericException{	
 	  	
 		String strErrorMsg = "";
@@ -51,6 +51,7 @@ public class NotificationServiceImpl implements NotificationService{
 			.setOAuthAccessTokenSecret(authentication4);
 			TwitterFactory tf = new TwitterFactory(cb.build());
 			Twitter twitter = tf.getInstance();
+			
 			if (strTweet.length() > 140) {
 			
 				ApplicationSetting.getInstance().getStdoutwriter().writeln("Tweet longer than 140 characters; tweet truncated.",Logs.WARN,"UF49.5");
