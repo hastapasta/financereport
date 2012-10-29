@@ -26,9 +26,9 @@
             </column>
         </property>	
     
-         <many-to-one name="securityAccountId"  class="com.pikefin.businessobjects.SecurityAccounts" column="security_account_id" 
+         <many-to-one name="securityAccountId"  class="com.pikefin.businessobjects.SecurityAccounts" column="security_account_id" lazy="false" 
 			not-null="true" cascade="all" />
-        <many-to-one name="userId" class="com.pikefin.businessobjects.User" column="user_id" 
+        <many-to-one name="userId" class="com.pikefin.businessobjects.User" column="user_id" lazy="false" not-found="ignore"
 			not-null="true" cascade="all" />
         
         <set name="alerts" table="alerts_alert_targets"  inverse="true">

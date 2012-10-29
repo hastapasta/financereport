@@ -30,10 +30,10 @@
 		
 		<many-to-one name="beforeFactData" 
 			class="com.pikefin.businessobjects.FactData" column="bef_fact_data_id" 
-			not-null="true" cascade="all" />
+			not-null="true" cascade="none" />
 		<many-to-one name="afterFactData" 
 			class="com.pikefin.businessobjects.FactData" column="aft_fact_data_id" 
-			not-null="true" cascade="all" />
+			not-null="true" cascade="none" />
 		<many-to-one name="logAlertEntity" 
 			class="com.pikefin.businessobjects.Entity" column="entity_id" 
 			not-null="true" cascade="all" unique="true"/>
