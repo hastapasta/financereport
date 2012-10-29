@@ -745,6 +745,7 @@ div.code-coverage-results span.result-good {
 }
 .searchTable input[type='text']{
 	width:150px;
+	font-size: 15.6px;
 }
 .searchTable tr td{
 	border:none;

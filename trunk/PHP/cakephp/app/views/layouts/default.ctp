@@ -1,7 +1,8 @@
 <?php
 //env.php is included in sitecommon.php
 //require_once ("/var/www/html/site/includes/env.php");
-require_once ("/var/www/html/site/includes/sitecommon.php");
+//require_once ("/var/www/html/site/includes/sitecommon.php");
+include (dirname(ROOT) . DS . "site" . DS . "includes" . DS . "sitecommon.php");
 /**
  *
  * PHP versions 4 and 5
@@ -100,7 +101,7 @@ echo $scripts_for_layout;
 		</div> -->
 	<!-- <div id="jq-primaryNavigation">
 			<ul>
-			<li class="jq-home jq-current"><a title="Pikefin Home" href="/phptest/site/main/index.php">Home</a></li>
+			<li class="jq-home jq-current"><a title="Pikefin Home" href="/php/site/main/index.php">Home</a></li>
 				<li class="jq-alerts "> -->
 					<?php
 						/*if ($this->Session->check('Auth.User')):

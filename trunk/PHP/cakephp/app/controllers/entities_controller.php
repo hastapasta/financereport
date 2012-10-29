@@ -93,9 +93,8 @@ $this->Recipe->find('all', array(
 							'conditions' => array('EntitiesEntityGroup.entity_group_id' => $group_id)
 						)
 					);
-					
+					$conditions['Entity.id'] = $entity_ids;
 				}
-				$conditions['Entity.id'] = $entity_ids;
 				
 			}	
 			

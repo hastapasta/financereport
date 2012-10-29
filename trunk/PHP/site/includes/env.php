@@ -3,7 +3,7 @@
 class Environment {
 	
 	
-	static public $PHP_ROOT_PATH="";
+	static public $PHP_ROOT_PATH="/PHP";
 	//static public $PHP_ROOT_PATH="/phpdev";
 	//static public $PHP_ROOT_PATH="/phptest";
 	

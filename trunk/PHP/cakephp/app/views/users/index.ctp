@@ -27,7 +27,7 @@
 		<td><?php echo $user['User']['id']; ?>&nbsp;</td>
 		<td><?php echo $user['User']['username']; ?>&nbsp;</td>
 		<td><?php echo $user['User']['password']; ?>&nbsp;</td>
-		<td><?php echo $user['User']['email']; ?>&nbsp;</td>
+		<td><?php echo $user['User']['account_email']; ?>&nbsp;</td>
 		<td><?php echo $this->Html->link($user['Group']['name'], array('controller' => 'groups', 'action' => 'view', $user['Group']['id'])); ?>
 		</td>
 		

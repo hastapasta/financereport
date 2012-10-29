@@ -236,7 +236,7 @@ class SchedulesController extends AppController {
 						//$conditions['Schedule.verify_mode']=$filtervalues['Schedule']['verify_mode'];
 					}
 					if(!empty($filtervalues['Schedule']['obsolete_data_set'])){
-						$conditions['Schedule.obsolete_data_set LIKE'] = $filtervalues['Schedule']['obsolete_data_set'].'%';
+						$conditions['Schedule.obsolete_data_set LIKE'] = '%'.$filtervalues['Schedule']['obsolete_data_set'].'%';
 					}
 		
 					if(!empty($filtervalues['Schedule']['repeat_type_id'])){

@@ -112,6 +112,7 @@
 			case 3:
 				echo $this->Html->link(__('List', true), array('controller'=>'alerts','action' => 'index'));
 				echo $this->Html->link(__('Add', true), array('controller'=>'alerts','action' => 'add'));
+				echo $this->Html->link(__('Logs', true),'http://www.pikefin.com/php/viewlogs/parent.php',array('target'=>'blank'));
 				break;				
 			case 4:
 				echo $this->Html->link(__('List', true), array('controller'=>'schedules','action' => 'index'));

@@ -264,7 +264,7 @@ class IncFunc {
 		}
 		echo "<ul>\n";
 		echo "<li class=\"jq-home ".($Page=="home"?"jq-current":"")."\"><a href=\"".Environment::getPHPSitePath(false)."/site/main/index.php\" title=\"Pikefin Home\">Home</a></li>\n";
-		echo "<li class=\"jq-alerts ".($Page=="alerts"?"jq-current":"")."\"><a href=\"".Environment::getCakePHPPath(false)."/charts/chart\" title=\"Pikefin Alert Manager\">Alert Manager</a></li>\n";
+		echo "<li class=\"jq-alerts ".($Page=="alerts"?"jq-current":"")."\"><a href=\"".Environment::getPHPChartsPath(false)."/cakephp\" title=\"Pikefin Alert Manager\">Alert Manager</a></li>\n";
 		echo "<li class=\"jq-charts ".($Page=="charts"?"jq-current":"")."\"><a href=\"".Environment::getPHPChartsPath(false)."/charts/allassets/topchart.php\" title=\"Pikefin Charts\">Charts</a></li>";
 		//echo "<li class=\"jq-blog ".($Page=="blog"?"jq-current":"")."\"><a href=\"/PHP/site/main/blog.php\" title=\"Pikefin Blog\">Blog</a></li>";
 		//echo "<li class=\"jq-about ".($Page=="about"?"jq-current":"")."\"><a href=\"/PHP/site/main/about.php\" title=\"About Pikefin\">About</a></li>";
