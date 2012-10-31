@@ -47,7 +47,8 @@ public class ProcessingFunctions {
 	/*table extraction processing function parameters*/
 	ArrayList<String[]> propTableData;
 	Job j;
-	
+	String propStrTableDataSet;
+
 	
 	DataGrabExecuter dg;
 	
@@ -167,6 +168,8 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Job 
 				return(tabledata);
 			}
 			propTableData = tabledata;
+			propStrTableDataSet = inputJob.getDataSet();
+
 			j = inputJob;
 			Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
 			m.invoke(this, new Object[] {});
@@ -323,7 +326,7 @@ public void postProcessBloombergCommodities()
 		
 		tmp = tmp.replace("'", "");
 		
-		String query = "select * from entities where ticker='"+tmp+"'";
+		
 		
 		try
 		{
@@ -491,6 +494,66 @@ public void postProcessTreasuryDebtTable6()
 	{
 		j++;
 	}
+	
+	
+}
+/**
+ * Used to process the jobs of type  exchrate_org
+ */
+public void postProcessTableXrateorg() 
+{
+	String[] rowheaders = propTableData.get(1);
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	
+
+
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	
+	newTableData.add(tmpArray);
+	
+	
+	for (int i=0;i<rowheaders.length;i++)
+	{
+		String strTmp = rowheaders[i];
+		strTmp = "USD" + strTmp.substring(strTmp.indexOf("(")+1,strTmp.indexOf(")"));
+		
+		//The first 2 crosses on the europe page are inverse: EURUSD and GBPUSD
+		if (propStrTableDataSet.contains("europe"))
+		{
+			if (i==0)
+				strTmp = "EURUSD";
+			else if (i==1)
+				strTmp = "GBPUSD";
+		}
+		String[] tmpA = new String[tmpArray.length];
+		//tmpA[0] = propStrTableDataSet;
+		tmpA[0] = propTableData.get(i+2)[0];
+		tmpA[1] = "NOW()";
+		
+		try
+		{
+			
+			Entity entity=entityService.loadEntityInfoByTicker(strTmp);
+			tmpA[2] = String.valueOf(entity.getEntityId());
+			newTableData.add(tmpA);
+			
+		}
+		catch (GenericException sqle)
+		{
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem looking up ticker: " + strTmp + ",row skipped",Logs.WARN,"PF99.55");
+			
+		
+		}
+			
+
+		
+	}
+	
+	
+	propTableData = newTableData;
+	
+	
+	
 	
 	
 }
