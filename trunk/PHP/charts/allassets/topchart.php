@@ -40,7 +40,7 @@ $enddate = $_GET['enddate'];
 	<?php IncFunc::jqueryTimeFrameNew();?>
    
 	$(document).ready(function() {
-
+		$(".AnyTime-win").css("z-index",'999');
 		$( "input:button").button();
 		$( "input:button").css("padding",0);
 		
@@ -321,7 +321,7 @@ Start: <input type="text" id="rangeDemoStart" size="21" />
 <?php IncFunc::dateSelectNew();?>)<BR>
 <BR>
 
-<input type="button" value="Update Tables" onclick="sendAndDraw();"> <br />
+<input type="button" value="Update Tables" onClick="sendAndDraw();"> <br />
 <br />
 <br />
 </div><!-- pf-form -->
@@ -351,7 +351,7 @@ Start: <input type="text" id="rangeDemoStart" size="21" />
 <div id="table4" style="color: #000;"> </div>
 </div>
 
-<input type="button" value="Generate URL" style="float:left;clear:both" onclick="generateURL();"> 
+<input type="button" value="Generate URL" style="float:left;clear:both" onClick="generateURL();"> 
 
 </div>
 
