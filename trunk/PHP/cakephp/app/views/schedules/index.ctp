@@ -79,13 +79,13 @@
 <?php echo $this->element('check_uncheck_control')?>
 <table cellpadding="0" cellspacing="0">
 	<tr>
-		<th><?php echo $this->Paginator->sort('schedule id'); ?></th>
-		<th><?php echo $this->Paginator->sort('task name'); ?></th>
-		<th><?php echo $this->Paginator->sort('task id'); ?></th>
-		<th><?php echo $this->Paginator->sort('repeat type');?></th>
-		<th><?php echo $this->Paginator->sort('verify mode');?>
-		<th><?php echo $this->Paginator->sort('priority');?></th>
-		<th><?php echo $this->Paginator->sort('entitygroup');?></th>
+		<th><?php echo $this->Paginator->sort('Schedule Id','Schedule.id'); ?></th>
+		<th><?php echo $this->Paginator->sort('Task Name','Task.name'); ?></th>
+		<th><?php echo $this->Paginator->sort('Task Id','Schedule.task_id'); ?></th>
+		<th><?php echo $this->Paginator->sort('Repeat Type','RepeatType.description');?></th>
+		<th><?php echo $this->Paginator->sort('Verify Mode','Schedule.verify_mode');?>
+		<th><?php echo $this->Paginator->sort('Priority','Schedule.priority');?></th>
+		<th><?php __('Entity Group');?></th>
 		<th class="actions"><?php //__('Actions');?></th>
 		<th class="actions"><?php __('Edit/Delete');?></th>
 	</tr>
