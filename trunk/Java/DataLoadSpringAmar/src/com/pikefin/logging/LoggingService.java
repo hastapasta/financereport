@@ -25,8 +25,8 @@ import com.pikefin.exceptions.GenericException;
  * @author Amar_Deep_Singh
  *
  */
-@Service
-@Aspect
+//@Service
+//@Aspect
 public class LoggingService {
 	Logger log=Logger.getLogger(LoggingService.class);
 	

@@ -470,7 +470,7 @@ public class AlertServiceImpl implements AlertService{
 				}
 			} 
 		  
-	
+	System.out.println("************ ############  Check Alerts Completed *************************************************	^^^^^^^^^^^^^");
 		
 		
 	}

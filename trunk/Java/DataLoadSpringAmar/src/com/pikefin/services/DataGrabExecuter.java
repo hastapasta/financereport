@@ -563,7 +563,7 @@ public class DataGrabExecuter extends Thread {
 					Logs.STATUS2, "DG24.5");*/
 
 			HttpPost httppost = new HttpPost(
-					"http://data.bls.gov/cgi-bin/surveymost");
+					Constants.Urls.SURVEY_MOST_URL);
 
 			/*
 			 * Emulate a browser.
@@ -609,8 +609,7 @@ public class DataGrabExecuter extends Thread {
 			 * Emulate a browser.
 			 */
 
-			httpget.getParams().setParameter("http.protocol.user-agent",
-					"Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
+			httpget.getParams().setParameter(Constants.HttpSetting.PARAM_USER_AGENT,Constants.HttpSetting.BROWSER_MOZILA);
 			/*
 			 * The following line fixes an issue where a non-fatal error is
 			 * displayed about an invalid cookie data format. It turns out that
@@ -624,10 +623,8 @@ public class DataGrabExecuter extends Thread {
 			if (!(strCurDataSet.contains("xrateorg")
 					|| strCurDataSet.contains("google") || strCurDataSet
 					.contains("mwatch"))) {
-				httpget.getParams().setParameter(
-						"http.protocol.cookie-datepatterns",
-						Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z",
-								"EEE, dd MMM yyyy HH:mm:ss z"));
+				httpget.getParams().setParameter(Constants.HttpSetting.PARAM_COKKIE_DATE_PATTERN,
+						Arrays.asList(Constants.HttpSetting.COKKIE_DATE_PATTERN_1, Constants.HttpSetting.COKKIE_DATE_PATTERN_2));
 			}
 
 			/*

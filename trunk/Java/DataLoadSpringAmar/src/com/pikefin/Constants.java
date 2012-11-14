@@ -73,4 +73,8 @@ public interface Constants {
 		
 		
 	}
+	
+	interface Urls{
+		public static final String SURVEY_MOST_URL="http://data.bls.gov/cgi-bin/surveymost";
+	}
 }
