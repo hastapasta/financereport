@@ -39,7 +39,8 @@
  <bean id="hibernateConfigProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
    <property name="location">
        <value>classpath:hibernate.properties</value>
-   </property>
+   </property> 
+  
 </bean>
 
 <!-- data source configuration -->
@@ -65,7 +66,7 @@
           <property name="hibernateProperties">
     <props>
     <prop key="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</prop>
-    <prop key="hibernate.show_sql">true</prop>
+    <prop key="hibernate.show_sql">false</prop>
     <!--  <prop key="hibernate.connection.autocommit">false</prop> -->
 <!--  <prop key="hibernate.current_session_context_class">managed</prop>  -->
     </props>
