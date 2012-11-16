@@ -2,6 +2,7 @@ package com.pikefin.dao.impl;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -27,15 +28,19 @@ import com.pikefin.exceptions.GenericException;
  */
 @Component
 public class AlertDaoImpl extends AbstractDao<Alert> implements AlertDao {
+	private static Logger log=Logger.getLogger(AlertDaoImpl.class);
 		@Autowired
 		private SessionFactory sessionFactory;
 		public AlertDaoImpl(SessionFactory sessionFactory){
 			super(Alert.class);
+			log.info("Alert Dao impl instance is created");
 			this.sessionFactory=sessionFactory;
 		}
 		
 		public AlertDaoImpl() {
 			 super(Alert.class);
+			log.info("Alert Dao impl instance is created");
+
 		    }
 		@Override
 		/**

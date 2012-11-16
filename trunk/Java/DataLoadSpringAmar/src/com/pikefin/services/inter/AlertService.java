@@ -1,8 +1,8 @@
 package com.pikefin.services.inter;
 
 import com.pikefin.exceptions.GenericException;
-import com.pikefin.services.DataGrabExecuter;
+import com.pikefin.services.DataGrabExecutor;
 
 public interface AlertService {
-public void checkAlerts(DataGrabExecuter dataGrab) throws GenericException;
+public void checkAlerts(DataGrabExecutor dataGrab) throws GenericException;
 }

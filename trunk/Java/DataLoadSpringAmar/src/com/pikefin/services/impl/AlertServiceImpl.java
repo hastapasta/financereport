@@ -38,7 +38,7 @@ import com.pikefin.dao.inter.AlertDao;
 import com.pikefin.dao.inter.AlertTargetDao;
 import com.pikefin.exceptions.GenericException;
 import com.pikefin.exceptions.PikefinException;
-import com.pikefin.services.DataGrabExecuter;
+import com.pikefin.services.DataGrabExecutor;
 import com.pikefin.services.inter.AlertService;
 import com.pikefin.services.inter.AlertTargetService;
 import com.pikefin.services.inter.EmailService;
@@ -69,7 +69,7 @@ public class AlertServiceImpl implements AlertService{
 	private BigDecimal dChange;
 	@Override
 	//@Transactional(propagation=Propagation.REQUIRES_NEW)
-	public void checkAlerts(DataGrabExecuter dataGrab) throws GenericException {
+	public void checkAlerts(DataGrabExecutor dataGrab) throws GenericException {
 		  
 				
 			String strTicker;

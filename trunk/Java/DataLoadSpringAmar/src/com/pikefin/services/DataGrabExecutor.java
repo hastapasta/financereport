@@ -67,8 +67,8 @@ import com.pikefin.services.inter.JobService;
 
 
 
-public class DataGrabExecuter extends Thread {
-	Logger log=Logger.getLogger(DataGrabExecuter.class);
+public class DataGrabExecutor extends Thread {
+	Logger log=Logger.getLogger(DataGrabExecutor.class);
 	//@Autowired
 	private BatcheService batchService=ApplicationSetting.getInstance().getApplicationContext().getBean(BatcheService.class);
 	//@Autowired
@@ -124,7 +124,7 @@ public class DataGrabExecuter extends Thread {
 	
 	
 
-	public DataGrabExecuter(Task task, int batchId, Schedule schedule, RepeatType repeatType, boolean verifyMode, int priority) {
+	public DataGrabExecutor(Task task, int batchId, Schedule schedule, RepeatType repeatType, boolean verifyMode, int priority) {
 		pf=new ProcessingFunctions(this);
 		this.priority = priority;
 	  	this.currentTaskId = task.getTaskId();

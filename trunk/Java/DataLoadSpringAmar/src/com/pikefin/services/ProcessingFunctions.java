@@ -50,11 +50,11 @@ public class ProcessingFunctions {
 	String propStrTableDataSet;
 
 	
-	DataGrabExecuter dg;
+	DataGrabExecutor dg;
 	
 	//CustomBufferedWriter stdoutwriter;
 	
-	public ProcessingFunctions(DataGrabExecuter tmpDG) {
+	public ProcessingFunctions(DataGrabExecutor tmpDG) {
 		//this.uf = tmpUF;
 		this.dg = tmpDG;
 	}

@@ -22,8 +22,8 @@ import com.pikefin.exceptions.GenericException;
 import com.pikefin.services.inter.EmailService;
 import com.pikefin.services.inter.LogAlertService;
 @Service
-public class NotificationExecuter extends Thread {
-	Logger log=Logger.getLogger(NotificationExecuter.class);
+public class NotificationExecutor extends Thread {
+	Logger log=Logger.getLogger(NotificationExecutor.class);
 	@Autowired
 	private LogAlertService logAlertService;
 	private List<HashMap<String,String>> listAlerts;
@@ -116,7 +116,7 @@ public void run() {
 			log.error("Problem with sql statement. "+sqle.getErrorCode()+" "+sqle.getErrorMessage()+" "+sqle.getErrorDescription());
 		}
 	try {
-			NotificationExecuter.sleep(nInterval);
+			NotificationExecutor.sleep(nInterval);
 		} catch (InterruptedException ie) {
 			log.error("NotificationExecuter Thread interrupted. Terminating.");
 			return;

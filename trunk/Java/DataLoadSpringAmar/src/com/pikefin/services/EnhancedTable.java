@@ -25,7 +25,7 @@ public class EnhancedTable {
 	private int nNumOfColumns;
 	private String strTableSet;
 	private String strSection;
-	private DataGrabExecuter dg;
+	private DataGrabExecutor dg;
 	private boolean bColTHTags;
 	private String strEndDataMarker;
 	private Job j;
@@ -35,7 +35,7 @@ public class EnhancedTable {
 	ExtractTable currentExtractTable;
 	
 	
-	public EnhancedTable(DataGrabExecuter dg,String inputTableSet, String inputSection,Job inputJob) {
+	public EnhancedTable(DataGrabExecutor dg,String inputTableSet, String inputSection,Job inputJob) {
 		this.dg = dg;
 		this.strTableSet = inputTableSet;
 		this.strSection = inputSection;

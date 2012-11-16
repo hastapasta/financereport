@@ -1,6 +1,8 @@
 package com.pikefin.dao.impl;
 
 import java.util.List;
+
+import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -24,6 +26,8 @@ import com.pikefin.exceptions.GenericException;
  */
 @Component
 public class ExcludeDaoImpl extends AbstractDao<Exclude> implements ExcludeDao {
+	private static Logger log=Logger.getLogger(ExcludeDaoImpl.class);
+
 	@Autowired
 	private SessionFactory sessionFactory;
 	public ExcludeDaoImpl(SessionFactory sessionFactory) {
@@ -186,7 +190,7 @@ public class ExcludeDaoImpl extends AbstractDao<Exclude> implements ExcludeDao {
 		//	Criterion taskICriteriad=Restrictions.eq("task", taskId);
 		//	criteria=criteria.createCriteria("task").add(taskICriteriad);
 			Query query=session.createQuery("select c from Exclude c where c.task.taskId="+taskId);
-			System.out.println("Loading for Task Id=*********"+taskId); 
+			log.info("Loading Exclude for Task Id=*********"+taskId); 
 			excludes=(List<Exclude>)query.list();
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());

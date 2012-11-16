@@ -30,8 +30,8 @@ import com.pikefin.services.inter.TimeEventService;
 
 
 @Service
-public class BrokerExecuter extends Thread {
-	Logger logger = Logger.getLogger(BrokerExecuter.class);
+public class BrokerExecutor extends Thread {
+	Logger logger = Logger.getLogger(BrokerExecutor.class);
 	
 	@Autowired
 	private TimeEventService timeEventService;
@@ -42,7 +42,7 @@ public class BrokerExecuter extends Thread {
 	@Autowired
 	private RepeatTypeService repeatService;
 	@Autowired
-	private NotificationExecuter notification;
+	private NotificationExecutor notification;
 	@Autowired
 	private JobQueueService jobQueueService;
 	@Autowired
@@ -54,19 +54,19 @@ public class BrokerExecuter extends Thread {
 	private Calendar threadStartDate;
 	private Calendar threadEndDate;
 	private ArrayList<QueuedJob> waitingJobList;
-	private DataGrabExecuter[] runningJobsArray;
+	private DataGrabExecutor[] runningJobsArray;
 	
 	
 	//  Notification notification;
 	
-	 public BrokerExecuter(){
+	 public BrokerExecutor(){
 		
 	 }
 	
 	@Override
 	public void run(){
 		//Refreshing the waiting job list and runningJobsArray, to clear old objects
-		 runningJobsArray=new DataGrabExecuter[ApplicationSetting.getInstance().getMaxAllowedThreads()];
+		 runningJobsArray=new DataGrabExecutor[ApplicationSetting.getInstance().getMaxAllowedThreads()];
 		 waitingJobList = new ArrayList<QueuedJob>();
 		waitingJobList.clear();
 		 PikefinUtil.clearArray(runningJobsArray);
@@ -223,10 +223,10 @@ public class BrokerExecuter extends Thread {
 	 * @return
 	 * @throws DataAccessException
 	 */
-	 public DataGrabExecuter initiateJob(int nPriority) throws DataAccessException  {
+	 public DataGrabExecutor initiateJob(int nPriority) throws DataAccessException  {
 		 
 		  Task task;
-		  DataGrabExecuter dg;
+		  DataGrabExecutor dg;
 		  //Sorting the  Queued Jobs
 		 Collections.sort(waitingJobList);
 		 boolean isAlreadyRunning;
@@ -249,7 +249,7 @@ public class BrokerExecuter extends Thread {
 						  ApplicationSetting.getInstance().getStdoutwriter().writeln("Not initiating schedule because one thread is reserved for minimum priority of " + nPriority + ". Task: " + waitingJobList.get(i).getTask().getTaskId() + ", Priority: " + waitingJobList.get(i).getPriority(), Logs.STATUS1, "DL4.36");
 						  return null;
 					  }
-					  dg = new DataGrabExecuter(task,0,waitingJobList.get(i).getSchedule(),waitingJobList.get(i).getRepeatType(),waitingJobList.get(i).isVerifyMode(),waitingJobList.get(i).getPriority());
+					  dg = new DataGrabExecutor(task,0,waitingJobList.get(i).getSchedule(),waitingJobList.get(i).getRepeatType(),waitingJobList.get(i).isVerifyMode(),waitingJobList.get(i).getPriority());
 					  dg.start();
 					  ApplicationSetting.getInstance().getStdoutwriter().writeln("Initiated DataGrab thread " + dg.getName(),Logs.THREAD,"DL4");
 					  waitingJobList.remove(i);
@@ -281,7 +281,7 @@ public class BrokerExecuter extends Thread {
 		  }
 	  }
 
-	 public void updateJobStats(DataGrabExecuter dg) {
+	 public void updateJobStats(DataGrabExecutor dg) {
 		    if (ApplicationSetting.getInstance().isLoadHistoricalData()!= true) { 
 
 			  try {
