@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.pikefin.businessobjects.Splits" table="splits" >
+        <id name="splitId" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="dateIssued" type="timestamp">
+            <column name="date_issued" length="19" not-null="true" />
+        </property>
+        <many-to-one name="entity" 
+            class="com.pikefin.businessobjects.Entity" column="entity_id">
+            
+        </many-to-one>
+       
+        <property name="cutoffDate" type="timestamp">
+            <column name="cutoff_date" length="19" />
+        </property>
+        <property name="ratio" type="string">
+            <column name="ratio" length="20" not-null="true">
+                <comment>format is new:old</comment>
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>

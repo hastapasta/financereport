@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.pikefin.businessobjects.JobQueue" table="job_queue" >
+		<id name="jobQueueId" column="id" type="integer">
+			<generator class="identity" />
+		</id>
+		   <property name="startTime" type="timestamp">
+            <column name="start_time" length="19" />
+        </property>
+       
+        <property name="status" type="string">
+            <column name="status" length="30" not-null="true" />
+        </property>
+        <property name="priority" type="int">
+            <column name="priority" not-null="true">
+                <comment>priority is irrelevant once status is RUNNABLE</comment>
+            </column>
+        </property>
+        <property name="queuedTime" type="timestamp">
+            <column name="queued_time" length="19" />
+        </property>
+               
+        <many-to-one name="task" 
+			class="com.pikefin.businessobjects.Task" column="task_id" 
+			not-null="true"  />
+     
+   </class>
+   
+   
+</hibernate-mapping>
