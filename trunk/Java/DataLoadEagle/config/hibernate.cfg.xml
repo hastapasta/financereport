@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+ 
+ 
+<hibernate-configuration>
+	<session-factory>
+		<!-- Database connection settings -->
+		<property name="connection.driver_class">
+			com.mysql.jdbc.Driver
+		</property>
+		<property name="connection.url">
+			jdbc:mysql://localhost:3306/findata?tcpKeepAlive=true
+		</property>
+		<property name="connection.username">root</property>
+		<property name="connection.password">root</property>
+
+		<property name="connection.pool_size">2</property>
+		<property name="show_sql">true</property>
+		<property name="dialect">
+			org.hibernate.dialect.MySQLDialect
+		</property>
+		<property name="current_session_context_class">thread</property>
+		<property name="cache.provider_class">
+			org.hibernate.cache.NoCacheProvider
+		</property> 
+<property name="mappingLocations">classpath:mapping
+<list>
+	     	    <value>classpath:mapping/*.xml</value>
+
+	<!-- 	<mapping resource="conf/Alert.hbm.xml" />
+		<mapping resource="conf/Entity.hbm.xml" />
+		<mapping resource="conf/FactData.hbm.xml" />
+		<mapping resource="conf/TimeEvent.hbm.xml" />
+		<mapping resource="conf/User.hbm.xml" />
+		<mapping resource="conf/AlertTarget.hbm.xml" />
+		<mapping resource="conf/LogAlert.hbm.xml" />
+		<mapping resource="conf/RepeatType.hbm.xml" />
+		<mapping resource="conf/Schedule.hbm.xml" />
+		<mapping resource="conf/Task.hbm.xml" />
+		<mapping resource="conf/JobQueue.hbm.xml" />
+		<mapping resource="conf/LogTask.hbm.xml" />
+		<mapping resource="conf/Exclude.hbm.xml" />
+		<mapping resource="conf/LogNotification.hbm.xml" />
+		<mapping resource="conf/Job.hbm.xml" />
+		<mapping resource="conf/Metric.hbm.xml" />
+		<mapping resource="conf/EntityGroup.hbm.xml" />
+		<mapping resource="conf/ExtractSingle.hbm.xml" />
+		<mapping resource="conf/EntityAlias.hbm.xml" />
+		<mapping resource="conf/Country.hbm.xml" />
+		<mapping resource="conf/ExtractTable.hbm.xml" />
+		<mapping resource="conf/Column.hbm.xml" />
+		<mapping resource="conf/InputSource.hbm.xml" /> -->
+		</list>
+	</property>
+	</session-factory>
+</hibernate-configuration>
