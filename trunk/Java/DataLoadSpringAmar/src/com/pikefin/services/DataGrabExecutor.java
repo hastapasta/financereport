@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -36,9 +35,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFText2HTML;
 import org.apache.pdfbox.util.PDFTextStripper;
 import org.springframework.dao.DataAccessException;
-
+import com.pikefin.ErrorCode;
 import pikefin.log4jWrapper.Logs;
-
 import com.pikefin.ApplicationSetting;
 import com.pikefin.Constants;
 import com.pikefin.PikefinUtil;
@@ -89,11 +87,11 @@ public class DataGrabExecutor extends Thread {
 	private RepeatType repeatType;
 	private int currentTaskId;
 	private Batches currentBatche;
-	int nCount;
+	private int nCount;
 	
-	String strStage1URL;
-	String strStage2URL;
-	String strFactTable;
+	private String strStage1URL;
+	 String strStage2URL;
+	private String strFactTable;
 	private boolean verifyMode; //boolean for verify mode. Loads data and skips alert processing.
 	private int batchId;
 	int nJobBatch;
@@ -175,14 +173,14 @@ public class DataGrabExecutor extends Thread {
 			if (calJobProcessingStart != null)
 				return(calJobProcessingStart);
 			else
-				throw new GenericException();
+				throw new GenericException(ErrorCode.COULD_NOT_FIND_JOB_PROCESSING_START_TIME,"calJobProcessingStart value is null",null);
 			//break;
 			
 		case JOB_END:
 			if (calJobProcessingEnd != null)
 				return(calJobProcessingEnd);
 			else
-				throw new GenericException();
+				throw new GenericException(ErrorCode.COULD_NOT_FIND_JOB_PROCESSING_END_TIME,"calJobProcessingEnd value is null",null);
 			//break;
 		case ALERT_START:
 			/*
@@ -192,7 +190,7 @@ public class DataGrabExecutor extends Thread {
 				if (calAlertProcessingStart != null)
 					return(calAlertProcessingStart);
 				else 
-					throw new GenericException();
+					throw new GenericException(ErrorCode.COULD_NOT_FIND_JOB_ALERT_START_TIME,"calAlertProcessingStart value is null",null);
 			}
 			else
 				return(null);
@@ -202,7 +200,7 @@ public class DataGrabExecutor extends Thread {
 				if (calAlertProcessingEnd != null)
 					return(calAlertProcessingEnd);
 				else
-					throw new GenericException();
+					throw new GenericException(ErrorCode.COULD_NOT_FIND_JOB_ALERT_END_TIME,"calAlertProcessingEnd value is null",null);
 			}
 			else 
 				return(null);

@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import pikefin.log4jWrapper.Logs;
+import twitter4j.internal.logging.Logger;
+
 import com.pikefin.ApplicationSetting;
 import com.pikefin.PikefinUtil;
 import com.pikefin.TheKey;
@@ -49,6 +51,7 @@ import com.pikefin.services.inter.LogTweetsService;
 import com.pikefin.services.inter.NotificationService;
 @Service
 public class AlertServiceImpl implements AlertService{
+	Logger logger=Logger.getLogger(AlertServiceImpl.class);
 	@Autowired
 	private FactDataService factService;
 	@Autowired
@@ -258,7 +261,7 @@ public class AlertServiceImpl implements AlertService{
 										 */
 										BigDecimal bdTemp = dChange.multiply(new BigDecimal(100));
 										//.setScale(2);
-										//TODO un comment scaling
+										//TODO uncomment scaling
 										strTweet = bdTemp.toString() + "% ";
 										strTweet += tempAlert.getAlertTimeEvent().getName();
 										  
@@ -395,6 +398,9 @@ public class AlertServiceImpl implements AlertService{
 										logTweets.setAlert(tempAlert);
 										if(strErrorMsg!=null && strErrorMsg.length()>0){
 											logTweets.setErrorMessage(strErrorMsg.length()>200?strErrorMsg.substring(0,200):strErrorMsg);
+											logger.info("Tweet Message couldsent-"+strTweet);
+											}else{
+												logger.info("Tweet Message sent-"+strTweet);
 											}
 										logTweetService.saveLogTweetsInfo(logTweets);
 									} 

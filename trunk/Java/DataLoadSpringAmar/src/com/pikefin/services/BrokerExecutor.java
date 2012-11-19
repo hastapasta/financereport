@@ -271,7 +271,6 @@ public class BrokerExecutor extends Thread {
 		   for (int i=0;i<runningJobsArray.length;i++) {
 			  if (runningJobsArray[i] != null) {
 				  if (Thread.State.TERMINATED==runningJobsArray[i].getState()) {
-					 
 					  updateJobStats(runningJobsArray[i]);
 					  ApplicationSetting.getInstance().getStdoutwriter().writeln("Cleaning up thread " + runningJobsArray[i].getName(),Logs.THREAD,"DL3");
 					  runningJobsArray[i] = null;

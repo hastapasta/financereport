@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import twitter4j.internal.logging.Logger;
+
 import com.pikefin.ErrorCode;
 import com.pikefin.businessobjects.LogTweets;
 import com.pikefin.dao.AbstractDao;
@@ -22,6 +25,7 @@ import com.pikefin.exceptions.GenericException;
  */
 @Component
 public class LogTweetsDaoImpl extends AbstractDao<LogTweets> implements LogTweetsDao {
+	Logger logger=Logger.getLogger(LogTweetsDaoImpl.class);
 	@Autowired
 	private SessionFactory sessionFactory;
 	public LogTweetsDaoImpl(SessionFactory sessionFactory) {
@@ -187,7 +191,7 @@ public class LogTweetsDaoImpl extends AbstractDao<LogTweets> implements LogTweet
 			Session session=getOpenSession();
 			Query query=session.createQuery("select count(c) from LogTweets c,Alert a where c.alert.alertId=a.alertId and  c.alert.alertUser.userId="+userId +" and (MINUTE(c.dateTime)/15)=(MINUTE(CURRENT_TIMESTAMP())/15)");
 			count=(Long)query.uniqueResult();
-			System.out.println(query);
+			logger.info("Total tweet counts for userid" +userId +" ="+count);
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_LOG_TWEETS_COUNT,e.getMessage() , e.getCause());
 		}catch (Exception e) {

@@ -163,7 +163,7 @@ public class MoneyTime {
 	
 
 	
-	static EntityService entityServiceStatic;
+	static EntityService entityServiceStatic=ApplicationSetting.getInstance().getApplicationContext().getBean(EntityService.class);
 	public static String getCalendarYearAndQuarter(String strTicker, int fiscalquarter, int fiscalyear) throws GenericException	{
 		int calquarter=0;
 		int calyear=fiscalyear;

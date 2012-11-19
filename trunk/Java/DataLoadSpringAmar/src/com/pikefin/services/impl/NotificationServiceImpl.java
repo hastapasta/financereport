@@ -17,12 +17,14 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
+import twitter4j.internal.logging.Logger;
 
 import com.pikefin.ApplicationSetting;
 import com.pikefin.exceptions.GenericException;
 import com.pikefin.services.inter.NotificationService;
 @Service
 public class NotificationServiceImpl implements NotificationService{
+	Logger logger =Logger.getLogger(NotificationServiceImpl.class);
 	@Autowired
 	private VelocityEngine velocityEngine;
 	@Override
@@ -38,7 +40,8 @@ public class NotificationServiceImpl implements NotificationService{
 	}
 @Transactional(propagation=Propagation.REQUIRES_NEW)
 	public String tweet(String strTweet,String userName, String password, String authentication1, String authentication2, String authentication3, String authentication4) throws GenericException{	
-	  	
+	  
+		logger.info("Start sending the tweet messages. Current tweet message is -"+strTweet);
 		String strErrorMsg = "";
 		try	{
 			ConfigurationBuilder cb = new ConfigurationBuilder();

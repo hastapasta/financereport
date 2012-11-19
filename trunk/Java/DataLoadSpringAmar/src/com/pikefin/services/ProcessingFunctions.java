@@ -504,14 +504,8 @@ public void postProcessTableXrateorg()
 {
 	String[] rowheaders = propTableData.get(1);
 	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	
-
-
 	String[] tmpArray = {"value","date_collected","entity_id"};
-	
 	newTableData.add(tmpArray);
-	
-	
 	for (int i=0;i<rowheaders.length;i++)
 	{
 		String strTmp = rowheaders[i];
@@ -551,14 +545,123 @@ public void postProcessTableXrateorg()
 	
 	
 	propTableData = newTableData;
-	
-	
-	
-	
-	
+
 }
 
+public void postProcessMWatchEPSEstTable() throws GenericException,SkipLoadException {
+	
+	/* OFP 11/12/2011 - One issue with this data source is because the column headers are
+	 * relative (i.e. "this quarter", "next quarter") there is no way to guarantee which quarter
+	 * marketwatch is referring to. If they are slow in updating the website, then the data will
+	 * be collected for the wrong quarters.
+	 * As of 12/15/2010 there is no data for RAND nor VIA and no obvious string to key off of for a no data check.
+	 
+*/
+	
 
+	String[] rowdata, newrow;
+	String[] colheaders = propTableData.get(0);
+	Calendar cal = Calendar.getInstance();
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	String[] tmpArray;
+if (propStrTableDataSet.contains("q"))
+	{
+		tmpArray=new String[7];
+		tmpArray[0]="value";
+		tmpArray[1]="date_collected";
+		tmpArray[2]="entity_id";
+		tmpArray[3]="fiscalyear";
+		tmpArray[4]="fiscalquarter";
+		tmpArray[5]="calquarter";
+		tmpArray[6]="calyear";
+	/*
+		 * OFP 11/12/2011 - Ran into an issue where the column headers weren't being
+		 * read correctly.
+		 */
+		
+		if (!colheaders[0].toUpperCase().equals("THIS QUARTER")) {
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Invalid column header format for entity_id " + dg.nCurrentEntityId,Logs.STATUS2,"PF46");
+			throw new SkipLoadException();
+		}
+			
+		
+		
+	}else{
+		tmpArray=new String[4];
+		tmpArray[0]="value";
+		tmpArray[1]="date_collected";
+		tmpArray[2]="entity_id";
+		tmpArray[3]="fiscalyear";
+		
+	}
+	newTableData.add(tmpArray);
+	String tmpVal;
+	
+	
+
+	for (int row=2;row<propTableData.size();row++)
+	{
+		rowdata = propTableData.get(row);
+		
+		for (int col=0;col<colheaders.length;col++)
+		{
+			newrow = new String[7];
+			if (rowdata[col].compareTo("void") != 0)
+			{
+			tmpVal = rowdata[col];
+				if (tmpVal.contains("span"))
+				//this is a negative number
+					newrow[0] = tmpVal.substring(tmpVal.indexOf(">-")+1,tmpVal.indexOf("</"));
+				else
+					newrow[0] = tmpVal;
+				
+				//Berkshire tends to be the only company with an EPS in the thousands.
+				newrow[0] = newrow[0].replace(",", "");
+				newrow[1] = "NOW()";
+				newrow[2] = dg.nCurrentEntityId + "";
+				String strFiscalYearQuarter = MoneyTime.getFiscalYearAndQuarter(strTicker,cal.get(Calendar.MONTH), cal.get(Calendar.YEAR));
+				int nFiscalQuarter=Integer.parseInt(strFiscalYearQuarter.substring(0,1));
+				int nFiscalYear = Integer.parseInt(strFiscalYearQuarter.substring(1,5));
+				if (colheaders[col].toUpperCase().equals("NEXT QUARTER"))
+				{
+					nFiscalQuarter++;
+					if (nFiscalQuarter == 5)
+					{
+						nFiscalYear++;
+						nFiscalQuarter=1;
+					}
+				}
+				else if (colheaders[col].toUpperCase().equals("NEXT FISCAL"))
+				{
+					nFiscalYear++;
+				}
+					
+				newrow[3] = nFiscalYear + "";
+				//newrow[4] = colheaders[col].substring(5,7);//Integer.toString(row-1);
+				
+				
+				//don't use the year returned from getFiscalYearAndQuarter - use the one retrieved from the web page
+				if (propStrTableDataSet.contains("q"))
+				{
+					String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, nFiscalQuarter, nFiscalYear);
+				
+					newrow[4] = nFiscalQuarter + "";
+					newrow[5] = strCalYearQuarter.substring(0,1);
+					newrow[6] = strCalYearQuarter.substring(1,5);
+				}
+					
+				newTableData.add(newrow);
+				
+			}
+			
+			
+		}
+		
+	}
+	propTableData = newTableData;
+
+
+}
 /*public void postProcessTreasuryDirect() throws SQLException
 {
 	
@@ -2013,136 +2116,7 @@ public void postProcessWikipediaGasoline() throws SQLException {
 		
 	}
 
-public void postProcessMWatchEPSEstTable() throws SQLException,SkipLoadException {
-	
-		 OFP 11/12/2011 - One issue with this data source is because the column headers are
-		 * relative (i.e. "this quarter", "next quarter") there is no way to guarantee which quarter
-		 * marketwatch is referring to. If they are slow in updating the website, then the data will
-		 * be collected for the wrong quarters.
-		 
-		
-		 * As of 12/15/2010 there is no data for RAND nor VIA and no obvious string to key off of for a no data check.
-		 
 
-		
-
-		String[] rowdata, newrow;
-		String[] colheaders = propTableData.get(0);
-		
-		Calendar cal = Calendar.getInstance();
-		
-		
-		
-		
-		
-		ArrayList<String[]> newTableData = new ArrayList<String[]>();
-		
-		String[] tmpArray = {"value","date_collected","entity_id","fiscalyear"};
-		
-		if (propStrTableDataSet.contains("q"))
-		{
-			int nSize = tmpArray.length;
-			tmpArray = UtilityFunctions.extendArray(tmpArray);
-			tmpArray = UtilityFunctions.extendArray(tmpArray);
-			tmpArray = UtilityFunctions.extendArray(tmpArray);
-			tmpArray[nSize] = "fiscalquarter";
-			tmpArray[nSize+1] = "calquarter";
-			tmpArray[nSize+2] = "calyear";
-			
-			
-			 * OFP 11/12/2011 - Ran into an issue where the column headers weren't being
-			 * read correctly.
-			 
-			
-			if (!colheaders[0].toUpperCase().equals("THIS QUARTER")) {
-				ApplicationSetting.getInstance().getStdoutwriter().writeln("Invalid column header format for entity_id " + dg.nCurrentEntityId,Logs.STATUS2,"PF46");
-				throw new SkipLoadException();
-			}
-				
-			
-			
-		}
-		newTableData.add(tmpArray);
-		String tmpVal;
-		
-		
-
-		for (int row=2;row<propTableData.size();row++)
-		{
-			rowdata = propTableData.get(row);
-			
-			for (int col=0;col<colheaders.length;col++)
-			{
-				newrow = new String[7];
-				if (rowdata[col].compareTo("void") != 0)
-				{
-				
-					
-					tmpVal = rowdata[col];
-					
-					if (tmpVal.contains("span"))
-					//this is a negative number
-						newrow[0] = tmpVal.substring(tmpVal.indexOf(">-")+1,tmpVal.indexOf("</"));
-					else
-						newrow[0] = tmpVal;
-					
-					//Berkshire tends to be the only company with an EPS in the thousands.
-					newrow[0] = newrow[0].replace(",", "");
-			
-				
-					newrow[1] = "NOW()";
-					
-					newrow[2] = dg.nCurrentEntityId + "";
-					
-					String strFiscalYearQuarter = MoneyTime.getFiscalYearAndQuarter(strTicker,cal.get(Calendar.MONTH), cal.get(Calendar.YEAR),dbf);
-					
-					int nFiscalQuarter=Integer.parseInt(strFiscalYearQuarter.substring(0,1));
-					int nFiscalYear = Integer.parseInt(strFiscalYearQuarter.substring(1,5));
-					
-					if (colheaders[col].toUpperCase().equals("NEXT QUARTER"))
-					{
-						nFiscalQuarter++;
-						if (nFiscalQuarter == 5)
-						{
-							nFiscalYear++;
-							nFiscalQuarter=1;
-						}
-					}
-					else if (colheaders[col].toUpperCase().equals("NEXT FISCAL"))
-					{
-						nFiscalYear++;
-					}
-						
-						
-					
-					
-					
-					newrow[3] = nFiscalYear + "";
-					//newrow[4] = colheaders[col].substring(5,7);//Integer.toString(row-1);
-					
-					
-					don't use the year returned from getFiscalYearAndQuarter - use the one retrieved from the web page
-					if (propStrTableDataSet.contains("q"))
-					{
-						String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, nFiscalQuarter, nFiscalYear,dbf);
-					
-						newrow[4] = nFiscalQuarter + "";
-						newrow[5] = strCalYearQuarter.substring(0,1);
-						newrow[6] = strCalYearQuarter.substring(1,5);
-					}
-						
-					newTableData.add(newrow);
-					
-				}
-				
-				
-			}
-			
-		}
-		propTableData = newTableData;
-
-	
-}
 
 
 
