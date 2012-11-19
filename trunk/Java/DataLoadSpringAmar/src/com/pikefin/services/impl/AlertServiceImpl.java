@@ -259,8 +259,7 @@ public class AlertServiceImpl implements AlertService{
 										 * dChange gets used for inserting into log_alerts so using temp
 										 * variable for tweet format modifications.
 										 */
-										BigDecimal bdTemp = dChange.multiply(new BigDecimal(100));
-										//.setScale(2);
+										BigDecimal bdTemp = dChange.multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
 										//TODO uncomment scaling
 										strTweet = bdTemp.toString() + "% ";
 										strTweet += tempAlert.getAlertTimeEvent().getName();
@@ -282,7 +281,7 @@ public class AlertServiceImpl implements AlertService{
 										/*
 										 * Figure out if this alert represents an actual stock ticker. If so, then use the $ tag; otherwise use the # tag.
 										 */
-										List<EntityGroup> entityGroupList= entityGroupService .loadEntityGroupsByEntity(tempAlert.getAlertEntity());
+										List<EntityGroup> entityGroupList= entityGroupService.loadEntityGroupsByEntity(tempAlert.getAlertEntity());
 										
 										
 										if (entityGroupList!=null && entityGroupList.size()!=0) {
