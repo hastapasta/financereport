@@ -582,7 +582,7 @@ public class DataGrabExecutor extends Thread {
 			nvps.add(new BasicNameValuePair("survey", "ln"));
 			httppost.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
 			response = httpclient.execute(httppost);
-
+			log.debug("START LOADING URL	-"+Constants.Urls.SURVEY_MOST_URL);
 		} else {
 
 			this.strStage2URL = this.strStage1URL.replace("${ticker}", this.strCurrentTicker);
@@ -602,7 +602,7 @@ public class DataGrabExecutor extends Thread {
 			// }
 
 			HttpGet httpget = new HttpGet(this.strStage2URL);
-
+			log.debug("START LOADING URL	-"+this.strStage2URL);
 			/*
 			 * Emulate a browser.
 			 */
@@ -702,7 +702,9 @@ public class DataGrabExecutor extends Thread {
 			}
 		}
 		returned_content = sb.toString();
-
+		if(log.isDebugEnabled()){
+		log.debug("****	RESPONSE RETURNED FROM DEFAULT URL PROCESSING ***-"+returned_content);
+		}
 		in.close();
 		calJobProcessingStage2End = Calendar.getInstance();
 
@@ -725,6 +727,7 @@ public class DataGrabExecutor extends Thread {
 			args1[0] = String.class;
 
 			Method m = this.getClass().getMethod(strCustomURLFuncName, args1);
+			log.debug("INVOKING METHOD-"+strCustomURLFuncName +" FROM GETURL ");
 			m.invoke(this, strDataSet);
 		}
 
@@ -1077,46 +1080,15 @@ public class DataGrabExecutor extends Thread {
 		// Get a list of all the tickers
 
 		int nGroupSize = 100;
-		
-		/*calJobProcessingStage1Start = Calendar.getInstance();
-		calJobProcessingStage1End = Calendar.getInstance();
-		calJobProcessingStage2Start = Calendar.getInstance();
-		calJobProcessingStage2End = Calendar.getInstance();*/
-
-		String query2 = "select entity_groups.id,tasks.metric_id,tasks.use_group_for_reading from entity_groups,entity_groups_tasks,tasks where entity_groups.id=entity_groups_tasks.entity_group_id and entity_groups_tasks.task_id=tasks.id and entity_groups_tasks.task_id="
-				+ currentTaskId;
-		//ResultSet rs = dbf.db_run_query(query2);
-		//SqlRowSet rs = dbf.dbSpringRunQuery(query2);
-		
-		//rs.next();
 		EntityGroup eg = (EntityGroup)currentTask.getEntityGroups().iterator().next();
 		int nGroupId = eg.getEntityGroupId();
-		HashSet<Entity> entities = (HashSet<Entity>)eg.getEntities();
-
-		//String query = "select count(entities.id) as cnt from entities,entities_entity_groups ";
-		//query += " where entities_entity_groups.entity_group_id=" + nGroupId;
-		//query += " AND entities_entity_groups.entity_id=entities.id ";
-		
-		//rs = dbf.db_run_query(query);
-		//rs = dbf.dbSpringRunQuery(query);
-		
-		//rs.next();
+		Set<Entity> entities = eg.getEntities();
 
 		int nTotalCount = eg.getEntities().size();
-
-		//query = "select * from jobs where data_set='" + strDataSet + "'";
-
-		//ResultSet rs2 = dbf.db_run_query(query);
-		//SqlRowSet rs2 = dbf.dbSpringRunQuery(query);
-		//rs2.next();
-
 		String strURLStatic = currentJob.getUrlStatic();
 
 		int nGroupCount = 1;
-		//int nCurrentCount = 0;
-
 		HttpResponse response;
-
 		returned_content = "<begintag>";
 
 		boolean bDone = false;
@@ -1125,28 +1097,16 @@ public class DataGrabExecutor extends Thread {
 
 			HttpClient httpclient = new DefaultHttpClient();
 
-			//query = "select entities.* from entities,entities_entity_groups ";
-			//query += " where entities_entity_groups.entity_group_id="
-				//	+ nGroupId;
-			//query += " AND entities_entity_groups.entity_id=entities.id ";
-			//query += " order by entities.id ";
-			//query += " limit " + nGroupSize + " offset "
-			///		+ (nGroupSize * (nGroupCount - 1));
-			//rs = dbf.db_run_query(query);
-			//rs = dbf.dbSpringRunQuery(query);
-
 			String strList = "";
 			int nOffset = nGroupSize * (nGroupCount - 1);
 			for (int j=nOffset;j<nOffset + nGroupSize;j++) {
 				Entity e = entities.iterator().next();
 				String strTicker = e.getTicker();
 
-				if (strTicker.equals("BF/B")) {
-					// dg.strCurrentTicker = "BF-B";
-					strTicker = "BF-B";
-				} else if (strTicker.equals("BRK/A")) {
-					// dg.strCurrentTicker = "BRK-A";
-					strTicker = "BRK-A";
+				if (Constants.Ticker.TICKER_BF_BY_B.equals(strTicker)) {
+					strTicker = Constants.Ticker.TICKER_BF_B;
+				} else if (Constants.Ticker.TICKER_BRK_BY_A.equals(strTicker)) {
+					strTicker =Constants.Ticker.TICKER_BRK_A;
 				}
 
 				strList += strTicker + ",";
@@ -1154,9 +1114,7 @@ public class DataGrabExecutor extends Thread {
 			}
 
 			strList = strList.substring(0, strList.length() - 1);
-
 			String strURL = strURLStatic.replace("${ticker}", strList);
-
 			HttpGet httpget = null;
 			try {
 				/*
@@ -1170,60 +1128,39 @@ public class DataGrabExecutor extends Thread {
 				ApplicationSetting.getInstance().getStdoutwriter().writeln(ex);
 			}
 
-			httpget.getParams().setParameter(
-					"http.protocol.cookie-datepatterns",
-					Arrays.asList("EEE, dd MMM-yyyy-HH:mm:ss z",
-							"EEE, dd MMM yyyy HH:mm:ss z"));
+			httpget.getParams().setParameter(				
+					Constants.HttpSetting.PARAM_COKKIE_DATE_PATTERN,
+					Arrays.asList(Constants.HttpSetting.COKKIE_DATE_PATTERN_1,Constants.HttpSetting.COKKIE_DATE_PATTERN_2));
 
-			httpget.getParams().setParameter("http.protocol.user-agent",
-					"Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
+			httpget.getParams().setParameter(Constants.HttpSetting.PARAM_USER_AGENT, Constants.HttpSetting.BROWSER_MOZILA);
 
 			response = httpclient.execute(httpget);
-
 			HttpEntity entity = response.getEntity();
-
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					entity.getContent()));
-
 			int nTmp;
-
 			String strTemp = "";
-
 			while ((nTmp = in.read()) != -1)
 				strTemp += (char) nTmp;
-
 			in.close();
-
 			httpclient.getConnectionManager().shutdown();
-
 			boolean bDone2 = false;
-
 			int nBegin = 0;
 			int nEnd = 0;
-
 			Calendar cal = Calendar.getInstance();
-			//DateFormat formatter = new SimpleDateFormat("M/d/yyyy");
-
 			boolean bResubmit = false;
 			
 			/*
 			 * Right now only perofrm this check on task 10.
 			 */
 			if (this.currentTaskId == 10) {
-
 				while (bDone2 == false) {
-	
 					nBegin = strTemp.indexOf("<LastTradeDate>", nEnd);
-	
 					if (nBegin == -1)
 						break;
-	
 					nBegin += "<LastTradeDate>".length();
-	
 					nEnd = strTemp.indexOf("</LastTradeDate>", nBegin);
-	
 					String strDate = strTemp.substring(nBegin, nEnd);
-	
 					nBegin = strTemp.indexOf("<LastTradeTime>", nEnd);
 	
 					if (nBegin == -1) {
@@ -1241,9 +1178,7 @@ public class DataGrabExecutor extends Thread {
 	
 					nBegin += "<LastTradeTime>".length();
 					nEnd = strTemp.indexOf("</LastTradeTime>", nBegin);
-	
 					String strTime = strTemp.substring(nBegin, nEnd);
-	
 					String strHour = strTime.substring(0, strTime.indexOf(":"));
 					String strMinute = strTime.substring(strTime.indexOf(":") + 1,
 							strTime.indexOf(":") + 3);

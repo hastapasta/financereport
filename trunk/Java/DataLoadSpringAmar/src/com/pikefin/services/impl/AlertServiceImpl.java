@@ -328,7 +328,7 @@ public class AlertServiceImpl implements AlertService{
 												
 										}
 											
-										if(tempAlert.getAlertEntity().getHash() != null && tempAlert.getAlertEntity().getHash().trim().length()>0) {
+									if(tempAlert.getAlertEntity().getHash() != null && tempAlert.getAlertEntity().getHash().trim().length()>0) {
 												strTweet += " " + tempAlert.getAlertEntity().getHash();
 											
 										}

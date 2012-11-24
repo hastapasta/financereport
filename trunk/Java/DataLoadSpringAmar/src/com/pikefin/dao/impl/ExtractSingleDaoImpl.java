@@ -177,7 +177,8 @@ public class ExtractSingleDaoImpl extends AbstractDao<ExtractSingle> implements 
 			Session session=getOpenSession();
 			//TODO it throws exception saying does not contain the property extractSingleId 
 			//TODO confusion is that what is the relation between ExtractSingle/ExtractTable & Job
-			Query query=session.createQuery("select c from ExtractSingle c, Job j where c.extractSingleId=j.extractKeyBody.extractSingleId and j.dataSet='"+dataSet+"'");
+			//After discussion with oliver we dicided to add a new column to Job table for extract single.
+			Query query=session.createQuery("select c from ExtractSingle c, Job j where c.extractSingleId=j.extractKeySingle.extractSingleId and j.dataSet='"+dataSet+"'");
 			extract= (ExtractSingle)query.uniqueResult();
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_EXTRACT_SINGLE_BY_DATA_SET,e.getMessage() , e.getCause());
