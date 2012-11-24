@@ -1,1 +1,1 @@
-ALTER TABLE `findata`.`jobs` ADD COLUMN `extract_single_id_fk` INT NOT NULL;
+ALTER TABLE `findata`.`jobs` ADD COLUMN `extract_single_id_fk` INT;
