@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.pikefin.businessobjects.ExtractTable" table="extract_tables" >
+		<id name="extractTableId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		<property name="description" column="Description" type="string"/>
+		<property name="tableCount" column="table_count" type="string"/>
+		<property name="topCornerRow" column="top_corner_row" type="integer"/>
+		<property name="numberOfColumns" column="number_of_columns" type="integer"/>
+		<property name="columnThTags" column="column_th_tags" type="boolean"/>
+		<property name="rowsOfData" column="rowsofdata" type="integer"/>
+		<property name="rowInterval" column="rowinterval" type="integer"/>
+		<property name="endDataMarker" column="end_data_marker" type="string"/>
+		
+		<set name="columns" table="columns" 
+				inverse="true" lazy="false" fetch="select">
+            <key>
+                <column name="extract_table_id" not-null="true" />
+            </key>
+            <one-to-many class="com.pikefin.businessobjects.Column" />
+        </set>
+       
+      <!-- mapping for fields column1, column2.. ,befCodeCol1,befCodeCol1... and aftCodeCol1,aftCodeCol2... are left and a relationship with table Column is created   -->
+        
+            </class>
+</hibernate-mapping>

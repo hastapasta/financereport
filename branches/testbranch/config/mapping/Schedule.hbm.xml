@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.pikefin.businessobjects.Schedule" table="schedules" >
+		<id name="scheduleId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		<property name="priority" column="priority" type="integer"/>
+		<!--  This could end up being an issue. I'm attempting to map both the actual foreign key reference and the objects
+		the key refers to. -->
+		<property name="verifyMode" column="verify_mode" type="boolean"/>
+		<many-to-one name="task" 
+			class="com.pikefin.businessobjects.Task" column="task_id" 
+			not-null="true" cascade="save-update"  lazy="false" />
+		<many-to-one name="repeatType" 
+			class="com.pikefin.businessobjects.RepeatType" column="repeat_type_id" 
+			not-null="true" cascade="save-update"  />
+        
+        <property name="obsoleteDataSet" type="string">
+            <column name="obsolete_data_set" length="45" not-null="true" />
+        </property>
+      
+        <property name="startDate" type="date">
+            <column name="Start_Date" length="10" />
+        </property>
+       
+        <property name="obsoleteLastRun" type="timestamp">
+            <column name="obsolete_last_run" length="19" />
+        </property>
+        <property name="obsoleteRunOnce" type="java.lang.Boolean">
+            <column name="obsolete_run_once" />
+        </property>
+      
+        <property name="configureNotification" type="boolean">
+            <column name="configure_notification" not-null="true">
+                <comment>Flag which indicates whether or not an end user can configure notifications against this data_set</comment>
+            </column>
+        </property>
+       
+    </class>
+</hibernate-mapping>
