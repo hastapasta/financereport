@@ -3,6 +3,7 @@ package com.pikefin.services;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -14,12 +15,25 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.springframework.dao.DataAccessException;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
 import pikefin.log4jWrapper.Logs;
+import twitter4j.internal.logging.Logger;
+
 import com.pikefin.ApplicationSetting;
+import com.pikefin.Constants;
 import com.pikefin.businessobjects.Batches;
 import com.pikefin.businessobjects.Entity;
 import com.pikefin.businessobjects.FactData;
@@ -33,6 +47,7 @@ import com.pikefin.services.inter.JobService;
 
 //@Service
 public class ProcessingFunctions {
+	private static final Logger logger=Logger.getLogger(ProcessingFunctions.class);
 	//@Autowired
 	private JobService jobService=ApplicationSetting.getInstance().getApplicationContext().getBean(JobService.class);
 	private EntityService entityService=ApplicationSetting.getInstance().getApplicationContext().getBean(EntityService.class);
@@ -216,6 +231,272 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Job 
 
 
 }
+/**Post process method for task id 10
+ * 
+ * @throws SQLException
+ */
+public void postProcessYahooSharePriceYQL() throws SQLException {
+	/*
+	 * OFP 2/24/2012 - The Yahoo processsing is really convoluted now. We splice together up to 5
+	 * xml streams and then we have to strip out the xml header and tail before putting it through
+	 * the SAX parser. 
+	 * 
+	 * There are 2 reasons for all this complexity:
+	 * 1) Issue with invalid data retrieval from yahoo where we have to check the timestamp and if wrong resend
+	 * the url request.
+	 * 2) YQL has a limit where we can only submit 100 tickers at a time (or this might be a limit on the URL size, can't remember which).
+	 * 
+	 * One other way to handle this situation is to break up the entity_group into 5 different groups and then have
+	 * 5 different jobs, 1 for each group, under the parent task. But in order to do this, groups need to be associated with jobs, not tasks, which I think is how it should be anyways.
+	 */
+	String strTmpValue = propTableData.get(0)[0];
+	
+	/*
+	 * Replace all line separators; carriage returns, whatnot
+	 */
+	strTmpValue = strTmpValue.replaceAll("\\r|\\n", "");
+	
+	int nBeginMerge = strTmpValue.indexOf("<results>") + 9;
+	
+	int nCountMerge = 0;
+	while (true) {
+		if ((nBeginMerge = strTmpValue.indexOf("<results>",nBeginMerge+1)) != -1)
+			nCountMerge++;
+		else
+			break;
+	}
+	
+	nBeginMerge = strTmpValue.indexOf("<results>") + 9;
+	int nEndMerge=0;
+	
+	while (nCountMerge > 0) {
+		if ((nBeginMerge = strTmpValue.indexOf("</results>",nBeginMerge)) == -1) {
+			//shouldn't get here
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Issue merging XML data",Logs.ERROR,"PF998.5");
+			break;
+		}
+			
+		if ((nEndMerge = strTmpValue.indexOf("<results>",nBeginMerge)) == -1) {
+			//shouldn't get here
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Issue merging XML data",Logs.ERROR,"PF998.6");
+			break;
+		}
+		nEndMerge += "<results>".length();
+		String strReplace = strTmpValue.substring(nBeginMerge,nEndMerge);
+		/* replaceFirst uses regex so we have to replace backslash and dollar with escaped characters */
+		/*strReplace = strReplace.replace("\\","\\\\");
+		strReplace = strReplace.replace("$", "\\$");
+		strReplace = strReplace.replace("?", "\\?");*/
+		/* 
+		 * The \Q and \E tell the regex processor to treat everything
+		 * in between as literals.
+		*/
+		strReplace = "\\Q" + strReplace + "\\E";
+		//strReplace = ".yql.sp2.yahoo.com --><\\?xml ";//version=\\\"1.0\\\"";//encoding=\"UTF-8\"?><query xmlns:yahoo=\"http://www.yahooapis.com/v1/base.rng\" yahoo:count=\"100\" yahoo:create";
+		/*</results></query><!-- total: 2363 --><!-- engine2.yql.sp2.yahoo.com --><?xml version="1.0" encoding="UTF-8"?><query xmlns:yahoo="http://www.yahooapis.com/v1/base.rng" yahoo:count="100" yahoo:created="2012-02-24T18:36:26Z" yahoo:lang="en-US"><results>*/
+		strTmpValue = strTmpValue.replaceFirst(strReplace,"");	
+		nCountMerge--;
+	}
+	
+	
+	SAXParserFactory factory = SAXParserFactory.newInstance();
+	//DefaultHandler handler = new DefaultHandler();
+    factory.setValidating(true);
+    
+    class Quote {
+    	String symbol;
+    	String lastTradeDate;
+    	String lastTradeTime;
+    	String price;
+    	
+    	Quote() {
+    		
+    	}
+    	
+    }
+    
+   
+   
+    
+    class CustomHandler extends DefaultHandler {
+    	
+    	
+    	 
+    	ArrayList<Quote> quoteList;
+    	Quote curQuote;
+    	String strVal;
+    	
+    	CustomHandler () {
+    		quoteList = new ArrayList<Quote>();
+    		strVal = null;
+    	}
+    	
+    	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+    		if(qName.equalsIgnoreCase("quote")) {
+				//create a new instance of employee
+				curQuote = new Quote();
+			} 
+  
+		}
+    	
+    	public void characters(char[] ch, int start, int length) throws SAXException {
+    		strVal = new String(ch,start,length);
+    	}
+    	
+    	
+    	
+    	public void endElement(String uri, String localName, String qName) throws SAXException  {
+    		if (qName.equalsIgnoreCase("quote")) {
+    			quoteList.add(curQuote);
+    		}
+    		else if (qName.equalsIgnoreCase("symbol")) {
+    			curQuote.symbol = strVal;
+    			strVal = null;
+    		}
+    		else if (qName.equalsIgnoreCase("lasttradedate")) {
+    			curQuote.lastTradeDate = strVal;
+    		}
+    		else if (qName.equalsIgnoreCase("lasttradetime")) {
+    			curQuote.lastTradeTime = strVal;
+    		}
+    		else if (qName.equalsIgnoreCase("lasttradepriceonly")) {
+    			curQuote.price = strVal;
+    		}
+    		
+    		strVal = null;
+    		
+    	}
+    }
+    
+    
+    CustomHandler handler = new CustomHandler();
+    
+    try {
+        SAXParser saxParser = factory.newSAXParser();
+        //File file = new File("test.xml");
+        
+        
+      
+        saxParser.parse(new InputSource( new StringReader( strTmpValue)), handler);
+        
+        
+       
+
+        //saxParser.parse(file, new ElementHandler());    // specify handler
+    }
+    /*
+     * Eventually throw these exceptions outside of the function.
+     */
+    catch(ParserConfigurationException pce) {
+    	ApplicationSetting.getInstance().getStdoutwriter().writeln("PostProcessing Exception",Logs.ERROR,"PF1001.1");
+    	ApplicationSetting.getInstance().getStdoutwriter().writeln(pce);
+    }
+    catch(SAXException saxe) {
+    	//e1.getMessage();
+    	
+    	String[] tmp = new String[3];
+		tmp[0]="Task:"+this.dg.getCurrentTask().getTaskId();
+		tmp[1]="URL:"+this.dg.strStage2URL;
+		tmp[2]=this.dg.returned_content;
+		if(logger.isDebugEnabled()){
+			logger.debug(tmp.toString());
+		}
+    	ApplicationSetting.getInstance().getStdoutwriter().writeln("PostProcessing Exception",Logs.ERROR,"PF1001.2");
+    	ApplicationSetting.getInstance().getStdoutwriter().writeln(saxe);
+    }
+    catch(IOException ioe) {
+    	ApplicationSetting.getInstance().getStdoutwriter().writeln("PostProcessing Exception",Logs.ERROR,"PF1001.3");
+    	ApplicationSetting.getInstance().getStdoutwriter().writeln(ioe);
+    }
+    boolean bDone = false;
+	propTableData.remove(0);
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	propTableData.add(tmpArray);
+	int nBegin=0;
+	int nEnd =0;
+	int nCount = 0;
+	int nCount2 = 0;
+	for (int i=0;i<handler.quoteList.size();i++) {
+		Quote curQuote = handler.quoteList.get(i);
+		nCount2++;
+		String[] rowdata = new String[tmpArray.length];
+		
+		/*if (curQuote.lastTradeDate == null) {
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("No LastTradeDate value for ticker " + curQuote.symbol + ",skipping",Logs.ERROR,"PF72");
+			continue;
+		}*/
+		if (curQuote.price.equals("0.00")) {
+			//ApplicationSetting.getInstance().getStdoutwriter().writeln("Issue looking up ticker " + strSymbol + ",skipping",Logs.S,"PF50");
+			System.out.println(curQuote.symbol);
+			continue;
+		}		
+		rowdata[0] = curQuote.price;
+		String[] strDateArray = curQuote.lastTradeDate.split("/");
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MONTH, Integer.parseInt(strDateArray[0])-1);
+		cal.set(Calendar.DAY_OF_MONTH,Integer.parseInt(strDateArray[1]));
+		cal.set(Calendar.YEAR,Integer.parseInt(strDateArray[2]));
+		String strTime = curQuote.lastTradeTime;
+		String strAMPM = strTime.substring(strTime.indexOf("m")-1,strTime.indexOf("m")+1);
+		String strNewTime = strTime.substring(0,strTime.indexOf("m")-1);
+		String[] strTimeArray = strNewTime.split(":");
+		/*
+		 * There's an issue with setting the AMPM value and then the HOUR value. The conversion
+		 * happens incorrectly if the 2 values are set separately.
+		 */
+		int nHour = Integer.parseInt(strTimeArray[0]);
+		if (strAMPM.equals("pm") && nHour != 12)
+			cal.set(Calendar.HOUR_OF_DAY, nHour + 12);
+		else if (strAMPM.equals("am") && nHour == 12)
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+		else
+			cal.set(Calendar.HOUR_OF_DAY,nHour);
+		cal.set(Calendar.MINUTE, Integer.parseInt(strTimeArray[1]));
+		cal.set(Calendar.SECOND, 0);
+		cal.setTimeZone(TimeZone.getTimeZone("America/New_York"));
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		formatter.setTimeZone(TimeZone.getTimeZone("America/Phoenix"));
+		Calendar currentCal = Calendar.getInstance();
+		DateFormat formatter2 = new SimpleDateFormat("M/d/yyyy");
+		/*
+		 * Only perform this check for task 10.
+		 */
+		if (dg.getCurrentTask().getTaskId().equals(10))
+			if (!formatter2.format(currentCal.getTime()).equals(formatter2.format(cal.getTime())))
+				ApplicationSetting.getInstance().getStdoutwriter().writeln("Bad Yahoo Data, in postProcessing function for Symbol " + curQuote.symbol,Logs.ERROR,"PF50.5");
+		/*
+		 * If the taskid is 10, we are going to use the input time for date_collected.
+		 * Otherwise we are going to use real time collection time - delay (for yahoo, 20 minutes) for date_collected.
+		 */
+		if (dg.getCurrentTask().getTaskId().equals(10))
+			rowdata[1] = "'" + formatter.format(cal.getTime()) + "'";
+		else {
+			currentCal.add(Calendar.MINUTE, -20);
+			rowdata[1] = "'" + formatter.format(currentCal.getTime()) + "'";
+		}
+			
+		/*
+		 * These are the 5 non US tickers for task 24: ^N225, ^AORD, ^TWII, ^NZ50, ^AXJO
+		 */
+		if (Constants.Ticker.TICKER_BRK_A.equals(curQuote.symbol))
+			curQuote.symbol = Constants.Ticker.TICKER_BRK_BY_A;
+		else if (Constants.Ticker.TICKER_BF_B.equals(curQuote.symbol))
+			curQuote.symbol =Constants.Ticker.TICKER_BF_BY_B;
+		
+		try {
+			Entity entity =entityService.loadEntityInfoByTicker(curQuote.symbol);
+			rowdata[2] =String.valueOf(entity.getEntityId());
+		}
+		catch (GenericException sqle) {
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Issue looking up ticker " + curQuote.symbol + ",skipping",Logs.ERROR,"PF50");
+			ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
+			continue;
+		}
+		nCount++;
+		propTableData.add(rowdata);
+	}
+	System.out.println(nCount);
+}
 
 public void preJobProcessTableXrateorg() throws DataAccessException
 {
@@ -357,18 +638,14 @@ public boolean preProcessYahooEPSEst() throws SQLException {
 	/*
 	 * Negative values are enclosed in font changing tags which have to be removed
 	 */
-	if (strTicker.equals("BF/B"))
+	if (Constants.Ticker.TICKER_BF_BY_B.equals(strTicker))
 	{
-		//dg.strCurrentTicker = "BF-B";		
-		dg.strCurrentTicker="BF-B";
+		dg.strCurrentTicker=Constants.Ticker.TICKER_BF_B;
 	}
-	else if (strTicker.equals("BRK/A"))
+	else if (Constants.Ticker.TICKER_BRK_BY_A.equals(strTicker))
 	{
-		//dg.strCurrentTicker = "BRK-A";	
-		dg.strCurrentTicker="BRK-A";
+		dg.strCurrentTicker=Constants.Ticker.TICKER_BRK_A;
 	}
-	
-	
 	
 	/*
 	 * Need to get rid of these return values and go with exceptions 
@@ -390,11 +667,10 @@ public boolean preProcessGoogleEPS() throws SQLException {
 	/*
 	 * Negative values are enclosed in font changing tags which have to be removed
 	 */
-	if (strTicker.equals("BF/B")) {
-		//dg.strCurrentTicker = "BF-B";		
-		dg.strCurrentTicker="NYSE:BF.B";
+	if (Constants.Ticker.TICKER_BF_BY_B.equals(strTicker)) {
+		dg.strCurrentTicker=Constants.Ticker.TICKER_NYSE_COLLON_BF_B;
 	}
-	else if (strTicker.equals("BRK/A")) {
+	else if (Constants.Ticker.TICKER_BRK_BY_A.equals(strTicker)) {
 		//dg.strCurrentTicker = "BRK-A";	
 		dg.strCurrentTicker="NYSE:BRK.A";
 	}

@@ -421,7 +421,7 @@ public class DataGrabExecutor extends Thread {
 			return(this.returned_content);
 		}
 
-		int tables, cells, rows, divs;
+		Integer tables, cells, rows, divs;
 		/*
 		 * This next line will throw an exception if you meant to do a table
 		 * extraction but forgot to set the table_extraction flag in the db.
@@ -440,10 +440,8 @@ public class DataGrabExecutor extends Thread {
 		String strInitialOpenUniqueCode =es.getInitialBefUniqueCode();
 		Pattern pattern;
 		Matcher matcher;
-		if ((strInitialOpenUniqueCode != null)
-				&& (strInitialOpenUniqueCode.isEmpty() == false)) {
-			String strInitialOpenUniqueRegex = "(?i)("
-					+ strInitialOpenUniqueCode + ")";
+		if (strInitialOpenUniqueCode != null && strInitialOpenUniqueCode.trim().length()>0) {
+			String strInitialOpenUniqueRegex = "(?i)("+ strInitialOpenUniqueCode + ")";
 			ApplicationSetting.getInstance().getStdoutwriter().writeln("Initial Open Regex: "
 					+ strInitialOpenUniqueRegex, Logs.STATUS2, "DG14");
 			pattern = Pattern.compile(strInitialOpenUniqueRegex);
@@ -459,8 +457,7 @@ public class DataGrabExecutor extends Thread {
 		 * End initial regex search.
 		 */
 
-		ApplicationSetting.getInstance().getStdoutwriter().writeln("Before table searches.",
-				Logs.STATUS2, "DG16");
+		ApplicationSetting.getInstance().getStdoutwriter().writeln("Before table searches.",Logs.STATUS2, "DG16");
 		nCurOffset = PikefinUtil.regexSeekLoop("(?i)(<TABLE[^>]*>)", tables, nCurOffset,returned_content);
 
 		ApplicationSetting.getInstance().getStdoutwriter().writeln("Before table row searches.",
@@ -1086,7 +1083,9 @@ public class DataGrabExecutor extends Thread {
 
 		int nTotalCount = eg.getEntities().size();
 		String strURLStatic = currentJob.getUrlStatic();
-
+		if(log.isDebugEnabled()){
+			log.debug("Total Entity count for group id"+nGroupId +"	is-"+nTotalCount);
+		}
 		int nGroupCount = 1;
 		HttpResponse response;
 		returned_content = "<begintag>";
@@ -1099,7 +1098,13 @@ public class DataGrabExecutor extends Thread {
 
 			String strList = "";
 			int nOffset = nGroupSize * (nGroupCount - 1);
-			for (int j=nOffset;j<nOffset + nGroupSize;j++) {
+			int loopSize=nOffset + nGroupSize;
+			if(log.isDebugEnabled()){
+				log.debug("Current offset	="	+nOffset+"\n Current loop size="+loopSize);
+			}
+			
+			
+			for (int j=nOffset;j<loopSize;j++) {
 				Entity e = entities.iterator().next();
 				String strTicker = e.getTicker();
 
@@ -1209,6 +1214,7 @@ public class DataGrabExecutor extends Thread {
 							Integer.parseInt(strMinute), 0);
 	
 					// Check if time difference is more than an hour
+					log.info("cal time="+cal.getTime()+ " Time= "+cal.getTimeInMillis()+"	Cal2 time===="+cal2.getTime()+" Time="+cal2.getTimeInMillis());
 					if (Math.abs(cal2.getTimeInMillis() - cal.getTimeInMillis()) > 3600000) {
 						ApplicationSetting.getInstance().getStdoutwriter().writeln(
 								"Bad Yahoo Data, Resubmitting URL", Logs.STATUS1,
@@ -1241,7 +1247,7 @@ public class DataGrabExecutor extends Thread {
 				try {
 					Thread.sleep(10000);
 				} catch (InterruptedException ie) {
-
+					log.debug("Thread is interrupted-"+ie.getMessage());
 				}
 				continue;
 

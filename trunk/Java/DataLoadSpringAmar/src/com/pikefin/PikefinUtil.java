@@ -25,14 +25,14 @@ public class PikefinUtil{
 		return arrayToClear;
 	}
 	
-	public static int regexSeekLoop(String regex, int nCount, int nCurOffset, String strHayStack)
+	public static int regexSeekLoop(String regex, Integer nCount, Integer nCurOffset, String strHayStack)
 			throws TagNotFoundException {
 				
 				
 				Pattern pattern = Pattern.compile(regex);
 				
 				Matcher matcher = pattern.matcher(strHayStack);
-				
+				if(nCount!=null)
 				for (int i = 0; i < nCount; i++) {
 				
 					if (matcher.find(nCurOffset) == false)
