@@ -6,23 +6,18 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-
 import org.springframework.dao.DataAccessException;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -34,9 +29,7 @@ import twitter4j.internal.logging.Logger;
 
 import com.pikefin.ApplicationSetting;
 import com.pikefin.Constants;
-import com.pikefin.businessobjects.Batches;
 import com.pikefin.businessobjects.Entity;
-import com.pikefin.businessobjects.FactData;
 import com.pikefin.businessobjects.Job;
 import com.pikefin.exceptions.CustomEmptyStringException;
 import com.pikefin.exceptions.GenericException;
@@ -938,6 +931,78 @@ if (propStrTableDataSet.contains("q"))
 
 
 }
+
+
+
+public boolean preNDCNasdaqEPSEst()	{
+	
+	  String strRegex = "(?i)(No Data Available)";
+	  ApplicationSetting.getInstance().getStdoutwriter().writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46");
+	  Pattern pattern = Pattern.compile(strRegex);
+	  Matcher matcher = pattern.matcher(dg.returned_content);
+	  /*
+	   * OFP 12/19/2012 - Nasdaq misspelled available.
+	   */
+	  String strRegex2 = "(?i)(No data avaiable)";
+	  Pattern pattern2 = Pattern.compile(strRegex2);
+	  Matcher matcher2 = pattern2.matcher(dg.returned_content);
+	  if (matcher.find() || matcher2.find()) {
+		  ApplicationSetting.getInstance().getStdoutwriter().writeln("Nasdaq no data avialable for ticker " + dg.strCurrentTicker, Logs.WARN,"PF21.38");
+		  return(true);
+	  }
+	  strRegex = "(?i)(feature currently is unavailable)";
+	  ApplicationSetting.getInstance().getStdoutwriter().writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46.5");
+	  pattern = Pattern.compile(strRegex);
+	  //ApplicationSetting.getInstance().getStdoutwriter().writeln("after strbeforeuniquecoderegex compile", Logs.STATUS2);
+	  matcher = pattern.matcher(dg.returned_content);
+	  if (matcher.find()) {
+		  ApplicationSetting.getInstance().getStdoutwriter().writeln("Nasdaq message feature currently unavailable for ticker " + dg.strCurrentTicker, Logs.WARN,"PF21.40");
+		  return true;
+	  }
+	  return false;
+	 }
+	
+
+
+public void postProcessBloombergIndexes() {
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	String[] rowdata, newrow;
+	String[] rowheaders = propTableData.get(1);
+	for (int row=2;row<propTableData.size();row++)	{
+		rowdata = propTableData.get(row);
+		newrow = new String[tmpArray.length];
+		newrow[0] = rowdata[0].replace(",", "");
+		newrow[1] = "NOW()";
+		String ticker = rowheaders[row-2];
+		//Next line condenses multiple spaces down to one.
+		ticker = ticker.replaceAll("\\s+", " "); 
+		if (rowdata[0].equals("pikefinvoid")) {
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Invalid data format for " + ticker + ". Skipping.",Logs.WARN,"PF2.75");
+			continue;
+		}
+		else if (rowdata[0].contains("N.A."))  {	
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("N.A. value for ticker " + ticker,Logs.WARN,"PF2.75");
+			continue;
+		}
+		try {
+			Entity entity=entityService.loadEntityInfoByTicker(ticker); 
+			newrow[2] =String.valueOf(entity.getEntityId());
+			newTableData.add(newrow);
+			
+		}catch (GenericException sqle) {
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem looking up ticker alias: " + ticker + ",row skipped",Logs.WARN,"PF42.51");
+			ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
+		}
+	}
+	
+	newTableData.add(0, tmpArray);
+	propTableData = newTableData;
+
+}
+
+
+
 /*public void postProcessTreasuryDirect() throws SQLException
 {
 	
