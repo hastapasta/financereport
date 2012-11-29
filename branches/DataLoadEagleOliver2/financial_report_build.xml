@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="Financial Report" basedir="." default="deploy" >
+	<property file="${basedir}/FinancialReport.properties"/>
+	<property name="build.directory" value="${basedir}/build">
+	</property>
+	<property name="resources.directory" value="${basedir}/config">
+		</property>
+	<property name="src.dir" value="${basedir}/src">
+	</property>
+	<property name="webroot" value="${basedir}/WebContent">
+	</property>
+	<property name="war.directory" value="${build.directory}/war">
+	</property>
+	<property name="war.web" value="${war.directory}/WEB-INF">
+	</property>
+	<property name="war.class" value="${war.web}/classes">
+	</property>
+	<property name="war.lib" value="${war.web}/lib">
+	</property>
+	<property name="war.file" value="${product.name}.war">
+	</property>
+
+	
+
+	<target name="clean">
+		<delete dir="${war.directory}">
+
+		</delete>
+	
+	</target>
+	<target name="prepare" depends="clean">
+		<mkdir dir="${war.directory}" />
+		<mkdir dir="${war.web}" />
+		<mkdir dir="${war.class}" />
+		<copy todir="${war.web}">
+			<fileset dir="${webroot}/WEB-INF">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		
+		<copy todir="${war.lib}">
+			<fileset dir="${webroot}/WEB-INF/lib">
+				<include name="*.*" />
+			</fileset>
+	<!--Copying hiberante related jars -->
+		<fileset dir="${liberary.hibernate}">
+				<include name="*.jar"/>
+			</fileset> 
+			
+			<!--Copying Jar files related to commons-->
+			<fileset dir="${liberary.commons}">
+				<include name="*.jar"/>
+			</fileset>
+		
+			
+		
+			<!-- Copying http components Jars-->
+			<fileset dir="${liberary.httpcomponents}">
+				<include name="*.jar"/>
+			</fileset>
+			
+			<!-- Copying javamail  Jars-->
+			<fileset dir="${liberary.javamail}">
+				<include name="*.jar"/>
+			</fileset>
+			
+			
+			<!-- Copying pdfbox  Jars-->
+			<fileset dir="${liberary.pdfbox}">
+				<include name="*.jar"/>
+			</fileset>
+			
+			
+			<!-- Copying Spring  Jars-->
+			<fileset dir="${liberary.spring_3.1.1}">
+				<include name="*.jar"/>
+			</fileset>
+			
+			<!-- Copying twitter related  Jars-->
+			<fileset dir="${liberary.twitter}">
+				<include name="*.jar"/>
+			</fileset>
+		
+			<!-- Copying velocity related jars-->
+			<fileset dir="${liberary.velocity}">
+				<include name="*.jar"/>
+			</fileset>
+			
+			<!-- Copying bitlyj related jars-->
+			<fileset dir="${liberary.bitlyj}">
+				<include name="*.jar"/>
+			</fileset>
+			
+				<!-- Copying velocity related jars-->
+			<fileset dir="${liberary.log4jWrapper}">
+				<include name="*.jar"/>
+			</fileset>
+			
+		</copy>
+
+		
+
+		<copy todir="${war.directory}">
+			<fileset dir="${webroot}">
+				<include name="**/*.*" />
+				<exclude name="${webroot}/WEB-INF/log4j.properties" />
+			</fileset>
+
+		</copy>
+	</target>
+	<path id="compile.path">
+
+		<fileset dir="${war.lib}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+	<target name="compile" depends="prepare">
+
+		<javac debug="true" verbose="on" srcdir="${src.dir}" destdir="${war.class}">
+			<classpath refid="compile.path" />
+			<include name="**/*.java" />
+			<include name="**/*.xml" />
+			<include name="**/*.properties" />
+		</javac>
+
+	</target>
+	<target name="war" depends="compile">
+		<!--<copyfile dest="${war.class}/log4j.properties" src="${webroot}/WEB-INF/log4j.properties"/>-->
+		<copy todir="${war.class}">
+					<fileset dir="${webroot}/WEB-INF">
+						<include name="log4j.properties"/>
+						</fileset>
+			<fileset dir="${resources.directory}">
+									<include name="**/*.*"/>
+									</fileset>
+			</copy>
+		<copy todir="${war.class}">
+			<fileset dir="${src.dir}">
+				<include name="**/*.properties"/>
+				<include name="**/*.xml"/>
+			</fileset>
+		</copy>
+		<war destfile="${build.directory}/${war.file}" webxml="${war.web}/web.xml" basedir="${war.directory}">
+		</war>
+		<fileset dir="${war.directory}">
+			<include name="**/*.*" />
+		</fileset>
+	</target>
+	<target name="deploy" depends="war">
+		<copy file="${build.directory}/${war.file}" todir="${tomcat.deploy.directory}" >
+		</copy>
+	</target>
+
+
+	
+</project>
+		
