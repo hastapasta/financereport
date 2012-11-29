@@ -14,8 +14,9 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/velocity_1.7"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/hibernate_4.1.3_lib"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Log4j files"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/aopalliance"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/aspectj"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/mysql"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Log4j files"/>
 	<classpathentry kind="output" path="class"/>
 </classpath>
