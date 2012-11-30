@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.pikefin.businessobjects.InputSource" table="input_source" >
+		<id name="inputSourceId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		<property name="urlStatic" column="url_static" type="string"/>
+		<property name="urlDynamic" column="url_dynamic" type="string"/>
+		<property name="urlForm" column="url_form" type="string"/>
+		<property name="formStaticProperties" column="form_static_properties" type="string"/>
+		
+   </class>
+   
+</hibernate-mapping>
