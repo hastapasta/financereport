@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Implementation-Title: spring-aop
+Implementation-Version: 3.2.0.BUILD-SNAPSHOT
+
