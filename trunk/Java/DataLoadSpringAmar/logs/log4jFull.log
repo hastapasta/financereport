@@ -1,0 +1,1181 @@
+2012-11-28 23:20:59,909 [main]  INFO  FullLogging - MainWrapper 1:Log4jWrapper version 1.0
+2012-11-28 23:20:59,934 [Thread-1]  INFO  FullLogging - DL19.5:RUNNING IN LIVE (NON DEBUG) MODE
+2012-11-28 23:20:59,934 [Thread-1]  INFO  FullLogging - DL21:NOT LOADING HISTORICAL DATA
+2012-11-28 23:20:59,934 [Thread-1]  INFO  FullLogging - DL19:MAXIMUM # OF DATAGRAB THREADS: 10
+2012-11-28 23:20:59,935 [Thread-1]  INFO  FullLogging - DL2.727:Started Notification Thread
+2012-11-28 23:21:06,548 [Thread-3] [Task:11] INFO  FullLogging - :=========================================================
+2012-11-28 23:21:06,548 [Thread-3] [Task:11] INFO  FullLogging - DG37:PROCESSING TASK 11
+2012-11-28 23:21:06,548 [Thread-3] [Task:11] INFO  FullLogging - DG39:JOB PROCESSING START TIME: Wed Nov 28 23:21:06 CST 2012
+2012-11-28 23:21:06,549 [Thread-3] [Task:11] INFO  FullLogging - DG1:INITIATING THREAD
+2012-11-28 23:21:06,549 [Thread-3] [Task:11] INFO  FullLogging - DG1.55:====> PROCESSING JOB:table_mwatch_q_eps_est
+2012-11-28 23:21:08,316 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker MSFT failed, skipping
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:21:09,647 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:21:10,955 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:11,634 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:12,275 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker CF failed, skipping
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:21:12,922 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:21:13,641 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:14,276 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:14,936 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:15,500 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker LOW failed, skipping
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:21:19,267 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker HIG failed, skipping
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:21:21,513 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:21:22,133 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:22,761 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:23,302 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker XL failed, skipping
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:21:26,029 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:21:27,266 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker CBG failed, skipping
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:21:27,874 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:21:28,468 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:29,151 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:29,817 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker BEN failed, skipping
+2012-11-28 23:21:29,817 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:21:29,817 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:21:29,817 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:21:29,817 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:21:29,817 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:21:29,817 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:21:29,817 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:21:29,817 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:21:29,817 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:21:29,818 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:21:29,818 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:21:29,818 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:21:29,818 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:21:29,818 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+2012-11-28 23:21:29,818 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+2012-11-28 23:21:29,818 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:21:29,818 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:21:29,818 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:21:31,645 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:32,296 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:32,936 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:33,573 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker CMA failed, skipping
+2012-11-28 23:21:33,573 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:21:33,573 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:21:33,573 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:21:33,573 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:21:33,573 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:21:33,573 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:21:33,573 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:21:33,573 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:21:33,574 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:21:33,574 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:21:33,574 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:21:33,574 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:21:33,574 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:21:33,574 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+2012-11-28 23:21:33,574 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+2012-11-28 23:21:33,574 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:21:33,574 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:21:33,574 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:21:34,266 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:34,899 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:37,878 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:40,603 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:21:41,322 [Thread-3] [Task:11] ERROR FullLogging - DG2:Regex search exceeded.
+2012-11-28 23:22:07,327 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:22:07,327 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:22:07,327 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:22:07,328 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:22:07,328 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:22:07,328 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:22:07,328 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:22:07,328 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:22:07,328 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:22:55,258 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker BRK-A failed, skipping
+2012-11-28 23:22:55,695 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:22:55,696 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.exceptions.TagNotFoundException
+2012-11-28 23:22:55,698 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:22:55,699 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:875)
+2012-11-28 23:22:55,700 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.getTableWithHeaders(DataGrabExecutor.java:516)
+2012-11-28 23:22:55,701 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.EnhancedTable.enhancedGetTable(EnhancedTable.java:91)
+2012-11-28 23:22:55,702 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.PikefinUtil.regexSeekLoop(PikefinUtil.java:43)
+2012-11-28 23:23:08,209 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:23:08,209 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:23:08,209 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:23:08,209 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:23:08,209 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:23:08,209 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:23:08,209 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:23:08,209 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:23:08,209 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:23:10,035 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:23:37,843 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker MRK failed, skipping
+2012-11-28 23:23:37,843 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:23:37,843 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:23:37,844 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:23:37,844 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:23:37,844 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:23:37,844 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:23:37,844 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:23:37,844 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:23:37,844 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:23:37,844 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:23:37,844 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:23:37,844 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:23:37,844 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:23:37,844 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:23:37,845 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:23:37,845 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:23:37,845 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:23:38,947 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:23:43,339 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker PFG failed, skipping
+2012-11-28 23:23:43,339 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:23:43,339 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:23:43,339 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:23:43,340 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:23:43,914 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:23:44,514 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:23:45,055 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:23:45,698 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:23:47,334 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:23:47,899 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:23:48,452 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:23:55,200 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:23:56,047 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker R failed, skipping
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:23:56,717 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker UNP failed, skipping
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:23:59,498 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:24:00,089 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker ORLY failed, skipping
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:24:00,750 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:24:07,567 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker T failed, skipping
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:24:07,568 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:24:08,154 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:08,795 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:08,961 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:24:08,961 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:24:08,961 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:24:08,961 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:24:08,962 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:24:08,962 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:24:08,962 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:24:08,962 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:24:08,962 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:24:09,433 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:10,756 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:11,444 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:12,947 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker PX failed, skipping
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:24:14,994 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:24:16,516 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:17,205 [Thread-3] [Task:11] ERROR FullLogging - DG2:Regex search exceeded.
+2012-11-28 23:24:20,833 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker BF-B failed, skipping
+2012-11-28 23:24:20,834 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:24:20,834 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.exceptions.TagNotFoundException
+2012-11-28 23:24:20,834 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:24:20,834 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:875)
+2012-11-28 23:24:20,834 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.getTableWithHeaders(DataGrabExecutor.java:516)
+2012-11-28 23:24:20,834 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.EnhancedTable.enhancedGetTable(EnhancedTable.java:91)
+2012-11-28 23:24:20,835 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.PikefinUtil.regexSeekLoop(PikefinUtil.java:43)
+2012-11-28 23:24:21,802 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:22,435 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:23,095 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker PFE failed, skipping
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:24:25,628 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:24:27,093 [Thread-3] [Task:11] ERROR FullLogging - DG2:Regex search exceeded.
+2012-11-28 23:24:28,449 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker NVLS failed, skipping
+2012-11-28 23:24:28,449 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:24:28,449 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.exceptions.TagNotFoundException
+2012-11-28 23:24:28,450 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:24:28,450 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:875)
+2012-11-28 23:24:28,450 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.getTableWithHeaders(DataGrabExecutor.java:516)
+2012-11-28 23:24:28,450 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.EnhancedTable.enhancedGetTable(EnhancedTable.java:91)
+2012-11-28 23:24:28,450 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.PikefinUtil.regexSeekLoop(PikefinUtil.java:43)
+2012-11-28 23:24:29,147 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:32,084 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:32,671 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:33,854 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:35,573 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker AVB failed, skipping
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:24:37,009 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:24:37,643 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:40,605 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:42,024 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:43,647 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:46,235 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker CINF failed, skipping
+2012-11-28 23:24:46,235 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:24:46,235 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:24:46,235 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:24:46,236 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:24:46,807 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker LEN failed, skipping
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:24:47,396 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker FMC failed, skipping
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:24:47,993 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker GIS failed, skipping
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:24:48,594 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:24:48,595 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:24:48,595 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:24:48,595 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:24:49,205 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker COST failed, skipping
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:24:49,779 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:24:51,258 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:51,837 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:53,040 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:55,260 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:56,012 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:56,921 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:24:58,155 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:02,325 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:02,948 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:04,442 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker MRO failed, skipping
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:25:05,074 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker ANF failed, skipping
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:25:06,979 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:25:13,671 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:14,159 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:25:14,159 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:25:14,159 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:25:14,159 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:25:14,159 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:25:14,159 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:25:14,159 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:25:14,159 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:25:14,159 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:25:14,260 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker DUK failed, skipping
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:25:14,261 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker TYC failed, skipping
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:25:14,936 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:25:17,240 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:18,018 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:19,780 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:20,440 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:22,099 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker COH failed, skipping
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:25:23,095 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:25:29,426 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:30,378 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:31,014 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:31,648 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:32,336 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:32,862 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker TEG failed, skipping
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:25:35,650 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:25:36,410 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:37,322 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:37,941 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker UTX failed, skipping
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:25:38,540 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:25:39,179 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:40,551 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:43,387 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:43,991 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:45,211 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker L failed, skipping
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:25:45,897 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker PG failed, skipping
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:25:46,893 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:25:46,894 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:25:47,468 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker EMC failed, skipping
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:25:48,088 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker COP failed, skipping
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:25:48,679 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:25:51,498 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker CL failed, skipping
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:25:52,854 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:25:53,524 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:54,191 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:54,789 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:55,434 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:56,117 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:56,767 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:25:58,388 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:26:01,412 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:26:02,120 [Thread-3] [Task:11] ERROR FullLogging - DG2:Regex search exceeded.
+2012-11-28 23:26:14,902 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:26:14,902 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:26:14,902 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:26:14,902 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:26:14,902 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:26:14,902 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:26:14,902 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:26:14,902 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:26:14,902 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:26:33,172 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker EP failed, skipping
+2012-11-28 23:26:33,172 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:26:33,173 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.exceptions.TagNotFoundException
+2012-11-28 23:26:33,173 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:26:33,173 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:875)
+2012-11-28 23:26:33,173 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.getTableWithHeaders(DataGrabExecutor.java:516)
+2012-11-28 23:26:33,173 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.EnhancedTable.enhancedGetTable(EnhancedTable.java:91)
+2012-11-28 23:26:33,174 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.PikefinUtil.regexSeekLoop(PikefinUtil.java:43)
+2012-11-28 23:26:33,779 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:26:35,595 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker NVDA failed, skipping
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:26:36,198 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:26:36,922 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker IFF failed, skipping
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:26:37,591 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:26:38,235 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:26:38,802 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:26:46,029 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker HBAN failed, skipping
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:26:47,859 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:26:47,860 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:26:47,860 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:26:47,860 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:26:48,627 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:26:49,452 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker PRU failed, skipping
+2012-11-28 23:26:49,452 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:26:49,452 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:26:49,452 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:26:49,453 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker WAT failed, skipping
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:26:50,058 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:26:50,802 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:26:51,568 [Thread-3] [Task:11] ERROR FullLogging - DG2:Regex search exceeded.
+2012-11-28 23:26:54,461 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker LUK failed, skipping
+2012-11-28 23:26:54,461 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:26:54,462 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.exceptions.TagNotFoundException
+2012-11-28 23:26:54,462 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:26:54,462 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:875)
+2012-11-28 23:26:54,462 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.getTableWithHeaders(DataGrabExecutor.java:516)
+2012-11-28 23:26:54,462 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.EnhancedTable.enhancedGetTable(EnhancedTable.java:91)
+2012-11-28 23:26:54,462 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.PikefinUtil.regexSeekLoop(PikefinUtil.java:43)
+2012-11-28 23:26:55,252 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:26:55,840 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:00,157 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:00,789 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker EXC failed, skipping
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:27:01,445 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker KLAC failed, skipping
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:27:02,028 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker AVP failed, skipping
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:27:02,697 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:27:06,296 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker PEP failed, skipping
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:27:06,986 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker PBI failed, skipping
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:27:07,836 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:27:10,709 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:11,290 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:12,007 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker HAS failed, skipping
+2012-11-28 23:27:12,007 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:27:12,007 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:27:12,008 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker VMC failed, skipping
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:27:12,631 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:27:14,455 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:15,470 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:15,762 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:27:15,762 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:27:15,762 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:27:15,762 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:27:15,762 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:27:15,762 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:27:15,762 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:27:15,762 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:27:15,762 [Thread-1]  INFO  FullLogging - DL3.99:Task in waiting queue already running so won't get moved to run queue (task id: 11
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker WPI failed, skipping
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:27:18,194 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:27:19,094 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:19,675 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker AEE failed, skipping
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:27:19,676 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker LMT failed, skipping
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:27:20,259 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker F failed, skipping
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:27:20,931 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:27:22,094 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:25,105 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:25,729 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker ABT failed, skipping
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:27:27,234 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:27:27,835 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:28,595 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - DG44:Processing table for ticker WYNN failed, skipping
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - EXCEPTION THROWN, check logs
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - java.lang.NumberFormatException: For input string: "Mean Estimate"
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.run(DataGrabExecutor.java:364)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.DataGrabExecutor.grabDataSet(DataGrabExecutor.java:880)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - $Proxy54.importFactDataInBatch(Unknown Source)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:202)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:110)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:183)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:318)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - java.lang.reflect.Method.invoke(Method.java:601)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - sun.reflect.GeneratedMethodAccessor205.invoke(Unknown Source)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - com.pikefin.services.impl.FactDataServiceImpl.importFactDataInBatch(FactDataServiceImpl.java:168)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - java.lang.Double.parseDouble(Double.java:540)
+2012-11-28 23:27:29,280 [Thread-3] [Task:11] ERROR FullLogging - sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1241)
+2012-11-28 23:27:29,857 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:31,190 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:31,914 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:40,535 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:41,263 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:41,889 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:49,096 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:49,742 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:51,326 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:51,928 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load
+2012-11-28 23:27:52,600 [Thread-3] [Task:11] INFO  FullLogging - DG40.5:SkipLoadException thrown, skipping load

@@ -242,7 +242,7 @@ public class AlertServiceImpl implements AlertService{
 											 //TODO needs to update in DataBase
 											alertsToUpdate.put(newAlertCopy.getAlertId(), newAlertCopy);
 
-											  
+										//TODO even if the email is not sent this and exception came this still set the emailSent to true	  
 											bEmailSent = true;
 										}
 									}
@@ -475,7 +475,7 @@ public class AlertServiceImpl implements AlertService{
 				}
 			} 
 		  
-	System.out.println("************ ############  Check Alerts Completed *************************************************	^^^^^^^^^^^^^");
+	logger.info("********** ############  Check Alerts Completed *************************************************	^^^^^^^^^^^^^");
 		
 		
 	}
