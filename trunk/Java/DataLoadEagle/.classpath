@@ -3,20 +3,66 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="config"/>
 	<classpathentry kind="src" path="tests"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bitlyj-2.0.0"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/commons"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/httpcomponents-client-4.2.1"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/javamail1_4_5"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/pdfbox"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/twitter4j2.2.5"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/velocity_1.7"/>
+	<classpathentry kind="lib" path="/libraries/java/aopalliance/version-unknown/aopalliance.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/aspectj/version 1.7.1/lib/aspectjrt.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/aspectj/version 1.7.1/lib/aspectjtools.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/aspectj/version 1.7.1/lib/aspectjweaver.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/aspectj/version 1.7.1/lib/org.aspectj.matcher.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/bitlyj/version-2.0.0/bitlyj-2.0.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/commons-dbcp/version-1.4/commons-dbcp-1.4.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/commons-io/version-2.3/commons-io-2.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/commons-logging/version-1.1.1/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/commons-pool/version-1.6/commons-pool-1.6.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/fontbox/version-1.6.0/fontbox-1.6.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/httpcomponents-client/version-4.2/lib/httpclient-4.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/httpcomponents-client/version-4.2/lib/httpclient-cache-4.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/httpcomponents-client/version-4.2/lib/httpcore-4.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/httpcomponents-client/version-4.2/lib/httpmime-4.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/javamail/version-1.4.5/lib/dsn.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/javamail/version-1.4.5/lib/mailapi.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/javamail/version-1.4.5/lib/pop3.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/javamail/version-1.4.5/lib/smtp.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/log4j/version-1.2.16/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="/Log4jWrapper/log4jWrapper.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/mysql-connector/version-5.1.20/mysql-connector-java-5.1.20-bin.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/orgjson/version-unknown/orgjson.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/hibernate/version-4.1.3/lib/optional/ehcache/ehcache-core-2.4.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/hibernate/version-4.1.3/lib/optional/ehcache/hibernate-ehcache-4.1.3.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/hibernate/version-4.1.3/lib/optional/ehcache/slf4j-api-1.6.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/hibernate/version-4.1.3/lib/required/antlr-2.7.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/hibernate/version-4.1.3/lib/required/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/hibernate/version-4.1.3/lib/required/hibernate-commons-annotations-4.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/hibernate/version-4.1.3/lib/required/hibernate-core-4.1.3.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/hibernate/version-4.1.3/lib/required/hibernate-jpa-2.0-api-1.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/hibernate/version-4.1.3/lib/required/javassist-3.15.0-GA.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/hibernate/version-4.1.3/lib/required/jboss-logging-3.1.0.GA.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/hibernate/version-4.1.3/lib/required/jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/twitter4j/version-2.2.5/lib/twitter4j-core-2.2.5.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/velocity/version-1.7/velocity-1.7-dep.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/velocity/version-1.7/velocity-1.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.aop-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.asm-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.aspects-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.beans-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.context-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.context.support-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.core-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.expression-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.instrument-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.instrument.tomcat-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.jdbc-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.jms-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.orm-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.oxm-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.test-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.transaction-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.web-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.web.portlet-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.web.servlet-3.1.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/sping-framework/version-3.1.3/dist/org.springframework.web.struts-3.1.3.RELEASE.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/hibernate_4.1.3_lib"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/aopalliance"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/aspectj"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/mysql"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/spring_3.1.3"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/log4j"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/libraries/java/commons-email/version-1.2/commons-email-1.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/java/pdfbox/version-1.6.0/pdfbox-1.6.0.jar"/>
 	<classpathentry kind="output" path="class"/>
 </classpath>
