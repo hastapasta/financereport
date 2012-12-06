@@ -30,7 +30,7 @@ import com.pikefin.exceptions.GenericException;
 public class LoggingService {
 	Logger log=Logger.getLogger(LoggingService.class);
 	
-	//@Before("execution(* com.pikefin.services.impl.*.*(..)) || execution(* com.pikefin.dao.*.*(..))")
+	@Before("execution(* com.pikefin.services.impl.*.*(..)) || execution(* com.pikefin.dao.*.*(..))")
 	public void logBefore(JoinPoint joinPoint){
 		log.info("========================\nStarting Execution of "+joinPoint.getSignature().getName()+"\n");
 		if(ApplicationSetting.getInstance().isDebugMode()){
@@ -39,7 +39,7 @@ public class LoggingService {
 	}
 	
 	
-	//@After("execution(* com.pikefin.services.impl.*.*(..)) || execution(* com.pikefin.dao.*.*(..))")
+	@After("execution(* com.pikefin.services.impl.*.*(..)) || execution(* com.pikefin.dao.*.*(..))")
 	public void logAfter(JoinPoint joinPoint){
 		log.info("========================\nReturning from Execution of "+joinPoint.getSignature().getName());
 		if(ApplicationSetting.getInstance().isDebugMode()){
@@ -47,7 +47,7 @@ public class LoggingService {
 	}
 	}
 	
-	//@AfterReturning(pointcut ="execution(* com.pikefin.services.impl.*.*(..)) || execution(* com.pikefin.dao.*.*(..))",returning= "result")
+	@AfterReturning(pointcut ="execution(* com.pikefin.services.impl.*.*(..)) || execution(* com.pikefin.dao.*.*(..))",returning= "result")
 	public void logAfterRetun(JoinPoint joinPoint,Object result){
 		
 		log.info("========================\nReturned from method "+joinPoint.getSignature().getName());
@@ -58,7 +58,7 @@ public class LoggingService {
 		}
 	}
 	
-	//@AfterThrowing(pointcut ="execution(* com.pikefin.services.impl.*.*(..)) || execution(* com.pikefin.dao.*.*(..))",throwing="error")
+	@AfterThrowing(pointcut ="execution(* com.pikefin.services.impl.*.*(..)) || execution(* com.pikefin.dao.*.*(..))",throwing="error")
 	public void logAfterError(JoinPoint joinPoint,Throwable error){
 		
 		log.error("========================\nException thrown from  method "+joinPoint.getSignature().getName());

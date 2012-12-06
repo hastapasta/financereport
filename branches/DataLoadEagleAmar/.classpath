@@ -4,19 +4,16 @@
 	<classpathentry kind="src" path="config"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/aspectj"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bitlyj-2.0.0"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/commons"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/httpcomponents-client-4.2.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/hibernate_4.1.3_lib"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/httpcomponents-client-4.2"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/javamail1_4_5"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/pdfbox"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/spring_3.1.1"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/twitter4j2.2.5"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/velocity_1.7"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/hibernate_4.1.3_lib"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/aopalliance"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/aspectj"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/mysql"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Log4j files"/>
+	<classpathentry kind="lib" path="D:/Development/Liberary/log4jWrapper.jar"/>
 	<classpathentry kind="output" path="class"/>
 </classpath>
