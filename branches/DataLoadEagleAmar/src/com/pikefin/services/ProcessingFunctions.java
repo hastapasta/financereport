@@ -488,7 +488,7 @@ public void postProcessYahooSharePriceYQL() throws SQLException {
 		nCount++;
 		propTableData.add(rowdata);
 	}
-	System.out.println(nCount);
+	
 }
 
 public void preJobProcessTableXrateorg() throws DataAccessException
@@ -665,7 +665,7 @@ public boolean preProcessGoogleEPS() throws SQLException {
 	}
 	else if (Constants.Ticker.TICKER_BRK_BY_A.equals(strTicker)) {
 		//dg.strCurrentTicker = "BRK-A";	
-		dg.strCurrentTicker="NYSE:BRK.A";
+		dg.strCurrentTicker=Constants.Ticker.TICKER_NYSE_COLLON_BRK_A ;
 	}
 	else if (strTicker.equals("PG") || strTicker.equals("SCHW") || strTicker.equals("DF") || strTicker.equals("MHS") || strTicker.equals("NWL")) {
 		dg.strCurrentTicker="NYSE:" + strTicker;

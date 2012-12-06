@@ -36,6 +36,8 @@ public interface Constants {
 		public static final String TICKER_BF_BY_B="BF/B";
 		public static final String TICKER_BRK_BY_A="BRK/A";
 		public static final String TICKER_NYSE_COLLON_BF_B="NYSE:BF.B";
+		public static final String TICKER_NYSE_COLLON_BRK_A="NYSE:BRK.A";
+
 		public static final String ENHANCED_TABLE_COL_HEAD_SECTION="colhead";
 		public static final String ENHANCED_TABLE_ROW_HEAD_SECTION="rowhead";
 

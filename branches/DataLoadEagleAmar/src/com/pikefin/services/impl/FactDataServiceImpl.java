@@ -66,7 +66,6 @@ public class FactDataServiceImpl implements FactDataService{
 			
 			String[] columnnames = tabledata.get(0);
 			tabledata.remove(0);
-			if(columnnames!=null)
 			for(int i=0;i<columnnames.length;i++){
 				if(Constants.FactDataColumn.FACT_DATA_COLUMN_BATCH_ID.equalsIgnoreCase(columnnames[i])){
 					FACT_DATA_BATCH_ID_INDEX=i;
