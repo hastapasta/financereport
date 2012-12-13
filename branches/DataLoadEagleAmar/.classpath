@@ -4,7 +4,7 @@
 	<classpathentry kind="src" path="config"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_09"/>
 	<classpathentry kind="lib" path="D:/Development/Projects/libraries/java/aopalliance/version-unknown/aopalliance.jar"/>
 	<classpathentry kind="lib" path="D:/Development/Projects/libraries/java/aspectj/version 1.7.1/lib/aspectjrt.jar"/>
 	<classpathentry kind="lib" path="D:/Development/Projects/libraries/java/aspectj/version 1.7.1/lib/aspectjtools.jar"/>

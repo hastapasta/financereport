@@ -164,8 +164,11 @@ public class FactDataServiceImpl implements FactDataService{
 						if(FACT_DATA_SCALE_INDEX!=-1 &&  FACT_DATA_SCALE_INDEX<=row.length-1)
 						fact.setScale(Integer.parseInt(row[FACT_DATA_SCALE_INDEX]));
 						if(FACT_DATA_VALUE_INDEX!=-1 &&  FACT_DATA_VALUE_INDEX<=row.length-1)
-						fact.setValue(Double.parseDouble(row[FACT_DATA_VALUE_INDEX]));
-				
+						{
+							// set the fact data value to 0 if this is null # Amar
+							Double factValue=row[FACT_DATA_VALUE_INDEX]!=null?Double.parseDouble(row[FACT_DATA_VALUE_INDEX]):0;
+							fact.setValue(factValue);
+						}
 						try{
 							factDataDao.saveFactDataInfo(fact);
 							count++;

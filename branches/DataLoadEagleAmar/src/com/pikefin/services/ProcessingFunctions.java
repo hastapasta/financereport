@@ -1,13 +1,10 @@
 package com.pikefin.services;
- 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -228,7 +225,7 @@ public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Job 
  * 
  * @throws SQLException
  */
-public void postProcessYahooSharePriceYQL() throws SQLException {
+public void postProcessYahooSharePriceYQL() throws GenericException {
 	/*
 	 * OFP 2/24/2012 - The Yahoo processsing is really convoluted now. We splice together up to 5
 	 * xml streams and then we have to strip out the xml header and tail before putting it through
@@ -623,7 +620,7 @@ public void postProcessBloombergCommodities()
 	propTableData = newTableData;
 }
 
-public boolean preProcessYahooEPSEst() throws SQLException {
+public boolean preProcessYahooEPSEst() throws GenericException {
 
 
 	
@@ -652,7 +649,7 @@ public boolean preProcessYahooEPSEst() throws SQLException {
 		
 }
 
-public boolean preProcessGoogleEPS() throws SQLException {
+public boolean preProcessGoogleEPS() throws GenericException {
 
 
 	
@@ -1000,7 +997,170 @@ public void postProcessBloombergIndexes() {
 	propTableData = newTableData;
 
 }
+/**
+ * Used to process the schedule of type nasdaq_q_eps.
+ * @throws GenericException
+ */
+public void postProcessNasdaqEPSTable() throws GenericException
+{
+	/*
+	 * Special Situations That need to be handled:
+	 * -data values contain date in parentheses 
+	 * -data values contain &nbsp
+	 * -negative values use hyphen
+	 */
+	
+	/*JNJ end of quarter months are incorrect, still need to code for this */
+	
+	/*
+	 * Ticker urls currently without data: BF/B, BRK/A, AON
+	 */
+	//try
+	//{
+	
+		String strTicker = dg.strOriginalTicker;
 
+		String[] rowdata, newrow;
+		String[] colheaders = propTableData.get(0);
+		String[] rowheaders = propTableData.get(1);
+		
+		/*This is custom code to fix rowheader #4 since the html is not consistent.*/
+		rowheaders[3] = rowheaders[3].replace("(FYE)","");
+		
+		ArrayList<String[]> newTableData = new ArrayList<String[]>();
+		String[] tmpArray = {"value","date_collected","entity_id","fiscalquarter","fiscalyear","calquarter","calyear"};
+		newTableData.add(tmpArray);
+	
+		for (int row=2;row<propTableData.size();row++)
+		{
+			rowdata = propTableData.get(row);
+			
+			for (int col=0;col<colheaders.length;col++)
+			{
+				newrow = new String[tmpArray.length];
+				if (rowdata[col].compareTo("void") != 0)
+				{
+					//newrow[0] = "VARCHAR";
+					//newrow[0] = propStrTableDataSet;
+					//newrow[2] = "INTEGER";
+					
+					if ((rowdata[col].contains("N/A") == true) || (rowdata[col].isEmpty() == true))
+					{
+						
+						ApplicationSetting.getInstance().getStdoutwriter().writeln("N/A value or empty value, skipping...",Logs.STATUS2,"PF39");
+						continue;
+					}
+					else if (rowdata[col].contains("(") == true)
+						newrow[0]=rowdata[col].substring(0,rowdata[col].indexOf("("));
+					else
+						ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem with data value formatting",Logs.ERROR,"PF40");
+					
+				
+					newrow[1] = "NOW()";
+					
+					//String query = "select * from entities where ticker='"+strTicker+"'";
+					
+					newrow[2] = String.valueOf(dg.nCurrentEntityId );
+					
+					//newrow[4] = "eps_exc_xtra";
+				
+					newrow[3] = Integer.toString(row-1);
+				
+					newrow[4] = colheaders[col];
+					String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, Integer.parseInt(newrow[3]), Integer.parseInt(newrow[4]));
+					
+					newrow[5] = strCalYearQuarter.substring(0,1);
+					newrow[6] = strCalYearQuarter.substring(1,5);
+						
+					newTableData.add(newrow);
+					
+				}
+				
+				
+			}
+			
+		}
+		propTableData = newTableData;
+
+	
+}
+/**
+ * This method post process for schedule type google_q_eps_excxtra
+ * @throws GenericException
+ */
+public void postProcessGoogleEPSTable() throws GenericException {
+	String strTicker = dg.strOriginalTicker;
+	String[] rowdata, newrow;
+	String[] colheaders = propTableData.get(0);
+	//String[] rowheaders = propTableData.get(1);
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	String[] tmpArray = {"value","date_collected","entity_id","fiscalquarter","fiscalyear","calquarter","calyear"};
+	newTableData.add(tmpArray);
+	String tmpVal;
+	for (int row=2;row<propTableData.size();row++)
+	{
+		rowdata = propTableData.get(row);
+		for (int col=0;col<colheaders.length;col++){
+			newrow = new String[7];
+			if (rowdata[col].compareTo("void") != 0){
+				tmpVal = rowdata[col];
+				if (tmpVal.contains("span")){
+				//this is a negative number
+					Integer startIndexs = tmpVal.indexOf(">-")+1;
+					Integer endIndex=tmpVal.indexOf("</");
+					logger.info("Temporary Value=="+tmpVal+" start index="+startIndexs+"	End Index="+endIndex);
+					newrow[0] = tmpVal.substring(startIndexs,endIndex);
+				}
+				else
+					newrow[0] = tmpVal;
+				
+				/*
+				 * Some tickers have tables with only 4 columns. The table
+				 * processing will wrap around to the next row in those cases.
+				 */
+				if (newrow[0].contains("Diluted"))
+					continue;
+				//Berkshire tends to be the only company with an EPS in the thousands.
+				newrow[0] = newrow[0].replace(",", "");
+				newrow[1] = "NOW()";
+				newrow[2] = dg.nCurrentEntityId + "";
+				
+				/*
+				 * OFP 11/12/2011 - I have to deal with this wacky issue where google has the end of quarter
+				 * days off by one in some instances. 
+				 * 
+				 * CSC is one example. For calendar quarter 2, cal year 2011, they have the end date listed as 7/1/2011
+				 * instead of 6/30/2011. 
+				 * 
+				 * So as a workaround, if the Day of month is 1, I'm going to subtract one day from the date.
+				 * 
+				 * It's not known at this time if this will screw up other tickers.
+				 * 
+				 * If other tickers behave differently then I may have to set up ticker specific code in here.
+				 */
+				
+				Calendar cal = Calendar.getInstance();
+				String[] date = colheaders[col].split("-");
+				cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(date[2]));
+				cal.set(Calendar.MONTH,Integer.parseInt(date[1])-1);
+				cal.set(Calendar.YEAR,Integer.parseInt(date[0]));
+				if (cal.get(Calendar.DAY_OF_MONTH)==1)
+					cal.add(Calendar.DAY_OF_MONTH,-1);
+				//String strFiscalYearQuarter = MoneyTime.getFiscalYearAndQuarter(strTicker,Integer.parseInt(colheaders[col].substring(5,7)), Integer.parseInt(colheaders[col].substring(0,4)),dbf);
+				String strFiscalYearQuarter = MoneyTime.getFiscalYearAndQuarter(strTicker, cal.get(Calendar.MONTH)+1, cal.get(Calendar.YEAR));
+				String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, Integer.parseInt(strFiscalYearQuarter.substring(0,1)), Integer.parseInt(strFiscalYearQuarter.substring(1,5)));
+				newrow[3] = strFiscalYearQuarter.substring(0,1);
+				/*don't use they year returned from getFiscalYearAndQuarter - use the one retrieved from the web page*/
+				newrow[4] = strFiscalYearQuarter.substring(1,5);
+				newrow[5] = strCalYearQuarter.substring(0,1);
+				newrow[6] = strCalYearQuarter.substring(1,5);
+				newTableData.add(newrow);
+			}
+		}
+		
+	}
+	propTableData = newTableData;
+}
 
 
 /*public void postProcessTreasuryDirect() throws SQLException

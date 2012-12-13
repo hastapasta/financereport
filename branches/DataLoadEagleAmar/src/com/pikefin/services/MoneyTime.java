@@ -164,7 +164,7 @@ public class MoneyTime {
 
 	
 	static EntityService entityServiceStatic=ApplicationSetting.getInstance().getApplicationContext().getBean(EntityService.class);
-	public static String getCalendarYearAndQuarter(String strTicker, int fiscalquarter, int fiscalyear) throws GenericException	{
+	public static String getCalendarYearAndQuarter(String strTicker, Integer fiscalquarter, Integer fiscalyear) throws GenericException	{
 		int calquarter=0;
 		int calyear=fiscalyear;
 		Entity e = entityServiceStatic.loadEntityInfoByTicker(strTicker) ;
