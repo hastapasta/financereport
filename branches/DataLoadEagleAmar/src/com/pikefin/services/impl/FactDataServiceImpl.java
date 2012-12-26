@@ -181,7 +181,7 @@ public class FactDataServiceImpl implements FactDataService{
 			
 			
 		
-			ApplicationSetting.getInstance().getStdoutwriter().writeln(count + " records inserted in db.",Logs.STATUS2,"DBF10");
+			ApplicationSetting.getInstance().getStdoutwriter().writeln(count + " records inserted in db.",Logs.STATUS1,"DBF10");
 		}
 	@Override
 	public List<FactData> loadFactDataByTaskForMaxBatch(Task taskDetail)

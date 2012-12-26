@@ -888,7 +888,7 @@ if (propStrTableDataSet.contains("q"))
 				String strFiscalYearQuarter = MoneyTime.getFiscalYearAndQuarter(strTicker,cal.get(Calendar.MONTH), cal.get(Calendar.YEAR));
 				int nFiscalQuarter=Integer.parseInt(strFiscalYearQuarter.substring(0,1));
 				int nFiscalYear = Integer.parseInt(strFiscalYearQuarter.substring(1,5));
-				if (colheaders[col].toUpperCase().equals("NEXT QUARTER"))
+				if ("NEXT QUARTER".equalsIgnoreCase(colheaders[col]))
 				{
 					nFiscalQuarter++;
 					if (nFiscalQuarter == 5)
@@ -1097,6 +1097,7 @@ public void postProcessGoogleEPSTable() throws GenericException {
 	String[] tmpArray = {"value","date_collected","entity_id","fiscalquarter","fiscalyear","calquarter","calyear"};
 	newTableData.add(tmpArray);
 	String tmpVal;
+	try{
 	for (int row=2;row<propTableData.size();row++)
 	{
 		rowdata = propTableData.get(row);
@@ -1108,7 +1109,7 @@ public void postProcessGoogleEPSTable() throws GenericException {
 				//this is a negative number
 					Integer startIndexs = tmpVal.indexOf(">-")+1;
 					Integer endIndex=tmpVal.indexOf("</");
-					logger.info("Temporary Value=="+tmpVal+" start index="+startIndexs+"	End Index="+endIndex);
+					logger.info("*************Temporary Value=="+tmpVal+"length="+tmpVal.length()+" start index="+startIndexs+"	End Index="+endIndex);
 					newrow[0] = tmpVal.substring(startIndexs,endIndex);
 				}
 				else
@@ -1160,6 +1161,66 @@ public void postProcessGoogleEPSTable() throws GenericException {
 		
 	}
 	propTableData = newTableData;
+	}catch(Exception e){
+		logger.error("@@@@@@@@@@@@@@@@@@@@@@-------------Error in processing data--"+e.getMessage());
+	}
+}
+/**
+ * Post processing function for schedule type nasdaq_y_eps_est for task id 13
+ */
+public void postProcessNasdaqEPSEstTable()
+{
+	String[] rowdata, newrow;
+	String strTicker;
+	String[] tmpArray;
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	/*OFP 10/17/2010 - For Ticker T there is currently redundant data being displayed */
+	//Need to add code to make the query insert column definitions the first row in the table data that is returned.
+	if (propStrTableDataSet.contains("_q_") == true)
+	{
+	
+		tmpArray = new String[]{"entity_id","date_collected","value","fiscalyear","calyear","fiscalquarter","calquarter"};
+
+	}else{
+		tmpArray = new String[]{"entity_id","date_collected","value","fiscalyear"};
+
+	}
+	try
+	{
+		strTicker = dg.strOriginalTicker;
+		String[] rowheaders = propTableData.get(1);
+		for (int x=4;x<propTableData.size();x++)
+		{
+			rowdata = propTableData.get(x);
+			newrow = new String[tmpArray.length];
+			newrow[0] = String.valueOf(dg.nCurrentEntityId);
+			newrow[1] = "NOW()";
+			newrow[2] = rowdata[0];
+			String rowHeader=rowheaders[x-2];
+//TODO Commented to fix the number format exception
+			//String rowHeader=rowheaders[2];
+			MoneyTime mt = new MoneyTime(rowHeader.substring(0,3),rowHeader.replace("&nbsp;","").substring(5,7),strTicker);
+			newrow[3] = mt.strFiscalYear;
+			if (propStrTableDataSet.contains("_q_"))
+			{
+				newrow[4] =String.valueOf(mt.nCalAdjYear);
+				newrow[5] = mt.strFiscalQtr;
+				newrow[6] = String.valueOf(mt.nCalQtr);
+				
+			}
+			newTableData.add(newrow);
+		}
+	
+		newTableData.add(0, tmpArray);
+		propTableData = newTableData;
+	}
+	catch (GenericException sqle)
+	{
+		
+		ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem processing table data",Logs.ERROR,"PF43");
+		ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
+	}
+
 }
 
 

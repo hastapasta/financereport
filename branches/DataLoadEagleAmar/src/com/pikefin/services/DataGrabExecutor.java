@@ -550,7 +550,7 @@ public class DataGrabExecutor extends Thread {
 		HttpResponse response;
 
 		if (currentJob.getInputSource() == null) {
-			//TODO Commenting the below code because it will trough the Null pointer exception since inputSource is allready null and we can't get the getFormStaticProperties from null
+			//TODO Commenting the below code because it will trough the Null pointer exception since inputSource is already null and we can't get the getFormStaticProperties from null
 			/*String strStProperties = currentJob.getInputSource().getFormStaticProperties();
 			String[] listItems = strStProperties.split(":");
 			for (int i = 0; i < listItems.length; i++) {

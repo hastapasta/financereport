@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import twitter4j.internal.logging.Logger;
 
-import com.pikefin.ApplicationSetting;
 
 @Service
 public class DataLoadService {
