@@ -40,7 +40,6 @@
    <property name="location">
        <value>classpath:hibernate.properties</value>
    </property> 
-  
 </bean>
 
 <!-- data source configuration -->
