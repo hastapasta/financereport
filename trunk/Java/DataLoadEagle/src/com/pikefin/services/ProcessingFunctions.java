@@ -31,7 +31,6 @@ import com.pikefin.businessobjects.Job;
 import com.pikefin.exceptions.CustomEmptyStringException;
 import com.pikefin.exceptions.GenericException;
 import com.pikefin.exceptions.SkipLoadException;
-import com.pikefin.services.inter.BatcheService;
 import com.pikefin.services.inter.EntityService;
 import com.pikefin.services.inter.JobService;
 
@@ -39,74 +38,71 @@ import com.pikefin.services.inter.JobService;
 public class ProcessingFunctions {
 	private static final Logger logger=Logger.getLogger(ProcessingFunctions.class);
 	//@Autowired
-	private JobService jobService=ApplicationSetting.getInstance().getApplicationContext().getBean(JobService.class);
-	private EntityService entityService=ApplicationSetting.getInstance().getApplicationContext().getBean(EntityService.class);
-	private BatcheService batchService=ApplicationSetting.getInstance().getApplicationContext().getBean(BatcheService.class);
-
+	private JobService jobService=ApplicationSetting.getInstance()
+	    .getApplicationContext().getBean(JobService.class);
+	private EntityService entityService=ApplicationSetting.getInstance()
+	    .getApplicationContext().getBean(EntityService.class);
+	
 	String strDataValue;
 
-	/*RIght now this is only set during the preProcessing function */
-	String strTicker;
-	String strTemp1, strTemp2, strTemp3;
+	// Right now this is only set during the preProcessing function
+	String strTicker, strTemp1, strTemp2, strTemp3;
 	
-	/*table extraction processing function parameters*/
+	// Table extraction processing function parameters.
 	ArrayList<String[]> propTableData;
 	Job j;
 	String propStrTableDataSet;
-
-	
 	DataGrabExecutor dg;
 	
-	//CustomBufferedWriter stdoutwriter;
-	
 	public ProcessingFunctions(DataGrabExecutor tmpDG) {
-		//this.uf = tmpUF;
-		this.dg = tmpDG;
+	  this.dg = tmpDG;
 	}
-	
-	/*public ProcessingFunctions() {
-		
-	}*/
 	
 	public boolean preNoDataCheck(String dataSet) {
 		try	{
 			Job job=jobService.getJobByDataSet(dataSet);
 			String strFunctionName =job.getPreNoDataCheckFunc();
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Pre No Data Check function name: " + strFunctionName,Logs.STATUS2,"PF1");
-			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
-			{
-				ApplicationSetting.getInstance().getStdoutwriter().writeln("No data check function, assuming data is ok",Logs.STATUS2,"PF2");
+			ApplicationSetting.getInstance().getStdoutwriter()
+			  .writeln("Pre No Data Check function name: " +
+			      strFunctionName,Logs.STATUS2,"PF1");
+			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0)) {
+				ApplicationSetting.getInstance().getStdoutwriter()
+				  .writeln("No data check function, assuming data is ok",
+				      Logs.STATUS2,"PF2");
 				return(false);
 			}
 			Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
 			return((Boolean)m.invoke(this, new Object[] {}));
 		}
-		catch (Exception e)
-		{
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("preNoDataCheck method call failed",Logs.ERROR,"PF3");
+		catch (Exception e) {
+			ApplicationSetting.getInstance().getStdoutwriter()
+			  .writeln("preNoDataCheck method call failed",Logs.ERROR,"PF3");
 			ApplicationSetting.getInstance().getStdoutwriter().writeln(e);
 			return(false);
-			
 		}
-		
 	}
 	
 	public boolean preJobProcessing(Job j)	{
 		try	{
 			String strFunctionName = j.getPreJobProcessFuncName();
 			
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Pre Job Process Func Name: " + strFunctionName,Logs.STATUS2,"PF3.2");
+			ApplicationSetting.getInstance().getStdoutwriter()
+			  .writeln("Pre Job Process Func Name: " + strFunctionName,
+			      Logs.STATUS2,"PF3.2");
 			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0)) {
-				ApplicationSetting.getInstance().getStdoutwriter().writeln("No pre job process function, exiting...",Logs.STATUS2,"PF3.3");
+				ApplicationSetting.getInstance().getStdoutwriter()
+				  .writeln("No pre job process function, exiting...",
+				      Logs.STATUS2,"PF3.3");
 				return(true);
 			}
-			ApplicationSetting.getInstance().getStdoutwriter().writeln(strFunctionName,Logs.STATUS2,"PF3.35");
+			ApplicationSetting.getInstance().getStdoutwriter()
+			  .writeln(strFunctionName,Logs.STATUS2,"PF3.35");
 			Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
 			return((Boolean)m.invoke(this, new Object[] {}));
 		}
-		catch (Exception tmpE)
-		{
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("pre Job Processing method call failed",Logs.ERROR,"PF3.4");
+		catch (Exception tmpE) {
+			ApplicationSetting.getInstance().getStdoutwriter()
+			  .writeln("pre Job Processing method call failed",Logs.ERROR,"PF3.4");
 			ApplicationSetting.getInstance().getStdoutwriter().writeln(tmpE);
 			return(false);
 		}
@@ -115,409 +111,384 @@ public class ProcessingFunctions {
 	public boolean postJobProcessing(Job j)	{
 		try	{
 			String strFunctionName = j.getPostJobProcessFuncName();
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Post Job Process Func Name: " + strFunctionName,Logs.STATUS2,"PF3.5");
-			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
-			{
-				ApplicationSetting.getInstance().getStdoutwriter().writeln("No post job process function, exiting...",Logs.STATUS2,"PF3.7");
+			ApplicationSetting.getInstance().getStdoutwriter()
+			  .writeln("Post Job Process Func Name: " + strFunctionName,
+			      Logs.STATUS2,"PF3.5");
+			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0)) {
+				ApplicationSetting.getInstance().getStdoutwriter()
+				  .writeln("No post job process function, exiting...",
+				      Logs.STATUS2,"PF3.7");
 				return(true);
 			}
-			ApplicationSetting.getInstance().getStdoutwriter().writeln(strFunctionName,Logs.STATUS2,"PF3.8");
+			ApplicationSetting.getInstance().getStdoutwriter()
+			  .writeln(strFunctionName,Logs.STATUS2,"PF3.8");
 			Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
 			return((Boolean)m.invoke(this, new Object[] {}));
 		}
-		catch (Exception tmpE)
-		{
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("post Job Processing method call failed",Logs.ERROR,"PF3.9");
+		catch (Exception tmpE) {
+			ApplicationSetting.getInstance().getStdoutwriter()
+			  .writeln("post Job Processing method call failed",Logs.ERROR,"PF3.9");
 			ApplicationSetting.getInstance().getStdoutwriter().writeln(tmpE);
 			return(false);
 		}
 	}
-	
 
 	public boolean preProcessing(Job j, String strTicker) {
 	 	try	{
 			String strFunctionName = j.getPreProcessFuncName();
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Pre Process Func Name: " + strFunctionName,Logs.STATUS2,"PF4");
+			ApplicationSetting.getInstance().getStdoutwriter()
+			  .writeln("Pre Process Func Name: " + strFunctionName,
+			      Logs.STATUS2,"PF4");
 			this.strTicker = strTicker;
-			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0))
-			{
-				ApplicationSetting.getInstance().getStdoutwriter().writeln("No pre process function, exiting...",Logs.STATUS2,"PF5");
+			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0)) {
+				ApplicationSetting.getInstance().getStdoutwriter()
+				  .writeln("No pre process function, exiting...",Logs.STATUS2,"PF5");
 				return(true);
 			}
+			// TODO need to check if these class properties are still being used.
 			strDataValue = "";
 			strTemp1 = "";
 			strTemp2 = "";
 			strTemp3 = "";
-			ApplicationSetting.getInstance().getStdoutwriter().writeln(strFunctionName,Logs.STATUS2,"PF6");
+			ApplicationSetting.getInstance().getStdoutwriter()
+			  .writeln(strFunctionName,Logs.STATUS2,"PF6");
 			Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
 			return((Boolean)m.invoke(this, new Object[] {}));
 		}
-		catch (Exception tmpE)
-		{
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("preProcessing method call failed",Logs.ERROR,"PF7");
+		catch (Exception tmpE) {
+			ApplicationSetting.getInstance().getStdoutwriter()
+			  .writeln("preProcessing method call failed",Logs.ERROR,"PF7");
 			ApplicationSetting.getInstance().getStdoutwriter().writeln(tmpE);
 			return(false);
 		}
 
 }
 
+	public ArrayList<String []> postProcessing(ArrayList<String []> tabledata,
+	    Job inputJob) 
+	        throws SkipLoadException,CustomEmptyStringException {
+	  if (tabledata.get(0) != null) {
+	    strDataValue = tabledata.get(0)[0];
+	  }
+	  try	{
+	    String strFunctionName = inputJob.getPostProcessFuncName();
+	    ApplicationSetting.getInstance().getStdoutwriter()
+	      .writeln("Post Process Func Name: " +
+	          strFunctionName,Logs.STATUS2,"PF8");
+	    if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0)) {
+	      ApplicationSetting.getInstance().getStdoutwriter()
+	        .writeln("No post process function, exiting...",Logs.STATUS2,"PF9");
+	      return(tabledata);
+	    }
+	    propTableData = tabledata;
+	    propStrTableDataSet = inputJob.getDataSet();
 
-public ArrayList<String []> postProcessing(ArrayList<String []> tabledata , Job inputJob) throws SkipLoadException,CustomEmptyStringException {
-		if (tabledata.get(0) != null)
-			strDataValue = tabledata.get(0)[0];
-		try	{
-			String strFunctionName = inputJob.getPostProcessFuncName();
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Post Process Func Name: " + strFunctionName,Logs.STATUS2,"PF8");
-			if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0)) {
-				ApplicationSetting.getInstance().getStdoutwriter().writeln("No post process function, exiting...",Logs.STATUS2,"PF9");
-				return(tabledata);
-			}
-			propTableData = tabledata;
-			propStrTableDataSet = inputJob.getDataSet();
+	    j = inputJob;
+	    Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
+	    m.invoke(this, new Object[] {});
+	  }
+	  // Need to break this down into individual exceptions.
+	  catch (IllegalAccessException iae) {
+	    ApplicationSetting.getInstance().getStdoutwriter()
+	      .writeln("postProcessing method call failed",Logs.ERROR,"PF16.1");
+	    ApplicationSetting.getInstance().getStdoutwriter().writeln(iae);
 
-			j = inputJob;
-			Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
-			m.invoke(this, new Object[] {});
-		}
-		/* Need to break this down into individual exceptions */
-		catch (IllegalAccessException iae)
-		{
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("postProcessing method call failed",Logs.ERROR,"PF16.1");
-			ApplicationSetting.getInstance().getStdoutwriter().writeln(iae);
-		
-		}
-		//any exceptions thrown by the function pointer are wrapped in an InvocationTargetException
-		catch (InvocationTargetException ite)
-		{
-			if (ite.getTargetException().getClass().getSimpleName().equals("SkipLoadException"))
-				throw new SkipLoadException();
-			else if (ite.getTargetException().getClass().getSimpleName().equals("CustomEmptyStringException")) {
-				/*
-				 * To do: pass along the exception message.
-				 */
-				throw new CustomEmptyStringException();
-			}
-			else{ 
-				ApplicationSetting.getInstance().getStdoutwriter().writeln("postProcessing method call failed",Logs.ERROR,"PF16.3");
-				if (ite.getCause() != null) {
-					ApplicationSetting.getInstance().getStdoutwriter().writeln((Exception)ite.getCause());
-				}
+	  }
+	  
+	  // Any exceptions thrown by the function pointer are wrapped in an
+	  // InvocationTargetException
+	  catch (InvocationTargetException ite) {
+	    if (ite.getTargetException().getClass()
+	        .getSimpleName().equals("SkipLoadException")) {
+	      throw new SkipLoadException();
+	    }
+	    else if (ite.getTargetException().getClass()
+	        .getSimpleName().equals("CustomEmptyStringException")) {
+	      // TODO: pass along the exception message.
+	      throw new CustomEmptyStringException();
+	    }
+	    else { 
+	      ApplicationSetting.getInstance().getStdoutwriter()
+	        .writeln("postProcessing method call failed",Logs.ERROR,"PF16.3");
+	      if (ite.getCause() != null) {
+	        ApplicationSetting.getInstance().getStdoutwriter()
+	          .writeln((Exception)ite.getCause());
+	      }
+	    }
+	  }
+	  catch (NoSuchMethodException nsme) {
+	    ApplicationSetting.getInstance().getStdoutwriter()
+	      .writeln("postProcessing method call failed",Logs.ERROR,"PF16.5");
+	    ApplicationSetting.getInstance().getStdoutwriter().writeln(nsme);
+	  }
+	  catch (DataAccessException tmpE) {
+	    ApplicationSetting.getInstance().getStdoutwriter()
+	      .writeln("postProcessing method call failed",Logs.ERROR,"PF17");
+	    ApplicationSetting.getInstance().getStdoutwriter().writeln(tmpE);
+	  }
 
-			}
-		
-		}
-		catch (NoSuchMethodException nsme) {
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("postProcessing method call failed",Logs.ERROR,"PF16.5");
-			ApplicationSetting.getInstance().getStdoutwriter().writeln(nsme);
-		}
-		catch (DataAccessException tmpE) {
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("postProcessing method call failed",Logs.ERROR,"PF17");
-			ApplicationSetting.getInstance().getStdoutwriter().writeln(tmpE);
-		}
-		
-		return(propTableData);
-	
-
-
-
-}
-/**Post process method for task id 10
- * 
- * @throws SQLException
- */
-public void postProcessYahooSharePriceYQL() throws GenericException {
-	/*
-	 * OFP 2/24/2012 - The Yahoo processsing is really convoluted now. We splice together up to 5
-	 * xml streams and then we have to strip out the xml header and tail before putting it through
-	 * the SAX parser. 
-	 * 
-	 * There are 2 reasons for all this complexity:
-	 * 1) Issue with invalid data retrieval from yahoo where we have to check the timestamp and if wrong resend
-	 * the url request.
-	 * 2) YQL has a limit where we can only submit 100 tickers at a time (or this might be a limit on the URL size, can't remember which).
-	 * 
-	 * One other way to handle this situation is to break up the entity_group into 5 different groups and then have
-	 * 5 different jobs, 1 for each group, under the parent task. But in order to do this, groups need to be associated with jobs, not tasks, which I think is how it should be anyways.
-	 */
-	String strTmpValue = propTableData.get(0)[0];
-	
-	/*
-	 * Replace all line separators; carriage returns, whatnot
-	 */
-	strTmpValue = strTmpValue.replaceAll("\\r|\\n", "");
-	
-	int nBeginMerge = strTmpValue.indexOf("<results>") + 9;
-	
-	int nCountMerge = 0;
-	while (true) {
-		if ((nBeginMerge = strTmpValue.indexOf("<results>",nBeginMerge+1)) != -1)
-			nCountMerge++;
-		else
-			break;
+	  return(propTableData);
 	}
 	
-	nBeginMerge = strTmpValue.indexOf("<results>") + 9;
-	int nEndMerge=0;
+	// @throws SQLException
+	public void postProcessYahooSharePriceYQL() throws GenericException {
+	  // OFP 2/24/2012 - The Yahoo processsing is really convoluted now. 
+	  // We splice together up to 5 xml streams and then we have to strip out
+	  // the xml header and tail before putting it through the SAX parser. 
+	  // 
+	  // There are 2 reasons for all this complexity:
+	  // 1) Issue with invalid data retrieval from yahoo where we have to check
+	  // the timestamp and if wrong resend the url request.
+	  // 2) YQL has a limit where we can only submit 100 tickers at a time 
+	  // (or this might be a limit on the URL size, can't remember which).
+	  // 
+	  // One other way to handle this situation is to break up the entity_group 
+	  // into 5 different groups and then have 5 different jobs, 1 for each 
+	  // group, under the parent task. But in order to do this, groups need 
+	  // to be associated with jobs, not tasks, which I think is how it should 
+	  // be anyways.
+
+	  String strTmpValue = propTableData.get(0)[0];
+
+	  // Replace all line separators; carriage returns, whatnot
+	  strTmpValue = strTmpValue.replaceAll("\\r|\\n", "");
+
+	  int nBeginMerge = strTmpValue.indexOf("<results>") + 9;
+
+	  int nCountMerge = 0;
+	  while (true) {
+	    if ((nBeginMerge = strTmpValue
+	        .indexOf("<results>",nBeginMerge+1)) != -1) {
+	      nCountMerge++;
+	    }
+	    else {
+	      break;
+	    }
+	  }
+
+	  nBeginMerge = strTmpValue.indexOf("<results>") + 9;
+	  int nEndMerge=0;
+
+	  while (nCountMerge > 0) {
+	    if ((nBeginMerge = strTmpValue.indexOf("</results>",nBeginMerge)) == -1) {
+	      //shouldn't get here
+	      ApplicationSetting.getInstance().getStdoutwriter()
+	        .writeln("Issue merging XML data",Logs.ERROR,"PF998.5");
+	      break;
+	    }
+
+	    if ((nEndMerge = strTmpValue.indexOf("<results>",nBeginMerge)) == -1) {
+	      //shouldn't get here
+	      ApplicationSetting.getInstance().getStdoutwriter()
+	        .writeln("Issue merging XML data",Logs.ERROR,"PF998.6");
+	      break;
+	    }
+	    nEndMerge += "<results>".length();
+	    String strReplace = strTmpValue.substring(nBeginMerge,nEndMerge);
+	    // The \Q and \E tell the regex processor to treat everything
+	    // in between as literals.
+	    strReplace = "\\Q" + strReplace + "\\E";
+	    strTmpValue = strTmpValue.replaceFirst(strReplace,"");	
+	    nCountMerge--;
+	  }
+
+	  SAXParserFactory factory = SAXParserFactory.newInstance();
+	  factory.setValidating(true);
+
+	  class Quote {
+	    String symbol;
+	    String lastTradeDate;
+	    String lastTradeTime;
+	    String price;
+
+	    Quote() {
+	    }
+	  }
+
+	  class CustomHandler extends DefaultHandler {
+	    ArrayList<Quote> quoteList;
+	    Quote curQuote;
+	    String strVal;
+
+	    CustomHandler () {
+	      quoteList = new ArrayList<Quote>();
+	      strVal = null;
+	    }
+
+	    public void startElement(String uri, String localName, String qName,
+	        Attributes attributes)
+	            throws SAXException {
+	      if(qName.equalsIgnoreCase("quote")) {
+	        curQuote = new Quote();
+	      } 
+	    }
+
+	    public void characters(char[] ch, int start, int length)
+	        throws SAXException {
+	      strVal = new String(ch,start,length);
+	    }
+
+	    public void endElement(String uri, String localName, String qName)
+	        throws SAXException  {
+	      if (qName.equalsIgnoreCase("quote")) {
+	        quoteList.add(curQuote);
+	      }
+	      else if (qName.equalsIgnoreCase("symbol")) {
+	        curQuote.symbol = strVal;
+	        strVal = null;
+	      }
+	      else if (qName.equalsIgnoreCase("lasttradedate")) {
+	        curQuote.lastTradeDate = strVal;
+	      }
+	      else if (qName.equalsIgnoreCase("lasttradetime")) {
+	        curQuote.lastTradeTime = strVal;
+	      }
+	      else if (qName.equalsIgnoreCase("lasttradepriceonly")) {
+	        curQuote.price = strVal;
+	      }
+	      strVal = null;
+	    }
+	  }
+
+	  CustomHandler handler = new CustomHandler();
+
+	  try {
+	    SAXParser saxParser = factory.newSAXParser();
+	    saxParser.parse(new InputSource( 
+	        new StringReader( strTmpValue)), handler);
+	  }
+	  // TODO: Eventually throw these exceptions outside of the function.
+	  catch(ParserConfigurationException pce) {
+	    ApplicationSetting.getInstance().getStdoutwriter()
+	      .writeln("PostProcessing Exception",Logs.ERROR,"PF1001.1");
+	    ApplicationSetting.getInstance().getStdoutwriter().writeln(pce);
+	  }
+	  catch(SAXException saxe) {
+	    String[] tmp = new String[3];
+	    tmp[0]="Task:"+this.dg.getCurrentTask().getTaskId();
+	    tmp[1]="URL:"+this.dg.strStage2URL;
+	    tmp[2]=this.dg.returned_content;
+	    if(logger.isDebugEnabled()){
+	      logger.debug(tmp.toString());
+	    }
+	    ApplicationSetting.getInstance().getStdoutwriter()
+	      .writeln("PostProcessing Exception",Logs.ERROR,"PF1001.2");
+	    ApplicationSetting.getInstance().getStdoutwriter().writeln(saxe);
+	  }
+	  catch(IOException ioe) {
+	    ApplicationSetting.getInstance().getStdoutwriter()
+	      .writeln("PostProcessing Exception",Logs.ERROR,"PF1001.3");
+	    ApplicationSetting.getInstance().getStdoutwriter().writeln(ioe);
+	  }
+	  
+	  propTableData.remove(0);
+	  String[] tmpArray = {"value","date_collected","entity_id"};
+	  propTableData.add(tmpArray);
 	
-	while (nCountMerge > 0) {
-		if ((nBeginMerge = strTmpValue.indexOf("</results>",nBeginMerge)) == -1) {
-			//shouldn't get here
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Issue merging XML data",Logs.ERROR,"PF998.5");
-			break;
-		}
-			
-		if ((nEndMerge = strTmpValue.indexOf("<results>",nBeginMerge)) == -1) {
-			//shouldn't get here
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Issue merging XML data",Logs.ERROR,"PF998.6");
-			break;
-		}
-		nEndMerge += "<results>".length();
-		String strReplace = strTmpValue.substring(nBeginMerge,nEndMerge);
-		/* replaceFirst uses regex so we have to replace backslash and dollar with escaped characters */
-		/*strReplace = strReplace.replace("\\","\\\\");
-		strReplace = strReplace.replace("$", "\\$");
-		strReplace = strReplace.replace("?", "\\?");*/
-		/* 
-		 * The \Q and \E tell the regex processor to treat everything
-		 * in between as literals.
-		*/
-		strReplace = "\\Q" + strReplace + "\\E";
-		//strReplace = ".yql.sp2.yahoo.com --><\\?xml ";//version=\\\"1.0\\\"";//encoding=\"UTF-8\"?><query xmlns:yahoo=\"http://www.yahooapis.com/v1/base.rng\" yahoo:count=\"100\" yahoo:create";
-		/*</results></query><!-- total: 2363 --><!-- engine2.yql.sp2.yahoo.com --><?xml version="1.0" encoding="UTF-8"?><query xmlns:yahoo="http://www.yahooapis.com/v1/base.rng" yahoo:count="100" yahoo:created="2012-02-24T18:36:26Z" yahoo:lang="en-US"><results>*/
-		strTmpValue = strTmpValue.replaceFirst(strReplace,"");	
-		nCountMerge--;
+	  for (int i=0;i<handler.quoteList.size();i++) {
+	    Quote curQuote = handler.quoteList.get(i);
+	    String[] rowdata = new String[tmpArray.length];
+
+	    if (curQuote.price.equals("0.00")) {
+	      ApplicationSetting.getInstance().getStdoutwriter()
+	        .writeln("Issue looking up ticker " + curQuote.symbol + 
+	            ",skipping",Logs.WARN,"PF50");
+	      System.out.println();
+	      continue;
+	    }		
+	    rowdata[0] = curQuote.price;
+	    String[] strDateArray = curQuote.lastTradeDate.split("/");
+	    Calendar cal = Calendar.getInstance();
+	    cal.set(Calendar.MONTH, Integer.parseInt(strDateArray[0])-1);
+	    cal.set(Calendar.DAY_OF_MONTH,Integer.parseInt(strDateArray[1]));
+	    cal.set(Calendar.YEAR,Integer.parseInt(strDateArray[2]));
+	    String strTime = curQuote.lastTradeTime;
+	    String strAMPM = strTime.substring(strTime.indexOf("m")-1,strTime.indexOf("m")+1);
+	    String strNewTime = strTime.substring(0,strTime.indexOf("m")-1);
+	    String[] strTimeArray = strNewTime.split(":");
+	    // There's an issue with setting the AMPM value and then the HOUR value.
+	    // The conversion happens incorrectly if the 2 values are set separately.
+	    int nHour = Integer.parseInt(strTimeArray[0]);
+	    if (strAMPM.equals("pm") && nHour != 12) {
+	      cal.set(Calendar.HOUR_OF_DAY, nHour + 12);
+	    }
+	    else if (strAMPM.equals("am") && nHour == 12) {
+	      cal.set(Calendar.HOUR_OF_DAY, 0);
+	    }
+	    else {
+	      cal.set(Calendar.HOUR_OF_DAY,nHour);
+	    }
+	    cal.set(Calendar.MINUTE, Integer.parseInt(strTimeArray[1]));
+	    cal.set(Calendar.SECOND, 0);
+	    cal.setTimeZone(TimeZone.getTimeZone("America/New_York"));
+	    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	    formatter.setTimeZone(TimeZone.getTimeZone("America/Phoenix"));
+	    Calendar currentCal = Calendar.getInstance();
+	    DateFormat formatter2 = new SimpleDateFormat("M/d/yyyy");
+	    // Only perform this check for task 10.
+	   
+	    if (dg.getCurrentTask().getTaskId().equals(10)) {
+	      if (!formatter2.format(currentCal.getTime())
+	          .equals(formatter2.format(cal.getTime()))) {
+	        ApplicationSetting.getInstance().getStdoutwriter()
+	          .writeln("Bad Yahoo Data, in postProcessing function for Symbol " +
+	            curQuote.symbol,Logs.ERROR,"PF50.5");
+	      }
+	    }
+	    // If the taskid is 10, we are going to use the input time for
+	    // date_collected. Otherwise we are going to use real time collection
+	    // time - delay (for yahoo, 20 minutes) for date_collected.
+	    if (dg.getCurrentTask().getTaskId().equals(10)) {
+	      rowdata[1] = "'" + formatter.format(cal.getTime()) + "'";
+	    }
+	    else {
+	      currentCal.add(Calendar.MINUTE, -20);
+	      rowdata[1] = "'" + formatter.format(currentCal.getTime()) + "'";
+	    }
+
+	    // These are the 5 non US tickers for task 24:
+	    // ^N225, ^AORD, ^TWII, ^NZ50, ^AXJO
+	    if (Constants.Ticker.TICKER_BRK_A.equals(curQuote.symbol)) {
+	      curQuote.symbol = Constants.Ticker.TICKER_BRK_BY_A;
+	    }
+	    else if (Constants.Ticker.TICKER_BF_B.equals(curQuote.symbol)) {
+	      curQuote.symbol =Constants.Ticker.TICKER_BF_BY_B;
+	    }
+
+	    try {
+	      Entity entity =entityService.loadEntityInfoByTicker(curQuote.symbol);
+	      rowdata[2] =String.valueOf(entity.getEntityId());
+	    }
+	    catch (GenericException sqle) {
+	      ApplicationSetting.getInstance().getStdoutwriter()
+	        .writeln("Issue looking up ticker " + curQuote.symbol + 
+	            ",skipping",Logs.ERROR,"PF50");
+	      ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
+	      continue;
+	    }
+	    propTableData.add(rowdata);
+	  }
 	}
-	
-	
-	SAXParserFactory factory = SAXParserFactory.newInstance();
-	//DefaultHandler handler = new DefaultHandler();
-    factory.setValidating(true);
-    
-    class Quote {
-    	String symbol;
-    	String lastTradeDate;
-    	String lastTradeTime;
-    	String price;
-    	
-    	Quote() {
-    		
-    	}
-    	
-    }
-    
-   
-   
-    
-    class CustomHandler extends DefaultHandler {
-    	
-    	
-    	 
-    	ArrayList<Quote> quoteList;
-    	Quote curQuote;
-    	String strVal;
-    	
-    	CustomHandler () {
-    		quoteList = new ArrayList<Quote>();
-    		strVal = null;
-    	}
-    	
-    	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-    		if(qName.equalsIgnoreCase("quote")) {
-				//create a new instance of employee
-				curQuote = new Quote();
-			} 
-  
-		}
-    	
-    	public void characters(char[] ch, int start, int length) throws SAXException {
-    		strVal = new String(ch,start,length);
-    	}
-    	
-    	
-    	
-    	public void endElement(String uri, String localName, String qName) throws SAXException  {
-    		if (qName.equalsIgnoreCase("quote")) {
-    			quoteList.add(curQuote);
-    		}
-    		else if (qName.equalsIgnoreCase("symbol")) {
-    			curQuote.symbol = strVal;
-    			strVal = null;
-    		}
-    		else if (qName.equalsIgnoreCase("lasttradedate")) {
-    			curQuote.lastTradeDate = strVal;
-    		}
-    		else if (qName.equalsIgnoreCase("lasttradetime")) {
-    			curQuote.lastTradeTime = strVal;
-    		}
-    		else if (qName.equalsIgnoreCase("lasttradepriceonly")) {
-    			curQuote.price = strVal;
-    		}
-    		
-    		strVal = null;
-    		
-    	}
-    }
-    
-    
-    CustomHandler handler = new CustomHandler();
-    
-    try {
-        SAXParser saxParser = factory.newSAXParser();
-        //File file = new File("test.xml");
-        
-        
-      
-        saxParser.parse(new InputSource( new StringReader( strTmpValue)), handler);
-        
-        
-       
 
-        //saxParser.parse(file, new ElementHandler());    // specify handler
-    }
-    /*
-     * Eventually throw these exceptions outside of the function.
-     */
-    catch(ParserConfigurationException pce) {
-    	ApplicationSetting.getInstance().getStdoutwriter().writeln("PostProcessing Exception",Logs.ERROR,"PF1001.1");
-    	ApplicationSetting.getInstance().getStdoutwriter().writeln(pce);
-    }
-    catch(SAXException saxe) {
-    	//e1.getMessage();
-    	
-    	String[] tmp = new String[3];
-		tmp[0]="Task:"+this.dg.getCurrentTask().getTaskId();
-		tmp[1]="URL:"+this.dg.strStage2URL;
-		tmp[2]=this.dg.returned_content;
-		if(logger.isDebugEnabled()){
-			logger.debug(tmp.toString());
-		}
-    	ApplicationSetting.getInstance().getStdoutwriter().writeln("PostProcessing Exception",Logs.ERROR,"PF1001.2");
-    	ApplicationSetting.getInstance().getStdoutwriter().writeln(saxe);
-    }
-    catch(IOException ioe) {
-    	ApplicationSetting.getInstance().getStdoutwriter().writeln("PostProcessing Exception",Logs.ERROR,"PF1001.3");
-    	ApplicationSetting.getInstance().getStdoutwriter().writeln(ioe);
-    }
-    boolean bDone = false;
-	propTableData.remove(0);
-	String[] tmpArray = {"value","date_collected","entity_id"};
-	propTableData.add(tmpArray);
-	int nBegin=0;
-	int nEnd =0;
-	int nCount = 0;
-	int nCount2 = 0;
-	for (int i=0;i<handler.quoteList.size();i++) {
-		Quote curQuote = handler.quoteList.get(i);
-		nCount2++;
-		String[] rowdata = new String[tmpArray.length];
-		
-		/*if (curQuote.lastTradeDate == null) {
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("No LastTradeDate value for ticker " + curQuote.symbol + ",skipping",Logs.ERROR,"PF72");
-			continue;
-		}*/
-		if (curQuote.price.equals("0.00")) {
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Issue looking up ticker " + curQuote.symbol + ",skipping",Logs.WARN,"PF50");
-			System.out.println();
-			continue;
-		}		
-		rowdata[0] = curQuote.price;
-		String[] strDateArray = curQuote.lastTradeDate.split("/");
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.MONTH, Integer.parseInt(strDateArray[0])-1);
-		cal.set(Calendar.DAY_OF_MONTH,Integer.parseInt(strDateArray[1]));
-		cal.set(Calendar.YEAR,Integer.parseInt(strDateArray[2]));
-		String strTime = curQuote.lastTradeTime;
-		String strAMPM = strTime.substring(strTime.indexOf("m")-1,strTime.indexOf("m")+1);
-		String strNewTime = strTime.substring(0,strTime.indexOf("m")-1);
-		String[] strTimeArray = strNewTime.split(":");
-		/*
-		 * There's an issue with setting the AMPM value and then the HOUR value. The conversion
-		 * happens incorrectly if the 2 values are set separately.
-		 */
-		int nHour = Integer.parseInt(strTimeArray[0]);
-		if (strAMPM.equals("pm") && nHour != 12)
-			cal.set(Calendar.HOUR_OF_DAY, nHour + 12);
-		else if (strAMPM.equals("am") && nHour == 12)
-			cal.set(Calendar.HOUR_OF_DAY, 0);
-		else
-			cal.set(Calendar.HOUR_OF_DAY,nHour);
-		cal.set(Calendar.MINUTE, Integer.parseInt(strTimeArray[1]));
-		cal.set(Calendar.SECOND, 0);
-		cal.setTimeZone(TimeZone.getTimeZone("America/New_York"));
-		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		formatter.setTimeZone(TimeZone.getTimeZone("America/Phoenix"));
-		Calendar currentCal = Calendar.getInstance();
-		DateFormat formatter2 = new SimpleDateFormat("M/d/yyyy");
-		/*
-		 * Only perform this check for task 10.
-		 */
-		if (dg.getCurrentTask().getTaskId().equals(10))
-			if (!formatter2.format(currentCal.getTime()).equals(formatter2.format(cal.getTime())))
-				ApplicationSetting.getInstance().getStdoutwriter().writeln("Bad Yahoo Data, in postProcessing function for Symbol " + curQuote.symbol,Logs.ERROR,"PF50.5");
-		/*
-		 * If the taskid is 10, we are going to use the input time for date_collected.
-		 * Otherwise we are going to use real time collection time - delay (for yahoo, 20 minutes) for date_collected.
-		 */
-		if (dg.getCurrentTask().getTaskId().equals(10))
-			rowdata[1] = "'" + formatter.format(cal.getTime()) + "'";
-		else {
-			currentCal.add(Calendar.MINUTE, -20);
-			rowdata[1] = "'" + formatter.format(currentCal.getTime()) + "'";
-		}
-			
-		/*
-		 * These are the 5 non US tickers for task 24: ^N225, ^AORD, ^TWII, ^NZ50, ^AXJO
-		 */
-		if (Constants.Ticker.TICKER_BRK_A.equals(curQuote.symbol))
-			curQuote.symbol = Constants.Ticker.TICKER_BRK_BY_A;
-		else if (Constants.Ticker.TICKER_BF_B.equals(curQuote.symbol))
-			curQuote.symbol =Constants.Ticker.TICKER_BF_BY_B;
-		
-		try {
-			Entity entity =entityService.loadEntityInfoByTicker(curQuote.symbol);
-			rowdata[2] =String.valueOf(entity.getEntityId());
-		}
-		catch (GenericException sqle) {
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Issue looking up ticker " + curQuote.symbol + ",skipping",Logs.ERROR,"PF50");
-			ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
-			continue;
-		}
-		nCount++;
-		propTableData.add(rowdata);
+	public void preJobProcessTableXrateorg() throws DataAccessException {
+
 	}
-	
-}
-
-public void preJobProcessTableXrateorg() throws DataAccessException
-{
-	
-}
 
 
+	public void postProcessExchRate() {
+	  String[] newrow;
+	  String[] tmpArray = {"data_set","value","date_collected"};
+	  ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	  newTableData.add(tmpArray);
 
-public void postProcessExchRate()
-{
-	String[] newrow;
-	String[] tmpArray = {"data_set","value","date_collected"};
-	
-	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	
-	newTableData.add(tmpArray);
-	
-	newrow = new String[tmpArray.length];
-	
-	newrow[0] = dg.strCurDataSet;
-	newrow[1] = this.propTableData.get(0)[0];
-	newrow[2] = "NOW()";
-	//newrow[3] = "forex";
-	
-	newTableData.add(newrow);
-	
-	propTableData = newTableData;
+	  newrow = new String[tmpArray.length];
+	  newrow[0] = dg.strCurDataSet;
+	  newrow[1] = this.propTableData.get(0)[0];
+	  newrow[2] = "NOW()";
+	  newTableData.add(newrow);
 
-	
-
-}
+	  propTableData = newTableData;
+	}
 public boolean preNDCBloombergQuote() {
 	/*
 	 * Intermittently a quote doesn't return a value.	
@@ -561,667 +532,566 @@ public boolean preNDCBloombergQuote() {
 }
 
 
-public void postProcessBloombergCommodities()
-{
-	String[] tmpArray = {"value","date_collected","entity_id"};
-	
-	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	String[] rowdata, newrow;
-	String[] rowheaders = propTableData.get(1);
-	
-	for (int row=2;row<propTableData.size();row++)
-	{
-		rowdata = propTableData.get(row);
-		if (rowdata[0].contains("N.A."))
-			continue;
-		newrow = new String[tmpArray.length];
-		
-		newrow[0] = rowdata[0].replace(",", "");
-		newrow[1] = "NOW()";
-		/*
-		 * If there are 2 sets of parens for the row header, we want to cutoff at the 2nd left paren.
-		 */
-		
-		String tmp = rowheaders[row-2];
-		int i = tmp.indexOf("(");
-	
-		if (tmp.indexOf("(",i+1)==-1)
-			tmp = tmp.substring(0,i);
-		else
-			tmp = tmp.substring(0,tmp.indexOf("(",i+1));
-		
-			
-		
-		
-		tmp = tmp.trim();
-		
-		tmp = tmp.replace("'", "");
-		
-		
-		
-		try
-		{
-			
-			Entity entity=entityService.loadEntityInfoByTicker(tmp);
-			newrow[2] = String.valueOf(entity.getEntityId());
-			newTableData.add(newrow);
-			
-		}
-		catch (GenericException sqle)
-		{
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem looking up ticker: " + tmp + ",row skipped",Logs.WARN,"PF99.55");
-			
-		
-		}
-	
-	}
-	
-	newTableData.add(0, tmpArray);
-	propTableData = newTableData;
-}
-
-public boolean preProcessYahooEPSEst() throws GenericException {
+  public void postProcessBloombergCommodities() {
+    String[] tmpArray = {"value","date_collected","entity_id"};
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    String[] rowdata, newrow;
+    String[] rowheaders = propTableData.get(1);
+  
+    for (int row=2;row<propTableData.size();row++) {
+      rowdata = propTableData.get(row);
+      if (rowdata[0].contains("N.A.")) { 
+        continue;
+      }
+      newrow = new String[tmpArray.length];
+      newrow[0] = rowdata[0].replace(",", "");
+      newrow[1] = "NOW()";
+      // If there are 2 sets of parens for the row header, 
+      // we want to cutoff at the 2nd left paren.
+      String tmp = rowheaders[row-2];
+      int i = tmp.indexOf("(");
+  
+      if (tmp.indexOf("(",i+1)==-1) {
+        tmp = tmp.substring(0,i);
+      }
+      else {
+        tmp = tmp.substring(0,tmp.indexOf("(",i+1));
+      }
+  
+      tmp = tmp.trim();
+      tmp = tmp.replace("'", "");
+  
+      try {
+        Entity entity=entityService.loadEntityInfoByTicker(tmp);
+        newrow[2] = String.valueOf(entity.getEntityId());
+        newTableData.add(newrow);
+      }
+      catch (GenericException sqle) {
+        ApplicationSetting.getInstance().getStdoutwriter()
+          .writeln("Problem looking up ticker: " 
+              + tmp + ",row skipped",Logs.WARN,"PF99.55");
+      }
+    }
+    newTableData.add(0, tmpArray);
+    propTableData = newTableData;
+  }
 
 
-	
+  public boolean preProcessYahooEPSEst() throws GenericException {
+    // Negative values are enclosed in font changing tags which 
+    // have to be removed
+    if (Constants.Ticker.TICKER_BF_BY_B.equals(strTicker)) {
+      dg.strCurrentTicker=Constants.Ticker.TICKER_BF_B;
+    }
+    else if (Constants.Ticker.TICKER_BRK_BY_A.equals(strTicker)) {
+      dg.strCurrentTicker=Constants.Ticker.TICKER_BRK_A;
+    }
+    // TODO: Need to get rid of these return values and go with exceptions 
+    return(true);
+  }
+   
 
-	/*
-	 * Negative values are enclosed in font changing tags which have to be removed
-	 */
-	if (Constants.Ticker.TICKER_BF_BY_B.equals(strTicker))
-	{
-		dg.strCurrentTicker=Constants.Ticker.TICKER_BF_B;
-	}
-	else if (Constants.Ticker.TICKER_BRK_BY_A.equals(strTicker))
-	{
-		dg.strCurrentTicker=Constants.Ticker.TICKER_BRK_A;
-	}
-	
-	/*
-	 * Need to get rid of these return values and go with exceptions 
-	 */
-	return(true);
-	
+  public boolean preProcessGoogleEPS() throws GenericException {
+    // Negative values are enclosed in font changing tags which have
+    // to be removed
+    if (Constants.Ticker.TICKER_BF_BY_B.equals(strTicker)) {
+      dg.strCurrentTicker=Constants.Ticker.TICKER_NYSE_COLLON_BF_B;
+    }
+    else if (Constants.Ticker.TICKER_BRK_BY_A.equals(strTicker)) {
+      dg.strCurrentTicker=Constants.Ticker.TICKER_NYSE_COLLON_BRK_A ;
+    }
+    else if (strTicker.equals("PG") || strTicker.equals("SCHW") ||
+        strTicker.equals("DF") || strTicker.equals("MHS") ||
+        strTicker.equals("NWL")) {
+      dg.strCurrentTicker="NYSE:" + strTicker;
+    }
+    // TODO: Need to get rid of these return values and go with exceptions 
+    return(true);
+  }
+    
 
-	
+  public void postProcessTableYahooBeginYearVerify() 
+      throws CustomEmptyStringException, GenericException { 
+    //The purpose of this function is to verify that the quarter end months
+    // reported in yahoo match the begin_fiscal_calendar property stated in the
+    // entities table.
+    // 
+    // It can be swapped into the 'table_yahoo_q_eps_est_body' data_set
 
-	
-		
-}
+    String[] colheaders = propTableData.get(0);
+    String strQEndMonth = colheaders[0];
+    Entity entity=entityService.loadEntityInfoByTicker(this.strTicker);
+    int nBeginFiscalCal = MoneyTime
+        .convertMonthStringtoInt(entity.getBeginFiscalCalendar());
+    PrintWriter fullfilewriter = null;
 
-public boolean preProcessGoogleEPS() throws GenericException {
+    try {
+      fullfilewriter = new PrintWriter( 
+          new FileWriter("YahooVerify.txt",true),true);
+    }
+    catch (IOException ioe) {
+      // TODO: Need to do something here.
+    }
 
-
-	
-
-	/*
-	 * Negative values are enclosed in font changing tags which have to be removed
-	 */
-	if (Constants.Ticker.TICKER_BF_BY_B.equals(strTicker)) {
-		dg.strCurrentTicker=Constants.Ticker.TICKER_NYSE_COLLON_BF_B;
-	}
-	else if (Constants.Ticker.TICKER_BRK_BY_A.equals(strTicker)) {
-		//dg.strCurrentTicker = "BRK-A";	
-		dg.strCurrentTicker=Constants.Ticker.TICKER_NYSE_COLLON_BRK_A ;
-	}
-	else if (strTicker.equals("PG") || strTicker.equals("SCHW") || strTicker.equals("DF") || strTicker.equals("MHS") || strTicker.equals("NWL")) {
-		dg.strCurrentTicker="NYSE:" + strTicker;
-	}
-	
-	
-	
-	/*
-	 * Need to get rid of these return values and go with exceptions 
-	 */
-	return(true);
-	
-
-	
-
-	
-		
-}
-
-public void postProcessTableYahooBeginYearVerify() throws CustomEmptyStringException, GenericException
-{ 
-	/* The purpose of this function is to verify that the quarter end months
-	 * reported in yahoo match the begin_fiscal_calendar property stated in the
-	 * entities table.
-	 * 
-	 * It can be swapped into the 'table_yahoo_q_eps_est_body' data_set
-	 */
-	String[] colheaders = propTableData.get(0);
-	String strQEndMonth = colheaders[0];
-	Entity entity=entityService.loadEntityInfoByTicker(this.strTicker);
-	int nBeginFiscalCal = MoneyTime.convertMonthStringtoInt(entity.getBeginFiscalCalendar());
-	PrintWriter fullfilewriter = null;
-	
-	try
-	{
-		fullfilewriter = new PrintWriter( new FileWriter("YahooVerify.txt",true),true);
-	}
-	catch (IOException ioe)
-	{
-	}
-	
-	
-	switch(nBeginFiscalCal)
-	{
-		case 1:
-		case 4:
-		case 7:
-		case 10:
-			if (!(strQEndMonth.substring(0,3).equalsIgnoreCase("Mar") ||
-					strQEndMonth.substring(0,3).equalsIgnoreCase("Jun") ||
-					strQEndMonth.substring(0,3).equalsIgnoreCase("Sep") ||
-					strQEndMonth.substring(0,3).equalsIgnoreCase("Dec")))
-			{
-				System.out.println("begin_fiscal_calendar and quote.yahoo mismatch for ticker " + strTicker);
-				fullfilewriter.write(strTicker + "\n");
-			}
-			break;
-		case 2:
-		case 5:
-		case 8:
-		case 11:
-			if (!(strQEndMonth.substring(0,3).equalsIgnoreCase("Apr") ||
-					strQEndMonth.substring(0,3).equalsIgnoreCase("Jul") ||
-					strQEndMonth.substring(0,3).equalsIgnoreCase("Oct") ||
-					strQEndMonth.substring(0,3).equalsIgnoreCase("Jan")))
-			{
-				System.out.println("begin_fiscal_calendar and quote.yahoo mismatch for ticker " + strTicker);
-				fullfilewriter.write(strTicker + "\n");
-			}
-			break;
-		case 3:
-		case 6:
-		case 9:
-		case 12:
-			if (!(strQEndMonth.substring(0,3).equalsIgnoreCase("May") ||
-					strQEndMonth.substring(0,3).equalsIgnoreCase("Aug") ||
-					strQEndMonth.substring(0,3).equalsIgnoreCase("Nov") ||
-					strQEndMonth.substring(0,3).equalsIgnoreCase("Feb")))
-			{
-				System.out.println("begin_fiscal_calendar and quote.yahoo mismatch for ticker " + strTicker);
-				fullfilewriter.write(strTicker + "\n");
-			}
-			break;
-		
-	}
-	
-	fullfilewriter.close();
-
-}
-
-public void postProcessTreasuryDebtTable6()
-{
-	int j=0;
-	for (int i=0;i<10;i++)
-	{
-		j++;
-	}
-	
-	
-}
-/**
- * Used to process the jobs of type  exchrate_org
- */
-public void postProcessTableXrateorg() 
-{
-	String[] rowheaders = propTableData.get(1);
-	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	String[] tmpArray = {"value","date_collected","entity_id"};
-	newTableData.add(tmpArray);
-	for (int i=0;i<rowheaders.length;i++)
-	{
-		String strTmp = rowheaders[i];
-		strTmp = "USD" + strTmp.substring(strTmp.indexOf("(")+1,strTmp.indexOf(")"));
-		
-		//The first 2 crosses on the europe page are inverse: EURUSD and GBPUSD
-		if (propStrTableDataSet.contains("europe"))
-		{
-			if (i==0)
-				strTmp = "EURUSD";
-			else if (i==1)
-				strTmp = "GBPUSD";
-		}
-		String[] tmpA = new String[tmpArray.length];
-		//tmpA[0] = propStrTableDataSet;
-		tmpA[0] = propTableData.get(i+2)[0];
-		tmpA[1] = "NOW()";
-		
-		try
-		{
-			
-			Entity entity=entityService.loadEntityInfoByTicker(strTmp);
-			tmpA[2] = String.valueOf(entity.getEntityId());
-			newTableData.add(tmpA);
-			
-		}
-		catch (GenericException sqle)
-		{
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem looking up ticker: " + strTmp + ",row skipped",Logs.WARN,"PF99.55");
-			
-		
-		}
-			
-
-		
-	}
-	
-	
-	propTableData = newTableData;
-
-}
-
-public void postProcessMWatchEPSEstTable() throws GenericException,SkipLoadException {
-	
-	/* OFP 11/12/2011 - One issue with this data source is because the column headers are
-	 * relative (i.e. "this quarter", "next quarter") there is no way to guarantee which quarter
-	 * marketwatch is referring to. If they are slow in updating the website, then the data will
-	 * be collected for the wrong quarters.
-	 * As of 12/15/2010 there is no data for RAND nor VIA and no obvious string to key off of for a no data check.
-	 
-*/
-	
-
-	String[] rowdata, newrow;
-	String[] colheaders = propTableData.get(0);
-	Calendar cal = Calendar.getInstance();
-	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	String[] tmpArray;
-if (propStrTableDataSet.contains("q"))
-	{
-		tmpArray=new String[7];
-		tmpArray[0]="value";
-		tmpArray[1]="date_collected";
-		tmpArray[2]="entity_id";
-		tmpArray[3]="fiscalyear";
-		tmpArray[4]="fiscalquarter";
-		tmpArray[5]="calquarter";
-		tmpArray[6]="calyear";
-	/*
-		 * OFP 11/12/2011 - Ran into an issue where the column headers weren't being
-		 * read correctly.
-		 */
-		
-		if (!colheaders[0].toUpperCase().equals("THIS QUARTER")) {
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Invalid column header format for entity_id " + dg.nCurrentEntityId,Logs.STATUS2,"PF46");
-			throw new SkipLoadException();
-		}
-			
-		
-		
-	}else{
-		tmpArray=new String[4];
-		tmpArray[0]="value";
-		tmpArray[1]="date_collected";
-		tmpArray[2]="entity_id";
-		tmpArray[3]="fiscalyear";
-		
-	}
-	newTableData.add(tmpArray);
-	String tmpVal;
-	
-	
-
-	for (int row=2;row<propTableData.size();row++)
-	{
-		rowdata = propTableData.get(row);
-		
-		for (int col=0;col<colheaders.length;col++)
-		{
-			newrow = new String[7];
-			if (rowdata[col].compareTo("void") != 0)
-			{
-			tmpVal = rowdata[col];
-				if (tmpVal.contains("span"))
-				//this is a negative number
-					newrow[0] = tmpVal.substring(tmpVal.indexOf(">-")+1,tmpVal.indexOf("</"));
-				else
-					newrow[0] = tmpVal;
-				
-				//Berkshire tends to be the only company with an EPS in the thousands.
-				newrow[0] = newrow[0].replace(",", "");
-				newrow[1] = "NOW()";
-				newrow[2] = dg.nCurrentEntityId + "";
-				String strFiscalYearQuarter = MoneyTime.getFiscalYearAndQuarter(strTicker,cal.get(Calendar.MONTH), cal.get(Calendar.YEAR));
-				int nFiscalQuarter=Integer.parseInt(strFiscalYearQuarter.substring(0,1));
-				int nFiscalYear = Integer.parseInt(strFiscalYearQuarter.substring(1,5));
-				if ("NEXT QUARTER".equalsIgnoreCase(colheaders[col]))
-				{
-					nFiscalQuarter++;
-					if (nFiscalQuarter == 5)
-					{
-						nFiscalYear++;
-						nFiscalQuarter=1;
-					}
-				}
-				else if (colheaders[col].toUpperCase().equals("NEXT FISCAL"))
-				{
-					nFiscalYear++;
-				}
-					
-				newrow[3] = nFiscalYear + "";
-				//newrow[4] = colheaders[col].substring(5,7);//Integer.toString(row-1);
-				
-				
-				//don't use the year returned from getFiscalYearAndQuarter - use the one retrieved from the web page
-				if (propStrTableDataSet.contains("q"))
-				{
-					String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, nFiscalQuarter, nFiscalYear);
-				
-					newrow[4] = nFiscalQuarter + "";
-					newrow[5] = strCalYearQuarter.substring(0,1);
-					newrow[6] = strCalYearQuarter.substring(1,5);
-				}
-					
-				newTableData.add(newrow);
-				
-			}
-			
-			
-		}
-		
-	}
-	propTableData = newTableData;
+    switch(nBeginFiscalCal)
+    {
+    case 1:
+    case 4:
+    case 7:
+    case 10:
+      if (!(strQEndMonth.substring(0,3).equalsIgnoreCase("Mar") ||
+          strQEndMonth.substring(0,3).equalsIgnoreCase("Jun") ||
+          strQEndMonth.substring(0,3).equalsIgnoreCase("Sep") ||
+          strQEndMonth.substring(0,3).equalsIgnoreCase("Dec"))) {
+        System.out.println("begin_fiscal_calendar and quote.yahoo" +
+        		" mismatch for ticker " + strTicker);
+        fullfilewriter.write(strTicker + "\n");
+      }
+      break;
+    case 2:
+    case 5:
+    case 8:
+    case 11:
+      if (!(strQEndMonth.substring(0,3).equalsIgnoreCase("Apr") ||
+          strQEndMonth.substring(0,3).equalsIgnoreCase("Jul") ||
+          strQEndMonth.substring(0,3).equalsIgnoreCase("Oct") ||
+          strQEndMonth.substring(0,3).equalsIgnoreCase("Jan"))) {
+        System.out.println("begin_fiscal_calendar and quote.yahoo" +
+        		" mismatch for ticker " + strTicker);
+        fullfilewriter.write(strTicker + "\n");
+      }
+      break;
+    case 3:
+    case 6:
+    case 9:
+    case 12:
+      if (!(strQEndMonth.substring(0,3).equalsIgnoreCase("May") ||
+          strQEndMonth.substring(0,3).equalsIgnoreCase("Aug") ||
+          strQEndMonth.substring(0,3).equalsIgnoreCase("Nov") ||
+          strQEndMonth.substring(0,3).equalsIgnoreCase("Feb"))) {
+        System.out.println("begin_fiscal_calendar and quote.yahoo" +
+        		" mismatch for ticker " + strTicker);
+        fullfilewriter.write(strTicker + "\n");
+      }
+      break;
+    }
+    fullfilewriter.close();
+  }
 
 
-}
+  public void postProcessTreasuryDebtTable6() {
+    int j=0;
+    for (int i=0;i<10;i++) {
+      j++;
+    }
+  }
+  
+  public void postProcessTableXrateorg() {
+    String[] rowheaders = propTableData.get(1);
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    String[] tmpArray = {"value","date_collected","entity_id"};
+    newTableData.add(tmpArray);
+    for (int i=0;i<rowheaders.length;i++) {
+      String strTmp = rowheaders[i];
+      strTmp = "USD" + strTmp
+          .substring(strTmp.indexOf("(")+1,strTmp.indexOf(")"));
+
+      //The first 2 crosses on the europe page are inverse: EURUSD and GBPUSD
+      if (propStrTableDataSet.contains("europe")) {
+        if (i==0) {
+          strTmp = "EURUSD";
+        }
+        else if (i==1) {
+          strTmp = "GBPUSD";
+        }
+      }
+      String[] tmpA = new String[tmpArray.length];
+      tmpA[0] = propTableData.get(i+2)[0];
+      tmpA[1] = "NOW()";
+
+      try {
+        Entity entity=entityService.loadEntityInfoByTicker(strTmp);
+        tmpA[2] = String.valueOf(entity.getEntityId());
+        newTableData.add(tmpA);
+      }
+      catch (GenericException sqle) {
+        ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln("Problem looking up ticker: " 
+            + strTmp + ",row skipped",Logs.WARN,"PF99.55");
+      }
+    }
+    propTableData = newTableData;
+  }
+    
+
+  public void postProcessMWatchEPSEstTable() 
+      throws GenericException,SkipLoadException {
+
+    // OFP 11/12/2011 - One issue with this data source is because the column
+    // headers are relative (i.e. "this quarter", "next quarter") there is no
+    // way to guarantee which quarter marketwatch is referring to. If they are
+    // slow in updating the website, then the data will be collected for
+    // the wrong quarters.
+    // As of 12/15/2010 there is no data for RAND nor VIA and no obvious
+    // string to key off of for a no data check.
+    String[] rowdata, newrow;
+    String[] colheaders = propTableData.get(0);
+    Calendar cal = Calendar.getInstance();
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    String[] tmpArray;
+    if (propStrTableDataSet.contains("q")) {
+      tmpArray=new String[7];
+      tmpArray[0]="value";
+      tmpArray[1]="date_collected";
+      tmpArray[2]="entity_id";
+      tmpArray[3]="fiscalyear";
+      tmpArray[4]="fiscalquarter";
+      tmpArray[5]="calquarter";
+      tmpArray[6]="calyear";
+      // OFP 11/12/2011 - Ran into an issue where the column headers 
+      // weren't being read correctly.
+      if (!colheaders[0].toUpperCase().equals("THIS QUARTER")) {
+        ApplicationSetting.getInstance().getStdoutwriter()
+          .writeln("Invalid column header format for entity_id " + 
+              dg.nCurrentEntityId,Logs.STATUS2,"PF46");
+        throw new SkipLoadException();
+      }
+    }else {
+      tmpArray=new String[4];
+      tmpArray[0]="value";
+      tmpArray[1]="date_collected";
+      tmpArray[2]="entity_id";
+      tmpArray[3]="fiscalyear";
+    }
+    newTableData.add(tmpArray);
+    String tmpVal;
+    for (int row=2;row<propTableData.size();row++) {
+      rowdata = propTableData.get(row);
+
+      for (int col=0;col<colheaders.length;col++) {
+        newrow = new String[7];
+        if (rowdata[col].compareTo("void") != 0) {
+          tmpVal = rowdata[col];
+          if (tmpVal.contains("span"))
+            //this is a negative number
+            newrow[0] = tmpVal
+              .substring(tmpVal.indexOf(">-")+1,tmpVal.indexOf("</"));
+          else
+            newrow[0] = tmpVal;
+
+          //Berkshire tends to be the only company with an EPS in the thousands.
+          newrow[0] = newrow[0].replace(",", "");
+          newrow[1] = "NOW()";
+          newrow[2] = dg.nCurrentEntityId + "";
+          String strFiscalYearQuarter = MoneyTime
+              .getFiscalYearAndQuarter(strTicker,cal.get(Calendar.MONTH), 
+                  cal.get(Calendar.YEAR));
+          int nFiscalQuarter=Integer
+              .parseInt(strFiscalYearQuarter.substring(0,1));
+          int nFiscalYear = Integer
+              .parseInt(strFiscalYearQuarter.substring(1,5));
+          if ("NEXT QUARTER".equalsIgnoreCase(colheaders[col])) {
+            nFiscalQuarter++;
+            if (nFiscalQuarter == 5) {
+              nFiscalYear++;
+              nFiscalQuarter=1;
+            }
+          }
+          else if (colheaders[col].toUpperCase().equals("NEXT FISCAL")) {
+            nFiscalYear++;
+          }
+
+          newrow[3] = nFiscalYear + "";
+          //don't use the year returned from getFiscalYearAndQuarter - use
+          // the one retrieved from the web page
+          if (propStrTableDataSet.contains("q")) {
+            String strCalYearQuarter = MoneyTime
+                .getCalendarYearAndQuarter(strTicker, 
+                    nFiscalQuarter, nFiscalYear);
+            newrow[4] = nFiscalQuarter + "";
+            newrow[5] = strCalYearQuarter.substring(0,1);
+            newrow[6] = strCalYearQuarter.substring(1,5);
+          }
+          newTableData.add(newrow);
+        }
+      }
+    }
+    propTableData = newTableData;
+  }
 
 
-
-public boolean preNDCNasdaqEPSEst()	{
+  public boolean preNDCNasdaqEPSEst()	{
+    String strRegex = "(?i)(No Data Available)";
+    ApplicationSetting.getInstance().getStdoutwriter()
+      .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46");
+    Pattern pattern = Pattern.compile(strRegex);
+    Matcher matcher = pattern.matcher(dg.returned_content);
+    
+    // OFP 12/19/2012 - Nasdaq misspelled available.
+    String strRegex2 = "(?i)(No data avaiable)";
+    Pattern pattern2 = Pattern.compile(strRegex2);
+    Matcher matcher2 = pattern2.matcher(dg.returned_content);
+    if (matcher.find() || matcher2.find()) {
+      ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln("Nasdaq no data avialable for ticker " 
+            + dg.strCurrentTicker, Logs.WARN,"PF21.38");
+      return(true);
+    }
+    strRegex = "(?i)(feature currently is unavailable)";
+    ApplicationSetting.getInstance().getStdoutwriter()
+      .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46.5");
+    pattern = Pattern.compile(strRegex);
+    matcher = pattern.matcher(dg.returned_content);
+    if (matcher.find()) {
+      ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln("Nasdaq message feature currently unavailable for ticker " 
+            + dg.strCurrentTicker, Logs.WARN,"PF21.40");
+      return true;
+    }
+    return false;
+  }
 	
-	  String strRegex = "(?i)(No Data Available)";
-	  ApplicationSetting.getInstance().getStdoutwriter().writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46");
-	  Pattern pattern = Pattern.compile(strRegex);
-	  Matcher matcher = pattern.matcher(dg.returned_content);
-	  /*
-	   * OFP 12/19/2012 - Nasdaq misspelled available.
-	   */
-	  String strRegex2 = "(?i)(No data avaiable)";
-	  Pattern pattern2 = Pattern.compile(strRegex2);
-	  Matcher matcher2 = pattern2.matcher(dg.returned_content);
-	  if (matcher.find() || matcher2.find()) {
-		  ApplicationSetting.getInstance().getStdoutwriter().writeln("Nasdaq no data avialable for ticker " + dg.strCurrentTicker, Logs.WARN,"PF21.38");
-		  return(true);
-	  }
-	  strRegex = "(?i)(feature currently is unavailable)";
-	  ApplicationSetting.getInstance().getStdoutwriter().writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46.5");
-	  pattern = Pattern.compile(strRegex);
-	  //ApplicationSetting.getInstance().getStdoutwriter().writeln("after strbeforeuniquecoderegex compile", Logs.STATUS2);
-	  matcher = pattern.matcher(dg.returned_content);
-	  if (matcher.find()) {
-		  ApplicationSetting.getInstance().getStdoutwriter().writeln("Nasdaq message feature currently unavailable for ticker " + dg.strCurrentTicker, Logs.WARN,"PF21.40");
-		  return true;
-	  }
-	  return false;
-	 }
-	
 
+  public void postProcessBloombergIndexes() {
+    String[] tmpArray = {"value","date_collected","entity_id"};
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    String[] rowdata, newrow;
+    String[] rowheaders = propTableData.get(1);
+    for (int row=2;row<propTableData.size();row++)	{
+      rowdata = propTableData.get(row);
+      newrow = new String[tmpArray.length];
+      newrow[0] = rowdata[0].replace(",", "");
+      newrow[1] = "NOW()";
+      String ticker = rowheaders[row-2];
+      
+      //Next line condenses multiple spaces down to one.
+      ticker = ticker.replaceAll("\\s+", " "); 
+      if (rowdata[0].equals("pikefinvoid")) {
+        ApplicationSetting.getInstance().getStdoutwriter()
+          .writeln("Invalid data format for " 
+              + ticker + ". Skipping.",Logs.WARN,"PF2.75");
+        continue;
+      }
+      else if (rowdata[0].contains("N.A."))  {	
+        ApplicationSetting.getInstance().getStdoutwriter()
+          .writeln("N.A. value for ticker " + ticker,Logs.WARN,"PF2.75");
+        continue;
+      }
+      try {
+        Entity entity=entityService.loadEntityInfoByTicker(ticker); 
+        newrow[2] =String.valueOf(entity.getEntityId());
+        newTableData.add(newrow);
 
-public void postProcessBloombergIndexes() {
-	String[] tmpArray = {"value","date_collected","entity_id"};
-	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	String[] rowdata, newrow;
-	String[] rowheaders = propTableData.get(1);
-	for (int row=2;row<propTableData.size();row++)	{
-		rowdata = propTableData.get(row);
-		newrow = new String[tmpArray.length];
-		newrow[0] = rowdata[0].replace(",", "");
-		newrow[1] = "NOW()";
-		String ticker = rowheaders[row-2];
-		//Next line condenses multiple spaces down to one.
-		ticker = ticker.replaceAll("\\s+", " "); 
-		if (rowdata[0].equals("pikefinvoid")) {
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Invalid data format for " + ticker + ". Skipping.",Logs.WARN,"PF2.75");
-			continue;
-		}
-		else if (rowdata[0].contains("N.A."))  {	
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("N.A. value for ticker " + ticker,Logs.WARN,"PF2.75");
-			continue;
-		}
-		try {
-			Entity entity=entityService.loadEntityInfoByTicker(ticker); 
-			newrow[2] =String.valueOf(entity.getEntityId());
-			newTableData.add(newrow);
-			
-		}catch (GenericException sqle) {
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem looking up ticker alias: " + ticker + ",row skipped",Logs.WARN,"PF42.51");
-			ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
-		}
-	}
-	
-	newTableData.add(0, tmpArray);
-	propTableData = newTableData;
+      }catch (GenericException sqle) {
+        ApplicationSetting.getInstance().getStdoutwriter()
+          .writeln("Problem looking up ticker alias: " 
+              + ticker + ",row skipped",Logs.WARN,"PF42.51");
+        ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
+      }
+    }
+    newTableData.add(0, tmpArray);
+    propTableData = newTableData;
+  }
+  
+  // Used to process the schedule of type nasdaq_q_eps.
+  // @throws GenericException
+  public void postProcessNasdaqEPSTable() throws GenericException {
+    // Special Situations That need to be handled:
+    // -data values contain date in parentheses 
+    // -data values contain &nbsp
+    // -negative values use hyphen
+ 
+    // TODO JNJ end of quarter months are incorrect, still need to code for this 
 
-}
-/**
- * Used to process the schedule of type nasdaq_q_eps.
- * @throws GenericException
- */
-public void postProcessNasdaqEPSTable() throws GenericException
-{
-	/*
-	 * Special Situations That need to be handled:
-	 * -data values contain date in parentheses 
-	 * -data values contain &nbsp
-	 * -negative values use hyphen
-	 */
-	
-	/*JNJ end of quarter months are incorrect, still need to code for this */
-	
-	/*
-	 * Ticker urls currently without data: BF/B, BRK/A, AON
-	 */
-	//try
-	//{
-	
-		String strTicker = dg.strOriginalTicker;
+    // Ticker urls currently without data: BF/B, BRK/A, AON
+    
+    String strTicker = dg.strOriginalTicker;
 
-		String[] rowdata, newrow;
-		String[] colheaders = propTableData.get(0);
-		String[] rowheaders = propTableData.get(1);
-		
-		/*This is custom code to fix rowheader #4 since the html is not consistent.*/
-		rowheaders[3] = rowheaders[3].replace("(FYE)","");
-		
-		ArrayList<String[]> newTableData = new ArrayList<String[]>();
-		String[] tmpArray = {"value","date_collected","entity_id","fiscalquarter","fiscalyear","calquarter","calyear"};
-		newTableData.add(tmpArray);
-	
-		for (int row=2;row<propTableData.size();row++)
-		{
-			rowdata = propTableData.get(row);
-			
-			for (int col=0;col<colheaders.length;col++)
-			{
-				newrow = new String[tmpArray.length];
-				if (rowdata[col].compareTo("void") != 0)
-				{
-					//newrow[0] = "VARCHAR";
-					//newrow[0] = propStrTableDataSet;
-					//newrow[2] = "INTEGER";
-					
-					if ((rowdata[col].contains("N/A") == true) || (rowdata[col].isEmpty() == true))
-					{
-						
-						ApplicationSetting.getInstance().getStdoutwriter().writeln("N/A value or empty value, skipping...",Logs.STATUS2,"PF39");
-						continue;
-					}
-					else if (rowdata[col].contains("(") == true)
-						newrow[0]=rowdata[col].substring(0,rowdata[col].indexOf("("));
-					else
-						ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem with data value formatting",Logs.ERROR,"PF40");
-					
-				
-					newrow[1] = "NOW()";
-					
-					//String query = "select * from entities where ticker='"+strTicker+"'";
-					
-					newrow[2] = String.valueOf(dg.nCurrentEntityId );
-					
-					//newrow[4] = "eps_exc_xtra";
-				
-					newrow[3] = Integer.toString(row-1);
-				
-					newrow[4] = colheaders[col];
-					String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, Integer.parseInt(newrow[3]), Integer.parseInt(newrow[4]));
-					
-					newrow[5] = strCalYearQuarter.substring(0,1);
-					newrow[6] = strCalYearQuarter.substring(1,5);
-						
-					newTableData.add(newrow);
-					
-				}
-				
-				
-			}
-			
-		}
-		propTableData = newTableData;
+    String[] rowdata, newrow;
+    String[] colheaders = propTableData.get(0);
+    String[] rowheaders = propTableData.get(1);
 
-	
-}
-/**
- * This method post process for schedule type google_q_eps_excxtra
- * @throws GenericException
- */
-public void postProcessGoogleEPSTable() throws GenericException {
-	String strTicker = dg.strOriginalTicker;
-	String[] rowdata, newrow;
-	String[] colheaders = propTableData.get(0);
-	//String[] rowheaders = propTableData.get(1);
-	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	String[] tmpArray = {"value","date_collected","entity_id","fiscalquarter","fiscalyear","calquarter","calyear"};
-	newTableData.add(tmpArray);
-	String tmpVal;
-	try{
-	for (int row=2;row<propTableData.size();row++)
-	{
-		rowdata = propTableData.get(row);
-		for (int col=0;col<colheaders.length;col++){
-			newrow = new String[7];
-			if (rowdata[col].compareTo("void") != 0){
-				tmpVal = rowdata[col];
-				if (tmpVal.contains("span")){
-				//this is a negative number
-					Integer startIndexs = tmpVal.indexOf(">-")+1;
-					Integer endIndex=tmpVal.indexOf("</");
-					logger.info("*************Temporary Value=="+tmpVal+"length="+tmpVal.length()+" start index="+startIndexs+"	End Index="+endIndex);
-					newrow[0] = tmpVal.substring(startIndexs,endIndex);
-				}
-				else
-					newrow[0] = tmpVal;
-				
-				/*
-				 * Some tickers have tables with only 4 columns. The table
-				 * processing will wrap around to the next row in those cases.
-				 */
-				if (newrow[0].contains("Diluted"))
-					continue;
-				//Berkshire tends to be the only company with an EPS in the thousands.
-				newrow[0] = newrow[0].replace(",", "");
-				newrow[1] = "NOW()";
-				newrow[2] = dg.nCurrentEntityId + "";
-				
-				/*
-				 * OFP 11/12/2011 - I have to deal with this wacky issue where google has the end of quarter
-				 * days off by one in some instances. 
-				 * 
-				 * CSC is one example. For calendar quarter 2, cal year 2011, they have the end date listed as 7/1/2011
-				 * instead of 6/30/2011. 
-				 * 
-				 * So as a workaround, if the Day of month is 1, I'm going to subtract one day from the date.
-				 * 
-				 * It's not known at this time if this will screw up other tickers.
-				 * 
-				 * If other tickers behave differently then I may have to set up ticker specific code in here.
-				 */
-				
-				Calendar cal = Calendar.getInstance();
-				String[] date = colheaders[col].split("-");
-				cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(date[2]));
-				cal.set(Calendar.MONTH,Integer.parseInt(date[1])-1);
-				cal.set(Calendar.YEAR,Integer.parseInt(date[0]));
-				if (cal.get(Calendar.DAY_OF_MONTH)==1)
-					cal.add(Calendar.DAY_OF_MONTH,-1);
-				//String strFiscalYearQuarter = MoneyTime.getFiscalYearAndQuarter(strTicker,Integer.parseInt(colheaders[col].substring(5,7)), Integer.parseInt(colheaders[col].substring(0,4)),dbf);
-				String strFiscalYearQuarter = MoneyTime.getFiscalYearAndQuarter(strTicker, cal.get(Calendar.MONTH)+1, cal.get(Calendar.YEAR));
-				String strCalYearQuarter = MoneyTime.getCalendarYearAndQuarter(strTicker, Integer.parseInt(strFiscalYearQuarter.substring(0,1)), Integer.parseInt(strFiscalYearQuarter.substring(1,5)));
-				newrow[3] = strFiscalYearQuarter.substring(0,1);
-				/*don't use they year returned from getFiscalYearAndQuarter - use the one retrieved from the web page*/
-				newrow[4] = strFiscalYearQuarter.substring(1,5);
-				newrow[5] = strCalYearQuarter.substring(0,1);
-				newrow[6] = strCalYearQuarter.substring(1,5);
-				newTableData.add(newrow);
-			}
-		}
-		
-	}
-	propTableData = newTableData;
-	}catch(Exception e){
-		logger.error("@@@@@@@@@@@@@@@@@@@@@@-------------Error in processing data--"+e.getMessage());
-	}
-}
-/**
- * Post processing function for schedule type nasdaq_y_eps_est for task id 13
- */
-public void postProcessNasdaqEPSEstTable()
-{
-	String[] rowdata, newrow;
-	String strTicker;
-	String[] tmpArray;
-	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	/*OFP 10/17/2010 - For Ticker T there is currently redundant data being displayed */
-	//Need to add code to make the query insert column definitions the first row in the table data that is returned.
-	if (propStrTableDataSet.contains("_q_") == true)
-	{
-	
-		tmpArray = new String[]{"entity_id","date_collected","value","fiscalyear","calyear","fiscalquarter","calquarter"};
+    // This is custom code to fix rowheader #4 since the html is not consistent.
+    rowheaders[3] = rowheaders[3].replace("(FYE)","");
 
-	}else{
-		tmpArray = new String[]{"entity_id","date_collected","value","fiscalyear"};
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    String[] tmpArray = {"value","date_collected","entity_id",
+        "fiscalquarter","fiscalyear","calquarter","calyear"};
+    newTableData.add(tmpArray);
 
-	}
-	try
-	{
-		strTicker = dg.strOriginalTicker;
-		String[] rowheaders = propTableData.get(1);
-		for (int x=4;x<propTableData.size();x++)
-		{
-			rowdata = propTableData.get(x);
-			newrow = new String[tmpArray.length];
-			newrow[0] = String.valueOf(dg.nCurrentEntityId);
-			newrow[1] = "NOW()";
-			newrow[2] = rowdata[0];
-			String rowHeader=rowheaders[x-2];
-//TODO Commented to fix the number format exception
-			//String rowHeader=rowheaders[2];
-			MoneyTime mt = new MoneyTime(rowHeader.substring(0,3),rowHeader.replace("&nbsp;","").substring(5,7),strTicker);
-			newrow[3] = mt.strFiscalYear;
-			if (propStrTableDataSet.contains("_q_"))
-			{
-				newrow[4] =String.valueOf(mt.nCalAdjYear);
-				newrow[5] = mt.strFiscalQtr;
-				newrow[6] = String.valueOf(mt.nCalQtr);
-				
-			}
-			newTableData.add(newrow);
-		}
-	
-		newTableData.add(0, tmpArray);
-		propTableData = newTableData;
-	}
-	catch (GenericException sqle)
-	{
-		
-		ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem processing table data",Logs.ERROR,"PF43");
-		ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
-	}
+    for (int row=2;row<propTableData.size();row++) {
+      rowdata = propTableData.get(row);
 
-}
+      for (int col=0;col<colheaders.length;col++) {
+        newrow = new String[tmpArray.length];
+        if (rowdata[col].compareTo("void") != 0) {
+          if ((rowdata[col].contains("N/A") == true) 
+              || (rowdata[col].isEmpty() == true)) {
+            ApplicationSetting.getInstance().getStdoutwriter()
+              .writeln("N/A value or empty value, skipping...",
+                  Logs.STATUS2,"PF39");
+            continue;
+          }
+          else if (rowdata[col].contains("(") == true) {
+            newrow[0]=rowdata[col].substring(0,rowdata[col].indexOf("("));
+          }
+          else {
+            ApplicationSetting.getInstance().getStdoutwriter()
+              .writeln("Problem with data value formatting",Logs.ERROR,"PF40");
+          }
+
+          newrow[1] = "NOW()";
+          newrow[2] = String.valueOf(dg.nCurrentEntityId );
+          newrow[3] = Integer.toString(row-1);
+          newrow[4] = colheaders[col];
+          String strCalYearQuarter = MoneyTime
+              .getCalendarYearAndQuarter(strTicker, 
+                  Integer.parseInt(newrow[3]), Integer.parseInt(newrow[4]));
+          newrow[5] = strCalYearQuarter.substring(0,1);
+          newrow[6] = strCalYearQuarter.substring(1,5);
+          newTableData.add(newrow);
+        }
+      }
+    }
+    propTableData = newTableData;
+  }
+
+  // This method post process for schedule type google_q_eps_excxtra
+  // @throws GenericException
+  public void postProcessGoogleEPSTable() throws GenericException {
+    String strTicker = dg.strOriginalTicker;
+    String[] rowdata, newrow;
+    String[] colheaders = propTableData.get(0);
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    String[] tmpArray = {"value","date_collected","entity_id","fiscalquarter",
+        "fiscalyear","calquarter","calyear"};
+    newTableData.add(tmpArray);
+    String tmpVal;
+    try {
+      for (int row=2;row<propTableData.size();row++) {
+        rowdata = propTableData.get(row);
+        for (int col=0;col<colheaders.length;col++){
+          newrow = new String[7];
+          if (rowdata[col].compareTo("void") != 0){
+            tmpVal = rowdata[col];
+            if (tmpVal.contains("span")){
+              //this is a negative number
+              Integer startIndexs = tmpVal.indexOf(">-")+1;
+              Integer endIndex=tmpVal.indexOf("</");
+              newrow[0] = tmpVal.substring(startIndexs,endIndex);
+            }
+            else {
+              newrow[0] = tmpVal;
+            }
+
+            // Some tickers have tables with only 4 columns. The table
+            // processing will wrap around to the next row in those cases.
+            if (newrow[0].contains("Diluted")) {
+              continue;
+            }
+            
+            // Berkshire tends to be the only company with an EPS
+            // in the thousands.
+            newrow[0] = newrow[0].replace(",", "");
+            newrow[1] = "NOW()";
+            newrow[2] = dg.nCurrentEntityId + "";
+            
+            // OFP 11/12/2011 - I have to deal with this wacky issue where
+            // google has the end of quarter days off by one in some instances. 
+            // 
+            // CSC is one example. For calendar quarter 2, cal year 2011, they
+            // have the end date listed as 7/1/2011 instead of 6/30/2011. 
+            // So as a workaround, if the Day of month is 1, I'm going to
+            // subtract one day from the date.
+            // 
+            // It's not known at this time if this will screw up other tickers.
+            // If other tickers behave differently then I may have to set up 
+            // ticker specific code in here.
+            Calendar cal = Calendar.getInstance();
+            String[] date = colheaders[col].split("-");
+            cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(date[2]));
+            cal.set(Calendar.MONTH,Integer.parseInt(date[1])-1);
+            cal.set(Calendar.YEAR,Integer.parseInt(date[0]));
+            if (cal.get(Calendar.DAY_OF_MONTH)==1)
+              cal.add(Calendar.DAY_OF_MONTH,-1);
+         
+            String strFiscalYearQuarter = MoneyTime
+                .getFiscalYearAndQuarter(strTicker, cal.get(Calendar.MONTH)+1,
+                    cal.get(Calendar.YEAR));
+            String strCalYearQuarter = MoneyTime
+                .getCalendarYearAndQuarter(strTicker, 
+                    Integer.parseInt(strFiscalYearQuarter.substring(0,1)), 
+                    Integer.parseInt(strFiscalYearQuarter.substring(1,5)));
+            newrow[3] = strFiscalYearQuarter.substring(0,1);
+            
+            // Don't use they year returned from getFiscalYearAndQuarter 
+            // - use the one retrieved from the web page.
+            newrow[4] = strFiscalYearQuarter.substring(1,5);
+            newrow[5] = strCalYearQuarter.substring(0,1);
+            newrow[6] = strCalYearQuarter.substring(1,5);
+            newTableData.add(newrow);
+          }
+        }
+      }
+      propTableData = newTableData;
+    // TODO Need More specific exception handling 
+    }catch(Exception e){
+      ApplicationSetting.getInstance().getStdoutwriter()
+      .writeln(" Error in processing data--" 
+          + dg.strCurrentTicker, Logs.ERROR,"PF82.23");
+      ApplicationSetting.getInstance().getStdoutwriter().writeln(e);
+    }
+  }
+  
+  // Post processing function for schedule type nasdaq_y_eps_est for task id 13
+  public void postProcessNasdaqEPSEstTable() {
+    String[] rowdata, newrow;
+    String strTicker;
+    String[] tmpArray;
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    
+    // OFP 10/17/2010 - For Ticker T there is currently redundant data
+    // being displayed.
+    // Need to add code to make the query insert column definitions the first
+    // row in the table data that is returned.
+    if (propStrTableDataSet.contains("_q_") == true) {
+      tmpArray = new String[]{"entity_id","date_collected","value","fiscalyear",
+          "calyear","fiscalquarter","calquarter"};
+    }else {
+      tmpArray = new String[]{"entity_id","date_collected",
+          "value","fiscalyear"};
+    }
+    try {
+      strTicker = dg.strOriginalTicker;
+      String[] rowheaders = propTableData.get(1);
+      for (int x=4;x<propTableData.size();x++) {
+        rowdata = propTableData.get(x);
+        newrow = new String[tmpArray.length];
+        newrow[0] = String.valueOf(dg.nCurrentEntityId);
+        newrow[1] = "NOW()";
+        newrow[2] = rowdata[0];
+        String rowHeader=rowheaders[x-2];
+        //TODO Commented to fix the number format exception
+        //String rowHeader=rowheaders[2];
+        MoneyTime mt = new MoneyTime(rowHeader.substring(0,3),
+            rowHeader.replace("&nbsp;","").substring(5,7),strTicker);
+        newrow[3] = mt.strFiscalYear;
+        if (propStrTableDataSet.contains("_q_")) {
+          newrow[4] =String.valueOf(mt.nCalAdjYear);
+          newrow[5] = mt.strFiscalQtr;
+          newrow[6] = String.valueOf(mt.nCalQtr);
+        }
+        newTableData.add(newrow);
+      }
+      newTableData.add(0, tmpArray);
+      propTableData = newTableData;
+    }
+    catch (GenericException sqle) {
+      ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln("Problem processing table data",Logs.ERROR,"PF43");
+      ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
+    }
+  }
 
 
 /*public void postProcessTreasuryDirect() throws SQLException
