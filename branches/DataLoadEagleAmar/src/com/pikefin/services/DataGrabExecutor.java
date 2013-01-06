@@ -388,9 +388,12 @@ public class DataGrabExecutor extends Thread {
 							+ calAlertProcessingStart.getTime().toString(),
 					Logs.STATUS1, "DG38.25");
 
-			//TODO need to remove comments and start using Alerts
 			try {
+				if (this.verifyMode != true){
+					//TODO added verify mode after Oliver Sugesstion # Amar
+					// We decided to omit alert processing for verifyMode.
 				alertService.checkAlerts(this);
+				}
 			} catch (GenericException pe) {
 				ApplicationSetting.getInstance().getStdoutwriter().writeln(
 						"Problem processing alerts.", Logs.ERROR, "DG11.558");
@@ -1209,7 +1212,7 @@ public class DataGrabExecutor extends Thread {
 							Integer.parseInt(strMinute), 0);
 	
 					// Check if time difference is more than an hour
-					if (Math.abs(cal2.getTimeInMillis() - cal.getTimeInMillis()) > 3600000) {
+					if (Math.abs(cal2.getTimeInMillis() - cal.getTimeInMillis()) > 3600000*2*24) {
 						ApplicationSetting.getInstance().getStdoutwriter().writeln(
 								"Bad Yahoo Data, Resubmitting URL", Logs.STATUS1,
 								"DG55.10");

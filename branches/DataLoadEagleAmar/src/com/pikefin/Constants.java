@@ -6,6 +6,7 @@ public interface Constants {
 		public static final Integer EXCLUDE_TYPE_ONE=1;
 		public static final Integer EXCLUDE_TYPE_TWO=0;
 	}
+
 	interface AlertTargetType{
 		public static final Integer ALERT_TARGET_TYPE_ONE=1;
 		public static final Integer ALERT_TARGET_TYPE_TWO=2;
