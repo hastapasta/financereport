@@ -286,7 +286,7 @@ public class BrokerExecutor extends Thread {
 			  try {
 				  LogTask logTask = new LogTask();
 				  logTask.setTask(dg.getCurrentTask());
-				  logTask.setBatch(dg.getCurrentBatche());
+				  logTask.setBatch(dg.getCurrentBatch());
 				  logTask.setRepeatType(dg.getRepeatType());
 				  logTask.setSchedule(dg.getSchedule());
 				  logTask.setVerifyMode(dg.isVerifyMode());

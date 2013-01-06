@@ -4,7 +4,7 @@ import java.util.List;
 import com.pikefin.businessobjects.Batches;
 import com.pikefin.exceptions.GenericException;
 
-public interface BatcheService {
+public interface BatchService {
 	public Batches saveBatchesInfo(Batches batchesEntity) throws GenericException;
 	public Batches updateBatchesInfo(Batches batchesEntity) throws GenericException;
 	public Boolean deleteBatchesInfo(Batches batchesEntity ) throws GenericException;

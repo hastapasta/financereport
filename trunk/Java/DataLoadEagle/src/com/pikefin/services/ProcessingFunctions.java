@@ -403,7 +403,8 @@ public class ProcessingFunctions {
 	    cal.set(Calendar.DAY_OF_MONTH,Integer.parseInt(strDateArray[1]));
 	    cal.set(Calendar.YEAR,Integer.parseInt(strDateArray[2]));
 	    String strTime = curQuote.lastTradeTime;
-	    String strAMPM = strTime.substring(strTime.indexOf("m")-1,strTime.indexOf("m")+1);
+	    String strAMPM = strTime
+	        .substring(strTime.indexOf("m")-1,strTime.indexOf("m")+1);
 	    String strNewTime = strTime.substring(0,strTime.indexOf("m")-1);
 	    String[] strTimeArray = strNewTime.split(":");
 	    // There's an issue with setting the AMPM value and then the HOUR value.

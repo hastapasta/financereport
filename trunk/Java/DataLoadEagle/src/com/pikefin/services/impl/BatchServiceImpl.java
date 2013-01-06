@@ -10,9 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.pikefin.businessobjects.Batches;
 import com.pikefin.dao.inter.BatchesDao;
 import com.pikefin.exceptions.GenericException;
-import com.pikefin.services.inter.BatcheService;
+import com.pikefin.services.inter.BatchService;
 @Service
-public class BatcheServiceImpl implements BatcheService{
+public class BatchServiceImpl implements BatchService{
 	@Autowired
 	private BatchesDao batchDao;
 	@Override

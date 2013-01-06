@@ -14,7 +14,7 @@ import com.pikefin.ApplicationSetting;
 import com.pikefin.businessobjects.Job;
 import com.pikefin.exceptions.CustomEmptyStringException;
 import com.pikefin.exceptions.SkipLoadException;
-import com.pikefin.services.inter.BatcheService;
+import com.pikefin.services.inter.BatchService;
 import com.pikefin.services.inter.EntityService;
 import com.pikefin.services.inter.JobService;
 
@@ -41,8 +41,8 @@ class ProcessingFunctionsOliver {
       .getInstance().getApplicationContext().getBean(JobService.class);
   private EntityService entityService=ApplicationSetting
       .getInstance().getApplicationContext().getBean(EntityService.class);
-  private BatcheService batchService=ApplicationSetting
-      .getInstance().getApplicationContext().getBean(BatcheService.class);
+  private BatchService batchService=ApplicationSetting
+      .getInstance().getApplicationContext().getBean(BatchService.class);
 
 	String strDataValue;
 
