@@ -78,7 +78,7 @@ class DATABASE_CONFIG {
 		'persistent' => false,
 		'host' => 'localhost',
 		'login' => 'root',
-		'password' => 'madmax1.',
+		'password' => 'root',
 		/*'host' => 'findata.clpkcufglfdn.us-east-1.rds.amazonaws.com',
 	    'login' => 'finuser',
 		'password' => 'q1w2e3r4',*/
@@ -91,7 +91,7 @@ class DATABASE_CONFIG {
 		'persistent' => false,
 		'host' => 'localhost',
 		'login' => 'root',
-		'password' => 'madmax1.',
+		'password' => 'root',
 		'database' => 'findata',
 		'prefix' => '',
 	);
