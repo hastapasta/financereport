@@ -390,7 +390,7 @@ public class DataGrabExecutor extends Thread {
 
 			try {
 				if (this.verifyMode != true){
-					//TODO added verify mode after Oliver Sugesstion # Amar
+					//TODO added verify mode after Oliver Suggestion # Amar
 					// We decided to omit alert processing for verifyMode.
 				alertService.checkAlerts(this);
 				}
