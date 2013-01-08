@@ -58,6 +58,11 @@
 			<many-to-many column="entity_group_id"
 				class="com.pikefin.businessobjects.EntityGroup" />	
 		</set>
+		<set name="entityAliasList" table="entity_aliases">
+		    <key column="entity_id"></key>
+		    <one-to-many class="com.pikefin.businessobjects.EntityAlias"/>
+		</set>
+		 
    </class>
       
 </hibernate-mapping>

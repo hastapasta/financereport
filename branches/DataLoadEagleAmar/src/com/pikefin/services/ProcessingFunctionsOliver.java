@@ -1012,44 +1012,7 @@ class ProcessingFunctionsOliver {
   */
 
   /*
-  public void postProcessBloombergFutures() {
-    String[] tmpArray = {"value","date_collected","entity_id"};
-    ArrayList<String[]> newTableData = new ArrayList<String[]>();
-    String[] rowdata, newrow;
-    String[] rowheaders = propTableData.get(1);
-
-    for (int row=2;row<propTableData.size();row++)	{
-      rowdata = propTableData.get(row);
-
-      if (rowdata[0].contains("N.A.")) {
-        continue;
-      }
-
-      newrow = new String[tmpArray.length];
-      newrow[0] = rowdata[0].replace(",", "");
-      newrow[1] = "NOW()";
-      String tmp = rowheaders[row-2];
-      tmp = tmp.trim();
-      String strEntityIndex = "";
-      String query = "select * from entity_aliases where ticker_alias='" +
-          tmp + "'";
-      
-      try {
-        ResultSet rs = dbf.db_run_query(query);
-        rs.next();
-        strEntityIndex = rs.getInt("entity_id") + "";		
-      }
-      catch (SQLException sqle) {
-        UtilityFunctions.stdoutwriter
-          .writeln("Problem looking up ticker alias: " + 
-              tmp + ",row skipped",Logs.WARN,"PF99.63");
-      }
-      newrow[2] = strEntityIndex;
-      newTableData.add(newrow);
-    }
-    newTableData.add(0, tmpArray);
-    propTableData = newTableData;
-  }
+  
   */
   
   /*

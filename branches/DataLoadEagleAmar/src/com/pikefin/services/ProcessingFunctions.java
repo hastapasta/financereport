@@ -1223,6 +1223,41 @@ public void postProcessNasdaqEPSEstTable()
 
 }
 
+public void postProcessBloombergFutures() {
+    String[] tmpArray = {"value","date_collected","entity_id"};
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    String[] rowdata, newrow;
+    String[] rowheaders = propTableData.get(1);
+
+    for (int row=2;row<propTableData.size();row++)	{
+      rowdata = propTableData.get(row);
+
+      if (rowdata[0].contains("N.A.")) {
+        continue;
+      }
+
+      newrow = new String[tmpArray.length];
+      newrow[0] = rowdata[0].replace(",", "");
+      newrow[1] = "NOW()";
+      String tmp = rowheaders[row-2];
+      tmp = tmp.trim();
+
+      Entity entity;
+      try {
+         entity=entityService.loadEntityInfoByTicker(tmp);
+         newrow[2] =String.valueOf(entity.getEntityId());
+
+      }
+      catch (GenericException exception) {
+      ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem looking up ticker alias: " + 
+              tmp + ",row skipped",Logs.WARN,"PF99.63");
+      continue;
+      }
+      newTableData.add(newrow);
+    }
+    newTableData.add(0, tmpArray);
+    propTableData = newTableData;
+  }
 
 /*public void postProcessTreasuryDirect() throws SQLException
 {

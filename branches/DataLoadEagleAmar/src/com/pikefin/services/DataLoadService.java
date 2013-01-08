@@ -22,8 +22,7 @@ public class DataLoadService {
 		BrokerExecutor brokerExecutor=context.getBean(BrokerExecutor.class);
 		brokerExecutor.start();
 		logger.info("******* Application services are created and BrokerExecutor thread is started *********");
-
-			
+		
 	}
 	
 	

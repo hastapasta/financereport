@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import com.pikefin.ErrorCode;
 import com.pikefin.businessobjects.Entity;
+import com.pikefin.businessobjects.EntityAlias;
 import com.pikefin.dao.AbstractDao;
 import com.pikefin.dao.inter.EntityDao;
 import com.pikefin.exceptions.GenericException;
@@ -198,6 +199,28 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
 		}
 		return entities;
+	}
+
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public Entity loadEntityByTicker(String ticker) throws GenericException {
+		EntityAlias alias=null;
+		try{
+			Session session=getOpenSession();
+			Criteria criteria=session.createCriteria(EntityAlias.class);
+			criteria.add(Restrictions.eq("tickerAlias", ticker));
+			alias=(EntityAlias)criteria.uniqueResult();
+			
+		}catch (HibernateException e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS,e.getMessage() , e.getCause());
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS,e.getMessage() , e.getCause());
+		}
+		if(alias==null){
+			throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS,"No Entity Alias found for the given ticker" , null);
+		}else{
+		return alias.getEntity();	
+		}
 	}
 
 }
