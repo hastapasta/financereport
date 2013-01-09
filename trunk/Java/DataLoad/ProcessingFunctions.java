@@ -1362,6 +1362,68 @@ public void postProcessBloombergCommodities()
 
 }
 
+public void postProcessBloombergCommoditiesV2() {
+
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	String[] rowdata, newrow;
+	//String[] colheaders = propTableData.get(0);
+	String[] rowheaders = propTableData.get(1);
+	
+	//newTableData.add(tmpArray);
+	
+	for (int row=2;row<propTableData.size();row++)	{
+		rowdata = propTableData.get(row);
+		
+		if (rowdata[0].contains("N.A."))
+			continue;
+		
+		newrow = new String[tmpArray.length];
+
+		newrow[0] = rowdata[0].replace(",", "");
+		newrow[1] = "NOW()";
+
+		
+		/*
+		 * If there are 2 sets of parens for the row header, we want to cutoff at the 2nd left paren.
+		 */
+		
+		String tmp = rowheaders[row-2];
+		/*int i = tmp.indexOf("(");
+	
+		if (tmp.indexOf("(",i+1)==-1)
+			tmp = tmp.substring(0,i);
+		else
+			tmp = tmp.substring(0,tmp.indexOf("(",i+1));*/
+		
+		tmp = tmp.trim();
+
+		tmp = tmp.replace("'", "");
+		
+		String query = "select * from entity_aliases where ticker_alias='" + tmp + "'";
+		
+		try {
+			ResultSet rs = dbf.db_run_query(query);
+			rs.next();
+			newrow[2] = rs.getInt("entity_id") + "";	
+			newTableData.add(newrow);
+		}
+		catch (SQLException sqle) {
+			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker alias: " + tmp + ",row skipped",Logs.WARN,"PF99.754");
+			continue;
+		}
+		
+
+	}
+	
+	newTableData.add(0, tmpArray);
+	propTableData = newTableData;
+	
+	
+
+}
+
 public void postProcessBloombergFutures() {
 	/*String[] lookup = 
 	{"DJIA INDEX","913",
@@ -1507,6 +1569,52 @@ public void postProcessInputDataTest() {
 }
 
 public void postProcessBloombergGovtBonds() {
+  
+  String[] tmpArray = {"value","date_collected","entity_id"};
+  String[] rowheaders = propTableData.get(1);
+  ArrayList<String[]> newTableData = new ArrayList<String[]>();
+  
+  String[] rowdata, newrow;
+  
+  for (int row=2;row<propTableData.size();row++) {
+    rowdata = propTableData.get(row);
+    
+    newrow = new String[tmpArray.length];
+    
+    
+    String strQuery = null;
+    String strTicker = null;
+    
+    newrow[1] = "NOW()";
+    
+    newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("%")).trim();
+    
+    newrow[0] = newrow[0].replace(",", "");
+    /* This dataset can involve extended ascii characters. */
+    newrow[0] = newrow[0].replaceAll("[^\\p{ASCII}]", "");
+    
+    strTicker = rowheaders[row-2];
+    strQuery = "select entity_id from entity_aliases where ticker_alias='" + strTicker + "'";
+    
+    try {
+      ResultSet rs = dbf.db_run_query(strQuery);
+      rs.next();
+      newrow[2] = rs.getInt("entity_id") + "";
+    }
+    catch (SQLException sqle) {
+      UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + strTicker  + ",row skipped",Logs.WARN,"PF43.51");
+      continue;
+    }
+    
+    newTableData.add(newrow);
+  }
+
+  newTableData.add(0, tmpArray);
+  propTableData = newTableData;
+  
+}
+
+public void postProcessBloombergGovtBonds2() {
 	/* OFP 2/6/2012
 	 * This was originally set up to extract price but price tells you nothing when new
 	 * bonds are issued, so it was converted over to extract rate.
@@ -1532,10 +1640,10 @@ public void postProcessBloombergGovtBonds() {
 		
 		newrow[1] = "NOW()";
 		
-		newrow[0] = rowdata[0].substring(rowdata[0].indexOf("/"),rowdata[0].length()).trim();
+		newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("%")).trim();
 		if (dg.strCurDataSet.contains("_japan")) {
 			
-			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_japan";
+			strTicker = rowheaders[row-2];
 			strQuery = "select id from entities where ticker='" + strTicker + "'";
 			//newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
 			newrow[0] = rowdata[0].substring(rowdata[0].indexOf("/")+1,rowdata[0].length()).trim();
@@ -2682,6 +2790,13 @@ public boolean preProcessImfGdp() {
 	
 	int nTempCurrent = 2012;
 	
+	/*
+	 * OFP 10/6/2012 - 01 in the url is used for data that is release in April. 
+	 * 				   02 in the url is used for data that is released in October.
+	 * I don't know if there is a set schedule for when each data set becomes available. Most
+	 * likely this will half to be manually monitored.
+	 */
+	
 	//dg.strStage1URL = dg.strStage1URL.replace("${dynamic8}", cal.get(Calendar.YEAR)+"");
 	dg.strStage1URL = dg.strStage1URL.replace("${dynamic8}", nTempCurrent +"");
 	dg.strStage1URL = dg.strStage1URL.replace("${dynamic6}", nMinBeginYear + "");
@@ -2692,6 +2807,7 @@ public boolean preProcessImfGdp() {
 	dg.strStage1URL = dg.strStage1URL.replace("${dynamic5}", nTempCurrent +"");
 	dg.strStage1URL = dg.strStage1URL.replace("${dynamic3}", cal.get(Calendar.YEAR)+"");
 	dg.strStage1URL = dg.strStage1URL.replace("${dynamic4}", nMaxEndYear + "");
+	
 	return true;
 
 }
