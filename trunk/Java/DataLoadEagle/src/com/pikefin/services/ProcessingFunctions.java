@@ -391,9 +391,8 @@ public class ProcessingFunctions {
 
 	    if (curQuote.price.equals("0.00")) {
 	      ApplicationSetting.getInstance().getStdoutwriter()
-	        .writeln("Issue looking up ticker " + curQuote.symbol + 
-	            ",skipping",Logs.WARN,"PF50");
-	      System.out.println();
+	        .writeln("Zero value returned for ticker " + curQuote.symbol + 
+	            ",skipping",Logs.WARN,"PF50.87");
 	      continue;
 	    }		
 	    rowdata[0] = curQuote.price;
@@ -426,16 +425,16 @@ public class ProcessingFunctions {
 	    formatter.setTimeZone(TimeZone.getTimeZone("America/Phoenix"));
 	    Calendar currentCal = Calendar.getInstance();
 	    DateFormat formatter2 = new SimpleDateFormat("M/d/yyyy");
+	    
 	    // Only perform this check for task 10.
-	   
-	    if (dg.getCurrentTask().getTaskId().equals(10)) {
+	    /*if (dg.getCurrentTask().getTaskId().equals(10)) {
 	      if (!formatter2.format(currentCal.getTime())
 	          .equals(formatter2.format(cal.getTime()))) {
 	        ApplicationSetting.getInstance().getStdoutwriter()
 	          .writeln("Bad Yahoo Data, in postProcessing function for Symbol " +
 	            curQuote.symbol,Logs.ERROR,"PF50.5");
 	      }
-	    }
+	    }*/
 	    // If the taskid is 10, we are going to use the input time for
 	    // date_collected. Otherwise we are going to use real time collection
 	    // time - delay (for yahoo, 20 minutes) for date_collected.
@@ -1093,6 +1092,55 @@ public boolean preNDCBloombergQuote() {
       ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
     }
   }
+  
+  //TODO Convert Me
+  /*
+  public void postProcessBloombergGovtBonds() {
+    
+    String[] tmpArray = {"value","date_collected","entity_id"};
+    String[] rowheaders = propTableData.get(1);
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    
+    String[] rowdata, newrow;
+    
+    for (int row=2;row<propTableData.size();row++) {
+      rowdata = propTableData.get(row);
+      
+      newrow = new String[tmpArray.length];
+      
+      
+      String strQuery = null;
+      String strTicker = null;
+      
+      newrow[1] = "NOW()";
+      
+      newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("%")).trim();
+      
+      newrow[0] = newrow[0].replace(",", "");
+      // This dataset can involve extended ascii characters. 
+      newrow[0] = newrow[0].replaceAll("[^\\p{ASCII}]", "");
+      
+      strTicker = rowheaders[row-2];
+      strQuery = "select entity_id from entity_aliases where ticker_alias='" + strTicker + "'";
+      
+      try {
+        ResultSet rs = dbf.db_run_query(strQuery);
+        rs.next();
+        newrow[2] = rs.getInt("entity_id") + "";
+      }
+      catch (SQLException sqle) {
+        UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + strTicker  + ",row skipped",Logs.WARN,"PF43.51");
+        continue;
+      }
+      
+      newTableData.add(newrow);
+    }
+
+    newTableData.add(0, tmpArray);
+    propTableData = newTableData;
+    
+  }
+  */
 
 
 /*public void postProcessTreasuryDirect() throws SQLException
