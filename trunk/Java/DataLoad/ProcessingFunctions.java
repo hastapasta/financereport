@@ -22,8 +22,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.json.*;
-
 import org.xml.sax.HandlerBase;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -35,16 +33,6 @@ import org.xml.sax.Attributes;
  * OFP 12/13/2010: Since the data_group field was removed from the fact_table (because it can be referenced in
  * the jobs table through the data_set), it was removed from all processing functions that were inserting it
  * into the fact_table.
- * 
- * 
- * NOTES on Stage1 and Stage2 URL fields in DataGrab: 
- * Stage 2 url is for group processing where the ${ticker} field
- * has to be updated for each group member. This happens in defaultURLProcessing().
- * 
- * Stage 1 url (initially) contains the url string as it was read from the database.
- * 
- * Don't populate the Stage 2 url in a preprocessing function. It will get overwritten in defaultURLProcessing().
- * 
  * 
  */
 
@@ -475,64 +463,8 @@ public void postProcessYahooSharePrice() throws SQLException
 
 public void postProcessCNBCCDSJson() throws SQLException {
 	
-	String[] tmpArray = {"value","date_collected","entity_id"};
-	String[] rowdata;
-	
-	
-	try {
-		JSONObject jsonTop = new JSONObject(this.propTableData.get(0)[0]);
-		
-		propTableData.remove(0);
-		propTableData.add(tmpArray);
-		JSONObject jObject = jsonTop.getJSONObject("QuickQuoteResult");
-		//JSONObject jObject2 = jObject.getJSONObject("QuickQuote");
-		JSONArray jArray = jObject.getJSONArray("QuickQuote");
-		
-		for (int i=0;i<jArray.length();i++) {
-			
-			rowdata = new String[tmpArray.length];
-			
-			jObject = jArray.getJSONObject(i);
-			
-			String strSymbol = (String)jObject.get("symbol");
-			
-			rowdata[0] = (String)jObject.get("last");
-			
-			String query = "select * from entity_aliases where ticker_alias='" + strSymbol + "'";
-			
-			String strEntityIndex;
-			
-			try {
-				ResultSet rs = dbf.db_run_query(query);
-				rs.next();
-				strEntityIndex = rs.getInt("entity_id") + "";		
-			}
-			catch (SQLException sqle) {
-				UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker alias: " + strSymbol + ",row skipped",Logs.WARN,"PF652.34");
-				continue;
-			}
-			
-			rowdata[2] = strEntityIndex;
-			
-			/* Before I was using the collection date/time, and will continue to do so for now
-			 * At some point may switch over to using the provided last trade date/time.
-			 */
-			//String str3 = (String)jObject.get("last_time");
-			rowdata[1] = "NOW()";
-			
-			//System.out.println(jObject.toString());
-			
-			propTableData.add(rowdata);
-			
-			
-		}
-		
-		//System.out.println(jArray.toString());
-	}
-	catch (JSONException jsone) {
-		UtilityFunctions.stdoutwriter.writeln("Issue parsing JSON data, task aborted.",Logs.ERROR,"PF1001.11");
-		UtilityFunctions.stdoutwriter.writeln(jsone);
-	}
+	String strData = this.propTableData.get(0)[0];
+	System.out.println("");
 	
 }
 
@@ -1275,6 +1207,54 @@ public void postProcessNasdaqEPSTable() throws SQLException
 	
 }
 
+public void postProcessBloombergCommoditiesV2() {
+
+	String[] tmpArray = {"value","date_collected","entity_id"};
+	ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	String[] rowdata, newrow;
+	//String[] colheaders = propTableData.get(0);
+	String[] rowheaders = propTableData.get(1);
+	//newTableData.add(tmpArray);
+	for (int row=2;row<propTableData.size();row++) {
+	rowdata = propTableData.get(row);
+	if (rowdata[0].contains("N.A."))
+	continue;
+	newrow = new String[tmpArray.length];
+
+	newrow[0] = rowdata[0].replace(",", "");
+	newrow[1] = "NOW()";
+
+	/*
+	* If there are 2 sets of parens for the row header, we want to cutoff at the 2nd left paren.
+	*/
+	String tmp = rowheaders[row-2];
+	/*int i = tmp.indexOf("(");
+	if (tmp.indexOf("(",i+1)==-1)
+	tmp = tmp.substring(0,i);
+	else
+	tmp = tmp.substring(0,tmp.indexOf("(",i+1));*/
+	tmp = tmp.trim();
+
+	tmp = tmp.replace("'", "");
+	String query = "select * from entity_aliases where ticker_alias='" + tmp + "'";
+	try {
+	ResultSet rs = dbf.db_run_query(query);
+	rs.next();
+	newrow[2] = rs.getInt("entity_id") + "";
+	newTableData.add(newrow);
+	}
+	catch (SQLException sqle) {
+	UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker alias: " + tmp + ",row skipped",Logs.WARN,"PF99.754");
+	continue;
+	}
+
+	}
+	newTableData.add(0, tmpArray);
+	propTableData = newTableData;
+
+}
+
+
 public void postProcessBloombergCommodities()
 {
 	String[] tmpArray = {"value","date_collected","entity_id"};
@@ -1362,68 +1342,6 @@ public void postProcessBloombergCommodities()
 
 }
 
-public void postProcessBloombergCommoditiesV2() {
-
-	String[] tmpArray = {"value","date_collected","entity_id"};
-	
-	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	String[] rowdata, newrow;
-	//String[] colheaders = propTableData.get(0);
-	String[] rowheaders = propTableData.get(1);
-	
-	//newTableData.add(tmpArray);
-	
-	for (int row=2;row<propTableData.size();row++)	{
-		rowdata = propTableData.get(row);
-		
-		if (rowdata[0].contains("N.A."))
-			continue;
-		
-		newrow = new String[tmpArray.length];
-
-		newrow[0] = rowdata[0].replace(",", "");
-		newrow[1] = "NOW()";
-
-		
-		/*
-		 * If there are 2 sets of parens for the row header, we want to cutoff at the 2nd left paren.
-		 */
-		
-		String tmp = rowheaders[row-2];
-		/*int i = tmp.indexOf("(");
-	
-		if (tmp.indexOf("(",i+1)==-1)
-			tmp = tmp.substring(0,i);
-		else
-			tmp = tmp.substring(0,tmp.indexOf("(",i+1));*/
-		
-		tmp = tmp.trim();
-
-		tmp = tmp.replace("'", "");
-		
-		String query = "select * from entity_aliases where ticker_alias='" + tmp + "'";
-		
-		try {
-			ResultSet rs = dbf.db_run_query(query);
-			rs.next();
-			newrow[2] = rs.getInt("entity_id") + "";	
-			newTableData.add(newrow);
-		}
-		catch (SQLException sqle) {
-			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker alias: " + tmp + ",row skipped",Logs.WARN,"PF99.754");
-			continue;
-		}
-		
-
-	}
-	
-	newTableData.add(0, tmpArray);
-	propTableData = newTableData;
-	
-	
-
-}
-
 public void postProcessBloombergFutures() {
 	/*String[] lookup = 
 	{"DJIA INDEX","913",
@@ -1482,7 +1400,8 @@ public void postProcessBloombergFutures() {
 		try {
 			ResultSet rs = dbf.db_run_query(query);
 			rs.next();
-			strEntityIndex = rs.getInt("entity_id") + "";		
+			strEntityIndex = rs.getInt("entity_id") + "";
+			
 		}
 		catch (SQLException sqle) {
 			UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker alias: " + tmp + ",row skipped",Logs.WARN,"PF99.63");
@@ -1544,75 +1463,51 @@ public void postProcessOneTimeYahooIndex()
 	
 }
 
-public void postProcessInputDataTest() {
-	
-	String[] tmpArray = {"value","date_collected","entity_id"};
-	String[] rowheaders = propTableData.get(1);
-	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	String[] newrow = null;
-	
-	
-	for (int row=2;row<propTableData.size();row++) {
-		newrow = new String[tmpArray.length];
-		
-		newrow[0] = "";
-		newrow[1] = "";
-		newrow[2] = "";
-		
-	}
-	
-	
-	newTableData.add(0, tmpArray);
-	propTableData = newTableData;
-	
-	
-}
-
 public void postProcessBloombergGovtBonds() {
-  
-  String[] tmpArray = {"value","date_collected","entity_id"};
-  String[] rowheaders = propTableData.get(1);
-  ArrayList<String[]> newTableData = new ArrayList<String[]>();
-  
-  String[] rowdata, newrow;
-  
-  for (int row=2;row<propTableData.size();row++) {
-    rowdata = propTableData.get(row);
-    
-    newrow = new String[tmpArray.length];
-    
-    
-    String strQuery = null;
-    String strTicker = null;
-    
-    newrow[1] = "NOW()";
-    
-    newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("%")).trim();
-    
-    newrow[0] = newrow[0].replace(",", "");
-    /* This dataset can involve extended ascii characters. */
-    newrow[0] = newrow[0].replaceAll("[^\\p{ASCII}]", "");
-    
-    strTicker = rowheaders[row-2];
-    strQuery = "select entity_id from entity_aliases where ticker_alias='" + strTicker + "'";
-    
-    try {
-      ResultSet rs = dbf.db_run_query(strQuery);
-      rs.next();
-      newrow[2] = rs.getInt("entity_id") + "";
-    }
-    catch (SQLException sqle) {
-      UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + strTicker  + ",row skipped",Logs.WARN,"PF43.51");
-      continue;
-    }
-    
-    newTableData.add(newrow);
-  }
+	  
+	  String[] tmpArray = {"value","date_collected","entity_id"};
+	  String[] rowheaders = propTableData.get(1);
+	  ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	  
+	  String[] rowdata, newrow;
+	  
+	  for (int row=2;row<propTableData.size();row++) {
+	    rowdata = propTableData.get(row);
+	    
+	    newrow = new String[tmpArray.length];
+	    
+	    
+	    String strQuery = null;
+	    String strTicker = null;
+	    
+	    newrow[1] = "NOW()";
+	    
+	    newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("%")).trim();
+	    
+	    newrow[0] = newrow[0].replace(",", "");
+	    /* This dataset can involve extended ascii characters. */
+	    newrow[0] = newrow[0].replaceAll("[^\\p{ASCII}]", "");
+	    
+	    strTicker = rowheaders[row-2];
+	    strQuery = "select entity_id from entity_aliases where ticker_alias='" + strTicker + "'";
+	    
+	    try {
+	      ResultSet rs = dbf.db_run_query(strQuery);
+	      rs.next();
+	      newrow[2] = rs.getInt("entity_id") + "";
+	    }
+	    catch (SQLException sqle) {
+	      UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + strTicker  + ",row skipped",Logs.WARN,"PF43.51");
+	      continue;
+	    }
+	    
+	    newTableData.add(newrow);
+	  }
 
-  newTableData.add(0, tmpArray);
-  propTableData = newTableData;
-  
-}
+	  newTableData.add(0, tmpArray);
+	  propTableData = newTableData;
+	  
+	}
 
 public void postProcessBloombergGovtBonds2() {
 	/* OFP 2/6/2012
@@ -1640,10 +1535,10 @@ public void postProcessBloombergGovtBonds2() {
 		
 		newrow[1] = "NOW()";
 		
-		newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("%")).trim();
+		newrow[0] = rowdata[0].substring(rowdata[0].indexOf("/"),rowdata[0].length()).trim();
 		if (dg.strCurDataSet.contains("_japan")) {
 			
-			strTicker = rowheaders[row-2];
+			strTicker = rowheaders[row-2].replace("-","_").toLowerCase() + "_japan";
 			strQuery = "select id from entities where ticker='" + strTicker + "'";
 			//newrow[0] = rowdata[0].substring(0,rowdata[0].indexOf("/")).trim();
 			newrow[0] = rowdata[0].substring(rowdata[0].indexOf("/")+1,rowdata[0].length()).trim();
@@ -2255,79 +2150,6 @@ public void postProcessTreasuryDirect() throws SQLException
 	
 }
 
-public boolean preJobProcessDataInputTest() throws SQLException {
-	
-	String strQuery = "select * from input_test_controls ";
-	strQuery += " where task_id=" + dg.nCurTask;
-	
-	try	{
-		ResultSet rs = dbf.db_run_query(strQuery);
-		rs.next();
-		dg.strStage1URL = dg.strStage1URL.replace("${seqnumber}", rs.getInt("sequence")+"");
-		dg.strStage1URL = dg.strStage1URL.replace("${dataset}", rs.getInt("data_set") + "");
-
-	}
-	catch (SQLException sqle)	{
-		UtilityFunctions.stdoutwriter.writeln("SQL Problem with preProcessDataInputTest",Logs.ERROR,"PF42.5");
-		return(false);
-	}
-	
-	return(true);
-
-	
-}
-
-public void postJobProcessDataInputTest() throws SQLException {
-	
-	String[] newrow;
-	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	String[] tmpArray = {"entity_id","date_collected","value"};
-	
-	
-	newrow = new String[tmpArray.length];
-	
-	String[] colheaders = propTableData.get(0);
-	String[] rowheaders = propTableData.get(1);
-	String[] data = propTableData.get(2);
-	
-	
-	try {
-		
-		String query = " select * from entities where ticker='"+colheaders[0] + "'";
-		ResultSet rs = dbf.db_run_query(query);
-		rs.next();
-		newrow[0] = rs.getInt("id") +"";
-
-	}
-	catch (SQLException sqle)	{
-		UtilityFunctions.stdoutwriter.writeln("SQL Problem with entity id lookup",Logs.ERROR,"PF42.5");
-		return;
-	}
-	
-	newrow[1] = "'" + rowheaders[0] + "'";
-	newrow[2] = data[0];
-	
-	newTableData.add(newrow);
-	
-	
-	String strQuery = "update input_test_controls set sequence=sequence+1 ";
-	strQuery += " where task_id=" + dg.nCurTask;
-	
-	try	{
-		dbf.db_update_query(strQuery);
-
-	}
-	catch (SQLException sqle)	{
-		UtilityFunctions.stdoutwriter.writeln("SQL Problem with postProcessDataInputTest",Logs.ERROR,"PF42.5");
-	}
-	
-	newTableData.add(0, tmpArray);
-
-	propTableData = newTableData;
-
-	
-}
-
 public void preJobProcessTableXrateorg() throws SQLException
 {
 	//clean out all fact_data items that aren't linked to in the notify table
@@ -2784,31 +2606,41 @@ public void postProcessIMFGdpPPPEst() throws SQLException {
 
 
 public boolean preProcessImfGdp() {
-	Calendar cal = Calendar.getInstance();
-	int nMaxEndYear = 2016;
-	int nMinBeginYear = 2004;
-	
-	int nTempCurrent = 2012;
-	
-	/*
-	 * OFP 10/6/2012 - 01 in the url is used for data that is release in April. 
-	 * 				   02 in the url is used for data that is released in October.
-	 * I don't know if there is a set schedule for when each data set becomes available. Most
-	 * likely this will half to be manually monitored.
-	 */
-	
-	//dg.strStage1URL = dg.strStage1URL.replace("${dynamic8}", cal.get(Calendar.YEAR)+"");
-	dg.strStage1URL = dg.strStage1URL.replace("${dynamic8}", nTempCurrent +"");
-	dg.strStage1URL = dg.strStage1URL.replace("${dynamic6}", nMinBeginYear + "");
-	dg.strStage1URL = dg.strStage1URL.replace("${dynamic7}", cal.get(Calendar.YEAR)+"");
-	
-	
-	//dg.strStage1URL = dg.strStage1URL.replace("${dynamic5}", cal.get(Calendar.YEAR)+"");
-	dg.strStage1URL = dg.strStage1URL.replace("${dynamic5}", nTempCurrent +"");
-	dg.strStage1URL = dg.strStage1URL.replace("${dynamic3}", cal.get(Calendar.YEAR)+"");
-	dg.strStage1URL = dg.strStage1URL.replace("${dynamic4}", nMaxEndYear + "");
-	
-	return true;
+    
+    /*
+     * OFP 9/6/2102 - This is still being sussed out. IMF doesn't add the next year of estimates right on Jan 1st. (i.e. the current
+     * max year of estimates is 2017. 2018 won't be added on Jan 1st, 2013 but at some point later in the year, or maybe even
+     * in October 2012. So there needs to be some date-based logic for setting nAdjustment depending on when the
+     * IMF has the new data ready.
+     *
+     *
+     */
+    Calendar cal = Calendar.getInstance();
+   
+    /* Some logic needs to go here...*/
+    int nAdjustment = 0;
+   
+   
+    int nCurrent = cal.get(Calendar.YEAR) + nAdjustment;
+    int nMaxEndYear = nCurrent + 5;
+    int nMinBeginYear = nCurrent - 8;
+   
+    /*
+     * OFP 9/6/2012 - At the time of writing these comments, these values caculate to ncurrent=2012,nmaxyear=2017 and nminyear=2004.
+     *
+     */
+   
+    //dg.strStage1URL = dg.strStage1URL.replace("${dynamic8}", cal.get(Calendar.YEAR)+"");
+    dg.strStage1URL = dg.strStage1URL.replace("${dynamic8}", nCurrent +"");
+    dg.strStage1URL = dg.strStage1URL.replace("${dynamic6}", nMinBeginYear + "");
+    dg.strStage1URL = dg.strStage1URL.replace("${dynamic7}", cal.get(Calendar.YEAR)+"");
+   
+   
+    //dg.strStage1URL = dg.strStage1URL.replace("${dynamic5}", cal.get(Calendar.YEAR)+"");
+    dg.strStage1URL = dg.strStage1URL.replace("${dynamic5}", nCurrent +"");
+    dg.strStage1URL = dg.strStage1URL.replace("${dynamic3}", cal.get(Calendar.YEAR)+"");
+    dg.strStage1URL = dg.strStage1URL.replace("${dynamic4}", nMaxEndYear + "");
+    return true;
 
 }
 
@@ -4076,100 +3908,6 @@ public void postProcessMWatchEPSEstTable() throws SQLException,SkipLoadException
 		Matcher matcher = pattern.matcher(dg.returned_content);
 		
 		return(matcher.find());
-		
-	}
-	
-	public boolean preNDCDataInputTest() {
-		String strRegex = "(?i)(End of Data)";
-		UtilityFunctions.stdoutwriter.writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF47");
-		
-		Pattern pattern = Pattern.compile(strRegex);
-		
-		Matcher matcher = pattern.matcher(dg.returned_content);
-		
-		return(matcher.find());
-		
-	}
-
-	public void postProcessDataInputTest2() throws SQLException {
-		
-		//String[] newrow;
-		ArrayList<String[]> newTableData = new ArrayList<String[]>();
-		String[] tmpArray = {"entity_id","date_collected","value"};
-		
-		
-		
-		
-		//String[] colheaders = propTableData.get(0);
-		propTableData.remove(0);
-		//String[] rowheaders = propTableData.get(1);
-		//String[] data = propTableData.get(1);
-		
-		for (String[] row : propTableData) {
-		
-			String[] newrow = new String[tmpArray.length];
-			/*try {
-				
-				String query = "";// select * from entities where ticker='"+colheaders[0] + "'";
-				ResultSet rs = dbf.db_run_query(query);
-				rs.next();
-				newrow[0] = rs.getInt("id") +"";
-		
-			}
-			catch (SQLException sqle)	{
-				UtilityFunctions.stdoutwriter.writeln("SQL Problem with entity id lookup",Logs.ERROR,"PF42.5");
-				return;
-			}*/
-			
-			newrow[0] = row[1];
-			newrow[1] = "'" + row[0] + "'";
-			//newrow[1] = "'" + rowheaders[0] + "'";
-			newrow[2] = row[2];
-			
-			newTableData.add(newrow);
-			
-			
-			
-		}
-		
-		String strQuery = "update input_test_controls set sequence=sequence+1 ";
-		strQuery += " where task_id=" + dg.nCurTask;
-		
-		try	{
-			dbf.db_update_query(strQuery);
-	
-		}
-		catch (SQLException sqle)	{
-			UtilityFunctions.stdoutwriter.writeln("SQL Problem with postProcessDataInputTest",Logs.ERROR,"PF42.5");
-		}
-		
-		newTableData.add(0, tmpArray);
-	
-		propTableData = newTableData;
-	
-		
-	}
-
-	public boolean preJobProcessDataInputTest2() throws SQLException {
-		
-		String strQuery = "select * from input_test_controls ";
-		strQuery += " where task_id=" + dg.nCurTask;
-		
-		try	{
-			ResultSet rs = dbf.db_run_query(strQuery);
-			rs.next();
-			dg.strStage1URL = dg.strStage1URL.replace("${seqnumber}", rs.getInt("sequence")+"");
-			dg.strStage1URL = dg.strStage1URL.replace("${dataset}", rs.getInt("data_set") + "");
-			dg.strStage1URL = dg.strStage1URL.replace("${startbatchid}", rs.getInt("start_batch_id") + "");
-	
-		}
-		catch (SQLException sqle)	{
-			UtilityFunctions.stdoutwriter.writeln("SQL Problem with preProcessDataInputTest",Logs.ERROR,"PF42.5");
-			return(false);
-		}
-		
-		return(true);
-	
 		
 	}
 	
