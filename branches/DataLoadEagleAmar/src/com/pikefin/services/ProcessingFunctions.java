@@ -1485,22 +1485,22 @@ public class ProcessingFunctions {
 				strBeforeToken = ">";
 				strAfterToken = "(95)";
 			}
-if(rowdata[0].indexOf(strBeforeToken)!=-1){
+			if(rowdata[0].indexOf(strBeforeToken)!=-1){
 			newrow[0] = rowdata[0].substring(rowdata[0].indexOf(strBeforeToken)
 					+ strBeforeToken.length(), rowdata[0].length());
-}else{
-	newrow[0] = rowdata[0];
-}
+		}else{
+			newrow[0] = rowdata[0];
+		}
 			if (newrow[0].contains(strAfterToken)) {
 				newrow[0] = newrow[0].substring(0,
 						newrow[0].indexOf(strAfterToken));
 			}
-if(newrow[0].contains(ocatan91Character)){
-	newrow[0]=newrow[0].substring(0,newrow[0].indexOf(ocatan91Character));
-}
-if(newrow[0].contains(">")){
-	newrow[0]=newrow[0].substring(newrow[0].indexOf(">"),newrow[0].length());
-}
+		if(newrow[0].contains(ocatan91Character)){
+			newrow[0]=newrow[0].substring(0,newrow[0].indexOf(ocatan91Character));
+		}
+		if(newrow[0].contains(">")){
+			newrow[0]=newrow[0].substring(newrow[0].indexOf(">"),newrow[0].length());
+		}
 			newrow[0] = newrow[0].trim();
 
 			// 2/25/2012 - Right now one of the dates (Oman) has octane info in
