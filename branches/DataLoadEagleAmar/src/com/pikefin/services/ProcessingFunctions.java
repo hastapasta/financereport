@@ -1498,6 +1498,9 @@ if(rowdata[0].indexOf(strBeforeToken)!=-1){
 if(newrow[0].contains(ocatan91Character)){
 	newrow[0]=newrow[0].substring(0,newrow[0].indexOf(ocatan91Character));
 }
+if(newrow[0].contains(">")){
+	newrow[0]=newrow[0].substring(newrow[0].indexOf(">"),newrow[0].length());
+}
 			newrow[0] = newrow[0].trim();
 
 			// 2/25/2012 - Right now one of the dates (Oman) has octane info in
