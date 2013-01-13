@@ -9,5 +9,6 @@ public interface EntityService {
 	public List<Entity> loadAllEntitiesForGroupId(Integer entitygroupId) throws GenericException;
 	public Entity loadEntityInfo(Integer entityId) throws GenericException;
 	public Entity loadEntityInfoByTicker(String ticker) throws GenericException;
+	public Entity loadEntityInfoByTickerAndCountry(String ticker, String country) throws GenericException;
 
 }

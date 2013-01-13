@@ -224,6 +224,25 @@ public class FactDataDaoImpl extends AbstractDao<FactData> implements FactDataDa
 		}
 		return session;
 	}
+/**
+ * Loads the fact data based on the ticker and collection date
+ */
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public FactData loadFactDataInfoByTickerAndCollectionDate(String ticker,
+			String collectionDate) throws GenericException {
+		FactData factDataEntity;
+		try{
+			Session session=getOpenSession();
+		String strQuery = "select f from FactData f,EntityAlias ea where ea.tickerAlias='"+ticker+"' and f.entity.id=ea.entity.id and f.dateCollected<"+ collectionDate+" order by f.dateCollected desc";
+		Query query =session.createQuery(strQuery);
+		query.setMaxResults(1);
+			factDataEntity=(FactData)query.uniqueResult();
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_FACT_DATA_WITH_TICKER,e.getMessage(),e.getCause());
+		}
+		return factDataEntity;
+	}
 
 
 	
