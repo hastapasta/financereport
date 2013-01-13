@@ -1093,6 +1093,57 @@ public boolean preNDCBloombergQuote() {
     }
   }
   
+// TODO Convert me.
+/*
+public void postProcessBloombergCommoditiesV2() {
+
+    String[] tmpArray = {"value","date_collected","entity_id"};
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    String[] rowdata, newrow;
+    //String[] colheaders = propTableData.get(0);
+    String[] rowheaders = propTableData.get(1);
+    //newTableData.add(tmpArray);
+    for (int row=2;row<propTableData.size();row++) {
+    rowdata = propTableData.get(row);
+    if (rowdata[0].contains("N.A."))
+    continue;
+    newrow = new String[tmpArray.length];
+
+    newrow[0] = rowdata[0].replace(",", "");
+    newrow[1] = "NOW()";
+
+    // If there are 2 sets of parens for the row header, we want to cutoff
+    // at the 2nd left paren.
+    
+    String tmp = rowheaders[row-2];
+
+    tmp = tmp.trim();
+
+    tmp = tmp.replace("'", "");
+    String query = "select * from entity_aliases " + 
+      " where ticker_alias='" + tmp + "'";
+    try {
+      ResultSet rs = dbf.db_run_query(query);
+      rs.next();
+      newrow[2] = rs.getInt("entity_id") + "";
+      newTableData.add(newrow);
+    }
+    catch (GenericException sqle) {
+      ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln("Problem looking up ticker alias: " + tmp + 
+            ",row skipped",Logs.WARN,"PF99.754");
+      continue;
+    }
+
+    }
+    newTableData.add(0, tmpArray);
+    propTableData = newTableData;
+
+  }
+  
+*/
+
+  
   //TODO Convert Me
   /*
   public void postProcessBloombergGovtBonds() {
@@ -1141,6 +1192,10 @@ public boolean preNDCBloombergQuote() {
     
   }
   */
+  
+  
+  
+  
 
 
 /*public void postProcessTreasuryDirect() throws SQLException
