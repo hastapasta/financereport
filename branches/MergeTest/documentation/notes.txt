@@ -1,8 +1,0 @@
-Info regarding build process:
-
-Hibernate files get auto generated into generate.pikefin.hibernate and then have to be manually copied
-to pikefin.hibernate.
-
-Hibernate class files with customizations:
-JobQueue.java
-
