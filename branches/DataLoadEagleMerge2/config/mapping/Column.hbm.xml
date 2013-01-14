@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.pikefin.businessobjects.Column" table="columns" >
+		<id name="columnId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+	
+		<property name="colCount" column="col_count" type="integer"/>
+		<property name="colPosition" column="col_pos" type="integer"/>
+		<property name="befCode" column="bef_code" type="string"/>
+		<property name="aftCode" column="aft_code" type="string"/>
+		
+		<many-to-one name="extractTable" 
+			class="com.pikefin.businessobjects.ExtractTable" column="extract_table_id" 
+			not-null="true" cascade="all" />
+   </class>
+</hibernate-mapping>
