@@ -5,10 +5,12 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,6 +18,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -32,11 +35,13 @@ import com.pikefin.exceptions.CustomEmptyStringException;
 import com.pikefin.exceptions.GenericException;
 import com.pikefin.exceptions.SkipLoadException;
 import com.pikefin.services.inter.EntityService;
+import com.pikefin.services.inter.FactDataService;
 import com.pikefin.services.inter.JobService;
 
 //@Service
 public class ProcessingFunctions {
-	private static final Logger logger=Logger.getLogger(ProcessingFunctions.class);
+	private static final Logger logger = 
+	    Logger.getLogger(ProcessingFunctions.class);
 	//@Autowired
 	private JobService jobService=ApplicationSetting.getInstance()
 	    .getApplicationContext().getBean(JobService.class);
@@ -474,7 +479,6 @@ public class ProcessingFunctions {
 
 	}
 
-
 	public void postProcessExchRate() {
 	  String[] newrow;
 	  String[] tmpArray = {"data_set","value","date_collected"};
@@ -489,48 +493,41 @@ public class ProcessingFunctions {
 
 	  propTableData = newTableData;
 	}
-public boolean preNDCBloombergQuote() {
-	/*
-	 * Intermittently a quote doesn't return a value.	
-	 */
-	String strRegex = "(?i)(There are no matches for your search)";
 	
+  public boolean preNDCBloombergQuote() {
 
-	  
-	Pattern pattern = Pattern.compile(strRegex);
-	
-	  
-	Matcher matcher = pattern.matcher(dg.returned_content);
-	
-	String strRegex2 = "(?i)(\" price\">)";
-	Pattern pattern2 = Pattern.compile(strRegex2);
-	Matcher matcher2 = pattern2.matcher(dg.returned_content);
-	  
-	
+    // Intermittently a quote doesn't return a value.
 
-	
-	if (matcher.find()) {
-		ApplicationSetting.getInstance().getStdoutwriter().writeln("Bloomberg Quote found no match for ticker " + dg.strCurrentTicker + ", skipping",Logs.WARN,"PF23.8");
+    String strRegex = "(?i)(There are no matches for your search)";
 
-		String[] tmp = new String[3];
-		tmp[0]="Task:"+this.dg.getCurrentTask();
-		tmp[1]="URL:"+this.dg.strStage2URL;
-		tmp[2]=this.dg.returned_content;
+    Pattern pattern = Pattern.compile(strRegex);
 
-		return(true);
-	}
-	else if (!matcher2.find()) {
-		ApplicationSetting.getInstance().getStdoutwriter().writeln("Bloomberg Quote returned a blank quote for ticker " + dg.strCurrentTicker + ", skipping",Logs.WARN,"PF23.85");
-		return true;
-	}
-	
-		
-	return(false);
-	
+    Matcher matcher = pattern.matcher(dg.returned_content);
 
-	
-}
+    String strRegex2 = "(?i)(\" price\">)";
+    Pattern pattern2 = Pattern.compile(strRegex2);
+    Matcher matcher2 = pattern2.matcher(dg.returned_content);
 
+    if (matcher.find()) {
+      ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln("Bloomberg Quote found no match for ticker "
+            + dg.strCurrentTicker + ", skipping", Logs.WARN, "PF23.8");
+
+      String[] tmp = new String[3];
+      tmp[0] = "Task:" + this.dg.getCurrentTask();
+      tmp[1] = "URL:" + this.dg.strStage2URL;
+      tmp[2] = this.dg.returned_content;
+
+      return (true);
+    }
+    else if (!matcher2.find()) {
+      ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln("Bloomberg Quote returned a blank quote for ticker "
+            + dg.strCurrentTicker + ", skipping", Logs.WARN, "PF23.85");
+      return true;
+    }
+    return (false);
+  }
 
   public void postProcessBloombergCommodities() {
     String[] tmpArray = {"value","date_collected","entity_id"};
@@ -576,7 +573,6 @@ public boolean preNDCBloombergQuote() {
     propTableData = newTableData;
   }
 
-
   public boolean preProcessYahooEPSEst() throws GenericException {
     // Negative values are enclosed in font changing tags which 
     // have to be removed
@@ -589,7 +585,6 @@ public boolean preNDCBloombergQuote() {
     // TODO: Need to get rid of these return values and go with exceptions 
     return(true);
   }
-   
 
   public boolean preProcessGoogleEPS() throws GenericException {
     // Negative values are enclosed in font changing tags which have
@@ -608,7 +603,6 @@ public boolean preNDCBloombergQuote() {
     // TODO: Need to get rid of these return values and go with exceptions 
     return(true);
   }
-    
 
   public void postProcessTableYahooBeginYearVerify() 
       throws CustomEmptyStringException, GenericException { 
@@ -678,7 +672,6 @@ public boolean preNDCBloombergQuote() {
     fullfilewriter.close();
   }
 
-
   public void postProcessTreasuryDebtTable6() {
     int j=0;
     for (int i=0;i<10;i++) {
@@ -722,7 +715,6 @@ public boolean preNDCBloombergQuote() {
     }
     propTableData = newTableData;
   }
-    
 
   public void postProcessMWatchEPSEstTable() 
       throws GenericException,SkipLoadException {
@@ -819,7 +811,6 @@ public boolean preNDCBloombergQuote() {
     propTableData = newTableData;
   }
 
-
   public boolean preNDCNasdaqEPSEst()	{
     String strRegex = "(?i)(No Data Available)";
     ApplicationSetting.getInstance().getStdoutwriter()
@@ -851,7 +842,6 @@ public boolean preNDCBloombergQuote() {
     return false;
   }
 	
-
   public void postProcessBloombergIndexes() {
     String[] tmpArray = {"value","date_collected","entity_id"};
     ArrayList<String[]> newTableData = new ArrayList<String[]>();
@@ -1091,6 +1081,313 @@ public boolean preNDCBloombergQuote() {
         .writeln("Problem processing table data",Logs.ERROR,"PF43");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
     }
+  }
+  
+  public void postProcessBloombergFutures() {
+    String[] tmpArray = { "value", "date_collected", "entity_id" };
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    String[] rowdata, newrow;
+    String[] rowheaders = propTableData.get(1);
+
+    for (int row = 2; row < propTableData.size(); row++) {
+      rowdata = propTableData.get(row);
+
+      if (rowdata[0].contains("N.A.")) {
+        continue;
+      }
+
+      newrow = new String[tmpArray.length];
+      newrow[0] = rowdata[0].replace(",", "");
+      newrow[1] = "NOW()";
+      String tmp = rowheaders[row - 2];
+      tmp = tmp.trim();
+      Entity entity;
+      try {
+        entity = entityService.loadEntityInfoByTicker(tmp);
+        newrow[2] = String.valueOf(entity.getEntityId());
+
+      }
+      catch (GenericException exception) {
+        ApplicationSetting.getInstance().getStdoutwriter()
+          .writeln("Problem looking up ticker alias: " + tmp + 
+              ",row skipped", Logs.WARN, "PF99.63");
+        continue;
+      }
+      newTableData.add(newrow);
+    }
+    newTableData.add(0, tmpArray);
+    propTableData = newTableData;
+  }
+
+  public void postProcessWikipediaGasoline() throws GenericException {
+    final String strDefaultTime = " 14:00:00";
+    String[] tmpArray = { "value", "date_collected", "entity_id" };
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    String[] newrow;
+    String[] colheaders = propTableData.remove(0);
+    String[] rowheaders = propTableData.remove(0);
+
+    int nCounter = 0;
+    // This is kludgy but don't know of a better way to do this atm. With
+    // theway we are currently reading in countries, we get two identical
+    // Vietnams and we only want the first one.
+    //
+    // Actually the specialized vietname code isn't even being used right
+    // now because the 2nd vietnam generates a pikefinvoid because of the
+    // missing date. But if they ever put the date back in, then we'll need the
+    // specialized code so I left it in.
+
+    int nVietnamCount = 0;
+
+    // TODO: [>0.085 (95)<br />0.062 (91)<br />0.042 (diesel), 2010-12-12]  
+    // second [align="right">2.76, 2009-09-09]
+    for (String[] rowdata : propTableData) {
+      String strCountry = rowheaders[nCounter++];
+      if (strCountry.equalsIgnoreCase("Anguilla")
+          || strCountry.equalsIgnoreCase("Aruba")
+          || strCountry.equalsIgnoreCase("Bonaire")
+          || strCountry.equalsIgnoreCase("british virgin islands")
+          || strCountry.equalsIgnoreCase("curacao")
+          || strCountry.equalsIgnoreCase("european union")
+          || strCountry.equalsIgnoreCase("guadeloupe")
+          || strCountry.contains("Livigno")
+          || strCountry.equalsIgnoreCase("martinique")
+          || strCountry.equalsIgnoreCase("montserrat")
+          || strCountry.equalsIgnoreCase("portugal - azores")
+          || strCountry.equalsIgnoreCase("portugal - madeira")
+          || strCountry.equalsIgnoreCase("puerto rico")
+          || strCountry.equalsIgnoreCase("spain - canary islands")
+          || strCountry.equalsIgnoreCase("Switzerland - Samnaun")
+          || strCountry.equalsIgnoreCase("Turks and Caicos")
+          || rowdata[0].contains("pikefinvoid")) {
+        continue;
+      }
+
+      newrow = new String[tmpArray.length];
+
+      String strBeforeToken = "right\">";
+      String strAfterToken = "<";
+      String ocatan91Character = "(RON";
+
+      if (strCountry.contains("Venezuela")) {
+        strBeforeToken = ">";
+        strAfterToken = "(95)";
+      }
+      if(rowdata[0].indexOf(strBeforeToken)!=-1){
+      newrow[0] = rowdata[0].substring(rowdata[0].indexOf(strBeforeToken)
+          + strBeforeToken.length(), rowdata[0].length());
+      }
+      else{
+        newrow[0] = rowdata[0];
+      }
+      if (newrow[0].contains(strAfterToken)) {
+        newrow[0] = newrow[0].substring(0, newrow[0].indexOf(strAfterToken));
+      }
+      if(newrow[0].contains(ocatan91Character)){
+        newrow[0]=newrow[0].substring(0,newrow[0].indexOf(ocatan91Character));
+      }
+      if(newrow[0].contains(">")){
+        newrow[0]=newrow[0].substring(newrow[0].indexOf(">"),newrow[0]
+            .length());
+      }
+      newrow[0] = newrow[0].trim();
+  
+      // 2/25/2012 - Right now one of the dates (Oman) has octane info in
+      // the cell as well.
+      String strDateTmp = rowdata[1];
+      if (strDateTmp.contains("(")) {
+        strDateTmp = strDateTmp.substring(0, strDateTmp.indexOf("("));
+      }
+      strDateTmp = strDateTmp.trim();
+      newrow[1] = "'" + strDateTmp + strDefaultTime + "'";
+  
+      // If there are 2 sets of parens for the row header, we want to
+      // cutoff at the 2nd left paren.
+
+      strCountry = strCountry.trim();
+  
+      if (strCountry.equalsIgnoreCase("vietnam")) {
+        if (nVietnamCount == 1) {
+          continue;
+        } else {
+          nVietnamCount++;
+        }
+      }
+      strCountry = strCountry.replace("'", "\\'");
+      Entity entity;
+      try {
+        entity = entityService.loadEntityInfoByTickerAndCountry(
+            "macro", strCountry);
+        newrow[2] = String.valueOf(entity.getEntityId());
+      }
+      catch (GenericException sqle) {
+        // This is not a fatal error so we won't display the full exception.
+        ApplicationSetting.getInstance().getStdoutwriter()
+          .writeln("Problem looking up country: " + strCountry
+              + ",row skipped", Logs.ERROR, "PF99.25");
+        continue;
+      }
+      newTableData.add(newrow);
+    }
+    newTableData.add(0, tmpArray);
+    propTableData = newTableData;
+  }
+  
+  public void postProcessGasolineUSCanada() throws DataAccessException {
+    String[] tmpArray = {"value","date_collected","entity_id"};
+    Calendar calToday = Calendar.getInstance();
+    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    String[] data = propTableData.get(1);
+        
+    for (int i=0;i<data.length;i++) {
+      String[] newrow = new String[tmpArray.length];
+      newrow[1] = "'" + formatter.format(calToday.getTime()) + "'";
+      String strCountry = null;
+      
+      if (i==0) {
+        newrow[0] = data[i];
+        strCountry = "United States";
+      }
+      else if (i==1){      
+        strCountry = "Canada";
+        
+        // Have to convert liters to gallons and Canadian $s to US $s
+        try {
+          BigDecimal bdPrice = factDataService
+              .convertToGallonsAndDollars(data[i], "USDCAD", newrow[1]);
+          bdPrice = 
+              bdPrice.divide(new BigDecimal("100"),BigDecimal.ROUND_HALF_UP);
+          newrow[0] = bdPrice.toString();
+        }
+        catch (GenericException sqle) {
+          ApplicationSetting.getInstance().getStdoutwriter()
+            .writeln("Problem converting to Gallons and Dollars, Country " +
+                strCountry + " skipped",Logs.WARN,"PF200.25");
+          continue; 
+        }
+      }
+      Entity entity = null;
+      try {
+        entity = entityService.loadEntityInfoByTickerAndCountry("macro",
+            strCountry);
+        newrow[2] = String.valueOf(entity.getEntityId());
+      }
+      catch (GenericException sqle) {
+        // This is not a fatal error so we won't display the full exception.
+        ApplicationSetting.getInstance().getStdoutwriter()
+            .writeln("Problem looking up country: " + strCountry +
+                ",row skipped",Logs.ERROR, "PF300.25");
+        continue;
+      }
+      newTableData.add(newrow);
+    }
+    newTableData.add(0, tmpArray);
+    propTableData = newTableData;
+  }
+  
+  public void postProcessGasolineEurope() {
+    String[] rowdata, newrow;
+    final String strDefaultTime = " 14:00:00";
+    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+    String[] tmpArray = { "value", "date_collected", "entity_id" };
+    newTableData.add(tmpArray);
+    String strRegex = "(?i)(AND Andorra)";
+    Pattern pattern = Pattern.compile(strRegex);
+    String strContent = propTableData.get(0)[0];
+
+    Matcher matcher = pattern.matcher(strContent);
+    matcher.find();
+    matcher.start();
+
+    Scanner scanner = new Scanner(strContent);
+    // findWithinHorizon is case sensitive
+    scanner.findWithinHorizon("Information Web services /", 0);
+    String strDate = scanner.nextLine();
+    strDate = strDate.replace("</p>", "").trim();
+    String[] date = strDate.split("\\.");
+    scanner = new Scanner(strContent);
+    scanner.findWithinHorizon("Average Price Currency", 0);
+    scanner.nextLine();
+
+    while (scanner.hasNextLine()) {
+      String strLine = scanner.nextLine();
+
+      if (strLine.contains("Europa: Fuel Prices")) {
+        break;
+      }
+
+      if (strLine.contains("</p>") || strLine.contains("Portugal /")
+          || strLine.contains("Canary Islands")) {
+        continue;
+      }
+
+      strLine = strLine.replace("Bosnia and Herzegovina",
+          "Bosnia_and_Herzegovina");
+      strLine = strLine.replace("Czech Republic", "Czech_Republic");
+      strLine = strLine.replace("Great Britain", "Great_Britain");
+      strLine = strLine.replace("Ireland (Eire)", "Ireland");
+
+      newrow = new String[tmpArray.length];
+      // we're using an arbitrary time
+      newrow[1] = "'" + date[2] + "-" + date[1] + "-" + date[0]
+          + strDefaultTime + "'";
+      // For some countries we have to add a dummy token to get the split()
+      // to work correctly.
+
+      if (strLine.contains("Portugal") || strLine.contains("Spain")) {
+        strLine = "<token> " + strLine;
+      }
+
+      String[] tokens = strLine.split(" ");
+
+      // Country: tokens[1]
+      // Currency: tokens[2]
+      // Price: tokens[3] (for Finland and Germany, reduce by 10% since they
+      // don't have 95 octane)
+      String strCountry = tokens[1].replace("_", " ").replace("<p>", "").trim();
+
+      Entity entity;
+
+      try {
+        entity = entityService.loadEntityInfoByTickerAndCountry("macro",
+            strCountry);
+        newrow[2] = String.valueOf(entity.getEntityId());
+      }
+      catch (GenericException sqle) {
+        ApplicationSetting.getInstance().getStdoutwriter()
+            .writeln("Problem looking up country name or alias: " + strCountry
+                    + ",row skipped", Logs.ERROR, "PF200.25");
+        continue;
+      }
+
+      try {
+        BigDecimal bdPrice = factDataService.convertToGallonsAndDollars(
+            tokens[3], "USD" + tokens[2], newrow[1]);
+
+        if (strCountry.equalsIgnoreCase("Germany")
+            || strCountry.equalsIgnoreCase("Finland")) {
+          bdPrice = bdPrice.multiply(new BigDecimal(".970").setScale(3));
+        }
+
+        newrow[0] = bdPrice.toString();
+      }
+      catch (NumberFormatException nfe) {
+        ApplicationSetting.getInstance().getStdoutwriter()
+            .writeln("Number format exception for gas price for country "
+                    + strCountry + ",row skipped", Logs.WARN, "PF208.36");
+        continue;
+      }
+      catch (GenericException sqle) {
+        ApplicationSetting.getInstance().getStdoutwriter()
+            .writeln("Problem converting to gallons and dollars for "
+                    + "currency cross: USD" + tokens[2] + ",row skipped",
+                Logs.WARN, "PF200.25");
+        continue;
+      }
+      newTableData.add(newrow);
+    }
+    this.propTableData = newTableData;
   }
   
 // TODO Convert me.
@@ -2264,397 +2561,6 @@ public void postProcessGoogleEPSTable() throws SQLException {
 
 	
 }
-
-public void postProcessGasolineEurope() {
-
-	String[] rowdata, newrow;
-	final String strDefaultTime = " 14:00:00";
-	
-	
-	
-	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	
-	String[] tmpArray = {"value","date_collected","entity_id"};
-	
-	newTableData.add(tmpArray);
-	String strRegex = "(?i)(AND Andorra)";
-	Pattern pattern = Pattern.compile(strRegex);
-	String strContent = propTableData.get(0)[0];
-	
-
-	Matcher matcher = pattern.matcher(strContent);
-	
-	matcher.find();
-	matcher.start();
-	
-	Scanner scanner = new Scanner(strContent);
-	
-	 * findWithinHorizon is case sensitive
-	 
-	scanner.findWithinHorizon("Information Web services /", 0);
-	String strDate=scanner.nextLine();
-	strDate = strDate.replace("</p>", "").trim();
-	String[] date = strDate.split("\\.");
-	
-	scanner = new Scanner(strContent);
-	scanner.findWithinHorizon("Average Price Currency",0);
-	scanner.nextLine();
-
-	while (scanner.hasNextLine()) {
-	  
-	  String strLine = scanner.nextLine();
-	  
-	  if (strLine.contains("Europa: Fuel Prices"))
-		  break;
-	  
-	  if (strLine.contains("</p>") ||
-		  strLine.contains("Portugal /") ||
-		  strLine.contains("Canary Islands"))
-		  continue;
-	  
-	  strLine = strLine.replace("Bosnia and Herzegovina", "Bosnia_and_Herzegovina");
-	  strLine = strLine.replace("Czech Republic","Czech_Republic");
-	  strLine = strLine.replace("Great Britain", "Great_Britain");
-	  strLine = strLine.replace("Ireland (Eire)", "Ireland");
-	 // strLine = strLine.replace("Spain / Canary Islands", "Canary_Islands");
-  
-	  newrow = new String[tmpArray.length];
-	  //we're using an arbitrary time
-	  newrow[1] = "'" + date[2] + "-" + date[1] + "-" + date[0] + strDefaultTime + "'";
-	  
-	  
-	   * For some countries we have to add a dummy token to get the split() to work correctly.
-	   
-	  if (strLine.contains("Portugal") || strLine.contains("Spain"))
-		  strLine = "<token> " + strLine;
-	  
-	  String[] tokens = strLine.split(" ");
-	  
-	  // Country: tokens[1]
-	  // Currency: tokens[2]
-	  // Price: tokens[3] (for Finland and Germany, reduce by 10% since they don't have 95 octane)
-	  
-	  String strCountry = tokens[1].replace("_", " ").replace("<p>", "").trim();
-	  
-	  String strQuery = "select entities.id from entities ";
-	  strQuery += " join countries_entities on countries_entities.entity_id = entities.id ";
-	  strQuery += " left join country_aliases on country_aliases.country_id=countries_entities.country_id ";
-	  strQuery += " left join countries on countries.id=countries_entities.country_id ";
-	  strQuery += " where ticker='macro'";
-	  strQuery += " and (alias='" + strCountry + "' OR countries.name='" + strCountry + "') ";
-		
-		
-	  try	{
-		  ResultSet rs = dbf.db_run_query(strQuery);
-		  rs.next();
-		  newrow[2] = rs.getInt("id") + "";
-		
-	  }
-	  catch (SQLException sqle)	{
-		  ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem looking up country name or alias: " + strCountry + ",row skipped",Logs.ERROR,"PF200.25");
-		  continue;	
-	  }
-	  
-	  
-	  try {
-		  BigDecimal bdPrice = UtilityFunctions.convertToGallonsAndDollars(tokens[3], "USD" + tokens[2], newrow[1], dbf);
-		  
-		  if (strCountry.equalsIgnoreCase("Germany") || strCountry.equalsIgnoreCase("Finland"))
-			  bdPrice = bdPrice.multiply(new BigDecimal(".970").setScale(3));
-		  
-		  newrow[0] = bdPrice.toString();
-	  }
-	  catch (SQLException sqle) {
-		  ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem converting to gallons and dollars for currency cross: USD" + tokens[2] + ",row skipped",Logs.WARN,"PF200.25");
-		  continue;	
-	  }
-	  
-	  strQuery = "select value from fact_data ";
-	  strQuery += " join entities on entities.id=fact_data.entity_id ";
-	  strQuery += " where ticker='USD" + tokens[2] + "'";
-	  strQuery += " and date_collected<" + newrow[1];
-	  strQuery += " order by date_collected desc";
-	  strQuery += " limit 1";
-	  
-	  try	{
-		  ResultSet rs = dbf.db_run_query(strQuery);
-		  rs.next();
-		  BigDecimal bdRate = rs.getBigDecimal("value");
-		  BigDecimal bdPrice = new BigDecimal(tokens[3]);
-		  bdRate.setScale(3);
-		  bdPrice.setScale(3);
-		  //need to adjust for Germany and Finland since they don't sell 95 octane. 
-		  //We're using an adjustment of -3% from 98 octane.
-		  if (strCountry.equalsIgnoreCase("Germany") || strCountry.equalsIgnoreCase("Finland"))
-			  bdPrice = bdPrice.multiply(new BigDecimal(".970").setScale(3));
-		  bdPrice = bdPrice.divide(bdRate,BigDecimal.ROUND_UP);
-		  bdPrice = bdPrice.divide(UtilityFunctions.bdGallonsPerLiter,BigDecimal.ROUND_UP);
-		  newrow[0] = bdPrice.toString();
-	  }
-	  catch (SQLException sqle)	{
-		  ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem looking up exchange rate for currency cross: USD" + tokens[2] + ",row skipped",Logs.WARN,"PF200.25");
-		  continue;	
-	  }
-	  
-	  
-	  
-	  newTableData.add(newrow);
-	  
-	  
-	  
-	}
-	
-	this.propTableData = newTableData;
-
-
-	
-	//(?i)(<TABLE[^>]*>)
-	
-	
-	</p>
-	<p>A Austria EUR 1.431      1.565      1.422      1.00000 1.431      1.565      1.422      1.73        1.89        1.71        
-	B Belgium EUR 1.713      1.733      1.550      1.00000 1.713      1.733      1.550      2.07        2.09        1.87        
-	</p>
-	
-	
-	 * 1. Regex to AND Andorra
-	 * 2. readline() until Europa: Fuel Prices, skipping </p> lines
-	 * 3. Regex to Information Web Services 
-	 * 4. Grab the data
-	 
-	
-}
-
-public void postProcessGasolineUSCanada() throws SQLException {
-	
-	String[] tmpArray = {"value","date_collected","entity_id"};
-	Calendar calToday = Calendar.getInstance();
-	DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	
-	String[] data = propTableData.get(1);
-	
-	
-	for (int i=0;i<data.length;i++) {
-		
-		String[] newrow = new String[tmpArray.length];
-		
-		newrow[1] = "'" + formatter.format(calToday.getTime()) + "'";
-		
-		String strCountry = null;
-		if (i==0) {
-			newrow[0] = data[i];
-			strCountry = "United States";
-		}
-		else if (i==1){
-			
-			strCountry = "Canada";
-			
-			Have to convert liters to gallons and Canadian $s to US $s
-			
-			try {
-				BigDecimal bdPrice = UtilityFunctions.convertToGallonsAndDollars(data[i], "USDCAD", newrow[1], dbf);
-				bdPrice = bdPrice.divide(new BigDecimal("100"),BigDecimal.ROUND_HALF_UP);
-				newrow[0] = bdPrice.toString();
-				
-			}
-			catch (SQLException sqle) {
-				ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem converting to Gallons and Dollars, Country " + strCountry + " skipped",Logs.WARN,"PF200.25");
-				continue;	
-			}
-				
-			
-		}
-		
-		String query = "select entities.id from entities ";
-		query += " join countries_entities on countries_entities.entity_id=entities.id ";
-		query += " join countries on countries.id=countries_entities.country_id ";
-		query += " where ticker='macro' ";
-		query += " and countries.name='"+strCountry+"'";
-		
-		try		{
-			ResultSet rs = dbf.db_run_query(query);
-			rs.next();
-			newrow[2] = rs.getInt("id") + "";
-			
-		}
-		catch (SQLException sqle)	{
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem looking up country: " + strCountry + ",row skipped",Logs.ERROR,"PF300.25");
-			continue;	
-			
-			 * This is not a fatal error so we won't display the full exception.
-			 
-			//ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
-		}
-		
-			
-		newTableData.add(newrow);
-		
-	}
-	
-	newTableData.add(0, tmpArray);
-	propTableData = newTableData;
-	
-	
-}
-
-public void postProcessWikipediaGasoline() throws SQLException {
-
-		final String strDefaultTime = " 14:00:00";
-		String[] tmpArray = {"value","date_collected","entity_id"};
-		
-		ArrayList<String[]> newTableData = new ArrayList<String[]>();
-		//String[] rowdata, newrow;
-		String[] newrow;
-		//String[] colheaders = propTableData.get(0);
-		
-		String[] colheaders = propTableData.remove(0);
-		String[] rowheaders = propTableData.remove(0);
-		
-		int nCounter=0;
-		
-		
-		 * This is kludgy but don't know of a better way to do this atm. With the way
-		 * we are currently reading in countries, we get two identical Vietnams and we only want the
-		 * first one.
-		 * 
-		 * Actually the specialized vietname code isn't even being used right now because the 2nd
-		 * vietnam generates a pikefinvoid because of the missing date. But if they ever put the date
-		 * back in, then we'll need the specialized code so I left it in.
-		 
-		int nVietnamCount = 0;
-
-		for (String[] rowdata : propTableData)	{
-			
-			String strCountry = rowheaders[nCounter++];
-			
-			if (strCountry.equalsIgnoreCase("Anguilla") || strCountry.equalsIgnoreCase("Aruba")
-				||	strCountry.equalsIgnoreCase("Bonaire")
-				||	strCountry.equalsIgnoreCase("british virgin islands")
-				||	strCountry.equalsIgnoreCase("curacao")
-				||	strCountry.equalsIgnoreCase("european union")
-				||	strCountry.equalsIgnoreCase("guadeloupe")
-				||	strCountry.contains("Livigno")
-				||	strCountry.equalsIgnoreCase("martinique")
-				||	strCountry.equalsIgnoreCase("montserrat")
-				||	strCountry.equalsIgnoreCase("portugal - azores")
-				||	strCountry.equalsIgnoreCase("portugal - madeira")
-				||	strCountry.equalsIgnoreCase("puerto rico")
-				||	strCountry.equalsIgnoreCase("spain - canary islands")
-				||	strCountry.equalsIgnoreCase("Switzerland - Samnaun")
-				||	strCountry.equalsIgnoreCase("Turks and Caicos")
-				||  rowdata[0].contains("pikefinvoid")
-				
-			)
-				continue;
-			
-			newrow = new String[tmpArray.length];
-			
-			if (strCountry.equalsIgnoreCase("United States")) {
-				String strBeforeToken = ">$";
-				newrow[0] = rowdata[0].substring(rowdata[0].indexOf(strBeforeToken) + strBeforeToken.length(),rowdata[0].indexOf("/US gallon"));
-			}
-			else {
-			
-			String strBeforeToken = "right\">";
-			String strAfterToken = "<";
-			
-			if (strCountry.contains("Venezuela")) {
-				strBeforeToken = ">";
-				strAfterToken = "(95)";
-				
-			}
-
-			
-					
-			newrow[0] = rowdata[0].substring(rowdata[0].indexOf(strBeforeToken) + strBeforeToken.length(),rowdata[0].length());
-			
-			if (newrow[0].contains(strAfterToken))
-				newrow[0] = newrow[0].substring(0,newrow[0].indexOf(strAfterToken));
-			
-			newrow[0] = newrow[0].trim();
-
-			
-			
-			
-			 * 2/25/2012 - Right now one of the dates (Oman) has octane info in the cell as well.
-			 
-			String strDateTmp = rowdata[1];
-			if (strDateTmp.contains("("))
-				strDateTmp = strDateTmp.substring(0,strDateTmp.indexOf("("));
-			strDateTmp = strDateTmp.trim();
-			newrow[1] = "'"+strDateTmp + strDefaultTime + "'";
-
-			
-			 * If there are 2 sets of parens for the row header, we want to cutoff at the 2nd left paren.
-			 
-
-			strCountry = strCountry.trim();
-			
-			if (strCountry.equalsIgnoreCase("vietnam")) {
-				if (nVietnamCount == 1)
-					continue;
-				else
-					nVietnamCount++;
-			}
-			
-			
-			strCountry = strCountry.replace("'", "\\'");
-
-			String query = "select entities.id from entities ";
-			query += " join countries_entities on countries_entities.entity_id=entities.id ";
-			query += " join countries on countries.id=countries_entities.country_id ";
-			query += " where ticker='macro' ";
-			query += " and countries.name='"+strCountry+"'";
-			query += " union ";
-			query += " select entities.id from entities ";
-			query += " join countries_entities on countries_entities.entity_id=entities.id ";
-			query += " join country_aliases on country_aliases.country_id=countries_entities.country_id ";
-			query += " where ticker='macro' ";
-			query += " and country_aliases.alias='"+strCountry+"'";
-						
-			
-			try		{
-				ResultSet rs = dbf.db_run_query(query);
-				rs.next();
-				newrow[2] = rs.getInt("id") + "";
-				
-			}
-			catch (SQLException sqle)	{
-				ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem looking up country: " + strCountry + ",row skipped",Logs.ERROR,"PF99.25");
-				continue;	
-				
-				 * This is not a fatal error so we won't display the full exception.
-				 
-				//ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
-			}
-			
-			//newrow[3] = colheaders[col];
-			//newrow[4] = "9";
-			
-			
-			
-			newTableData.add(newrow);
-			
-			
-			
-			}
-			
-			
-			
-	//	}
-		
-		newTableData.add(0, tmpArray);
-		propTableData = newTableData;
-		
-		
-		
-		
-	}
-
-
-
-
 
 
 	public boolean preNDCYahooEPSEst() {
