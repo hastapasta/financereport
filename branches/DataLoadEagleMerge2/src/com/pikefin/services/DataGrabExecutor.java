@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
@@ -932,13 +931,13 @@ public class DataGrabExecutor extends Thread {
 		HttpResponse response;
 		returned_content = "<begintag>";
 		boolean bDone = false;
-		Iterator<Entity> i = entities.iterator();
+
 		while (!bDone) {
 			HttpClient httpclient = new DefaultHttpClient();
 			String strList = "";
 			int nOffset = nGroupSize * (nGroupCount - 1);
-			for (int j=nOffset;j<nOffset + nGroupSize && i.hasNext();j++) {
-				Entity e = i.next();
+			for (int j=nOffset;j<nOffset + nGroupSize;j++) {
+				Entity e = entities.iterator().next();
 				String strTicker = e.getTicker();
 
 				if (Constants.Ticker.TICKER_BF_BY_B.equals(strTicker)) {
