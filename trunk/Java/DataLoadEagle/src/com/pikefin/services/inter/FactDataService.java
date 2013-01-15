@@ -1,5 +1,6 @@
 package com.pikefin.services.inter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,5 @@ public interface FactDataService {
 	public void importFactDataInBatch(ArrayList<String[]> tabledata, Batches currentBatch,Metric metric) throws GenericException;
 	public List<FactData> loadFactDataByTaskForMaxBatch(Task taskDetail) throws GenericException;
 	public FactData loadFactDataForAlerts(Alert alertDetails,Task currentTask) throws GenericException;
-
-
+	public  BigDecimal convertToGallonsAndDollars(String strValue, String ticker, String strDay) throws GenericException ;
 }

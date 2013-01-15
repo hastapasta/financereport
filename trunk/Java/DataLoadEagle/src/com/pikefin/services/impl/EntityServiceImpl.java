@@ -43,12 +43,24 @@ public class EntityServiceImpl implements EntityService{
 
 	@Override
 	public Entity loadEntityInfoByTicker(String ticker) throws GenericException {
-		List<Entity> entities=entityDao.loadEntitiesByTicker(ticker);
-		if(entities!=null && entities.size()>0)
-			return entities.get(0);
+		Entity entitiy=entityDao.loadEntityByTicker(ticker);
+		
+		if(entitiy!=null)
+			return entitiy;
 		else
 		throw new GenericException(ErrorCode.COULD_NOT_FIND_ENTITY_FOR_GIVEN_TICKER,"",null);
 		
 	}
+
+	@Override
+	public Entity loadEntityInfoByTickerAndCountry(String ticker, String country)
+			throws GenericException {
+		Entity entitiy=entityDao.loadEntityByTicker(ticker,country);
+		
+		if(entitiy!=null)
+			return entitiy;
+		else
+		throw new GenericException(ErrorCode.COULD_NOT_FIND_ENTITY_FOR_GIVEN_TICKER,"",null);
+			}
 
 }

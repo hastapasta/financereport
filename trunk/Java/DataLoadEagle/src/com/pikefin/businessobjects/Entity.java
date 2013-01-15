@@ -21,9 +21,12 @@ public class Entity implements java.io.Serializable {
 	private String fullName;
 	private Date depricated;
 	private Integer obsoleteCountryId;
+
+
 	private String ticker2;
 	private String hash;
 	private List<Country> countries = new ArrayList<Country>(0);
+	private Set<EntityAlias> entityAliasList = new HashSet<EntityAlias>(0);
 	private Set<EntityGroup> entityGroups = new HashSet<EntityGroup>(0);
 
 	public Entity() {
@@ -147,6 +150,14 @@ public class Entity implements java.io.Serializable {
 
 	public void setEntityGroups(Set<EntityGroup> entityGroups) {
 		this.entityGroups = entityGroups;
+	}
+
+	public Set<EntityAlias> getEntityAliasList() {
+		return entityAliasList;
+	}
+
+	public void setEntityAliasList(Set<EntityAlias> entityAliasList) {
+		this.entityAliasList = entityAliasList;
 	}
 
 }

@@ -13,5 +13,7 @@ public interface EntityDao {
 	public Entity loadEntityInfo(Integer entityId) throws GenericException;
 	public List<Entity> loadAllEntities() throws GenericException;
 	public List<Entity> loadEntitiesByTicker(String ticker) throws GenericException;
+	public Entity loadEntityByTicker(String ticker) throws GenericException;
+	public Entity loadEntityByTicker(String ticker, String country) throws GenericException;
 
 }

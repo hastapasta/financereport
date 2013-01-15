@@ -12,6 +12,7 @@
 		
 		<many-to-one name="entity" 
 			class="com.pikefin.businessobjects.Entity" column="entity_id" 
-			not-null="true" cascade="all" unique="true"/>
+			not-null="true" cascade="all" unique="true" lazy="false" />
+		<property name="isDefault" column="is_default" type="boolean"/>
    </class>
 </hibernate-mapping>

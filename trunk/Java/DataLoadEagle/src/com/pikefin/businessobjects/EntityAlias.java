@@ -6,6 +6,15 @@ public class EntityAlias implements java.io.Serializable {
 	private Integer entityAliasId;
 	private String tickerAlias;
 	private Entity entity;
+	private Boolean isDefault;
+
+	public Boolean getIsDefault() {
+		return isDefault;
+	}
+
+	public void setIsDefault(Boolean isDefault) {
+		this.isDefault = isDefault;
+	}
 
 	public EntityAlias() {
 	}

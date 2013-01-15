@@ -3,6 +3,7 @@ package com.pikefin.dao.impl;
 import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
@@ -12,9 +13,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import com.pikefin.ErrorCode;
 import com.pikefin.businessobjects.Entity;
+import com.pikefin.businessobjects.EntityAlias;
 import com.pikefin.dao.AbstractDao;
 import com.pikefin.dao.inter.EntityDao;
 import com.pikefin.exceptions.GenericException;
+
 /**
  * Have methods related to entity operations
  * @author Amar_Deep_Singh
@@ -198,6 +201,48 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
 		}
 		return entities;
+	}
+
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public Entity loadEntityByTicker(String ticker) throws GenericException {
+		EntityAlias alias=null;
+		try{
+			Session session=getOpenSession();
+			Criteria criteria=session.createCriteria(EntityAlias.class);
+			criteria.add(Restrictions.eq("tickerAlias", ticker));
+			alias=(EntityAlias)criteria.uniqueResult();
+			
+		}catch (HibernateException e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS,e.getMessage() , e.getCause());
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS,e.getMessage() , e.getCause());
+		}
+		if(alias==null){
+			throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS,"No Entity Alias found for the given ticker" , null);
+		}else{
+		return alias.getEntity();	
+		}
+	}
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public Entity loadEntityByTicker(String ticker, String country) throws GenericException {
+		EntityAlias alias=null;
+		try{
+			String query="select alias from EntityAlias alias  left join alias.entity.countries country where alias.tickerAlias='"+ticker+"' and country.name='"+country+"'"; 
+			Session session=getOpenSession();
+			Query criteria=session.createQuery(query);
+			alias=(EntityAlias)criteria.uniqueResult();
+			}catch (HibernateException e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS,e.getMessage() , e.getCause());
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS,e.getMessage() , e.getCause());
+		}
+		if(alias==null){
+			throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS,"No Entity Alias found for the given ticker & Country Alias" , null);
+		}else{
+		return alias.getEntity();	
+		}
 	}
 
 }

@@ -16,5 +16,6 @@ public interface FactDataDao {
 	public List<FactData> loadAllFactDatas() throws GenericException;
 	public List<FactData> loadFactDataByTaskForMaxBatch(Task taskDetail) throws GenericException;
 	public List<FactData> loadFactDataForAlerts(Alert alertDetails,Task currentTask) throws GenericException;
+	public FactData loadFactDataInfoByTickerAndCollectionDate(String ticker,String collectionDate) throws GenericException;
 
 }

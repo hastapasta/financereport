@@ -1,7 +1,11 @@
 package com.pikefin;
 
+import java.math.BigDecimal;
+
 public interface Constants {
  public static final Integer BATCH_SIZE=20;
+ public static final BigDecimal BD_GALLONS_PER_LITER = new BigDecimal(".264");
+
 	interface ExcludeType{
 		public static final Integer EXCLUDE_TYPE_ONE=1;
 		public static final Integer EXCLUDE_TYPE_TWO=0;

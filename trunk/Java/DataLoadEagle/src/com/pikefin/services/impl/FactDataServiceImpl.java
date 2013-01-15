@@ -1,4 +1,5 @@
 package com.pikefin.services.impl;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import pikefin.log4jWrapper.Logs;
+
 import com.pikefin.ApplicationSetting;
 import com.pikefin.Constants;
 import com.pikefin.PikefinUtil;
@@ -199,5 +201,34 @@ public class FactDataServiceImpl implements FactDataService{
 		return null;
 	}
 		
+public  BigDecimal convertToGallonsAndDollars(String strValue, String ticker, String strDay) throws GenericException {
+		
+			FactData fact=factDataDao.loadFactDataInfoByTickerAndCollectionDate(ticker, strDay);
+		
+		
+			  BigDecimal bdRate = new BigDecimal(fact.getValue());
+			  BigDecimal bdPrice = new BigDecimal(strValue);
+			  
+			  /*
+			   * Little carry over from numerical analysis days. Set higher precision for 
+			   * calculations and then set precision to 3 before outputting final #.
+			   */
+			  
+			  bdRate.setScale(5,BigDecimal.ROUND_HALF_UP);
+			  bdPrice.setScale(5);
+			 
+			  bdPrice = bdPrice.divide(bdRate,BigDecimal.ROUND_HALF_UP);
+			  bdPrice = bdPrice.divide(Constants.BD_GALLONS_PER_LITER,BigDecimal.ROUND_HALF_UP);
+			  bdPrice.setScale(3,BigDecimal.ROUND_HALF_UP);
+
+			  return(bdPrice);
+		 // }
+		/*  catch (DataAccessException sqle)	{
+			  UtilityFunctions.stdoutwriter.writeln("Problem looking up exchange rate for currency cross: USDCAD,row skipped",Logs.WARN,"PF200.25");
+			  continue;	
+		  }
+		
+		return(new BigDecimal(""));*/
+	}
 	
 }
