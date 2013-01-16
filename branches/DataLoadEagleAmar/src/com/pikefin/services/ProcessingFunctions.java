@@ -47,7 +47,8 @@ public class ProcessingFunctions {
 	    .getApplicationContext().getBean(JobService.class);
 	private EntityService entityService=ApplicationSetting.getInstance()
 	    .getApplicationContext().getBean(EntityService.class);
-	
+	private FactDataService factDataService = ApplicationSetting.getInstance()
+			.getApplicationContext().getBean(FactDataService.class);
 	String strDataValue;
 
 	// Right now this is only set during the preProcessing function

@@ -591,6 +591,9 @@ public class DataGrabExecutor extends Thread {
 		returned_content = sb.toString();
 		
 		in.close();
+		if(log.isDebugEnabled()){
+			log.debug(returned_content);
+		}
 		calJobProcessingStage2End = Calendar.getInstance();
 		httpclient.getConnectionManager().shutdown();
 		ApplicationSetting.getInstance().getStdoutwriter()
