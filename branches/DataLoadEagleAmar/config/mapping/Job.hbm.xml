@@ -57,7 +57,7 @@
             <column name="obsolete_multiple_tables" length="100" />
         </property>
      
-        <set name="tasks" table="jobs_tasks" cascade="save-update">
+        <set name="tasks" table="jobs_tasks" cascade="save-update" >
 			<key column="job_id" />
 			<many-to-many column="task_id"
 				class="com.pikefin.businessobjects.Task" />	

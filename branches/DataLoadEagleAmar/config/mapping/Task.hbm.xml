@@ -27,7 +27,7 @@
             <column name="allow_alerts" not-null="true" />
         </property>
        
-		<set name="jobs" table="jobs_tasks" cascade="none" lazy="false">
+		<set name="jobs" table="jobs_tasks" cascade="none" lazy="false" order-by="jobId">
 			<key column="task_id" />
 			<many-to-many column="job_id"
 				class="com.pikefin.businessobjects.Job" />	

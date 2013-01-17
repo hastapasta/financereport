@@ -18,7 +18,7 @@
 		<property name="endDataMarker" column="end_data_marker" type="string"/>
 		
 		<set name="columns" table="columns" 
-				inverse="true" lazy="false" fetch="select">
+				inverse="true" lazy="false" fetch="select" order-by="columnId">
             <key>
                 <column name="extract_table_id" not-null="true" />
             </key>

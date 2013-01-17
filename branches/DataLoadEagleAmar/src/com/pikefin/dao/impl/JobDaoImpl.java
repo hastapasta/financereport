@@ -6,6 +6,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Property;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -150,6 +151,7 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 		try{
 			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(Job.class);
+			criteria.addOrder(Property.forName("jobId").asc());
 			jobs=(List<Job>)criteria.list();
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
@@ -168,7 +170,7 @@ public class JobDaoImpl extends AbstractDao<Job> implements JobDao {
 		Session session;
 		try{ 
 			session=getOpenSession();
-			Query query=session.createQuery("select c from Job c where c.dataSet='"+dataSet+"'");
+			Query query=session.createQuery("select c from Job c where c.dataSet='"+dataSet+"' order by c.jobId");
 			job=(Job)query.uniqueResult();
 		}catch (HibernateException e) {
 			throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());

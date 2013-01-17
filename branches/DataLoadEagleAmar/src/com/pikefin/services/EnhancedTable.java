@@ -180,8 +180,7 @@ public class EnhancedTable {
 			int i=0;
 			for (Column col : columns) {
 			//while ()
-				//TODO
-				nRowOffset=0;
+				
 				ApplicationSetting.getInstance().getStdoutwriter().writeln("Column: " + col.getColCount(),
 						Logs.STATUS2, "DG29");
 	
