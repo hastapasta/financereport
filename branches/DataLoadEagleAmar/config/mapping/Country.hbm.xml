@@ -11,5 +11,9 @@
 		<property name="name" column="name" type="string"/>
 		<property name="hash" column="hash" type="string"/>
 		<property name="shortName" column="short_name" type="string"/>
+		<set name="countryAliasList" table="country_aliases">
+		    <key column="country_id"></key>
+		    <one-to-many class="com.pikefin.businessobjects.CountryAlias"/>
+		</set>
    </class>
 </hibernate-mapping>

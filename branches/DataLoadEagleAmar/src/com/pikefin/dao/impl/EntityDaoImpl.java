@@ -229,7 +229,9 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 	public Entity loadEntityByTicker(String ticker, String country) throws GenericException {
 		EntityAlias alias=null;
 		try{
-			String query="select alias from EntityAlias alias  left join alias.entity.countries country where alias.tickerAlias='"+ticker+"' and country.name='"+country+"'"; 
+			String query="select alias from EntityAlias alias  left join alias.entity.countries country left join country.countryAliasList countryAlias where alias.tickerAlias='"+ticker+"' and countryAlias.countryAlias='"+country+"'"; 
+			//String query="select alias from EntityAlias alias  left join alias.entity.countries country where alias.tickerAlias='"+ticker+"' and country.name='"+country+"'"; 
+
 			Session session=getOpenSession();
 			Query criteria=session.createQuery(query);
 			alias=(EntityAlias)criteria.uniqueResult();

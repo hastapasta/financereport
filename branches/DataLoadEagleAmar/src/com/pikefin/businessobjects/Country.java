@@ -1,5 +1,8 @@
 package com.pikefin.businessobjects;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 public class Country implements java.io.Serializable {
 
@@ -7,6 +10,7 @@ public class Country implements java.io.Serializable {
 	private String name;
 	private String hash;
 	private String shortName;
+	private Set<CountryAlias> countryAliasList=new HashSet<CountryAlias>(0);
 
 	public Country() {
 	}
@@ -47,6 +51,14 @@ public class Country implements java.io.Serializable {
 
 	public void setShortName(String shortName) {
 		this.shortName = shortName;
+	}
+
+	public Set<CountryAlias> getCountryAliasList() {
+		return countryAliasList;
+	}
+
+	public void setCountryAliasList(Set<CountryAlias> countryAliasList) {
+		this.countryAliasList = countryAliasList;
 	}
 
 }

@@ -1,0 +1,2 @@
+alter table country_aliases add COLUMN is_default boolean not null default false; 
+update country_aliases,countries set country_aliases.is_default=1 where (country_aliases.name_alias=countries.name and country_aliases.country_id=countries.id)
