@@ -191,9 +191,11 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 		List<Entity> entities=null;
 		try{
 			Session session=getOpenSession();
-			Criteria criteria=session.createCriteria(Entity.class);
-			criteria.add(Restrictions.eq("ticker", ticker));
-			entities=(List<Entity>)criteria.list();
+			Query query=session.createQuery("select c from Entity c left join c.entityAliasList alias where alias.tickerAlias='"+ticker+"' and alias.isDefault=true");
+		//	Criteria criteria=session.createCriteria(Entity.class);
+		//	criteria.add(Restrictions.eq("ticker", ticker));
+		//	entities=(List<Entity>)criteria.list();
+			entities=(List<Entity>)query.list();
 			
 		}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_REQUIRED_DATA,e.getMessage() , e.getCause());
@@ -210,7 +212,8 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 		try{
 			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(EntityAlias.class);
-			criteria.add(Restrictions.eq("tickerAlias", ticker));
+			criteria.add(Restrictions.eq("tickerAlias", ticker)).add(Restrictions.eq("isDefault", true));
+			
 			alias=(EntityAlias)criteria.uniqueResult();
 			
 		}catch (HibernateException e) {
@@ -229,7 +232,7 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 	public Entity loadEntityByTicker(String ticker, String country) throws GenericException {
 		EntityAlias alias=null;
 		try{
-			String query="select alias from EntityAlias alias  left join alias.entity.countries country left join country.countryAliasList countryAlias where alias.tickerAlias='"+ticker+"' and countryAlias.countryAlias='"+country+"'"; 
+			String query="select alias from EntityAlias alias  left join alias.entity.countries country left join country.countryAliasList countryAlias where alias.tickerAlias='"+ticker+"' and alias.isDefault=true and countryAlias.countryAlias='"+country+"'"; 
 			//String query="select alias from EntityAlias alias  left join alias.entity.countries country where alias.tickerAlias='"+ticker+"' and country.name='"+country+"'"; 
 
 			Session session=getOpenSession();

@@ -13,6 +13,7 @@ import pikefin.log4jWrapper.Logs;
 
 import com.pikefin.ApplicationSetting;
 import com.pikefin.Constants;
+import com.pikefin.ErrorCode;
 import com.pikefin.PikefinUtil;
 import com.pikefin.businessobjects.Alert;
 import com.pikefin.businessobjects.Batches;
@@ -205,7 +206,10 @@ public  BigDecimal convertToGallonsAndDollars(String strValue, String ticker, St
 		
 			FactData fact=factDataDao.loadFactDataInfoByTickerAndCollectionDate(ticker, strDay);
 		
-		
+		if(fact==null){
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Could not retrieve the fact data by given ticker value:"+ticker+" and collection date :"+strDay, Logs.ERROR, String.valueOf(ErrorCode.COULD_NOT_FIND_FACT_DATA_WITH_TICKER_AND_COLLECTION_DATE));
+			throw new GenericException(ErrorCode.COULD_NOT_FIND_FACT_DATA_WITH_TICKER_AND_COLLECTION_DATE,"Could not retrieve the fact data by given ticker value:"+ticker+" and collection date :"+strDay,null);
+		}
 			  BigDecimal bdRate = new BigDecimal(fact.getValue());
 			  BigDecimal bdPrice = new BigDecimal(strValue);
 			  

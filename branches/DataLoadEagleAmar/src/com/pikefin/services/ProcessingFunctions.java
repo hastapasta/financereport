@@ -1174,6 +1174,10 @@ public class ProcessingFunctions {
         strBeforeToken = ">";
         strAfterToken = "(95)";
       }
+      if(strCountry.contains("Thailand")){
+    	  strBeforeToken = ">";
+          strAfterToken = "(RON 91)";  
+      }
       if(rowdata[0].indexOf(strBeforeToken)!=-1){
       newrow[0] = rowdata[0].substring(rowdata[0].indexOf(strBeforeToken)
           + strBeforeToken.length(), rowdata[0].length());
@@ -1224,7 +1228,7 @@ public class ProcessingFunctions {
       catch (GenericException sqle) {
         // This is not a fatal error so we won't display the full exception.
         ApplicationSetting.getInstance().getStdoutwriter()
-          .writeln("Problem looking up country: " + strCountry
+          .writeln("Problem looking up country: " + strCountry +sqle.getErrorMessage()
               + ",row skipped", Logs.ERROR, "PF99.25");
         continue;
       }
@@ -1308,12 +1312,13 @@ public class ProcessingFunctions {
     strDate = strDate.replace("</p>", "").trim();
     String[] date = strDate.split("\\.");
     scanner = new Scanner(strContent);
-    scanner.findWithinHorizon("Average Price Currency", 0);
+   // scanner.findWithinHorizon("Average Price Currency", 0);
+    scanner.findWithinHorizon("Country Currency 95 E10 95 98 Diesel", 0);
     scanner.nextLine();
 
     while (scanner.hasNextLine()) {
       String strLine = scanner.nextLine();
-
+      
       if (strLine.contains("Europa: Fuel Prices")) {
         break;
       }
@@ -1346,7 +1351,7 @@ public class ProcessingFunctions {
       // Currency: tokens[2]
       // Price: tokens[3] (for Finland and Germany, reduce by 10% since they
       // don't have 95 octane)
-      String strCountry = tokens[1].replace("_", " ").replace("<p>", "").trim();
+      String strCountry = tokens[2].replace("_", " ").replace("<p>", "").trim();
 
       Entity entity;
 
@@ -1363,8 +1368,10 @@ public class ProcessingFunctions {
       }
 
       try {
+    	  String value=tokens[4];
+    	  //if()
         BigDecimal bdPrice = factDataService.convertToGallonsAndDollars(
-            tokens[3], "USD" + tokens[2], newrow[1]);
+        		value, "USD" + tokens[3], newrow[1]);
 
         if (strCountry.equalsIgnoreCase("Germany")
             || strCountry.equalsIgnoreCase("Finland")) {
