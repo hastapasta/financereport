@@ -1,4 +1,5 @@
 package com.pikefin.services;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -18,7 +19,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -1398,6 +1398,115 @@ public class ProcessingFunctions {
     this.propTableData = newTableData;
   }
   
+  
+  
+  public void postProcessImfGdp(){
+		String[] tmpArray = {"value","date_collected","entity_id","calyear","scale"};
+		ArrayList<String[]> newTableData = new ArrayList<String[]>();
+		String[] newrow;
+		String[] colheaders = propTableData.remove(0);
+		String[] rowheaders = propTableData.remove(0);
+		int nCounter=0;
+		for (String[] rowdata : propTableData)	{
+			for (int col=0;col<colheaders.length;col++)		{
+			String strCountry = rowheaders[nCounter];
+			newrow = new String[tmpArray.length];
+			newrow[0] = rowdata[col].replace(",", "");
+			if (newrow[0].contains("n/a"))		{
+				ApplicationSetting.getInstance().getStdoutwriter().writeln("Retrieved n/a value, skipping processing for entity " + strCountry,Logs.WARN,"PF44");
+				continue;
+			}
+			
+			
+			BigDecimal bdTmp = null;
+			if (this.dg.getCurrentTask().getTaskId() == 29) {
+				if (!newrow[0].contains("bgcolor")) {
+					bdTmp = new BigDecimal(newrow[0].substring(newrow[0].indexOf("right\">")+7,newrow[0].length()));
+				}
+				else
+					continue;
+			}
+			else if (this.dg.getCurrentTask().getTaskId() == 30) {
+				if (newrow[0].contains("bgcolor")) {
+					bdTmp = new BigDecimal(newrow[0].substring(newrow[0].indexOf("\">")+2,newrow[0].length()));
+				}
+				else
+					continue;
+			}
+			else if (this.dg.getCurrentTask().getTaskId() == 22){
+				if (newrow[0].contains("bgcolor")) {
+					bdTmp = new BigDecimal(newrow[0].substring(newrow[0].indexOf("\">")+2,newrow[0].length()));
+				}
+				else
+					continue;
+			}
+			else if (this.dg.getCurrentTask().getTaskId() == 33) {
+				if (!newrow[0].contains("bgcolor")) {
+					bdTmp = new BigDecimal(newrow[0].substring(newrow[0].indexOf("right\">")+7,newrow[0].length()));
+				}
+				else
+					continue;
+				
+			}
+			else {
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Task id not found, should not have reached this point in the code. Terminating processing of task.",Logs.ERROR,"PF44.32");
+				return;
+			}
+			newrow[0] = bdTmp.toString();
+			newrow[1] = "NOW()";
+			/*
+			 * If there are 2 sets of parens for the row header, we want to cutoff at the 2nd left paren.
+			 */
+			strCountry = strCountry.trim();
+			strCountry = strCountry.replace("'", "\\'");
+			
+			if (strCountry.toUpperCase().equals("KOREA"))
+				strCountry = "South Korea";
+		try
+			{
+				Entity entity=entityService.loadEntityInfoByTickerAndCountry("macro", strCountry);
+				newrow[2] = String.valueOf(entity.getEntityId());
+			}
+			catch (GenericException sqle){
+				ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem looking up country: " + strCountry + ",row skipped",Logs.ERROR,"PF43.55");
+				continue;	
+			// This is not a fatal error so we won't display the full exception.
+			//ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
+			}
+			newrow[3] = colheaders[col];
+			newrow[4] = "9";
+			newTableData.add(newrow);
+		}
+			nCounter++;
+	  }
+		newTableData.add(0, tmpArray);
+		propTableData = newTableData;
+	}
+
+  
+  public void postProcessIMFGdpPPPActual() {
+		String[] tmpArray = {"value","date_collected","entity_id","calyear","scale"};
+		ArrayList<String[]> newTableData = new ArrayList<String[]>();
+		String[] rowdata, newrow;
+		String[] colheaders = propTableData.remove(0);
+		String[] rowheaders = propTableData.remove(0);
+		for (int row=0;row<propTableData.size();row++) {
+			rowdata = propTableData.get(row);
+			for (int col=0;col<colheaders.length;col++)	{
+			String strCountry = rowheaders[row];
+			newrow = new String[tmpArray.length];
+			if (rowdata[0].equals("n/a")){
+				ApplicationSetting.getInstance().getStdoutwriter().writeln("Retrieved n/a value, skipping processing for entity " + strCountry,Logs.WARN,"PF44");
+				continue;
+			}
+			newrow[0] = rowdata[col].replace(",", "");
+			BigDecimal bdTmp = new BigDecimal(newrow[0]);
+			newrow[0] = bdTmp.toString();
+			newrow[1] = "NOW()";
+			}
+		  }
+		}
+ 
 // TODO Convert me.
 /*
 public void postProcessBloombergCommoditiesV2() {
@@ -1485,7 +1594,7 @@ public void postProcessBloombergCommoditiesV2() {
         newrow[2] = rs.getInt("entity_id") + "";
       }
       catch (SQLException sqle) {
-        UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: " + strTicker  + ",row skipped",Logs.WARN,"PF43.51");
+        ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem looking up ticker: " + strTicker  + ",row skipped",Logs.WARN,"PF43.51");
         continue;
       }
       
@@ -1910,43 +2019,6 @@ public void postProcessTableBriefIClaims() throws CustomEmptyStringException, SQ
 	propTableData = newTableData;
 }
 
-public void postProcessIMFGdpPPPActual() throws SQLException {
-	
-	String[] tmpArray = {"value","date_collected","entity_id","calyear","scale"};
-	
-	ArrayList<String[]> newTableData = new ArrayList<String[]>();
-	String[] rowdata, newrow;
-	//String[] colheaders = propTableData.get(0);
-	
-	String[] colheaders = propTableData.remove(0);
-	String[] rowheaders = propTableData.remove(0);
-	
-	for (int row=0;row<propTableData.size();row++) {
-		rowdata = propTableData.get(row);
-		
-		for (int col=0;col<colheaders.length;col++)
-		{
-		
-		String strCountry = rowheaders[row];
-		newrow = new String[tmpArray.length];
-		
-		if (rowdata[0].equals("n/a"))
-		{
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Retrieved n/a value, skipping processing for entity " + strCountry,Logs.WARN,"PF44");
-			continue;
-		}
-		
-		newrow[0] = rowdata[col].replace(",", "");
-		BigDecimal bdTmp = new BigDecimal(newrow[0]);
-		
-		newrow[0] = bdTmp.toString();
-
-		newrow[1] = "NOW()";
-		}
-		
-	}
-	
-}
 
 public void postProcessIMFGdpPPPEst() throws SQLException {
 	
