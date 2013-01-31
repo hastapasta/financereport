@@ -51,7 +51,7 @@ private  ScheduleDao scheduleDao;
 	}
 	@Test
 	public void  testloadAllSchedulesForBrokerExecuter() throws GenericException{
-		List<Schedule> schedules= scheduleDao.loadAllSchedulesForBrokerExecuter();
+		List<Schedule> schedules= scheduleDao.loadAllSchedulesForBrokerExecutor();
 		for(Schedule temp:schedules){
 			System.out.println(temp);
 			System.out.println("Task ID=="+temp.getTask().getName());

@@ -14,14 +14,14 @@ import com.pikefin.services.inter.ScheduleService;
 @Service
 public class ScheduleServiceImpl implements ScheduleService{
 
-	@Autowired
-	private ScheduleDao scheduleDao;
-	@Override
-//	@Transactional(propagation=Propagation.REQUIRED)
-	public List<Schedule> loadAllSchedulesForBrokerExecuter()
-			throws GenericException {
-			return scheduleDao.loadAllSchedulesForBrokerExecuter();
-	}
+  @Autowired
+  private ScheduleDao scheduleDao;
+  @Override
+  //	@Transactional(propagation=Propagation.REQUIRED)
+  public List<Schedule> loadAllSchedulesForBrokerExecutor()
+      throws GenericException {
+    return scheduleDao.loadAllSchedulesForBrokerExecutor();
+  }
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
 	public List<Schedule> updateSchedulesBatch(List<Schedule> schedules)
