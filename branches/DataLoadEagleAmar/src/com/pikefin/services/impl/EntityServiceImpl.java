@@ -55,7 +55,7 @@ public class EntityServiceImpl implements EntityService{
 	@Override
 	public Entity loadEntityInfoByTickerAndCountry(String ticker, String country)
 			throws GenericException {
-		Entity entitiy=entityDao.loadEntityByTicker(ticker,country);
+		Entity entitiy=entityDao.loadEntityByTickerAndCountry(ticker,country);
 		
 		if(entitiy!=null)
 			return entitiy;

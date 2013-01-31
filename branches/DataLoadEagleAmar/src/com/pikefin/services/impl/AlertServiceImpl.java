@@ -104,9 +104,9 @@ public class AlertServiceImpl implements AlertService{
 						boolean bAutoResetPeriod = tempAlert.getAutoResetPeriod();
 						boolean bAutoResetFired =tempAlert.getAutoResetFired();
 						boolean bAlreadyFired =tempAlert.getFired();
-					 if(!factDataMap.containsKey(key)){
-						ApplicationSetting.getInstance().getStdoutwriter().writeln("No recent fact data collected for ticker: " + tempAlert.getAlertEntity().getTicker()  + ",alert id: "+ tempAlert.getAlertId() + ",entity id: " + tempAlert.getAlertEntity().getEntityId() + ". Skipping alert processing",Logs.WARN,"A2.7358");
-								continue;
+						if(!factDataMap.containsKey(key)){
+							ApplicationSetting.getInstance().getStdoutwriter().writeln("No recent fact data collected for ticker: " + tempAlert.getAlertEntity().getTicker()  + ",alert id: "+ tempAlert.getAlertId() + ",entity id: " + tempAlert.getAlertEntity().getEntityId() + ". Skipping alert processing",Logs.WARN,"A2.7358");
+							continue;
 						 }
 					 	Calendar calJustCollected = Calendar.getInstance();
 						Calendar calInitialFactDataCollected = Calendar.getInstance();

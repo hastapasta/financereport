@@ -234,7 +234,7 @@ public class FactDataDaoImpl extends AbstractDao<FactData> implements FactDataDa
 		FactData factDataEntity;
 		try{
 			Session session=getOpenSession();
-		String strQuery = "select f from FactData f,EntityAlias ea where ea.tickerAlias='"+ticker+"' and ea.isDefault=true and f.entity.id=ea.entity.id and f.dateCollected<"+ collectionDate+" order by f.dateCollected desc";
+		String strQuery = "select f from FactData f,EntityAlias ea where ea.tickerAlias='"+ticker+"' and f.entity.id=ea.entity.id and f.dateCollected<"+ collectionDate+" order by f.dateCollected desc";
 		Query query =session.createQuery(strQuery);
 		query.setMaxResults(1);
 			factDataEntity=(FactData)query.uniqueResult();

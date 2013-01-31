@@ -191,7 +191,7 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 		List<Entity> entities=null;
 		try{
 			Session session=getOpenSession();
-			Query query=session.createQuery("select c from Entity c left join c.entityAliasList alias where alias.tickerAlias='"+ticker+"' and alias.isDefault=true");
+			Query query=session.createQuery("select c from Entity c left join c.entityAliasList alias where alias.tickerAlias='"+ticker+"' ");
 		//	Criteria criteria=session.createCriteria(Entity.class);
 		//	criteria.add(Restrictions.eq("ticker", ticker));
 		//	entities=(List<Entity>)criteria.list();
@@ -212,7 +212,7 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 		try{
 			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(EntityAlias.class);
-			criteria.add(Restrictions.eq("tickerAlias", ticker)).add(Restrictions.eq("isDefault", true));
+			criteria.add(Restrictions.eq("tickerAlias", ticker));//.add(Restrictions.eq("isDefault", true));
 			
 			alias=(EntityAlias)criteria.uniqueResult();
 			
@@ -229,14 +229,15 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 	}
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public Entity loadEntityByTicker(String ticker, String country) throws GenericException {
+	public Entity loadEntityByTickerAndCountry(String ticker, String country) throws GenericException {
 		EntityAlias alias=null;
 		try{
-			String query="select alias from EntityAlias alias  left join alias.entity.countries country left join country.countryAliasList countryAlias where alias.tickerAlias='"+ticker+"' and alias.isDefault=true and countryAlias.countryAlias='"+country+"'"; 
+			String query="select alias from EntityAlias alias  left join alias.entity.countries country left join country.countryAliasList countryAlias where alias.tickerAlias='"+ticker+"'  and countryAlias.countryAlias='"+country+"' "; 
 			//String query="select alias from EntityAlias alias  left join alias.entity.countries country where alias.tickerAlias='"+ticker+"' and country.name='"+country+"'"; 
 
 			Session session=getOpenSession();
 			Query criteria=session.createQuery(query);
+			criteria.setMaxResults(1);
 			alias=(EntityAlias)criteria.uniqueResult();
 			}catch (HibernateException e) {
 				throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS,e.getMessage() , e.getCause());

@@ -1369,8 +1369,7 @@ public class ProcessingFunctions {
 
       try {
     	  String value=tokens[4];
-    	  //if()
-        BigDecimal bdPrice = factDataService.convertToGallonsAndDollars(
+    	  BigDecimal bdPrice = factDataService.convertToGallonsAndDollars(
         		value, "USD" + tokens[3], newrow[1]);
 
         if (strCountry.equalsIgnoreCase("Germany")
@@ -1449,7 +1448,7 @@ public class ProcessingFunctions {
 				
 			}
 			else {
-			ApplicationSetting.getInstance().getStdoutwriter().writeln("Task id not found, should not have reached this point in the code. Terminating processing of task.",Logs.ERROR,"PF44.32");
+				ApplicationSetting.getInstance().getStdoutwriter().writeln("Task id not found, should not have reached this point in the code. Terminating processing of task.",Logs.ERROR,"PF44.32");
 				return;
 			}
 			newrow[0] = bdTmp.toString();
@@ -1496,7 +1495,8 @@ public class ProcessingFunctions {
 			String strCountry = rowheaders[row];
 			newrow = new String[tmpArray.length];
 			if (rowdata[0].equals("n/a")){
-				ApplicationSetting.getInstance().getStdoutwriter().writeln("Retrieved n/a value, skipping processing for entity " + strCountry,Logs.WARN,"PF44");
+				ApplicationSetting.getInstance().getStdoutwriter().writeln("Retrieved n/a value, skipping processing for entity " +
+				strCountry,Logs.WARN,"PF44");
 				continue;
 			}
 			newrow[0] = rowdata[col].replace(",", "");
