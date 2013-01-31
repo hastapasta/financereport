@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.pikefin.businessobjects.LogTweets" table="log_tweets" >
+		<id name="logTweetId" column="id" type="integer">
+			<generator class="identity"/>
+		</id>
+		<property name="message" column="message" type="string" />
+		<property name="dateTime" column="dateTime" type="timestamp" />
+		<property name="errorMessage" column="error_message" type="string" />
+   <many-to-one name="alert" column="alert_id" class="com.pikefin.businessobjects.Alert"></many-to-one>
+   </class>
+</hibernate-mapping>

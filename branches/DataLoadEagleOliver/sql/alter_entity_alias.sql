@@ -1,0 +1,1 @@
+alter table entity_aliases add COLUMN is_default boolean not null default false; 
