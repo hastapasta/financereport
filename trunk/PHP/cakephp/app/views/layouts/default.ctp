@@ -2,7 +2,7 @@
 //env.php is included in sitecommon.php
 //require_once ("/var/www/html/site/includes/env.php");
 //require_once ("/var/www/html/site/includes/sitecommon.php");
-include (dirname(ROOT) . DS . "site" . DS . "includes" . DS . "sitecommon.php");
+include (dirname(ROOT) . DS . "PHP" . DS . "site" . DS . "includes" . DS . "sitecommon.php");
 /**
  *
  * PHP versions 4 and 5
@@ -31,6 +31,7 @@ include (dirname(ROOT) . DS . "site" . DS . "includes" . DS . "sitecommon.php");
 <?php
 echo $this->Html->meta('icon');
 echo $this->Html->css('cake.generic');
+echo $this->Html->css('cake.override');
 echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"".Environment::getPHPSitePath(false)."/site/includes/shared.css\" />";
 echo $this->Html->css('jquery-ui-1.8.12.custom.css');
 //echo $this->Javascript->link(array('jquery 1.4.4.js','querywrapper'));
