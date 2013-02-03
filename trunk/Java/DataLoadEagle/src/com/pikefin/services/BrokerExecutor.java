@@ -53,7 +53,8 @@ public class BrokerExecutor extends Thread {
 
   @Override
   public void run(){
-    //Refreshing the waiting job list and runningJobsArray, to clear old objects
+    //Refreshing the waiting job list and runningJobsArray, to clear
+    // old objects
     runningJobsArray =
         new DataGrabExecutor[ApplicationSetting
                              .getInstance().getMaxAllowedThreads()];
@@ -67,27 +68,27 @@ public class BrokerExecutor extends Thread {
     threadStartDate.set(Calendar.MILLISECOND, 0);
     if (ApplicationSetting.getInstance().isDebugMode()) {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("RUNNING IN DEBUG MODE",Logs.STATUS1,"DL18.5");
+        .writeln("RUNNING IN DEBUG MODE",Logs.STATUS1,"BE18.5");
     }
     else {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("RUNNING IN LIVE (NON DEBUG) MODE",Logs.STATUS1,"DL19.5");
+        .writeln("RUNNING IN LIVE (NON DEBUG) MODE",Logs.STATUS1,"BE19.5");
     }
     if (ApplicationSetting.getInstance().isLoadHistoricalData()==true) {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("LOADING HISTORICAL DATA",Logs.STATUS1,"DL20");
+        .writeln("LOADING HISTORICAL DATA",Logs.STATUS1,"BE20");
     }
     else {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("NOT LOADING HISTORICAL DATA",Logs.STATUS1,"DL21");
+        .writeln("NOT LOADING HISTORICAL DATA",Logs.STATUS1,"BE21");
     }
     ApplicationSetting.getInstance().getStdoutwriter()
       .writeln("MAXIMUM # OF DATAGRAB THREADS: "
           + ApplicationSetting.getInstance().getMaxAllowedThreads(),
-          Logs.STATUS1,"DL19");
+          Logs.STATUS1,"BE21.5");
     this.notification.start();
     ApplicationSetting.getInstance().getStdoutwriter()
-      .writeln("Started Notification Thread",Logs.STATUS1,"DL2.727");
+      .writeln("Started Notification Thread",Logs.STATUS1,"BE22.5");
     if (!isBrokerThreadPaused()) {
       if (!ApplicationSetting.getInstance().isLoadHistoricalData()){
         //starting the infinite loop
@@ -97,7 +98,8 @@ public class BrokerExecutor extends Thread {
             this.getTriggeredJobs();
             this.executeJobs();
             this.writeJobQueueIntoDB();
-            sleep(ApplicationSetting.getInstance().getThreadSleepInteval()*1000);
+            sleep(ApplicationSetting.getInstance()
+                .getThreadSleepInteval()*1000);
             cleanTerminatedJobs();
             checkMessageCount();
           }
@@ -105,7 +107,7 @@ public class BrokerExecutor extends Thread {
             ApplicationSetting.getInstance().getStdoutwriter()
               .writeln(e.getErrorCode()+"\n " +
                   e.getErrorMessage()+"\n"+e.getErrorDescription(),
-                  Logs.ERROR,"DL10");
+                  Logs.ERROR,"23.5");
             ApplicationSetting.getInstance().getStdoutwriter().writeln(e);
           }
           catch(InterruptedException ie) {
@@ -162,7 +164,7 @@ public class BrokerExecutor extends Thread {
     catch (GenericException genException) {
       ApplicationSetting.getInstance().getStdoutwriter()
       .writeln("Error in retrieving Triggered Job",
-          Logs.THREAD,"DL2.23");
+          Logs.THREAD,"BE24.5");
       ApplicationSetting.getInstance().getStdoutwriter()
       .writeln(genException);
     }
@@ -184,7 +186,7 @@ public class BrokerExecutor extends Thread {
           ApplicationSetting.getInstance().getStdoutwriter()
             .writeln("Status of thread " + runningJobsArray[i].getName()
                 + ": " + runningJobsArray[i].getState().toString(),
-                Logs.THREAD,"DL2");
+                Logs.THREAD,"BE2");
         }
       }
       for (int k=0;k<waitingJobList.size();k++) {
@@ -201,7 +203,7 @@ public class BrokerExecutor extends Thread {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Problem while writing queue into db-"+e.getErrorCode() +
             " "+e.getErrorMessage()+" "+e.getErrorDescription(),
-            Logs.ERROR,"DL10");
+            Logs.ERROR,"BE10");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(e);
     }
   }
@@ -245,7 +247,7 @@ public class BrokerExecutor extends Thread {
               .writeln("Task in waiting queue already running so won't get " +
                   "moved to run queue (task id: " +
                   runningJobsArray[j].getCurrentTask().getTaskId(),
-                  Logs.STATUS1, "DL3.99");
+                  Logs.STATUS1, "BE3.99");
             isAlreadyRunning=true;
             break;
           }
@@ -259,7 +261,7 @@ public class BrokerExecutor extends Thread {
               "for minimum priority of " + nPriority + ". Task: "
               + waitingJobList.get(i).getTask().getTaskId()
               + ", Priority: " + waitingJobList.get(i).getPriority(),
-              Logs.STATUS1, "DL4.36");
+              Logs.STATUS1, "BE4.36");
           return null;
         }
         dg = new DataGrabExecutor(task,0,waitingJobList.get(i).getSchedule(),
@@ -269,7 +271,7 @@ public class BrokerExecutor extends Thread {
         dg.start();
         ApplicationSetting.getInstance().getStdoutwriter()
           .writeln("Initiated DataGrab thread " + dg.getName(),
-            Logs.THREAD,"DL4");
+            Logs.THREAD,"BE4");
         waitingJobList.remove(i);
         return dg;
       }
@@ -284,7 +286,7 @@ public class BrokerExecutor extends Thread {
           updateJobStats(runningJobsArray[i]);
           ApplicationSetting.getInstance().getStdoutwriter()
             .writeln("Cleaning up thread " + runningJobsArray[i].getName(),
-              Logs.THREAD,"DL3");
+              Logs.THREAD,"BE3");
           runningJobsArray[i] = null;
         }
       }
@@ -329,7 +331,7 @@ public class BrokerExecutor extends Thread {
         ApplicationSetting.getInstance().getStdoutwriter()
           .writeln("Error in updating Log Task data-"+e.getErrorCode()
               +" "+e.getErrorMessage()+" "+e.getErrorDescription(),
-              Logs.ERROR,"DL2.57");
+              Logs.ERROR,"BE2.57");
         ApplicationSetting.getInstance().getStdoutwriter().writeln(e);
       }
     }

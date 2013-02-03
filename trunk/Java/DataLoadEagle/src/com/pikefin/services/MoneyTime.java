@@ -3,7 +3,6 @@ package com.pikefin.services;
 import java.util.Calendar;
 
 import pikefin.log4jWrapper.Logs;
-
 import com.pikefin.ApplicationSetting;
 import com.pikefin.businessobjects.Entity;
 import com.pikefin.exceptions.GenericException;
@@ -24,25 +23,28 @@ public class MoneyTime {
   String strFiscalQtr;
   String strFiscalYear;
 
+  static EntityService entityServiceStatic=ApplicationSetting.getInstance()
+      .getApplicationContext().getBean(EntityService.class);
 
-
-  public MoneyTime(String strTmpMonth, String strTmpCalYear, String strTicker) throws GenericException {
+  public MoneyTime(String strTmpMonth, String strTmpCalYear, String strTicker)
+      throws GenericException {
     strMonth = strTmpMonth;
-    if (strTmpCalYear.length() == 2)
+    if (strTmpCalYear.length() == 2) {
       strCalYear = "20" + strTmpCalYear;
-    else
+    }
+    else {
       strCalYear = strTmpCalYear;
+    }
     nMonth = convertMonthStringtoInt(strMonth);
     nCalYear = Integer.parseInt(strCalYear);
-    String tmpStr = MoneyTime.getFiscalYearAndQuarter(strTicker, nMonth, nCalYear);
+    String tmpStr = MoneyTime
+        .getFiscalYearAndQuarter(strTicker, nMonth, nCalYear);
     nFiscalQtr = Integer.parseInt(tmpStr.substring(0,1));
     nFiscalYear = Integer.parseInt(tmpStr.substring(1,5));
     strFiscalQtr = Integer.toString(nFiscalQtr);
     strFiscalYear = Integer.toString(nFiscalYear);
-
     nCalAdjYear = nCalYear;
     nCalQtr = this.retrieveCalQuarter(nMonth);
-
   }
 
   public static int convertMonthStringtoInt(String strMonth) {
@@ -60,13 +62,11 @@ public class MoneyTime {
     else if (strMonth.substring(0,3).equals("OCT")) return(10);
     else if (strMonth.substring(0,3).equals("NOV")) return(11);
     else if (strMonth.substring(0,3).equals("DEC")) return(12);
-    else
-    {
-      ApplicationSetting.getInstance().getStdoutwriter().writeln("Unable to match month string.", Logs.ERROR,"MT2");
+    else {
+      ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln("Unable to match month string.", Logs.ERROR,"MT2");
       return(0);
     }
-
-
   }
 
   public static String convertMonthInttoString(int nMonth)	{
@@ -94,9 +94,9 @@ public class MoneyTime {
       return "November";
     else if (nMonth==12)
       return "December";
-    else
-    {
-      ApplicationSetting.getInstance().getStdoutwriter().writeln("Invalid month integer value", Logs.ERROR,"MT3");
+    else {
+      ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln("Invalid month integer value", Logs.ERROR,"MT3");
       return "";
     }
   }
@@ -108,11 +108,9 @@ public class MoneyTime {
       return(2);
     else if ((8 <= nMonth) && (nMonth <= 10))
       return(3);
-    else
-    {
-      /*
-       * Jan is boundary condition
-       */
+    else {
+
+      // Jan is boundary condition
       if (nMonth == 1)
         this.nCalAdjYear = nCalYear - 1;
       return(4);
@@ -120,124 +118,117 @@ public class MoneyTime {
   }
 
 
-  public int retrieveAdjustedQuarter(int fiscalquarter,int fiscalyear, String strTicker)	throws GenericException{
+  public int retrieveAdjustedQuarter(int fiscalquarter,int fiscalyear,
+      String strTicker)	throws GenericException{
 
-      Entity e =entityService.loadEntityInfoByTicker(strTicker) ;
+    Entity e =entityService.loadEntityInfoByTicker(strTicker);
     Integer adjustment_code = 0;
-      if (e.getBeginFiscalCalendar().equalsIgnoreCase("February") ||
-          e.getBeginFiscalCalendar().equalsIgnoreCase("March") ||
-          e.getBeginFiscalCalendar().equalsIgnoreCase("April"))
-        adjustment_code = 3;
-      else if (e.getBeginFiscalCalendar().equalsIgnoreCase("May") ||
-          e.getBeginFiscalCalendar().equalsIgnoreCase("June") ||
-          e.getBeginFiscalCalendar().equalsIgnoreCase("July"))
-        adjustment_code = 2;
-      else if (e.getBeginFiscalCalendar().equalsIgnoreCase("August") ||
-          e.getBeginFiscalCalendar().equalsIgnoreCase("September") ||
-          e.getBeginFiscalCalendar().equalsIgnoreCase("October"))
-        adjustment_code = 1;
-      else if (e.getBeginFiscalCalendar().equalsIgnoreCase("November") ||
-          e.getBeginFiscalCalendar().equalsIgnoreCase("December") ||
-          e.getBeginFiscalCalendar().equalsIgnoreCase("January"))
-        adjustment_code = 0;
-      else {
-        ApplicationSetting.getInstance().getStdoutwriter().writeln("Invalid begin fiscal calendar month", Logs.ERROR,"MT1");
-      }
-
-
-
-
-
-
-      Integer unadjustedqtr;
-      if (fiscalyear > 100)
-        unadjustedqtr = (4*(fiscalyear-2000)) + fiscalquarter;
-      else
-        unadjustedqtr = (4*fiscalyear) + fiscalquarter;
-
+    if (e.getBeginFiscalCalendar().equalsIgnoreCase("February") ||
+        e.getBeginFiscalCalendar().equalsIgnoreCase("March") ||
+        e.getBeginFiscalCalendar().equalsIgnoreCase("April")) {
+      adjustment_code = 3;
+    } else if (e.getBeginFiscalCalendar().equalsIgnoreCase("May") ||
+        e.getBeginFiscalCalendar().equalsIgnoreCase("June") ||
+        e.getBeginFiscalCalendar().equalsIgnoreCase("July")) {
+      adjustment_code = 2;
+    } else if (e.getBeginFiscalCalendar().equalsIgnoreCase("August") ||
+        e.getBeginFiscalCalendar().equalsIgnoreCase("September") ||
+        e.getBeginFiscalCalendar().equalsIgnoreCase("October")) {
+      adjustment_code = 1;
+    } else if (e.getBeginFiscalCalendar().equalsIgnoreCase("November") ||
+        e.getBeginFiscalCalendar().equalsIgnoreCase("December") ||
+        e.getBeginFiscalCalendar().equalsIgnoreCase("January")) {
+      adjustment_code = 0;
+    } else {
+      ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln("Invalid begin fiscal calendar month", Logs.ERROR,"MT1");
+    }
+    Integer unadjustedqtr;
+    if (fiscalyear > 100) {
+      unadjustedqtr = (4*(fiscalyear-2000)) + fiscalquarter;
+    } else {
+      unadjustedqtr = (4*fiscalyear) + fiscalquarter;
+    }
 
     return(unadjustedqtr-adjustment_code);
-
-
   }
 
-
-
-  static EntityService entityServiceStatic=ApplicationSetting.getInstance().getApplicationContext().getBean(EntityService.class);
-  public static String getCalendarYearAndQuarter(String strTicker, Integer fiscalquarter, Integer fiscalyear) throws GenericException	{
+  public static String getCalendarYearAndQuarter(String strTicker,
+      Integer fiscalquarter, Integer fiscalyear) throws GenericException {
     int calquarter=0;
     int calyear=fiscalyear;
     Entity e = entityServiceStatic.loadEntityInfoByTicker(strTicker) ;
     int nBeginFiscalYear = convertMonthStringtoInt(e.getBeginFiscalCalendar());
 
-    if (nBeginFiscalYear==12 || nBeginFiscalYear==1 || nBeginFiscalYear==2)
-    {
-      if (nBeginFiscalYear==2)
+    if (nBeginFiscalYear==12 || nBeginFiscalYear==1 || nBeginFiscalYear==2) {
+      if (nBeginFiscalYear==2) {
         calyear--;
+      }
       calquarter = fiscalquarter;
-    }
-    else if (nBeginFiscalYear==3 || nBeginFiscalYear==4 || nBeginFiscalYear==5)
-    {
-      if (fiscalquarter != 4)
+    } else if (nBeginFiscalYear==3 || nBeginFiscalYear==4
+        || nBeginFiscalYear==5) {
+      if (fiscalquarter != 4) {
         calyear--;
+      }
       calquarter = fiscalquarter+1;
-    }
-    else if (nBeginFiscalYear==6 || nBeginFiscalYear==7 || nBeginFiscalYear==8)
-    {
-      if (fiscalquarter != 4 && fiscalquarter != 3)
+    } else if (nBeginFiscalYear==6 || nBeginFiscalYear==7
+        || nBeginFiscalYear==8) {
+      if (fiscalquarter != 4 && fiscalquarter != 3) {
         calyear--;
+      }
       calquarter = fiscalquarter+2;
-    }
-    else if (nBeginFiscalYear==9 || nBeginFiscalYear==10 || nBeginFiscalYear==11)
-    {
-      if (fiscalquarter ==1)
+    } else if (nBeginFiscalYear==9 || nBeginFiscalYear==10
+        || nBeginFiscalYear==11) {
+      if (fiscalquarter ==1) {
         calyear--;
+      }
       calquarter = fiscalquarter+3;
+    } else
+      ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln("Begin fiscal year month string not found",
+            Logs.ERROR,"UF24.5");
 
-    }
-    else
-      ApplicationSetting.getInstance().getStdoutwriter().writeln("Begin fiscal year month string not found",Logs.ERROR,"UF24.5");
-
-    if (calquarter != 4)
+    if (calquarter != 4) {
       calquarter = calquarter % 4;
+    }
 
     return calquarter + "" + calyear;
   }
 
-  public static String getFiscalYearAndQuarter(String strTicker, int curmonth, int curyear) throws GenericException {
-      Integer nBeginFiscalYear=0;
-      Entity e = entityServiceStatic.loadEntityInfoByTicker(strTicker) ;
-      String strBeginFiscalYear = e.getBeginFiscalCalendar();
-      Calendar cal = Calendar.getInstance();
-      if (curmonth == -1)
-      /* if curmonth = -1, get month and year from current data, otherwise use parameter values */
-      {
-        curmonth = cal.get(Calendar.MONTH) + 1;
-        curyear = cal.get(Calendar.YEAR);
-      }
-
-      nBeginFiscalYear = convertMonthStringtoInt(strBeginFiscalYear);
-
-      Integer nCurFiscalQuarter, nCurFiscalYear;
-      if ((curmonth - nBeginFiscalYear)>=0)
-        nCurFiscalQuarter = ((curmonth - nBeginFiscalYear) / 3) + 1;
-      else
-        nCurFiscalQuarter = ((12 + (curmonth - nBeginFiscalYear)) / 3) + 1;
-
-      if (nBeginFiscalYear == 1)
-      //Boundary condition if begin fiscal year is january, fiscal year is always the same as the current year
-        nCurFiscalYear = curyear;
-      else if ((curmonth - nBeginFiscalYear) >= 0)
-        nCurFiscalYear = curyear + 1;
-      else
-        nCurFiscalYear = curyear;
-
-      String retval = Integer.toString(nCurFiscalQuarter) + Integer.toString(nCurFiscalYear);
-      return(retval);
-
+  public static String getFiscalYearAndQuarter(String strTicker, int curmonth,
+      int curyear) throws GenericException {
+    Integer nBeginFiscalYear=0;
+    Entity e = entityServiceStatic.loadEntityInfoByTicker(strTicker) ;
+    String strBeginFiscalYear = e.getBeginFiscalCalendar();
+    Calendar cal = Calendar.getInstance();
+    if (curmonth == -1) {
+      curmonth = cal.get(Calendar.MONTH) + 1;
+      curyear = cal.get(Calendar.YEAR);
     }
 
+    nBeginFiscalYear = convertMonthStringtoInt(strBeginFiscalYear);
 
+    Integer nCurFiscalQuarter, nCurFiscalYear;
+    if ((curmonth - nBeginFiscalYear)>=0) {
+      nCurFiscalQuarter = ((curmonth - nBeginFiscalYear) / 3) + 1;
+    } else {
+      nCurFiscalQuarter = ((12 + (curmonth - nBeginFiscalYear)) / 3) + 1;
+    }
 
+    // Boundary condition if begin fiscal year is january, fiscal year
+    // is always the same as the current year
+    if (nBeginFiscalYear == 1) {
+      nCurFiscalYear = curyear;
+    }
+    else if ((curmonth - nBeginFiscalYear) >= 0) {
+      nCurFiscalYear = curyear + 1;
+    }
+    else {
+      nCurFiscalYear = curyear;
+    }
 
+    String retval = Integer.toString(nCurFiscalQuarter) +
+        Integer.toString(nCurFiscalYear);
+    return(retval);
+  }
 }

@@ -39,7 +39,6 @@ public class EnhancedTable {
     this.strSection = inputSection;
     this.bDoneProcessing = false;
     this.j = inputJob;
-
   }
 
   public ArrayList<String[]> enhancedGetTable() throws DataAccessException,
@@ -60,11 +59,11 @@ public class EnhancedTable {
     }
     else {
       ApplicationSetting.getInstance().getStdoutwriter()
-          .writeln("Table type not found. Exiting.", Logs.ERROR, "DG26.5");
+          .writeln("Table type not found. Exiting.", Logs.ERROR, "ET20");
       throw new TagNotFoundException();
     }
 
-    Integer nFixedDataRows = currentExtractTable.getRowsOfData() != null 
+    Integer nFixedDataRows = currentExtractTable.getRowsOfData() != null
         ? currentExtractTable
         .getRowsOfData() : 0;
     Integer nRowInterval = currentExtractTable.getRowInterval();
@@ -74,7 +73,6 @@ public class EnhancedTable {
       this.bColTHTags = false;
 
     // seek to the top corner of the table
-
     String strTableCount = currentExtractTable.getTableCount();
     int nBeginTable, nEndTable;
 
@@ -83,8 +81,7 @@ public class EnhancedTable {
           strTableCount.indexOf(",")));
       nEndTable = Integer.parseInt(strTableCount.substring(
           strTableCount.indexOf(",") + 1, strTableCount.length()));
-    }
-    else {
+    } else {
       nBeginTable = nEndTable = Integer.parseInt(strTableCount);
     }
 
@@ -93,7 +90,8 @@ public class EnhancedTable {
       int nCurOffset = 0;
 
       ApplicationSetting.getInstance().getStdoutwriter()
-          .writeln("Searching table count: " + nCurTable, Logs.STATUS2, "DG27");
+          .writeln("Searching table count: " + nCurTable,
+              Logs.STATUS2, "ET21");
       nCurOffset = PikefinUtil.regexSeekLoop("(?i)(<TABLE[^>]*>)", nCurTable,
           nCurOffset, dg.returned_content);
 
@@ -116,21 +114,20 @@ public class EnhancedTable {
       while (!done) {
         rowdata = enhancedProcessRow(dg.returned_content.substring(nCurOffset,
             nEndRowOffset));
-        /*
-         * This check is for when end_data_marker indicates the end of the
-         * table.
-         */
+
+         // This check is for when end_data_marker indicates the end of the
+         // table.
         if (this.bDoneProcessing == true)
           break;
         tabledata.add(rowdata);
         nRowCount++;
-        /*
-         * First part of if clause is for data sets with predefined fixed number
-         * of rows.
-         */
+
+       // First part of if clause is for data sets with predefined
+       // fixed number of rows.
         if (nFixedDataRows > 0) {
-          if (nFixedDataRows == nRowCount)
+          if (nFixedDataRows == nRowCount) {
             break;
+          }
           try {
             nCurOffset = PikefinUtil.regexSeekLoop("(?i)(<tr[^>]*>)",
                 nRowInterval, nCurOffset, dg.returned_content);
@@ -144,11 +141,8 @@ public class EnhancedTable {
           if (nEndTableOffset < nCurOffset)
             throw new PrematureEndOfDataException();
 
-        }
-        /*
-         * else part is for data sets of an indeterminate size.
-         */
-        else {
+        } else {
+       // else part is for data sets of an indeterminate size.
           try {
             nCurOffset = PikefinUtil.regexSeekLoop("(?i)(<tr[^>]*>)",
                 nRowInterval, nCurOffset, dg.returned_content);
@@ -165,20 +159,17 @@ public class EnhancedTable {
           if (nEndTableOffset < nCurOffset)
             break;
         }
-
       }
-
     }
-
     return (tabledata);
   }
 
-  private String[] enhancedProcessRow(String strRow) 
+  private String[] enhancedProcessRow(String strRow)
       throws DataAccessException {
 
     String[] rowdata;
     ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("row: " + nRowCount, Logs.STATUS2, "DG28");
+        .writeln("row: " + nRowCount, Logs.STATUS2, "ET22");
     rowdata = new String[nNumOfColumns];
     int nRowOffset = 0;
 
@@ -188,36 +179,26 @@ public class EnhancedTable {
 
     try {
 
-      // for (int i = 0; i < nNumOfColumns; i++) {
       int i = 0;
       for (Column col : columns) {
-        // while ()
-
         ApplicationSetting.getInstance().getStdoutwriter()
-            .writeln("Column: " + col.getColCount(), Logs.STATUS2, "DG29");
+            .writeln("Column: " + col.getColCount(), Logs.STATUS2, "ET23");
 
-        if (bColTHTags == false)
-          /*
-           * nRowOffset = UtilityFunctions.regexSeekLoop("(?i)(<td[^>]*>)",
-           * rs.getInt("Column" + (i + 1)), nRowOffset,strRow);
-           */
+        if (bColTHTags == false) {
           nRowOffset = PikefinUtil.regexSeekLoop("(?i)(<td[^>]*>)",
               col.getColPosition(), nRowOffset, strRow);
-        else
+        } else {
           nRowOffset = PikefinUtil.regexSeekLoop("(?i)(<th[^>]*>)",
               col.getColPosition(), nRowOffset, strRow);
+        }
 
-        // String strBeforeUniqueCode = rs.getString("bef_code_col"
-        // + (i+1));
         strBeforeUniqueCodeRegex = "(?i)(" + col.getBefCode() + ")";
-        // String strAfterUniqueCode = rs.getString("aft_code_col" +
-        // (i+1));
         strAfterUniqueCodeRegex = "(?i)(" + col.getAftCode() + ")";
         try {
           strDataValue = PikefinUtil.regexSnipValue(strBeforeUniqueCodeRegex,
               strAfterUniqueCodeRegex, nRowOffset, strRow);
 
-          /* See below for exit conditions. */
+          // See below for exit conditions.
           if (strEndDataMarker != null && (strEndDataMarker.length() > 0))
             if (strDataValue.equals(strEndDataMarker)) {
               this.bDoneProcessing = true;
@@ -227,48 +208,41 @@ public class EnhancedTable {
           strDataValue = strDataValue.replace("\r", "");
           strDataValue = strDataValue.replace("\n", "");
           strDataValue = strDataValue.trim();
-          /*
-           * Going to strip out &nbsp; for all data streams, let's see if this
-           * is a problem.
-           */
+          // Going to strip out &nbsp; for all data streams, let's see if this
+          // is a problem.
+
           rowdata[i] = strDataValue.replace("&nbsp;", "");
           i++;
-        }
-        catch (CustomRegexException cre) {
+        } catch (CustomRegexException cre) {
           ApplicationSetting
               .getInstance()
               .getStdoutwriter()
               .writeln("Empty cell in table in url stream. Voiding cell.",
-                  Logs.STATUS2, "DG30");
+                  Logs.STATUS2, "ET24");
           rowdata[i] = "pikefinvoid";
-        }
-        catch (IllegalStateException ise) {
+        } catch (IllegalStateException ise) {
           ApplicationSetting
               .getInstance()
               .getStdoutwriter()
               .writeln(
-                  "Invalid or Irregularly formed table row, " + 
+                  "Invalid or Irregularly formed table row, " +
                   "inserting pikefinvoid.",
-                  Logs.WARN, "DG30.999");
+                  Logs.WARN, "ET25");
           rowdata[0] = "pikefinvoid";
-          /*
-           * We have to return a value so that the rowheaders synch up with the
-           * body
-           */
+
+          // We have to return a value so that the rowheaders synch up with the
+          // body
           return (rowdata);
         }
-
       }
-
       return (rowdata);
-    }
-    catch (TagNotFoundException tnfe) {
+    } catch (TagNotFoundException tnfe) {
       ApplicationSetting
           .getInstance()
           .getStdoutwriter()
           .writeln(
-              "Invalid or Irregularly formed table row, inserting pikefinvoid.",
-              Logs.WARN, "DG30.27");
+              "Invalid or Irregularly formed table row, inserting" +
+              " pikefinvoid.",Logs.WARN, "ET26");
       rowdata[0] = "pikefinvoid";
       return (rowdata);
     }

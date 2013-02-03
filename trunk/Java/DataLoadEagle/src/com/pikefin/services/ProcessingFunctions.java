@@ -1,4 +1,5 @@
 package com.pikefin.services;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -18,15 +19,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
 import pikefin.log4jWrapper.Logs;
-import twitter4j.internal.logging.Logger;
-
 import com.pikefin.ApplicationSetting;
 import com.pikefin.Constants;
 import com.pikefin.businessobjects.Entity;
@@ -40,8 +37,6 @@ import com.pikefin.services.inter.JobService;
 
 //@Service
 public class ProcessingFunctions {
-  private static final Logger logger =
-      Logger.getLogger(ProcessingFunctions.class);
   //@Autowired
   private JobService jobService=ApplicationSetting.getInstance()
       .getApplicationContext().getBean(JobService.class);
@@ -95,21 +90,21 @@ public class ProcessingFunctions {
 
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Pre Job Process Func Name: " + strFunctionName,
-            Logs.STATUS2,"PF3.2");
+            Logs.STATUS2,"PF4");
       if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0)) {
         ApplicationSetting.getInstance().getStdoutwriter()
           .writeln("No pre job process function, exiting...",
-              Logs.STATUS2,"PF3.3");
+              Logs.STATUS2,"PF5");
         return(true);
       }
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln(strFunctionName,Logs.STATUS2,"PF3.35");
+        .writeln(strFunctionName,Logs.STATUS2,"PF6");
       Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
       return((Boolean)m.invoke(this, new Object[] {}));
     }
     catch (Exception tmpE) {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("pre Job Processing method call failed",Logs.ERROR,"PF3.4");
+        .writeln("pre Job Processing method call failed",Logs.ERROR,"PF7");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(tmpE);
       return(false);
     }
@@ -120,21 +115,21 @@ public class ProcessingFunctions {
       String strFunctionName = j.getPostJobProcessFuncName();
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Post Job Process Func Name: " + strFunctionName,
-            Logs.STATUS2,"PF3.5");
+            Logs.STATUS2,"PF8");
       if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0)) {
         ApplicationSetting.getInstance().getStdoutwriter()
           .writeln("No post job process function, exiting...",
-              Logs.STATUS2,"PF3.7");
+              Logs.STATUS2,"PF9");
         return(true);
       }
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln(strFunctionName,Logs.STATUS2,"PF3.8");
+        .writeln(strFunctionName,Logs.STATUS2,"PF10");
       Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
       return((Boolean)m.invoke(this, new Object[] {}));
     }
     catch (Exception tmpE) {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("post Job Processing method call failed",Logs.ERROR,"PF3.9");
+        .writeln("post Job Processing method call failed",Logs.ERROR,"PF11");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(tmpE);
       return(false);
     }
@@ -145,11 +140,11 @@ public class ProcessingFunctions {
       String strFunctionName = j.getPreProcessFuncName();
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Pre Process Func Name: " + strFunctionName,
-            Logs.STATUS2,"PF4");
+            Logs.STATUS2,"PF12");
       this.strTicker = strTicker;
       if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0)) {
         ApplicationSetting.getInstance().getStdoutwriter()
-          .writeln("No pre process function, exiting...",Logs.STATUS2,"PF5");
+          .writeln("No pre process function, exiting...",Logs.STATUS2,"PF13");
         return(true);
       }
       // TODO need to check if these class properties are still being used.
@@ -158,13 +153,13 @@ public class ProcessingFunctions {
       strTemp2 = "";
       strTemp3 = "";
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln(strFunctionName,Logs.STATUS2,"PF6");
+        .writeln(strFunctionName,Logs.STATUS2,"PF14");
       Method m = this.getClass().getMethod(strFunctionName,new Class[] {});
       return((Boolean)m.invoke(this, new Object[] {}));
     }
     catch (Exception tmpE) {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("preProcessing method call failed",Logs.ERROR,"PF7");
+        .writeln("preProcessing method call failed",Logs.ERROR,"PF15");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(tmpE);
       return(false);
     }
@@ -181,10 +176,10 @@ public class ProcessingFunctions {
       String strFunctionName = inputJob.getPostProcessFuncName();
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Post Process Func Name: " +
-            strFunctionName,Logs.STATUS2,"PF8");
+            strFunctionName,Logs.STATUS2,"PF16");
       if ((strFunctionName == null) || (strFunctionName.compareTo("") == 0)) {
         ApplicationSetting.getInstance().getStdoutwriter()
-          .writeln("No post process function, exiting...",Logs.STATUS2,"PF9");
+          .writeln("No post process function, exiting...",Logs.STATUS2,"PF17");
         return(tabledata);
       }
       propTableData = tabledata;
@@ -197,7 +192,7 @@ public class ProcessingFunctions {
     // Need to break this down into individual exceptions.
     catch (IllegalAccessException iae) {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("postProcessing method call failed",Logs.ERROR,"PF16.1");
+        .writeln("postProcessing method call failed",Logs.ERROR,"PF18");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(iae);
 
     }
@@ -216,7 +211,7 @@ public class ProcessingFunctions {
       }
       else {
         ApplicationSetting.getInstance().getStdoutwriter()
-          .writeln("postProcessing method call failed",Logs.ERROR,"PF16.3");
+          .writeln("postProcessing method call failed",Logs.ERROR,"PF19");
         if (ite.getCause() != null) {
           ApplicationSetting.getInstance().getStdoutwriter()
             .writeln((Exception)ite.getCause());
@@ -225,12 +220,12 @@ public class ProcessingFunctions {
     }
     catch (NoSuchMethodException nsme) {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("postProcessing method call failed",Logs.ERROR,"PF16.5");
+        .writeln("postProcessing method call failed",Logs.ERROR,"PF20");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(nsme);
     }
     catch (DataAccessException tmpE) {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("postProcessing method call failed",Logs.ERROR,"PF17");
+        .writeln("postProcessing method call failed",Logs.ERROR,"PF21");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(tmpE);
     }
 
@@ -280,14 +275,14 @@ public class ProcessingFunctions {
       if ((nBeginMerge = strTmpValue.indexOf("</results>",nBeginMerge)) == -1) {
         //shouldn't get here
         ApplicationSetting.getInstance().getStdoutwriter()
-          .writeln("Issue merging XML data",Logs.ERROR,"PF998.5");
+          .writeln("Issue merging XML data",Logs.ERROR,"PF22");
         break;
       }
 
       if ((nEndMerge = strTmpValue.indexOf("<results>",nBeginMerge)) == -1) {
         //shouldn't get here
         ApplicationSetting.getInstance().getStdoutwriter()
-          .writeln("Issue merging XML data",Logs.ERROR,"PF998.6");
+          .writeln("Issue merging XML data",Logs.ERROR,"PF23");
         break;
       }
       nEndMerge += "<results>".length();
@@ -367,7 +362,7 @@ public class ProcessingFunctions {
     // TODO: Eventually throw these exceptions outside of the function.
     catch(ParserConfigurationException pce) {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("PostProcessing Exception",Logs.ERROR,"PF1001.1");
+        .writeln("PostProcessing Exception",Logs.ERROR,"PF24");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(pce);
     }
     catch(SAXException saxe) {
@@ -375,16 +370,17 @@ public class ProcessingFunctions {
       tmp[0]="Task:"+this.dg.getCurrentTask().getTaskId();
       tmp[1]="URL:"+this.dg.strStage2URL;
       tmp[2]=this.dg.returned_content;
-      if(logger.isDebugEnabled()){
-        logger.debug(tmp.toString());
+      if(ApplicationSetting.getInstance().isDebugMode()) {
+        ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln(tmp.toString(), Logs.STATUS1,"DLS25");
       }
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("PostProcessing Exception",Logs.ERROR,"PF1001.2");
+        .writeln("PostProcessing Exception",Logs.ERROR,"PF26");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(saxe);
     }
     catch(IOException ioe) {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("PostProcessing Exception",Logs.ERROR,"PF1001.3");
+        .writeln("PostProcessing Exception",Logs.ERROR,"PF27");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(ioe);
     }
 
@@ -399,7 +395,7 @@ public class ProcessingFunctions {
       if (curQuote.price.equals("0.00")) {
         ApplicationSetting.getInstance().getStdoutwriter()
           .writeln("Zero value returned for ticker " + curQuote.symbol +
-              ",skipping",Logs.WARN,"PF50.87");
+              ",skipping",Logs.WARN,"PF28");
         continue;
       }
       rowdata[0] = curQuote.price;
@@ -431,8 +427,9 @@ public class ProcessingFunctions {
       DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
       formatter.setTimeZone(TimeZone.getTimeZone("America/Phoenix"));
       Calendar currentCal = Calendar.getInstance();
-      DateFormat formatter2 = new SimpleDateFormat("M/d/yyyy");
 
+      // TODO: Put in some kind of debug flag mechanism. I don't think I
+      // want to use the global debug property however.
       // Only perform this check for task 10.
       /*if (dg.getCurrentTask().getTaskId().equals(10)) {
         if (!formatter2.format(currentCal.getTime())
@@ -469,7 +466,7 @@ public class ProcessingFunctions {
       catch (GenericException sqle) {
         ApplicationSetting.getInstance().getStdoutwriter()
           .writeln("Issue looking up ticker " + curQuote.symbol +
-              ",skipping",Logs.ERROR,"PF50");
+              ",skipping",Logs.ERROR,"PF29");
         ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
         continue;
       }
@@ -513,7 +510,7 @@ public class ProcessingFunctions {
     if (matcher.find()) {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Bloomberg Quote found no match for ticker "
-            + dg.strCurrentTicker + ", skipping", Logs.WARN, "PF23.8");
+            + dg.strCurrentTicker + ", skipping", Logs.WARN, "PF30");
 
       String[] tmp = new String[3];
       tmp[0] = "Task:" + this.dg.getCurrentTask();
@@ -525,7 +522,7 @@ public class ProcessingFunctions {
     else if (!matcher2.find()) {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Bloomberg Quote returned a blank quote for ticker "
-            + dg.strCurrentTicker + ", skipping", Logs.WARN, "PF23.85");
+            + dg.strCurrentTicker + ", skipping", Logs.WARN, "PF31");
       return true;
     }
     return (false);
@@ -568,7 +565,7 @@ public class ProcessingFunctions {
       catch (GenericException sqle) {
         ApplicationSetting.getInstance().getStdoutwriter()
           .writeln("Problem looking up ticker: "
-              + tmp + ",row skipped",Logs.WARN,"PF99.55");
+              + tmp + ",row skipped",Logs.WARN,"PF32");
       }
     }
     newTableData.add(0, tmpArray);
@@ -639,8 +636,10 @@ public class ProcessingFunctions {
           strQEndMonth.substring(0,3).equalsIgnoreCase("Jun") ||
           strQEndMonth.substring(0,3).equalsIgnoreCase("Sep") ||
           strQEndMonth.substring(0,3).equalsIgnoreCase("Dec"))) {
-        System.out.println("begin_fiscal_calendar and quote.yahoo" +
-            " mismatch for ticker " + strTicker);
+        ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln("begin_fiscal_calendar and quote.yahoo" +
+            " mismatch for ticker " + strTicker,
+            Logs.ERROR,"PF32");
         fullfilewriter.write(strTicker + "\n");
       }
       break;
@@ -652,8 +651,10 @@ public class ProcessingFunctions {
           strQEndMonth.substring(0,3).equalsIgnoreCase("Jul") ||
           strQEndMonth.substring(0,3).equalsIgnoreCase("Oct") ||
           strQEndMonth.substring(0,3).equalsIgnoreCase("Jan"))) {
-        System.out.println("begin_fiscal_calendar and quote.yahoo" +
-            " mismatch for ticker " + strTicker);
+        ApplicationSetting.getInstance().getStdoutwriter()
+        .writeln("begin_fiscal_calendar and quote.yahoo" +
+            " mismatch for ticker " + strTicker,
+            Logs.ERROR,"PF33");
         fullfilewriter.write(strTicker + "\n");
       }
       break;
@@ -712,7 +713,7 @@ public class ProcessingFunctions {
       catch (GenericException sqle) {
         ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Problem looking up ticker: "
-            + strTmp + ",row skipped",Logs.WARN,"PF99.55");
+            + strTmp + ",row skipped",Logs.WARN,"PF34");
       }
     }
     propTableData = newTableData;
@@ -747,7 +748,7 @@ public class ProcessingFunctions {
       if (!colheaders[0].toUpperCase().equals("THIS QUARTER")) {
         ApplicationSetting.getInstance().getStdoutwriter()
           .writeln("Invalid column header format for entity_id " +
-              dg.nCurrentEntityId,Logs.STATUS2,"PF46");
+              dg.nCurrentEntityId,Logs.STATUS2,"PF35");
         throw new SkipLoadException();
       }
     }else {
@@ -816,7 +817,7 @@ public class ProcessingFunctions {
   public boolean preNDCNasdaqEPSEst()	{
     String strRegex = "(?i)(No Data Available)";
     ApplicationSetting.getInstance().getStdoutwriter()
-      .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46");
+      .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF36");
     Pattern pattern = Pattern.compile(strRegex);
     Matcher matcher = pattern.matcher(dg.returned_content);
 
@@ -827,18 +828,18 @@ public class ProcessingFunctions {
     if (matcher.find() || matcher2.find()) {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Nasdaq no data avialable for ticker "
-            + dg.strCurrentTicker, Logs.WARN,"PF21.38");
+            + dg.strCurrentTicker, Logs.WARN,"PF37");
       return(true);
     }
     strRegex = "(?i)(feature currently is unavailable)";
     ApplicationSetting.getInstance().getStdoutwriter()
-      .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46.5");
+      .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF38");
     pattern = Pattern.compile(strRegex);
     matcher = pattern.matcher(dg.returned_content);
     if (matcher.find()) {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Nasdaq message feature currently unavailable for ticker "
-            + dg.strCurrentTicker, Logs.WARN,"PF21.40");
+            + dg.strCurrentTicker, Logs.WARN,"PF39");
       return true;
     }
     return false;
@@ -861,12 +862,12 @@ public class ProcessingFunctions {
       if (rowdata[0].equals("pikefinvoid")) {
         ApplicationSetting.getInstance().getStdoutwriter()
           .writeln("Invalid data format for "
-              + ticker + ". Skipping.",Logs.WARN,"PF2.75");
+              + ticker + ". Skipping.",Logs.WARN,"PF40");
         continue;
       }
       else if (rowdata[0].contains("N.A."))  {
         ApplicationSetting.getInstance().getStdoutwriter()
-          .writeln("N.A. value for ticker " + ticker,Logs.WARN,"PF2.75");
+          .writeln("N.A. value for ticker " + ticker,Logs.WARN,"PF41");
         continue;
       }
       try {
@@ -877,7 +878,7 @@ public class ProcessingFunctions {
       }catch (GenericException sqle) {
         ApplicationSetting.getInstance().getStdoutwriter()
           .writeln("Problem looking up ticker alias: "
-              + ticker + ",row skipped",Logs.WARN,"PF42.51");
+              + ticker + ",row skipped",Logs.WARN,"PF42");
         // Don't log the full exception here since this is just a warning.
       }
     }
@@ -921,7 +922,7 @@ public class ProcessingFunctions {
               || (rowdata[col].isEmpty() == true)) {
             ApplicationSetting.getInstance().getStdoutwriter()
               .writeln("N/A value or empty value, skipping...",
-                  Logs.STATUS2,"PF39");
+                  Logs.STATUS2,"PF43");
             continue;
           }
           else if (rowdata[col].contains("(") == true) {
@@ -929,7 +930,7 @@ public class ProcessingFunctions {
           }
           else {
             ApplicationSetting.getInstance().getStdoutwriter()
-              .writeln("Problem with data value formatting",Logs.ERROR,"PF40");
+              .writeln("Problem with data value formatting",Logs.ERROR,"PF44");
           }
 
           newrow[1] = "NOW()";
@@ -1030,7 +1031,7 @@ public class ProcessingFunctions {
     }catch(Exception e){
       ApplicationSetting.getInstance().getStdoutwriter()
       .writeln(" Error in processing data--"
-          + dg.strCurrentTicker, Logs.ERROR,"PF82.23");
+          + dg.strCurrentTicker, Logs.ERROR,"PF45");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(e);
     }
   }
@@ -1080,7 +1081,7 @@ public class ProcessingFunctions {
     }
     catch (GenericException sqle) {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("Problem processing table data",Logs.ERROR,"PF43");
+        .writeln("Problem processing table data",Logs.ERROR,"PF46");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
     }
   }
@@ -1112,7 +1113,7 @@ public class ProcessingFunctions {
       catch (GenericException exception) {
         ApplicationSetting.getInstance().getStdoutwriter()
           .writeln("Problem looking up ticker alias: " + tmp +
-              ",row skipped", Logs.WARN, "PF99.63");
+              ",row skipped", Logs.WARN, "PF47");
         continue;
       }
       newTableData.add(newrow);
@@ -1226,7 +1227,7 @@ public class ProcessingFunctions {
         // This is not a fatal error so we won't display the full exception.
         ApplicationSetting.getInstance().getStdoutwriter()
           .writeln("Problem looking up country: " + strCountry
-              + ",row skipped", Logs.ERROR, "PF99.25");
+              + ",row skipped", Logs.ERROR, "PF48");
         continue;
       }
       newTableData.add(newrow);
@@ -1265,7 +1266,7 @@ public class ProcessingFunctions {
         catch (GenericException sqle) {
           ApplicationSetting.getInstance().getStdoutwriter()
             .writeln("Problem converting to Gallons and Dollars, Country " +
-                strCountry + " skipped",Logs.WARN,"PF200.25");
+                strCountry + " skipped",Logs.WARN,"PF49");
           continue;
         }
       }
@@ -1279,7 +1280,7 @@ public class ProcessingFunctions {
         // This is not a fatal error so we won't display the full exception.
         ApplicationSetting.getInstance().getStdoutwriter()
             .writeln("Problem looking up country: " + strCountry +
-                ",row skipped",Logs.ERROR, "PF300.25");
+                ",row skipped",Logs.ERROR, "PF50");
         continue;
       }
       newTableData.add(newrow);
@@ -1359,7 +1360,7 @@ public class ProcessingFunctions {
       catch (GenericException sqle) {
         ApplicationSetting.getInstance().getStdoutwriter()
             .writeln("Problem looking up country name or alias: " + strCountry
-                    + ",row skipped", Logs.ERROR, "PF200.25");
+                    + ",row skipped", Logs.ERROR, "PF51");
         continue;
       }
 
@@ -1377,14 +1378,14 @@ public class ProcessingFunctions {
       catch (NumberFormatException nfe) {
         ApplicationSetting.getInstance().getStdoutwriter()
             .writeln("Number format exception for gas price for country "
-                    + strCountry + ",row skipped", Logs.WARN, "PF208.36");
+                    + strCountry + ",row skipped", Logs.WARN, "PF52");
         continue;
       }
       catch (GenericException sqle) {
         ApplicationSetting.getInstance().getStdoutwriter()
             .writeln("Problem converting to gallons and dollars for "
                     + "currency cross: USD" + tokens[2] + ",row skipped",
-                Logs.WARN, "PF200.25");
+                Logs.WARN, "PF53");
         continue;
       }
       newTableData.add(newrow);
@@ -1430,7 +1431,7 @@ public void postProcessBloombergCommoditiesV2() {
     catch (GenericException sqle) {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Problem looking up ticker alias: " + tmp +
-            ",row skipped",Logs.WARN,"PF99.754");
+            ",row skipped",Logs.WARN,"PF54");
       continue;
     }
 
@@ -1481,7 +1482,7 @@ public void postProcessBloombergCommoditiesV2() {
       }
       catch (SQLException sqle) {
         UtilityFunctions.stdoutwriter.writeln("Problem looking up ticker: "
-          + strTicker  + ",row skipped",Logs.WARN,"PF43.51");
+          + strTicker  + ",row skipped",Logs.WARN,"PF55");
         continue;
       }
 
@@ -1525,7 +1526,7 @@ public void postProcessBloombergCommoditiesV2() {
   catch (GenericException sqle)
   {
     ApplicationSetting.getInstance().getStdoutwriter()
-      .writeln("Problem with custom insert",Logs.ERROR,"PF55.52");
+      .writeln("Problem with custom insert",Logs.ERROR,"PF56");
     ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
   }
 
@@ -1547,7 +1548,7 @@ public void postProcessBloombergCommoditiesV2() {
   catch (SQLException sqle)
   {
     ApplicationSetting.getInstance().getStdoutwriter()
-      .writeln("Problem with custom insert",Logs.ERROR,"PF55.5");
+      .writeln("Problem with custom insert",Logs.ERROR,"PF57");
     ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
   }
 
@@ -1565,7 +1566,7 @@ public void postProcessBloombergCommoditiesV2() {
   catch (SQLException sqle)
   {
     ApplicationSetting.getInstance().getStdoutwriter()
-      .writeln("Problem with custom insert",Logs.ERROR,"PF55.6");
+      .writeln("Problem with custom insert",Logs.ERROR,"PF58");
     ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
   }
 
@@ -1628,7 +1629,7 @@ public void postProcessTableXrateorg()
     {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Problem looking up ticker: " + strTmp + ",row skipped",
-          Logs.WARN,"PF42.5");
+          Logs.WARN,"PF59");
 
 
        * This is not a fatal error so we won't display the full exception.
@@ -1692,7 +1693,7 @@ public void postProcessDescriptionXrateorg()
     {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Failed to insert ticker " + ticker + " into entities table",
-        Logs.STATUS2,"PF43.49");
+        Logs.STATUS2,"PF60");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
     }
 
@@ -1732,7 +1733,7 @@ public void postProcessTableYahooEPSAct()
         {
           ApplicationSetting.getInstance().getStdoutwriter()
             .writeln("N/A value or empty value, skipping...",
-            Logs.STATUS2,"PF43.5");
+            Logs.STATUS2,"PF61");
           continue;
         }
 
@@ -1829,7 +1830,7 @@ public void postProcessTableYahooEPSEst()
         if (rowdata[col].equals("N/A")) {
           ApplicationSetting.getInstance().getStdoutwriter()
             .writeln("N/A value or empty value, skipping...",
-              Logs.STATUS2,"PF43.5");
+              Logs.STATUS2,"PF62");
           continue;
         }
 
@@ -1953,7 +1954,7 @@ public void postProcessIMFGdpPPPActual() throws SQLException {
     if (rowdata[0].equals("n/a")) {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Retrieved n/a value, skipping processing for entity " +
-        strCountry,Logs.WARN,"PF44");
+        strCountry,Logs.WARN,"PF63");
       continue;
     }
 
@@ -2025,7 +2026,7 @@ public void postProcessImfGdp() throws SQLException {
     if (newrow[0].contains("n/a"))		{
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Retrieved n/a value, skipping processing for entity " +
-        strCountry,Logs.WARN,"PF44");
+        strCountry,Logs.WARN,"PF64");
       continue;
     }
 
@@ -2067,7 +2068,7 @@ public void postProcessImfGdp() throws SQLException {
     else {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Task id not found, should not have reached this point " +
-        "in the code. Terminating processing of task.",Logs.ERROR,"PF44.32");
+        "in the code. Terminating processing of task.",Logs.ERROR,"PF65");
       return;
     }
 
@@ -2114,7 +2115,7 @@ public void postProcessImfGdp() throws SQLException {
     {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Problem looking up country: " + strCountry + ",row skipped",
-        Logs.ERROR,"PF43.55");
+        Logs.ERROR,"PF66");
       continue;
 
        * This is not a fatal error so we won't display the full exception.
@@ -2200,7 +2201,7 @@ public void postProcessYahooEPSEst()
   if (strDataValue.equals("N/A"))
   {
     ApplicationSetting.getInstance().getStdoutwriter()
-      .writeln("Retrieved N/A value, skipping",Logs.ERROR,"PF44");
+      .writeln("Retrieved N/A value, skipping",Logs.ERROR,"PF67");
     throw (new CustomEmptyStringException());
   }
 
@@ -2424,7 +2425,7 @@ public void postProcessSECBeginCalendarYear()
   else
     ApplicationSetting.getInstance().getStdoutwriter()
     .writeln("Problem converting month to begin calendar year month",
-      Logs.ERROR,"PF44.5");
+      Logs.ERROR,"PF68");
 
 
 
@@ -2645,7 +2646,7 @@ public void postProcessGoogleEPSTable() throws SQLException {
   public boolean preNDCYahooEPSEst() {
     String strRegex = "(?i)(There is no Analyst Estimates)";
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF45");
+        .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF69");
 
 
       Pattern pattern = Pattern.compile(strRegex);
@@ -2660,7 +2661,7 @@ public void postProcessGoogleEPSTable() throws SQLException {
 
     String strRegex = "(?i)(No Data Available)";
     ApplicationSetting.getInstance().getStdoutwriter()
-      .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46");
+      .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF70");
 
 
     Pattern pattern = Pattern.compile(strRegex);
@@ -2678,13 +2679,13 @@ public void postProcessGoogleEPSTable() throws SQLException {
     if (matcher.find() || matcher2.find()) {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Nasdaq no data avialable for ticker " + dg.strCurrentTicker,
-        Logs.WARN,"PF21.38");
+        Logs.WARN,"PF71");
       return(true);
     }
 
     strRegex = "(?i)(feature currently is unavailable)";
     ApplicationSetting.getInstance().getStdoutwriter()
-      .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF46.5");
+      .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF72");
 
 
     pattern = Pattern.compile(strRegex);
@@ -2694,7 +2695,7 @@ public void postProcessGoogleEPSTable() throws SQLException {
     if (matcher.find()) {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Nasdaq message feature currently unavailable for ticker "
-        + dg.strCurrentTicker, Logs.WARN,"PF21.40");
+        + dg.strCurrentTicker, Logs.WARN,"PF73");
       return true;
     }
 
@@ -2711,7 +2712,7 @@ public void postProcessGoogleEPSTable() throws SQLException {
   {
     String strRegex = "(?i)(This feature currently is unavailable)";
     ApplicationSetting.getInstance().getStdoutwriter()
-      .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF47");
+      .writeln("NDC regex: " + strRegex,Logs.STATUS2,"PF74");
 
     Pattern pattern = Pattern.compile(strRegex);
 

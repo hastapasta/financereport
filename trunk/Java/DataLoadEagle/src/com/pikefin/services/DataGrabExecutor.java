@@ -30,7 +30,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
-import org.apache.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFText2HTML;
 import org.apache.pdfbox.util.PDFTextStripper;
@@ -63,7 +62,6 @@ import com.pikefin.services.inter.FactDataService;
 import com.pikefin.services.inter.JobService;
 
 public class DataGrabExecutor extends Thread {
-  Logger log=Logger.getLogger(DataGrabExecutor.class);
   //@Autowired
   private BatchService batchService = ApplicationSetting.getInstance()
       .getApplicationContext().getBean(BatchService.class);
@@ -152,7 +150,7 @@ public class DataGrabExecutor extends Thread {
     catch (GenericException sqle) {
       ApplicationSetting.getInstance().getStdoutwriter()
       .writeln("Problem retreiving list of jobs. Aborting task.",
-          Logs.ERROR,"DG12.5");
+          Logs.ERROR,"DGE12.5");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
       return;
     }
@@ -246,28 +244,28 @@ public class DataGrabExecutor extends Thread {
       .wrapperNDCPush("[Task:" + this.currentTask.getTaskId() + "]");
     ApplicationSetting.getInstance().getStdoutwriter()
       .writeln("=========================================================",
-        Logs.STATUS1, "");
+        Logs.STATUS1, "DGE13.5");
     ApplicationSetting.getInstance().getStdoutwriter()
       .writeln("PROCESSING TASK " + this.getCurrentTask().getTaskId(),
-        Logs.STATUS1, "DG37");
+        Logs.STATUS1, "DGE14");
     if (bContinue == false) {
       ApplicationSetting.getInstance().getStdoutwriter().wrapperNDCPop();
       return;
     }
     if (this.verifyMode == true) {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("SCHEDULE RUNNING IN VERIFY MODE!", Logs.STATUS1,
-          "DG38.95");
+        .writeln("SCHEDULE RUNNING IN VERIFY MODE!",
+          Logs.STATUS1, "DGE15");
       ApplicationSetting.getInstance().getStdoutwriter()
         .wrapperNDCPush("[Verify Mode]");
     }
 
     ApplicationSetting.getInstance().getStdoutwriter()
       .writeln("JOB PROCESSING START TIME: "
-        + calJobProcessingStart.getTime().toString(), Logs.STATUS1,
-        "DG39");
-    ApplicationSetting.getInstance().getStdoutwriter().writeln("INITIATING THREAD",
-        Logs.STATUS1, "DG1");
+        + calJobProcessingStart.getTime().toString(),
+        Logs.STATUS1,"DGE16");
+    ApplicationSetting.getInstance().getStdoutwriter()
+      .writeln("INITIATING THREAD", Logs.STATUS1, "DGE17");
 
     Set<Job> tmpJobs = currentTask.getJobs();
     for (Job j : tmpJobs) {
@@ -278,23 +276,23 @@ public class DataGrabExecutor extends Thread {
     calJobProcessingEnd = Calendar.getInstance();
     ApplicationSetting.getInstance().getStdoutwriter()
       .writeln("JOB PROCESSING END TIME: "
-        + calJobProcessingEnd.getTime().toString(), Logs.STATUS1,
-        "DG38.15");
+        + calJobProcessingEnd.getTime().toString(),
+        Logs.STATUS1, "DGE18");
     if (ApplicationSetting.getInstance().isLoadHistoricalData() == true)
       ApplicationSetting.getInstance().getStdoutwriter().wrapperNDCPop();
 
     if (this.verifyMode == true)
       ApplicationSetting.getInstance().getStdoutwriter().wrapperNDCPop();
 
-    // Don't process alerts if loading historical data or in verfiy mode where we just
-    // verify the data collection process.
+    // Don't process alerts if loading historical data or in verfiy mode
+    // where we just verify the data collection process.
     if (ApplicationSetting.getInstance()
         .isLoadHistoricalData() == false && this.verifyMode == false) {
       calAlertProcessingStart = Calendar.getInstance();
       ApplicationSetting.getInstance().getStdoutwriter().writeln(
           "ALERT PROCESSING START TIME: "
               + calAlertProcessingStart.getTime().toString(),
-              Logs.STATUS1, "DG38.25");
+              Logs.STATUS1, "DGE19");
 
       try {
         if (this.verifyMode != true){
@@ -303,14 +301,14 @@ public class DataGrabExecutor extends Thread {
       }
       catch (GenericException pe) {
         ApplicationSetting.getInstance().getStdoutwriter()
-          .writeln("Problem processing alerts.", Logs.ERROR, "DG11.558");
+          .writeln("Problem processing alerts.", Logs.ERROR, "DGE20");
         ApplicationSetting.getInstance().getStdoutwriter().writeln(pe);
       }
       calAlertProcessingEnd = Calendar.getInstance();
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("ALERT PROCESSING END TIME: "
-          + calAlertProcessingEnd.getTime().toString(), Logs.STATUS1,
-          "DG54");
+          + calAlertProcessingEnd.getTime().toString(),
+          Logs.STATUS1, "DGE21");
     }
     ApplicationSetting.getInstance().getStdoutwriter().wrapperNDCPop();
   }
@@ -348,37 +346,37 @@ public class DataGrabExecutor extends Thread {
           + strInitialOpenUniqueCode + ")";
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Initial Open Regex: "
-          + strInitialOpenUniqueRegex, Logs.STATUS2, "DG14");
+          + strInitialOpenUniqueRegex, Logs.STATUS2, "DGE22");
       pattern = Pattern.compile(strInitialOpenUniqueRegex);
       matcher = pattern.matcher(returned_content);
       matcher.find();
       nCurOffset = matcher.start();
       ApplicationSetting.getInstance().getStdoutwriter().writeln(
           "Offset after initial regex search: " + nCurOffset,
-          Logs.STATUS2, "DG15");
+          Logs.STATUS2, "DGE23");
     }
 
     // End initial regex search.
     ApplicationSetting.getInstance().getStdoutwriter()
       .writeln("Before table searches.",
-        Logs.STATUS2, "DG16");
+        Logs.STATUS2, "DGE24");
     nCurOffset = PikefinUtil.regexSeekLoop("(?i)(<TABLE[^>]*>)", tables,
         nCurOffset,returned_content);
 
     ApplicationSetting.getInstance().getStdoutwriter()
       .writeln("Before table row searches.",
-        Logs.STATUS2, "DG17");
+        Logs.STATUS2, "DGE25");
     nCurOffset = PikefinUtil.regexSeekLoop("(?i)(<tr[^>]*>)",
         rows, nCurOffset,returned_content);
 
     ApplicationSetting.getInstance().getStdoutwriter()
-      .writeln("Before table cell searches.", Logs.STATUS2, "DG18");
+      .writeln("Before table cell searches.", Logs.STATUS2, "DGE26");
     nCurOffset = PikefinUtil.regexSeekLoop("(?i)(<td[^>]*>)",
         cells, nCurOffset,returned_content);
 
     ApplicationSetting.getInstance().getStdoutwriter()
       .writeln("Before div searches",
-        Logs.STATUS2, "DG19");
+        Logs.STATUS2, "DGE27");
     nCurOffset = PikefinUtil.regexSeekLoop("(?i)(<div[^>]*>)", divs,
         nCurOffset,returned_content);
 
@@ -398,10 +396,10 @@ public class DataGrabExecutor extends Thread {
 
     if (strDataValue.compareTo("") != 0) {
       ApplicationSetting.getInstance().getStdoutwriter().writeln(
-          "checking for negative data value", Logs.STATUS2, "DG20");
+          "checking for negative data value", Logs.STATUS2, "DGE28");
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln(strDataValue.substring(0, 1),
-          Logs.STATUS2, "DG21");
+          Logs.STATUS2, "DGE29");
       if (strDataValue.substring(0, 1).compareTo("(") == 0) {
         strDataValue = strDataValue.replace("(", "");
         strDataValue = "-" + strDataValue.replace(")", "");
@@ -410,7 +408,7 @@ public class DataGrabExecutor extends Thread {
 
     ApplicationSetting.getInstance().getStdoutwriter()
       .writeln("Data Value: " + strDataValue,
-        Logs.STATUS2, "DG24");
+        Logs.STATUS2, "DGE30");
 
     return (strDataValue);
   }
@@ -450,14 +448,15 @@ public class DataGrabExecutor extends Thread {
   @SuppressWarnings("deprecation")
   private void defaultURLProcessing(String strDataSet)
       throws DataAccessException, MalformedURLException, IOException,
-      IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+      IllegalAccessException, InvocationTargetException,
+      NoSuchMethodException {
 
     calJobProcessingStage1Start = Calendar.getInstance();
     HttpClient httpclient = new DefaultHttpClient();
     HttpResponse response;
 
     if (currentJob.getInputSource() == null) {
-      // TODO Commenting the below code because it will trough
+      // TODO Commenting the below code because it will throw
       // the Null pointer exception since inputSource is already null and we
       // can't get the getFormStaticProperties from null
       // String strStProperties = currentJob.getInputSource()
@@ -465,10 +464,6 @@ public class DataGrabExecutor extends Thread {
       // String[] listItems = strStProperties.split(":");
       // for (int i = 0; i < listItems.length; i++) {
       // }
-
-      // ApplicationSetting.getInstance().getStdoutwriter().writeln(
-      //		"Retrieving URL Form: " + currentJob.getInputSource().getUrlForm(),
-      //		Logs.STATUS2, "DG24.5");*/
 
       HttpPost httppost = new HttpPost(
           Constants.Urls.SURVEY_MOST_URL);
@@ -491,18 +486,18 @@ public class DataGrabExecutor extends Thread {
       response = httpclient.execute(httppost);
       ApplicationSetting.getInstance().getStdoutwriter().writeln(
           "START LOADING URL  -"+Constants.Urls.SURVEY_MOST_URL,
-          Logs.STATUS2, "DG24.59");
+          Logs.STATUS2, "DGE32");
     }
     else {
       this.strStage2URL = this.strStage1URL.replace("${ticker}",
           this.strCurrentTicker);
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("Retrieving URL: " + this.strStage2URL,Logs.STATUS2, "DG25");
+        .writeln("Retrieving URL: " + this.strStage2URL,Logs.STATUS2, "DGE31");
 
       if (!this.strStage2URL.contains(":")) {
         ApplicationSetting.getInstance().getStdoutwriter().writeln(
             "WARNING: url is not preceeded with a protocol"
-                + this.strStage2URL, Logs.STATUS1, "DG25.5");
+                + this.strStage2URL, Logs.STATUS1, "DGE33");
       }
 
       // HttpGet chokes on the ^ character
@@ -512,7 +507,7 @@ public class DataGrabExecutor extends Thread {
       HttpGet httpget = new HttpGet(this.strStage2URL);
       ApplicationSetting.getInstance().getStdoutwriter().writeln(
           "START LOADING URL  -" + this.strStage2URL,
-          Logs.STATUS2, "DG24.59");
+          Logs.STATUS2, "DGE34");
 
       // Emulate a browser.
       httpget.getParams().setParameter(Constants
@@ -572,18 +567,18 @@ public class DataGrabExecutor extends Thread {
       catch (SocketException se) {
         if (!(this.currentTaskId == 6 || this.currentTaskId == 28)) {
           ApplicationSetting.getInstance().getStdoutwriter().writeln(
-              "Issue with URL connection.", Logs.ERROR, "DG42.1");
+              "Issue with URL connection.", Logs.ERROR, "DGE35");
           ApplicationSetting.getInstance().getStdoutwriter().writeln(se);
           bDone = true;
         }
         else {
           ApplicationSetting.getInstance().getStdoutwriter().writeln(
-              "Issue with URL connection.", Logs.WARN, "DG42.3");
+              "Issue with URL connection.", Logs.WARN, "DGE36");
           ApplicationSetting.getInstance().getStdoutwriter()
-            .writeln(se.getMessage(), Logs.WARN, "DG42.4");
+            .writeln(se.getMessage(), Logs.WARN, "DGE37");
           ApplicationSetting.getInstance().getStdoutwriter()
               .writeln("Processing one of the bloomberg tasks," +
-                  " resubmitting URL", Logs.WARN, "DG42.2");
+                  " resubmitting URL", Logs.WARN, "DGE38");
           sb = new StringBuilder();
         }
       }
@@ -594,12 +589,13 @@ public class DataGrabExecutor extends Thread {
     calJobProcessingStage2End = Calendar.getInstance();
     httpclient.getConnectionManager().shutdown();
     ApplicationSetting.getInstance().getStdoutwriter()
-      .writeln("Done reading url contents",	Logs.STATUS2, "DG26");
+      .writeln("Done reading url contents",	Logs.STATUS2, "DGE39");
   }
 
   private void getUrl(String strDataSet)
       throws DataAccessException, MalformedURLException, IOException,
-      IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+      IllegalAccessException, InvocationTargetException,
+      NoSuchMethodException {
     String strCustomURLFuncName = currentJob.getCustomUrlFuncName();
     if (strCustomURLFuncName == null || strCustomURLFuncName.isEmpty()) {
       defaultURLProcessing(strDataSet);
@@ -607,7 +603,9 @@ public class DataGrabExecutor extends Thread {
       Class[] args1 = new Class[1];
       args1[0] = String.class;
       Method m = this.getClass().getMethod(strCustomURLFuncName, args1);
-      log.debug("INVOKING METHOD-"+strCustomURLFuncName +" FROM GETURL ");
+      ApplicationSetting.getInstance().getStdoutwriter()
+      .writeln("INVOKING METHOD-"+strCustomURLFuncName +" FROM GETURL ",
+          Logs.STATUS1,"DLS1");
       m.invoke(this, strDataSet);
     }
   }
@@ -625,7 +623,7 @@ public class DataGrabExecutor extends Thread {
       strCurDataSet = currentJob.getDataSet();
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("====> PROCESSING JOB:" + strCurDataSet,
-            Logs.STATUS1, "DG1.55");
+            Logs.STATUS1, "DGE40");
       bTableExtraction = currentJob.isTableExtraction();
 
       pf.preJobProcessing(currentJob);
@@ -647,20 +645,20 @@ public class DataGrabExecutor extends Thread {
           catch (MalformedURLException mue) {
             ApplicationSetting.getInstance().getStdoutwriter().writeln(
                 "Badly formed url, processing dataset aborted",
-                Logs.ERROR, "DG38.1");
+                Logs.ERROR, "DGE41");
             ApplicationSetting.getInstance().getStdoutwriter().writeln(mue);
           }
           catch (DataAccessException sqle) {
             ApplicationSetting.getInstance().getStdoutwriter()
             .writeln(
                 "Problem issuing sql statement, processing dataset aborted",
-                Logs.ERROR, "DG38.2");
+                Logs.ERROR, "DGE42");
             ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
           }
           catch (IOException ioe) {
             ApplicationSetting.getInstance().getStdoutwriter().writeln(
                 "Problem with I/O, processing dataset aborted",
-                Logs.ERROR, "DG38.3");
+                Logs.ERROR, "DGE43");
             ApplicationSetting.getInstance().getStdoutwriter().writeln(ioe);
           }
           catch (PrematureEndOfDataException peode) {
@@ -668,12 +666,11 @@ public class DataGrabExecutor extends Thread {
             .writeln(
                 "A fixed number of rows were defined for the data set but " +
                 "the end of the table or the end of the document was" +
-                " reached first.",Logs.ERROR, "DG38.35");
+                " reached first.",Logs.ERROR, "DGE44");
             ApplicationSetting.getInstance().getStdoutwriter().writeln(peode);
-          }
-          catch (Exception e) {
+          } catch (Exception e) {
             ApplicationSetting.getInstance().getStdoutwriter().writeln(
-                "Processing dataset aborted", Logs.ERROR, "DG38.4");
+                "Processing dataset aborted", Logs.ERROR, "DGE45");
             ApplicationSetting.getInstance().getStdoutwriter().writeln(e);
           }
         }
@@ -688,7 +685,7 @@ public class DataGrabExecutor extends Thread {
           if (pf.preNoDataCheck(strCurDataSet) == true) {
             ApplicationSetting.getInstance().getStdoutwriter().writeln(
                 "URL contains no data, skipping ticker",
-                Logs.STATUS1, "DG46");
+                Logs.STATUS1, "DGE46");
             return;
           }
 
@@ -697,7 +694,7 @@ public class DataGrabExecutor extends Thread {
           if (strDataValue.compareTo("") == 0) {
             ApplicationSetting.getInstance().getStdoutwriter().writeln(
                 "Returned empty value '', skipping ",
-                Logs.STATUS2, "DG47");
+                Logs.STATUS2, "DGE47");
             return;
           }
 
@@ -721,12 +718,13 @@ public class DataGrabExecutor extends Thread {
         String strDataValue = "";
         for (Entity entity : entitiesList) {
           try {
-            this.strOriginalTicker = this.strCurrentTicker = entity.getTicker();
+            this.strOriginalTicker = this.strCurrentTicker
+                = entity.getTicker();
             this.nCurrentEntityId = entity.getEntityId();
 
             ApplicationSetting.getInstance().getStdoutwriter().writeln(
                 "Processing ticker: " + this.strCurrentTicker,
-                Logs.STATUS2, "DG39.1");
+                Logs.STATUS2, "DGE48");
 
             // Active only to debug individual tickers
             if (strStaticTickerLimit.isEmpty() != true) {
@@ -742,7 +740,7 @@ public class DataGrabExecutor extends Thread {
                 if (pf.preNoDataCheck(strCurDataSet) == true) {
                   ApplicationSetting.getInstance().getStdoutwriter()
                   .writeln("URL contains no data, skipping ticker",
-                      Logs.STATUS1, "DG40");
+                      Logs.STATUS1, "DGE49");
                   continue;
                 }
 
@@ -763,36 +761,38 @@ public class DataGrabExecutor extends Thread {
                 // processing functions to use this exception
                 ApplicationSetting.getInstance().getStdoutwriter()
                   .writeln("SkipLoadException thrown, skipping load",
-                      Logs.STATUS1, "DG40.5");
+                      Logs.STATUS1, "DGE50");
               }
               catch (MalformedURLException mue) {
                 ApplicationSetting.getInstance().getStdoutwriter()
                   .writeln("Badly formed url, skipping ticker",
-                    Logs.ERROR, "DG41");
-                ApplicationSetting.getInstance().getStdoutwriter().writeln(mue);
+                    Logs.ERROR, "DGE51");
+                ApplicationSetting.getInstance()
+                  .getStdoutwriter().writeln(mue);
               }
               catch (CustomEmptyStringException cese) {
                 // Value returned from source is empty. Only display a warning.
                  ApplicationSetting.getInstance().getStdoutwriter()
-                   .writeln(cese.getMessage(), Logs.WARN, "DG41.38");
+                   .writeln(cese.getMessage(), Logs.WARN, "DGE52");
               }
               catch (DataAccessException sqle) {
                 ApplicationSetting.getInstance().getStdoutwriter()
                 .writeln( "Problem issuing sql statement, skipping ticker",
-                    Logs.ERROR, "DG42");
+                    Logs.ERROR, "DGE53");
                 ApplicationSetting.getInstance().getStdoutwriter()
                   .writeln(sqle);
               }
               catch (IOException ioe) {
                 ApplicationSetting.getInstance().getStdoutwriter()
                   .writeln("Problem with I/O, skipping ticker",
-                      Logs.ERROR, "DG43");
-                ApplicationSetting.getInstance().getStdoutwriter().writeln(ioe);
+                      Logs.ERROR, "DGE54");
+                ApplicationSetting.getInstance()
+                  .getStdoutwriter().writeln(ioe);
               }
               catch (Exception ex) {
                 ApplicationSetting.getInstance().getStdoutwriter()
                   .writeln("Processing table for ticker " + strCurrentTicker
-                        + " failed, skipping", Logs.ERROR, "DG44");
+                        + " failed, skipping", Logs.ERROR, "DGE55");
                 ApplicationSetting.getInstance().getStdoutwriter().writeln(ex);
               }
             }
@@ -808,7 +808,7 @@ public class DataGrabExecutor extends Thread {
                 if (pf.preNoDataCheck(strCurDataSet) == true) {
                   ApplicationSetting.getInstance().getStdoutwriter()
                   .writeln("URL contains no data, skipping ticker",
-                      Logs.STATUS1, "DG46");
+                      Logs.STATUS1, "DGE56");
                   continue;
                 }
 
@@ -817,7 +817,7 @@ public class DataGrabExecutor extends Thread {
                 if (strDataValue.compareTo("") == 0) {
                   ApplicationSetting.getInstance().getStdoutwriter()
                   .writeln("Returned empty value '', skipping ",
-                      Logs.STATUS2, "DG47");
+                      Logs.STATUS2, "DGE57");
                   continue;
                 }
 
@@ -841,31 +841,33 @@ public class DataGrabExecutor extends Thread {
               catch (MalformedURLException mue) {
                 ApplicationSetting.getInstance().getStdoutwriter().writeln(
                     "Badly formed url, skipping ticker",
-                    Logs.ERROR, "DG48");
-                ApplicationSetting.getInstance().getStdoutwriter().writeln(mue);
+                    Logs.ERROR, "DGE58");
+                ApplicationSetting.getInstance()
+                  .getStdoutwriter().writeln(mue);
               }
               catch (CustomEmptyStringException cese) {
                 // Value returned from source is empty. Only display a warning.
                 ApplicationSetting.getInstance().getStdoutwriter().writeln(
-                    cese.getMessage(), Logs.WARN, "DG41.38");
+                    cese.getMessage(), Logs.WARN, "DGE59");
               }
               catch (DataAccessException sqle) {
                 ApplicationSetting.getInstance().getStdoutwriter()
                     .writeln("Problem issuing sql statement, skipping ticker",
-                        Logs.ERROR, "DG49");
+                        Logs.ERROR, "DGE60");
                 ApplicationSetting.getInstance().getStdoutwriter()
                 .writeln(sqle);
               }
               catch (IOException ioe) {
                 ApplicationSetting.getInstance().getStdoutwriter()
                   .writeln("Problem with I/O, skipping ticker",
-                      Logs.ERROR, "DG50");
-                ApplicationSetting.getInstance().getStdoutwriter().writeln(ioe);
+                      Logs.ERROR, "DGE61");
+                ApplicationSetting.getInstance()
+                  .getStdoutwriter().writeln(ioe);
               }
               catch (Exception ex) {
                 ApplicationSetting.getInstance().getStdoutwriter()
                   .writeln("Processing table for ticker " + strCurrentTicker
-                      + " failed, skipping",Logs.ERROR, "DG51");
+                      + " failed, skipping",Logs.ERROR, "DGE62");
                 ApplicationSetting.getInstance().getStdoutwriter().writeln(ex);
               }
             }
@@ -873,11 +875,11 @@ public class DataGrabExecutor extends Thread {
           catch (DataAccessException sqle) {
             ApplicationSetting.getInstance().getStdoutwriter()
               .writeln("problem with sql statement in grab_data_set",
-                Logs.ERROR, "DG52");
+                Logs.ERROR, "DGE63");
             ApplicationSetting.getInstance().getStdoutwriter()
               .writeln("Processing of data_set " + strCurDataSet
                     + " with ticker " + strCurrentTicker
-                    + " FAILED ", Logs.ERROR, "DG53");
+                    + " FAILED ", Logs.ERROR, "DGE64");
             ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
           }
 
@@ -890,16 +892,17 @@ public class DataGrabExecutor extends Thread {
       }
       pf.postJobProcessing(currentJob);
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("====> FINISHED JOB:" + strCurDataSet, Logs.STATUS1, "DG1.55");
+        .writeln("====> FINISHED JOB:" + strCurDataSet,
+            Logs.STATUS1, "DGE65");
     }
     catch (InvocationTargetException ite) {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Exception in grab_data_set: "
-            + ite.getTargetException().getMessage(),	Logs.ERROR, "DG56.83");
+            + ite.getTargetException().getMessage(),	Logs.ERROR, "DGE66");
     }
     catch (Exception e) {
       ApplicationSetting.getInstance().getStdoutwriter()
-        .writeln("Exception in grab_data_set", Logs.ERROR, "DG55");
+        .writeln("Exception in grab_data_set", Logs.ERROR, "DGE67");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(e);
     }
   }
@@ -1001,7 +1004,7 @@ public class DataGrabExecutor extends Thread {
             // lasttradedate tag without a lasttradetime tag.
             ApplicationSetting.getInstance().getStdoutwriter()
                 .writeln("Issue processing yahoo data. Lasttradedate tage " +
-                    "without lasttradetime tag.", Logs.ERROR, "DG60.1");
+                    "without lasttradetime tag.", Logs.ERROR, "DGE68");
             bResubmit = true;
             break;
           }
@@ -1043,16 +1046,16 @@ public class DataGrabExecutor extends Thread {
           if (Math.abs(cal2.getTimeInMillis() - cal.getTimeInMillis())
               > 3600000*2*24) {
             ApplicationSetting.getInstance().getStdoutwriter()
-              .writeln("Bad Yahoo Data, Resubmitting URL", Logs.STATUS1,
-                "DG55.10");
+              .writeln("Bad Yahoo Data, Resubmitting URL",
+                Logs.STATUS1, "DGE69");
             nBegin = (nBegin - 150 < 0 ? 0 : nBegin -150);
             nEnd = (nEnd + 150 > strTemp.length() ?
                 strTemp.length() : nEnd + 150);
             ApplicationSetting.getInstance().getStdoutwriter()
-              .writeln(strTemp.substring(nBegin,nEnd),Logs.STATUS1,"DG55.12");
+              .writeln(strTemp.substring(nBegin,nEnd),Logs.STATUS1,"DGE70");
             ApplicationSetting.getInstance().getStdoutwriter()
               .writeln("Date Collected:" + strDate + ",Time Collected:"
-                  + strTime, Logs.STATUS1, "DG55.11");
+                  + strTime, Logs.STATUS1, "DGE71");
             bResubmit = true;
             break;
           }
@@ -1061,10 +1064,10 @@ public class DataGrabExecutor extends Thread {
       if (strTemp.length() < 300) {
         bResubmit = true;
         ApplicationSetting.getInstance().getStdoutwriter()
-          .writeln("Bad Yahoo Data, Resubmitting URL", Logs.STATUS1,"DG55.30");
+          .writeln("Bad Yahoo Data, Resubmitting URL", Logs.STATUS1,"DGE72");
         ApplicationSetting.getInstance().getStdoutwriter()
           .writeln("Data length only " + strTemp.length(),
-              Logs.STATUS1, "DG55.66");
+              Logs.STATUS1, "DGE73");
       }
       if (bResubmit == true) {
         try {
