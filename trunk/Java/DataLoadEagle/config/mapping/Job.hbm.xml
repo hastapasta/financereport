@@ -31,7 +31,7 @@
 			 cascade="none" lazy="false" not-found="ignore" />
 		
 			<many-to-one name="extractKeySingle" 
-			class="com.pikefin.businessobjects.ExtractSingle" column="extract_single_id_fk" 
+			class="com.pikefin.businessobjects.ExtractSingle" column="extract_single_id" 
 			 cascade="none" lazy="false" not-found="ignore" />
 			
 		<many-to-one name="inputSource" 
