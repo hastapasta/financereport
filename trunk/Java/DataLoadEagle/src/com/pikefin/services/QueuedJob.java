@@ -10,103 +10,101 @@ import com.pikefin.businessobjects.Schedule;
 import com.pikefin.businessobjects.Task;
 
 public class QueuedJob implements Comparable<QueuedJob>{
-	  
-		 
-		 private Schedule schedule;
-		 private Task task;
-		 private RepeatType repeatType;
-		 private int priority;
-		 private Calendar queuedInTime;
-		 private boolean verifyMode;
-		 
-		 
-		 
-		public QueuedJob(Schedule schedule, Task task, RepeatType repeatType,
-				int priority, Calendar queuedInTime, boolean verifyMode) {
-			super();
-			this.schedule = schedule;
-			this.task = task;
-			this.repeatType = repeatType;
-			this.priority = priority;
-			this.queuedInTime = queuedInTime;
-			this.verifyMode = verifyMode;
-		}
+     private Schedule schedule;
+     private Task task;
+     private RepeatType repeatType;
+     private int priority;
+     private Calendar queuedInTime;
+     private boolean verifyMode;
 
 
 
-		public Schedule getSchedule() {
-			return schedule;
-		}
+    public QueuedJob(Schedule schedule, Task task, RepeatType repeatType,
+        int priority, Calendar queuedInTime, boolean verifyMode) {
+      super();
+      this.schedule = schedule;
+      this.task = task;
+      this.repeatType = repeatType;
+      this.priority = priority;
+      this.queuedInTime = queuedInTime;
+      this.verifyMode = verifyMode;
+    }
 
 
 
-		public Task getTask() {
-			return task;
-		}
+    public Schedule getSchedule() {
+      return schedule;
+    }
 
 
 
-		public RepeatType getRepeatType() {
-			return repeatType;
-		}
+    public Task getTask() {
+      return task;
+    }
 
 
 
-		public int getPriority() {
-			return priority;
-		}
+    public RepeatType getRepeatType() {
+      return repeatType;
+    }
 
 
 
-		public Calendar getQueuedInTime() {
-			return queuedInTime;
-		}
+    public int getPriority() {
+      return priority;
+    }
 
 
 
-		public boolean isVerifyMode() {
-			return verifyMode;
-		}
+    public Calendar getQueuedInTime() {
+      return queuedInTime;
+    }
 
 
-		/**
-		 * Sort in descending order. Higher priority tasks get executed first.
-	     * @author Amar_Deep_Singh
-	  	 */
-		@Override
-		public int compareTo(QueuedJob o) {
-			if(this.priority > o.priority)
-				return -1;
-			else if(o.priority > this.priority)
-				return 1;
-			else {
-				Calendar calFirst= Calendar.getInstance();
-				Calendar calSecond= Calendar.getInstance();
-				try {
-					Date d1 = PikefinUtil.formatter.parse(this.queuedInTime.getTime().toString());
-					Date d2 = PikefinUtil.formatter.parse(o.queuedInTime.getTime().toString());
-					calFirst.setTime(d1);
-					calSecond.setTime(d2);
-					if (calFirst.before(calSecond))
-						return -1;
-					else if (calSecond.before(calFirst))
-						return 1;
-					else
-						return 0;
-				}
-				catch (ParseException pe) {
-					return 0;
-				}
-				
-			    
-			}
-		
-		  
-			
-		}
-		  
-		 
-		  
-		  
+
+    public boolean isVerifyMode() {
+      return verifyMode;
+    }
+
+
+    /**
+     * Sort in descending order. Higher priority tasks get executed first.
+       * @author Amar_Deep_Singh
+       */
+    @Override
+    public int compareTo(QueuedJob o) {
+      if(this.priority > o.priority)
+        return -1;
+      else if(o.priority > this.priority)
+        return 1;
+      else {
+        Calendar calFirst= Calendar.getInstance();
+        Calendar calSecond= Calendar.getInstance();
+        try {
+          Date d1 = PikefinUtil.formatter.parse(this.queuedInTime.getTime().toString());
+          Date d2 = PikefinUtil.formatter.parse(o.queuedInTime.getTime().toString());
+          calFirst.setTime(d1);
+          calSecond.setTime(d2);
+          if (calFirst.before(calSecond))
+            return -1;
+          else if (calSecond.before(calFirst))
+            return 1;
+          else
+            return 0;
+        }
+        catch (ParseException pe) {
+          return 0;
+        }
+
+
+      }
+
+
+
+    }
+
+
+
+
 
 }

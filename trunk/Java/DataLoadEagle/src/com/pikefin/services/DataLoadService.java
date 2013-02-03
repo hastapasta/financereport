@@ -9,21 +9,21 @@ import twitter4j.internal.logging.Logger;
 
 @Service
 public class DataLoadService {
-	
-	private static Logger  logger=Logger.getLogger(DataLoadService.class);
-	public DataLoadService() {
-		
-		
-	}
 
-	public static void main(String args[]){
-		logger.info("******* Starting the Application *********");
-		ApplicationContext context=new ClassPathXmlApplicationContext("classpath:spring.xml");
-		BrokerExecutor brokerExecutor=context.getBean(BrokerExecutor.class);
-		brokerExecutor.start();
-		logger.info("******* Application services are created and BrokerExecutor thread is started *********");
-		
-	}
-	
-	
+  private static Logger  logger=Logger.getLogger(DataLoadService.class);
+  public DataLoadService() {
+
+
+  }
+
+  public static void main(String args[]){
+    logger.info("******* Starting the Application *********");
+    ApplicationContext context=new ClassPathXmlApplicationContext("classpath:spring.xml");
+    BrokerExecutor brokerExecutor=context.getBean(BrokerExecutor.class);
+    brokerExecutor.start();
+    logger.info("******* Application services are created and BrokerExecutor thread is started *********");
+
+  }
+
+
 }
