@@ -1,0 +1,99 @@
+<html>
+<head>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script>
+
+  /* Search dictionary exercise.
+  
+    Hash table creation will take O(N) time where N is the number of words,
+    since each object lookup should take O(1) time.
+    
+    With the current implementation, space utilization is 2N. This could be
+    improved by parsing the input in place rather than using split. 
+  
+   */
+  
+	/* 
+	 * Split the input string according to spaces and build a pseudo hash table
+	 * that contains word counts.
+	 */
+  function createDataStruct(inputDoc) {
+	  //TODO: Split on line breaks as well.
+    //TODO: Account for punctuation
+	  var words=inputDoc.split(" ");
+	  var dataStruct = {};
+	  var currentWord;
+
+	  for (var i in words) {
+		  if (dataStruct[words[i]]) {
+			  dataStruct[words[i]]++;
+		  }
+		  else {
+			  dataStruct[words[i]] = 1;
+		  }
+	  }
+	  
+	  return dataStruct;
+  }
+  
+  /* 
+   * Split the input string according to spaces and build a pseudo hash table
+   * that contains word counts and array of word positions.
+   */
+  function createDataStructWithPos(inputDoc) {
+	    //TODO: Split on line breaks as well.
+	    //TODO: Account for punctuation
+	    var words=inputDoc.split(" ");
+	    var dataStruct = {};
+	    var currentPos = 0;
+
+	    for (var i in words) {
+	      if (dataStruct[words[i]]) {
+	        dataStruct[words[i]].count++;
+	        dataStruct[words[i]].position.push(currentPos);
+	      }
+	      else {
+	        dataStruct[words[i]] = {}
+	        dataStruct[words[i]].count = 1;
+	        dataStruct[words[i]].position = [];
+	        dataStruct[words[i]].position.push(currentPos);
+	      }
+	      //Add the length including space separator.
+	      currentPos += words[i].length + 1;
+	    }
+	    
+	    return dataStruct;
+	  }
+  
+  function output(dataStruct) {
+	  for (var key in dataStruct) {
+		  $('<div>').html(key + ":" + dataStruct[key]).appendTo('#output');
+	  }
+  }
+  
+  function outputWithPos(dataStruct) {
+    for (var key in dataStruct) {
+      $('<div>').html(key + ":" + 
+    		  dataStruct[key].count + ":" + dataStruct[key].position.toString())
+    		  .appendTo('#output');
+    }
+	}
+
+	$(function() {
+		//var dataStruct = output(
+		//		createDataStruct("This This blap blap blap this word foo"));
+		
+		var input = "Imagine you're building a search engine.  Using javascript, " +
+		"build an application that, given an English language document as input, " + 
+		"builds a data structure capturing the count of each word in the document." 
+	  var dataStruct = outputWithPos(createDataStructWithPos(input));	
+    	   
+	});
+  
+</script>
+</head>
+<body>
+<div id="output">
+</div>
+</body>
+</html>  
