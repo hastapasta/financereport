@@ -79,7 +79,7 @@ public class TimeEventServiceImpl implements TimeEventService{
       ApplicationSetting.getInstance().getStdoutwriter()
       .writeln("**TimeEventserviceImpl.loadAllTimeEvents method start " +
           "loading all timeEvents",
-          Logs.STATUS1,"TESI22");
+          Logs.STATUS2,"TESI22");
       return timeEventDao.loadAllTimeEvents();
   }
 
