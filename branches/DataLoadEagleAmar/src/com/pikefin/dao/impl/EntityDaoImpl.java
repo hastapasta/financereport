@@ -192,9 +192,6 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 		try{
 			Session session=getOpenSession();
 			Query query=session.createQuery("select c from Entity c left join c.entityAliasList alias where alias.tickerAlias='"+ticker+"' ");
-		//	Criteria criteria=session.createCriteria(Entity.class);
-		//	criteria.add(Restrictions.eq("ticker", ticker));
-		//	entities=(List<Entity>)criteria.list();
 			entities=(List<Entity>)query.list();
 			
 		}catch (HibernateException e) {
@@ -212,7 +209,7 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 		try{
 			Session session=getOpenSession();
 			Criteria criteria=session.createCriteria(EntityAlias.class);
-			criteria.add(Restrictions.eq("tickerAlias", ticker));//.add(Restrictions.eq("isDefault", true));
+			criteria.add(Restrictions.eq("tickerAlias", ticker));
 			
 			alias=(EntityAlias)criteria.uniqueResult();
 			
@@ -233,8 +230,28 @@ public class EntityDaoImpl extends AbstractDao<Entity> implements EntityDao {
 		EntityAlias alias=null;
 		try{
 			String query="select alias from EntityAlias alias  left join alias.entity.countries country left join country.countryAliasList countryAlias where alias.tickerAlias='"+ticker+"'  and countryAlias.countryAlias='"+country+"' "; 
-			//String query="select alias from EntityAlias alias  left join alias.entity.countries country where alias.tickerAlias='"+ticker+"' and country.name='"+country+"'"; 
+			Session session=getOpenSession();
+			Query criteria=session.createQuery(query);
+			criteria.setMaxResults(1);
+			alias=(EntityAlias)criteria.uniqueResult();
+			}catch (HibernateException e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS,e.getMessage() , e.getCause());
+		}catch (Exception e) {
+				throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS,e.getMessage() , e.getCause());
+		}
+		if(alias==null){
+			throw new GenericException(ErrorCode.COULD_NOT_LOAD_ENTITY_ALIAS,"No Entity Alias found for the given ticker & Country Alias" , null);
+		}else{
+		return alias.getEntity();	
+		}
+	}
 
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED)
+	public Entity loadEntityByMacroTickerAndCountry(String ticker, String country) throws GenericException {
+		EntityAlias alias=null;
+		try{
+			String query="select entity from Entity entity  left join entity.countries country left join country.countryAliasList countryAlias where entity.ticker='"+ticker+"'  and countryAlias.countryAlias='"+country+"' "; 
 			Session session=getOpenSession();
 			Query criteria=session.createQuery(query);
 			criteria.setMaxResults(1);
