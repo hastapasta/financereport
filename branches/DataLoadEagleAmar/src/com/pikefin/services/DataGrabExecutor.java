@@ -456,15 +456,15 @@ public class DataGrabExecutor extends Thread {
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpResponse response;
 
-		if (currentJob.getInputSource() == null) {
+		if (currentJob.getInputSource() != null) {
 			// TODO Commenting the below code because it will trough 
 		  // the Null pointer exception since inputSource is already null and we 
 		  // can't get the getFormStaticProperties from null
-			// String strStProperties = currentJob.getInputSource()
-		  //  .getFormStaticProperties();
-			// String[] listItems = strStProperties.split(":");
-			// for (int i = 0; i < listItems.length; i++) {
-			// }
+			 String strStProperties = currentJob.getInputSource()
+		    .getFormStaticProperties();
+			 String[] listItems = strStProperties.split(":");
+			 for (int i = 0; i < listItems.length; i++) {
+			 }
 
 			// ApplicationSetting.getInstance().getStdoutwriter().writeln(
 			//		"Retrieving URL Form: " + currentJob.getInputSource().getUrlForm(),
@@ -591,9 +591,9 @@ public class DataGrabExecutor extends Thread {
 		returned_content = sb.toString();
 		
 		in.close();
-		if(log.isDebugEnabled()){
-			log.debug(returned_content);
-		}
+		/*if(log.isDebugEnabled()){
+			log.debug("\n\n#################################Loaded the content from URL--"+strStage2URL+"#####################################\n\n"+returned_content);
+		}*/
 		calJobProcessingStage2End = Calendar.getInstance();
 		httpclient.getConnectionManager().shutdown();
 		ApplicationSetting.getInstance().getStdoutwriter()
@@ -1110,6 +1110,14 @@ public class DataGrabExecutor extends Thread {
 
 	public boolean isVerifyMode() {
 		return verifyMode;
+	}
+
+	public String getStrStage1URL() {
+		return strStage1URL;
+	}
+
+	public void setStrStage1URL(String strStage1URL) {
+		this.strStage1URL = strStage1URL;
 	}
 
 }
