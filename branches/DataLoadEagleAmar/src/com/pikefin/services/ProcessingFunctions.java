@@ -1221,8 +1221,9 @@ public class ProcessingFunctions {
       strCountry = strCountry.replace("'", "\\'");
       Entity entity;
       try {
-        entity = entityService.loadEntityInfoByTickerAndCountry(
+        entity = entityService. loadEntityInfoForMacroTickerAndCountry(
             "macro", strCountry);
+        
         newrow[2] = String.valueOf(entity.getEntityId());
       }
       catch (GenericException sqle) {
@@ -1274,7 +1275,7 @@ public class ProcessingFunctions {
       }
       Entity entity = null;
       try {
-        entity = entityService.loadEntityInfoByTickerAndCountry("macro",
+        entity = entityService.loadEntityInfoForMacroTickerAndCountry("macro",
             strCountry);
         newrow[2] = String.valueOf(entity.getEntityId());
       }
@@ -1356,7 +1357,7 @@ public class ProcessingFunctions {
       Entity entity;
 
       try {
-        entity = entityService.loadEntityInfoByTickerAndCountry("macro",
+        entity = entityService.loadEntityInfoForMacroTickerAndCountry("macro",
             strCountry);
         newrow[2] = String.valueOf(entity.getEntityId());
       }
@@ -1463,7 +1464,7 @@ public class ProcessingFunctions {
 				strCountry = "South Korea";
 		try
 			{
-				Entity entity=entityService.loadEntityInfoByTickerAndCountry("macro", strCountry);
+				Entity entity=entityService.loadEntityInfoForMacroTickerAndCountry("macro", strCountry);
 				newrow[2] = String.valueOf(entity.getEntityId());
 			}
 			catch (GenericException sqle){
@@ -1506,7 +1507,70 @@ public class ProcessingFunctions {
 			}
 		  }
 		}
- 
+  public boolean preProcessImfGdp() {
+		Calendar cal = Calendar.getInstance();
+		int nMaxEndYear = 2016;
+		int nMinBeginYear = 2004;
+	    int nTempCurrent = 2011;
+		//dg.strStage1URL = dg.strStage1URL.replace("${dynamic8}", cal.get(Calendar.YEAR)+"");
+		dg.setStrStage1URL(dg.getStrStage1URL().replace("${dynamic8}", nTempCurrent +""));
+		dg.setStrStage1URL(dg.getStrStage1URL().replace("${dynamic6}", nMinBeginYear + ""));
+		dg.setStrStage1URL(dg.getStrStage1URL().replace("${dynamic7}", cal.get(Calendar.YEAR)+""));
+			//dg.strStage1URL = dg.strStage1URL.replace("${dynamic5}", cal.get(Calendar.YEAR)+"");
+		dg.setStrStage1URL(dg.getStrStage1URL().replace("${dynamic5}", nTempCurrent +""));
+		dg.setStrStage1URL(dg.getStrStage1URL().replace("${dynamic3}", cal.get(Calendar.YEAR)+""));
+		dg.setStrStage1URL(dg.getStrStage1URL().replace("${dynamic4}", nMaxEndYear + ""));
+		return true;
+	}
+
+  public void postProcessBloombergGovtBonds() {
+	    
+	    String[] tmpArray = {"value","date_collected","entity_id"};
+	    String[] rowheaders = propTableData.get(1);
+	    ArrayList<String[]> newTableData = new ArrayList<String[]>();
+	    
+	    String[] rowdata, newrow;
+	    
+	    for (int row=2;row<propTableData.size();row++) {
+	      rowdata = propTableData.get(row);
+	      
+	      newrow = new String[tmpArray.length];
+	      
+	      
+	      String strQuery = null;
+	      String strTicker = null;
+	      
+	      newrow[1] = "NOW()";
+	      newrow[0] = rowdata[0];
+	      if(newrow[0].contains("%")){
+	      newrow[0] = newrow[0].substring(0,newrow[0].indexOf("%")).trim();
+	      }
+
+	      newrow[0] = newrow[0].replace(",", "");
+	      // This dataset can involve extended ascii characters. 
+	      newrow[0] = newrow[0].replaceAll("[^\\p{ASCII}]", "");
+	      
+	      strTicker = rowheaders[row-2];
+   
+	        Entity entity;
+	        try {
+	          entity = entityService.loadEntityInfoByTicker(strTicker);
+	          newrow[2] = String.valueOf(entity.getEntityId());
+
+	        }
+	      
+	      catch (GenericException sqle) {
+	        ApplicationSetting.getInstance().getStdoutwriter().writeln("Problem looking up ticker: " + strTicker  + ",row skipped",Logs.WARN,"PF43.51");
+	        continue;
+	      }
+	      
+	      newTableData.add(newrow);
+	    }
+
+	    newTableData.add(0, tmpArray);
+	    propTableData = newTableData;
+	    
+	  }
 // TODO Convert me.
 /*
 public void postProcessBloombergCommoditiesV2() {
