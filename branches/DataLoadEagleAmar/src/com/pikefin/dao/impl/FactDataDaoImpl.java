@@ -107,7 +107,7 @@ public class FactDataDaoImpl extends AbstractDao<FactData> implements FactDataDa
 	@Transactional(propagation=Propagation.REQUIRED)
 	public Boolean deleteFactDataInfoById(Integer groupId) throws GenericException {
 		FactData factDataEntity=null;
-		boolean result;
+		 boolean result;
 		try{
 			Session session=getOpenSession();
 			factDataEntity=loadFactDataInfo(groupId);
