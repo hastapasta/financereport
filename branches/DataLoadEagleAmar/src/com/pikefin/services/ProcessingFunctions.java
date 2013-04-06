@@ -1221,7 +1221,7 @@ public class ProcessingFunctions {
       strCountry = strCountry.replace("'", "\\'");
       Entity entity;
       try {
-        entity = entityService. loadEntityInfoForMacroTickerAndCountry(
+        entity = entityService. loadEntityInfoByTickerAndCountry(
             "macro", strCountry);
         
         newrow[2] = String.valueOf(entity.getEntityId());
@@ -1275,7 +1275,7 @@ public class ProcessingFunctions {
       }
       Entity entity = null;
       try {
-        entity = entityService.loadEntityInfoForMacroTickerAndCountry("macro",
+        entity = entityService.loadEntityInfoByTickerAndCountry("macro",
             strCountry);
         newrow[2] = String.valueOf(entity.getEntityId());
       }
@@ -1357,7 +1357,7 @@ public class ProcessingFunctions {
       Entity entity;
 
       try {
-        entity = entityService.loadEntityInfoForMacroTickerAndCountry("macro",
+        entity = entityService.loadEntityInfoByTickerAndCountry("macro",
             strCountry);
         newrow[2] = String.valueOf(entity.getEntityId());
       }
@@ -1464,7 +1464,7 @@ public class ProcessingFunctions {
 				strCountry = "South Korea";
 		try
 			{
-				Entity entity=entityService.loadEntityInfoForMacroTickerAndCountry("macro", strCountry);
+				Entity entity=entityService.loadEntityInfoByTickerAndCountry("macro", strCountry);
 				newrow[2] = String.valueOf(entity.getEntityId());
 			}
 			catch (GenericException sqle){

@@ -63,16 +63,7 @@ public class EntityServiceImpl implements EntityService{
 		throw new GenericException(ErrorCode.COULD_NOT_FIND_ENTITY_FOR_GIVEN_TICKER,"",null);
 			}
 
-	@Override
-	public Entity loadEntityInfoForMacroTickerAndCountry(String ticker,
-			String country) throws GenericException {
-	Entity entitiy=entityDao.loadEntityByMacroTickerAndCountry(ticker, country);
-		
-		if(entitiy!=null)
-			return entitiy;
-		else
-		throw new GenericException(ErrorCode.COULD_NOT_FIND_ENTITY_FOR_GIVEN_TICKER,"",null);
-			}
+	
 
 
 }

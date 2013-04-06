@@ -10,6 +10,5 @@ public interface EntityService {
 	public Entity loadEntityInfo(Integer entityId) throws GenericException;
 	public Entity loadEntityInfoByTicker(String ticker) throws GenericException;
 	public Entity loadEntityInfoByTickerAndCountry(String ticker, String country) throws GenericException;
-	public Entity loadEntityInfoForMacroTickerAndCountry(String ticker, String country) throws GenericException;
 
 }
