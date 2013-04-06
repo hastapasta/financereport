@@ -1,10 +1,10 @@
 package com.pikefin.services;
 
+import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Service;
 
-import twitter4j.internal.logging.Logger;
 
 
 @Service
@@ -16,6 +16,9 @@ public class DataLoadService {
 		
 	}
 
+	/**
+	 * @param args
+	 */
 	public static void main(String args[]){
 		logger.info("******* Starting the Application *********");
 		ApplicationContext context=new ClassPathXmlApplicationContext("classpath:spring.xml");
