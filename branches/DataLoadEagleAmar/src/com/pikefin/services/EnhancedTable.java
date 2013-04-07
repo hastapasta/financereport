@@ -63,6 +63,10 @@ public class EnhancedTable {
 		Integer nFixedDataRows = currentExtractTable.getRowsOfData()!=null?currentExtractTable.getRowsOfData():0;
 		Integer nRowInterval = currentExtractTable.getRowInterval();
 		strEndDataMarker = currentExtractTable.getEndDataMarker();
+		int endDataMarkerLength=0;
+		if(strEndDataMarker!=null && strEndDataMarker.trim().length()>0){
+			endDataMarkerLength=strEndDataMarker.trim().length();
+		}
 		this.bColTHTags = true;
 		if (!Boolean.valueOf(true).equals(currentExtractTable.getColumnThTags()))
 			this.bColTHTags = false;
@@ -152,6 +156,9 @@ public class EnhancedTable {
 					// we're past the end table tag - done collecting table.
 					if (nEndTableOffset < nCurOffset)
 						break;
+					if (nEndTableOffset <= nEndRowOffset+endDataMarkerLength)
+						break;
+				
 				}
 		
 			}
@@ -225,7 +232,7 @@ public class EnhancedTable {
 				} catch (CustomRegexException cre) {
 					ApplicationSetting.getInstance().getStdoutwriter()
 							.writeln(
-									"Empty cell in table in url stream. Voiding cell.",
+									"Empty cell in table in url stream. Voiding ce	1l.",
 									Logs.STATUS2, "DG30");
 					rowdata[i] = "pikefinvoid";
 				} catch (IllegalStateException ise) {

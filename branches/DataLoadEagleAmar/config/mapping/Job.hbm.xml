@@ -31,11 +31,11 @@
 			 cascade="none" lazy="false" not-found="ignore" />
 		
 			<many-to-one name="extractKeySingle" 
-			class="com.pikefin.businessobjects.ExtractSingle" column="extract_single_id_fk" 
+			class="com.pikefin.businessobjects.ExtractSingle" column="extract_single_id" 
 			 cascade="none" lazy="false" not-found="ignore" />
 			
 		<many-to-one name="inputSource" 
-			class="com.pikefin.businessobjects.InputSource" column="input_source" 
+			class="com.pikefin.businessobjects.InputSource" column="input_source_id" 
 			not-null="true" cascade="save-update" />
      
         <property name="source" type="string">
