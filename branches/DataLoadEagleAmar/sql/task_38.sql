@@ -147,9 +147,7 @@ insert into entity_aliases(entity_id,ticker_alias,is_default) values(1900,'GDBR3
 insert into entity_aliases(entity_id,ticker_alias,is_default) values(1903,'GEBR2Y',false) ;
 
 insert into entity_aliases(entity_id,ticker_alias,is_default) values(1904,'GEBR1Y',false) ;
-
 insert into entity_aliases(entity_id,ticker_alias,is_default) values(1905,'GEBR3Y',false) ;
-
 insert into entity_aliases(entity_id,ticker_alias,is_default) values(1906,'GEBR4Y',false) ;
 
 insert into entity_aliases(entity_id,ticker_alias,is_default) values(1907,'GEBR5Y',false) ;

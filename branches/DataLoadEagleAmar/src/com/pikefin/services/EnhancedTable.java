@@ -134,9 +134,12 @@ public class EnhancedTable {
 						throw new PrematureEndOfDataException();
 					}
 		
+					
+					// we're past the end table tag - done collecting table.
 					if (nEndTableOffset < nCurOffset)
-						throw new PrematureEndOfDataException();
-		
+						break;
+					if (nEndTableOffset <= nEndRowOffset+endDataMarkerLength)
+						break;
 				}
 				/*
 				 * else part is for data sets of an indeterminate size.

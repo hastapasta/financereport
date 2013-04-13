@@ -5,6 +5,7 @@ import java.util.Calendar;
 import pikefin.log4jWrapper.Logs;
 
 import com.pikefin.ApplicationSetting;
+import com.pikefin.ErrorCode;
 import com.pikefin.businessobjects.Entity;
 import com.pikefin.exceptions.GenericException;
 import com.pikefin.services.inter.EntityService;
@@ -46,8 +47,13 @@ public class MoneyTime {
 	}
 	
 	public static int convertMonthStringtoInt(String strMonth) {
+		if(strMonth==null)
+		{
+			ApplicationSetting.getInstance().getStdoutwriter().writeln("Unable " +
+					"to match month string.", Logs.ERROR,"MT2");
+			return(0);
+		}
 		strMonth = strMonth.toUpperCase();
-		
 		if (strMonth.substring(0,3).equals("JAN")) return(1);
 		else if (strMonth.substring(0,3).equals("FEB")) return(2);
 		else if (strMonth.substring(0,3).equals("MAR")) return(3);
@@ -168,8 +174,12 @@ public class MoneyTime {
 		int calquarter=0;
 		int calyear=fiscalyear;
 		Entity e = entityServiceStatic.loadEntityInfoByTicker(strTicker) ;
-		int nBeginFiscalYear = convertMonthStringtoInt(e.getBeginFiscalCalendar());
-		
+		int nBeginFiscalYear;
+		try{
+			nBeginFiscalYear = convertMonthStringtoInt(e.getBeginFiscalCalendar());
+		}catch(Exception exception){
+			throw new GenericException(ErrorCode.COULD_NOT_FOUND_FISCAL_CAL_YEAR,"Error in loading the begin fiscal year from convertMonthStringtoInt:"+exception.getMessage(),exception.getCause());
+		}
 		if (nBeginFiscalYear==12 || nBeginFiscalYear==1 || nBeginFiscalYear==2)
 		{
 			if (nBeginFiscalYear==2)
@@ -207,6 +217,7 @@ public class MoneyTime {
 	public static String getFiscalYearAndQuarter(String strTicker, int curmonth, int curyear) throws GenericException {
 			Integer nBeginFiscalYear=0;
 			Entity e = entityServiceStatic.loadEntityInfoByTicker(strTicker) ;
+			
 			String strBeginFiscalYear = e.getBeginFiscalCalendar();
 			Calendar cal = Calendar.getInstance(); 
 			if (curmonth == -1)

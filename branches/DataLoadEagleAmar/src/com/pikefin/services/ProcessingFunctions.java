@@ -1056,6 +1056,7 @@ public class ProcessingFunctions {
       strTicker = dg.strOriginalTicker;
       String[] rowheaders = propTableData.get(1);
       for (int x=4;x<propTableData.size();x++) {
+    	  
         rowdata = propTableData.get(x);
         newrow = new String[tmpArray.length];
         newrow[0] = String.valueOf(dg.nCurrentEntityId);
@@ -1064,6 +1065,7 @@ public class ProcessingFunctions {
         String rowHeader=rowheaders[x-2];
         //TODO Commented to fix the number format exception
         //String rowHeader=rowheaders[2];
+        try{
         MoneyTime mt = new MoneyTime(rowHeader.substring(0,3),
             rowHeader.replace("&nbsp;","").substring(5,7),strTicker);
         newrow[3] = mt.strFiscalYear;
@@ -1073,11 +1075,19 @@ public class ProcessingFunctions {
           newrow[6] = String.valueOf(mt.nCalQtr);
         }
         newTableData.add(newrow);
+        }catch(GenericException exception){
+        	 ApplicationSetting.getInstance().getStdoutwriter()
+             .writeln("Problem in adding row.Reason-"+exception.getErrorMessage()+
+            		 " "+exception.getErrorDescription()+ 
+                  ",row skipped",Logs.WARN,"PF:1081");
+           ApplicationSetting.getInstance().getStdoutwriter().writeln(exception);	
+        
       }
+    	  }
       newTableData.add(0, tmpArray);
       propTableData = newTableData;
     }
-    catch (GenericException sqle) {
+    catch (Exception sqle) {
       ApplicationSetting.getInstance().getStdoutwriter()
         .writeln("Problem processing table data",Logs.ERROR,"PF43");
       ApplicationSetting.getInstance().getStdoutwriter().writeln(sqle);
